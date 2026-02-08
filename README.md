@@ -1,43 +1,70 @@
-# Astro Starter Kit: Minimal
+# Reshrimp
 
-```sh
-bun create astro@latest -- --template minimal
+A client-side image manipulation tool built with Astro and TypeScript. Resize, compress, convert formats, and more - all in your browser without uploading to any server.
+
+## 🚀 Live Demo
+
+Visit: https://abijith-suresh.github.io/reshrimp
+
+## ✨ Features
+
+- **Client-side processing** - Your images never leave your device
+- **Image resizing** - Adjust dimensions with various options
+- **Format conversion** - Convert between JPEG, PNG, WebP, and more
+- **Compression** - Optimize file sizes while maintaining quality
+- **Batch processing** - Process multiple images at once
+- **Privacy first** - No server uploads, everything happens locally
+
+## 🛠️ Tech Stack
+
+- [Astro](https://astro.build) - Static site generator
+- [TypeScript](https://www.typescriptlang.org/) - Type safety
+- [Tailwind CSS v4](https://tailwindcss.com) - Styling
+- [Vitest](https://vitest.dev/) - Testing framework
+
+## 📦 Project Structure
+
 ```
-
-> 🧑‍🚀 **Seasoned astronaut?** Delete this file. Have fun!
-
-## 🚀 Project Structure
-
-Inside of your Astro project, you'll see the following folders and files:
-
-```text
 /
-├── public/
+├── .github/
+│   ├── workflows/      # CI/CD workflows
+│   └── dependabot.yml  # Dependency automation
+├── .husky/             # Git hooks
+├── .vscode/            # VS Code settings
+├── public/             # Static assets
 ├── src/
-│   └── pages/
-│       └── index.astro
+│   ├── layouts/        # Astro layouts
+│   ├── pages/          # Astro pages
+│   ├── styles/         # Global styles
+│   └── test/           # Test files
+├── astro.config.mjs    # Astro configuration
+├── eslint.config.mjs   # ESLint configuration
+├── vitest.config.ts    # Vitest configuration
 └── package.json
 ```
 
-Astro looks for `.astro` or `.md` files in the `src/pages/` directory. Each page is exposed as a route based on its file name.
+## 🧞 Development Commands
 
-There's nothing special about `src/components/`, but that's where we like to put any Astro/React/Vue/Svelte/Preact components.
+All commands are run from the root of the project:
 
-Any static assets, like images, can be placed in the `public/` directory.
+| Command                | Action                                           |
+| :--------------------- | :----------------------------------------------- |
+| `bun install`          | Install dependencies                             |
+| `bun dev`              | Start dev server at `localhost:4321`             |
+| `bun run build`        | Build for production                             |
+| `bun preview`          | Preview production build locally                 |
+| `bun run lint`         | Run ESLint                                       |
+| `bun run lint:fix`     | Fix ESLint issues                                |
+| `bun run format`       | Format code with Prettier                        |
+| `bun run format:check` | Check code formatting                            |
+| `bun run test`         | Run tests once                                   |
+| `bun run test:watch`   | Run tests in watch mode                          |
+| `bun run analyze`      | Analyze bundle size                              |
 
-## 🧞 Commands
+## 🤝 Contributing
 
-All commands are run from the root of the project, from a terminal:
+Please read [AGENTS.md](./AGENTS.md) for development workflow, commit conventions, and contribution guidelines.
 
-| Command                   | Action                                           |
-| :------------------------ | :----------------------------------------------- |
-| `bun install`             | Installs dependencies                            |
-| `bun dev`             | Starts local dev server at `localhost:4321`      |
-| `bun build`           | Build your production site to `./dist/`          |
-| `bun preview`         | Preview your build locally, before deploying     |
-| `bun astro ...`       | Run CLI commands like `astro add`, `astro check` |
-| `bun astro -- --help` | Get help using the Astro CLI                     |
+## 📄 License
 
-## 👀 Want to learn more?
-
-Feel free to check [our documentation](https://docs.astro.build) or jump into our [Discord server](https://astro.build/chat).
+MIT
