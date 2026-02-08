@@ -47,19 +47,19 @@ Visit: https://abijith-suresh.github.io/reshrimp
 
 All commands are run from the root of the project:
 
-| Command                | Action                                           |
-| :--------------------- | :----------------------------------------------- |
-| `bun install`          | Install dependencies                             |
-| `bun dev`              | Start dev server at `localhost:4321`             |
-| `bun run build`        | Build for production                             |
-| `bun preview`          | Preview production build locally                 |
-| `bun run lint`         | Run ESLint                                       |
-| `bun run lint:fix`     | Fix ESLint issues                                |
-| `bun run format`       | Format code with Prettier                        |
-| `bun run format:check` | Check code formatting                            |
-| `bun run test`         | Run tests once                                   |
-| `bun run test:watch`   | Run tests in watch mode                          |
-| `bun run analyze`      | Analyze bundle size                              |
+| Command                | Action                               |
+| :--------------------- | :----------------------------------- |
+| `bun install`          | Install dependencies                 |
+| `bun dev`              | Start dev server at `localhost:4321` |
+| `bun run build`        | Build for production                 |
+| `bun preview`          | Preview production build locally     |
+| `bun run lint`         | Run ESLint                           |
+| `bun run lint:fix`     | Fix ESLint issues                    |
+| `bun run format`       | Format code with Prettier            |
+| `bun run format:check` | Check code formatting                |
+| `bun run test`         | Run tests once                       |
+| `bun run test:watch`   | Run tests in watch mode              |
+| `bun run analyze`      | Analyze bundle size                  |
 
 ## 🤝 Contributing
 
