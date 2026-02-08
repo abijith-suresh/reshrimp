@@ -3,6 +3,7 @@ import tseslint from 'typescript-eslint';
 import astro from 'eslint-plugin-astro';
 import prettier from 'eslint-config-prettier';
 import jsxA11y from 'eslint-plugin-jsx-a11y';
+import globals from 'globals';
 
 export default [
   js.configs.recommended,
@@ -14,6 +15,14 @@ export default [
     files: ['**/*.astro'],
     languageOptions: {
       parser: astro.parser,
+    },
+  },
+  {
+    files: ['**/*.mjs', '**/*.js'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
     },
   },
   {
