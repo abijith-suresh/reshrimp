@@ -31,13 +31,13 @@ bun preview
 
 All branches should follow the `type/description` format:
 
-| Prefix | Purpose | Example |
-|--------|---------|---------|
-| `feat/` | New features | `feat/add-search-modal` |
-| `fix/` | Bug fixes | `fix/header-alignment` |
-| `docs/` | Documentation changes | `docs/update-readme` |
-| `refactor/` | Code refactoring | `refactor/simplify-utils` |
-| `chore/` | Maintenance tasks | `chore/update-deps` |
+| Prefix      | Purpose               | Example                   |
+| ----------- | --------------------- | ------------------------- |
+| `feat/`     | New features          | `feat/add-search-modal`   |
+| `fix/`      | Bug fixes             | `fix/header-alignment`    |
+| `docs/`     | Documentation changes | `docs/update-readme`      |
+| `refactor/` | Code refactoring      | `refactor/simplify-utils` |
+| `chore/`    | Maintenance tasks     | `chore/update-deps`       |
 
 **Examples:**
 
@@ -55,14 +55,14 @@ type(scope): subject
 
 **Types:**
 
-| Type | Description | Example |
-|------|-------------|---------|
-| `feat` | New feature | `feat: add dark mode toggle` |
-| `fix` | Bug fix | `fix: resolve mobile navigation bug` |
-| `docs` | Documentation | `docs: update README with setup instructions` |
-| `refactor` | Code refactoring | `refactor: simplify search component logic` |
-| `chore` | Maintenance | `chore: update dependencies` |
-| `test` | Adding tests | `test: add unit tests for utils` |
+| Type       | Description      | Example                                       |
+| ---------- | ---------------- | --------------------------------------------- |
+| `feat`     | New feature      | `feat: add dark mode toggle`                  |
+| `fix`      | Bug fix          | `fix: resolve mobile navigation bug`          |
+| `docs`     | Documentation    | `docs: update README with setup instructions` |
+| `refactor` | Code refactoring | `refactor: simplify search component logic`   |
+| `chore`    | Maintenance      | `chore: update dependencies`                  |
+| `test`     | Adding tests     | `test: add unit tests for utils`              |
 
 **Guidelines:**
 
