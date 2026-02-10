@@ -1,5 +1,9 @@
 ---
 // Hero section for landing page
+import { ROUTES } from '../../config/constants';
+
+const baseUrl = import.meta.env.BASE_URL;
+const appUrl = `${baseUrl}${ROUTES.APP}`.replace(/\/+/g, '/');
 ---
 
 <section class="text-center mb-16">
@@ -8,7 +12,7 @@
     Process your images directly in your browser. No uploads. No tracking. No limits.
   </p>
   <a
-    href="/app"
+    href={appUrl}
     class="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold text-lg px-8 py-4 rounded-lg transition-colors shadow-lg hover:shadow-xl"
   >
     Start Processing Images →

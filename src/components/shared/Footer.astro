@@ -1,5 +1,6 @@
 ---
 // Shared footer component
+import { GITHUB_URL, SITE_NAME } from '../../config/constants';
 ---
 
 <footer class="mt-12 pt-8 border-t border-gray-200">
@@ -7,7 +8,7 @@
     <p>Powered by the Canvas API • Open source • No data collection</p>
     <p>
       <a
-        href="https://github.com/abijithanikkuruthi/reshrimp"
+        href={GITHUB_URL}
         target="_blank"
         rel="noopener noreferrer"
         class="text-blue-600 hover:text-blue-700"
@@ -15,7 +16,7 @@
         View on GitHub
       </a>
       •
-      <span>© {new Date().getFullYear()} Reshrimp</span>
+      <span>© {new Date().getFullYear()} {SITE_NAME}</span>
     </p>
   </div>
 </footer>
