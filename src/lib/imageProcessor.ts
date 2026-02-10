@@ -48,6 +48,8 @@ export class ImageProcessorController {
       const file = target.files?.[0];
       if (file) {
         this.handleFileUpload(file);
+        // Reset file input to allow re-selection of same file
+        target.value = '';
       }
     });
   }
@@ -83,7 +85,8 @@ export class ImageProcessorController {
    */
   private setupProcessButton(): void {
     const processButton = document.getElementById('process-button');
-    processButton?.addEventListener('click', () => {
+    processButton?.addEventListener('click', (e) => {
+      e.preventDefault();
       this.processCurrentImage();
     });
   }
