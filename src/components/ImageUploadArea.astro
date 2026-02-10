@@ -1,0 +1,45 @@
+---
+// Image upload area with drag-and-drop support
+---
+
+<div
+  id="upload-area"
+  class="border-2 border-dashed border-gray-300 rounded-lg p-12 text-center hover:border-blue-500 transition-colors cursor-pointer"
+>
+  <input
+    type="file"
+    id="file-input"
+    accept="image/jpeg,image/png,image/webp,image/gif"
+    class="hidden"
+  />
+  <div class="space-y-4">
+    <svg
+      class="mx-auto h-16 w-16 text-gray-400"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+      ></path>
+    </svg>
+    <div>
+      <div>
+        <button
+          type="button"
+          class="cursor-pointer bg-transparent border-0 p-0"
+          onclick="document.getElementById('file-input').click()"
+        >
+          <span class="text-blue-600 hover:text-blue-700 font-medium">Click to upload</span>
+          <span class="text-gray-600"> or drag and drop</span>
+        </button>
+      </div>
+      <p class="text-sm text-gray-500 mt-1">JPEG, PNG, WebP, or GIF (max 50MB)</p>
+    </div>
+  </div>
+  <div id="file-info" class="mt-4 text-sm text-gray-600 hidden"></div>
+  <div id="validation-message" class="mt-2 text-sm hidden"></div>
+</div>

@@ -1,0 +1,98 @@
+---
+// Processing controls for resize, format, and quality settings
+---
+
+<div id="processing-controls" class="space-y-6 p-6 bg-gray-50 rounded-lg hidden">
+  <h3 class="text-lg font-semibold text-gray-900">Processing Options</h3>
+
+  <!-- Resize Controls -->
+  <div class="space-y-3">
+    <h4 class="text-sm font-medium text-gray-700">Resize</h4>
+    <div class="grid grid-cols-2 gap-4">
+      <div>
+        <label class="block">
+          <span class="text-sm text-gray-600 mb-1 block">Width (px)</span>
+          <input
+            type="number"
+            id="width-input"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            min="1"
+            max="10000"
+            placeholder="Original"
+          />
+        </label>
+      </div>
+      <div>
+        <label class="block">
+          <span class="text-sm text-gray-600 mb-1 block">Height (px)</span>
+          <input
+            type="number"
+            id="height-input"
+            class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            min="1"
+            max="10000"
+            placeholder="Original"
+          />
+        </label>
+      </div>
+    </div>
+    <label class="flex items-center cursor-pointer">
+      <input
+        type="checkbox"
+        id="maintain-aspect-ratio"
+        checked
+        class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+      />
+      <span class="ml-2 text-sm text-gray-600">Maintain aspect ratio</span>
+    </label>
+  </div>
+
+  <!-- Format Selection -->
+  <div class="space-y-3">
+    <h4 class="text-sm font-medium text-gray-700">Output Format</h4>
+    <select
+      id="format-select"
+      class="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+    >
+      <option value="">Keep original</option>
+      <option value="image/jpeg">JPEG</option>
+      <option value="image/png">PNG</option>
+      <option value="image/webp">WebP</option>
+    </select>
+  </div>
+
+  <!-- Quality Control -->
+  <div class="space-y-3">
+    <div class="flex justify-between items-center">
+      <h4 class="text-sm font-medium text-gray-700">Quality</h4>
+      <span id="quality-value" class="text-sm text-gray-600">92%</span>
+    </div>
+    <input
+      type="range"
+      id="quality-slider"
+      min="0"
+      max="100"
+      value="92"
+      class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-blue-600"
+    />
+    <div class="flex justify-between text-xs text-gray-500">
+      <span>Low (smaller file)</span>
+      <span>High (better quality)</span>
+    </div>
+  </div>
+
+  <!-- Process Button -->
+  <button
+    id="process-button"
+    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 px-4 rounded-md transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+  >
+    Process Image
+  </button>
+
+  <div id="processing-status" class="text-sm text-center hidden">
+    <div class="flex items-center justify-center space-x-2">
+      <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600"></div>
+      <span class="text-gray-600">Processing...</span>
+    </div>
+  </div>
+</div>
