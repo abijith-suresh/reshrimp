@@ -7,10 +7,17 @@ This document outlines project conventions and workflows for AI agents and contr
 This is an Astro project with TypeScript support.
 
 - `src/` - Source code directory
+  - `components/` - UI components (organized by feature: marketing/, app/)
+  - `services/` - Business logic services
+  - `lib/` - Utility libraries
+  - `utils/` - Helper functions
+  - `types/` - TypeScript type definitions
+  - `config/` - Application constants
+  - `test/` - Test files and setup
 - `public/` - Static assets
 - `package.json` - Project dependencies and scripts
 - `astro.config.mjs` - Astro configuration
-- `tsconfig.json` - TypeScript configuration
+- `tsconfig.json` - TypeScript configuration (strict mode)
 
 ## Development Commands
 
@@ -23,6 +30,30 @@ bun run build
 
 # Preview production build
 bun preview
+
+# Run all tests
+bun run test
+
+# Run single test file
+bun run test -- src/services/imageService.test.ts
+
+# Run tests in watch mode
+bun run test:watch
+
+# Run tests with UI
+bun run test:ui
+
+# Lint code
+bun run lint
+
+# Lint and fix issues
+bun run lint:fix
+
+# Format code
+bun run format
+
+# Check formatting
+bun run format:check
 ```
 
 ## Git Workflow
@@ -39,12 +70,6 @@ All branches should follow the `type/description` format:
 | `refactor/` | Code refactoring      | `refactor/simplify-utils` |
 | `chore/`    | Maintenance tasks     | `chore/update-deps`       |
 
-**Examples:**
-
-- `feat/add-dark-mode`
-- `fix/mobile-navigation-bug`
-- `docs/api-documentation`
-
 ### Commit Message Format
 
 Use Conventional Commits format:
@@ -53,78 +78,81 @@ Use Conventional Commits format:
 type(scope): subject
 ```
 
-**Types:**
-
-| Type       | Description      | Example                                       |
-| ---------- | ---------------- | --------------------------------------------- |
-| `feat`     | New feature      | `feat: add dark mode toggle`                  |
-| `fix`      | Bug fix          | `fix: resolve mobile navigation bug`          |
-| `docs`     | Documentation    | `docs: update README with setup instructions` |
-| `refactor` | Code refactoring | `refactor: simplify search component logic`   |
-| `chore`    | Maintenance      | `chore: update dependencies`                  |
-| `test`     | Adding tests     | `test: add unit tests for utils`              |
+**Types:** feat, fix, docs, refactor, chore, test
 
 **Guidelines:**
 
 - Use present tense ("add" not "added")
 - Keep subject under 50 characters
-- Reference issue numbers when applicable: `fix: resolve header bug (#42)`
+- Reference issue numbers: `fix: resolve header bug (#42)`
 
 ### Pull Request Workflow
 
-**1. Create branch from main:**
-
-```bash
-git checkout main
-git pull origin main
-git checkout -b feat/your-feature-name
-```
-
-**2. Make atomic commits:**
-
-- Each commit should represent a single logical change
-- Write clear, descriptive commit messages
-
-**3. Push branch to origin:**
-
-```bash
-git push -u origin feat/your-feature-name
-```
-
-**4. Create PR using gh CLI:**
-
-```bash
-gh pr create --title "feat: add new feature" --body "Description of changes"
-```
-
-**5. Wait for CI checks to pass:**
-
-- PRs require all CI checks (lint, format, build) to pass
-- Review and address any failures
-
-**6. Merge using squash merge:**
-
-- Squash all commits into a single clean commit
-- Ensures linear history on main branch
-
-**7. Delete branch after merge:**
-
-```bash
-git branch -d feat/your-feature-name
-git push origin --delete feat/your-feature-name
-```
+1. Create branch from main: `git checkout -b feat/your-feature-name`
+2. Make atomic commits with clear messages
+3. Push branch: `git push -u origin feat/your-feature-name`
+4. Create PR: `gh pr create --title "feat: add feature" --body "Description"`
+5. Wait for CI checks (lint, format, build) to pass
+6. Merge using squash merge
+7. Delete branch after merge
 
 ## Code Style
 
-- Follow existing code patterns and conventions
-- Use TypeScript strictly
-- Keep components small and focused
-- Use Astro's built-in features where possible
+### TypeScript
+
+- Use strict TypeScript with explicit types
+- Use `type` keyword for type imports: `import type { Foo } from './types'`
+- Define interfaces in dedicated files under `src/types/`
+- Use PascalCase for types/interfaces, camelCase for variables/functions
+- Export explicit return types on public functions
+
+### Formatting (Prettier)
+
+- Semi-colons: enabled
+- Single quotes: enabled
+- Tab width: 2 spaces
+- Trailing commas: ES5 compatible
+- Print width: 100 characters
+
+### Imports
+
+- Group imports: external libs first, then internal modules
+- Use path aliases when configured
+- Avoid default exports, prefer named exports
+- Use `type` imports for type-only dependencies
+
+### Naming Conventions
+
+- Components: PascalCase (e.g., `ImageUpload.astro`)
+- Functions: camelCase (e.g., `processImage()`)
+- Constants: UPPER_SNAKE_CASE for true constants
+- Files: camelCase for TS/JS, PascalCase for components
+
+### Error Handling
+
+- Use async/await with try/catch for async operations
+- Return validation results as objects with `valid` and `error` fields
+- Avoid throwing errors for expected failure cases
+- Use descriptive error messages
+
+### Documentation
+
+- Add JSDoc comments for exported functions explaining purpose and params
+- Keep inline comments minimal - prefer self-documenting code
+- Document complex algorithms or business logic
+
+### Testing
+
+- Co-locate tests next to source files: `file.ts` → `file.test.ts`
+- Use Vitest with jsdom environment
+- Import from `vitest` for test utilities
+- Test behavior, not implementation details
 
 ## AI Agent Guidelines
 
-- Always check the git status before making changes
-- Follow the branch naming and commit conventions above
+- Always check git status before making changes
+- Follow branch naming and commit conventions
 - Never commit directly to `main` - always use PR workflow
 - Keep responses concise and to the point
 - Avoid unnecessary explanations in code comments
+- Run `bun run lint && bun run format:check` before committing
