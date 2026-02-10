@@ -1,12 +1,73 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import ImageUploadArea from '../components/ImageUploadArea.astro';
+import ProcessingControls from '../components/ProcessingControls.astro';
+import ImagePreview from '../components/ImagePreview.astro';
+import DownloadButton from '../components/DownloadButton.astro';
 ---
 
-<Layout title="Reshrimp - Image Processing Tool">
-  <main class="min-h-screen bg-gray-50 flex items-center justify-center">
-    <div class="text-center">
-      <h1 class="text-4xl font-bold text-gray-900 mb-4">Reshrimp</h1>
-      <p class="text-lg text-gray-600">Image processing tool coming soon...</p>
+<Layout title="Reshrimp - Privacy-First Image Processing">
+  <main class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto">
+      <!-- Header -->
+      <header class="text-center mb-8">
+        <h1 class="text-4xl font-bold text-gray-900 mb-2">Reshrimp</h1>
+        <p class="text-lg text-gray-600">Privacy-first image processing in your browser</p>
+        <p class="text-sm text-gray-500 mt-2">
+          All processing happens on your device. Your images never leave your computer.
+        </p>
+      </header>
+
+      <!-- Main Content -->
+      <div class="space-y-8">
+        <!-- Upload Area -->
+        <section>
+          <ImageUploadArea />
+        </section>
+
+        <!-- Processing Controls -->
+        <section>
+          <ProcessingControls />
+        </section>
+
+        <!-- Preview -->
+        <section>
+          <ImagePreview />
+        </section>
+
+        <!-- Download Button -->
+        <section>
+          <DownloadButton />
+        </section>
+      </div>
+
+      <!-- Footer Info -->
+      <footer class="mt-12 text-center text-sm text-gray-500">
+        <p>Powered by the Canvas API • Open source • No data collection • Works offline</p>
+      </footer>
     </div>
   </main>
 </Layout>
+
+<script>
+  import { ImageProcessorController } from '../lib/imageProcessor';
+
+  // Initialize the controller when the DOM is ready
+  let controller: ImageProcessorController;
+
+  function init() {
+    controller = new ImageProcessorController();
+  }
+
+  // Initialize on page load
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  // Cleanup on page unload to prevent memory leaks
+  window.addEventListener('beforeunload', () => {
+    controller?.cleanup();
+  });
+</script>
