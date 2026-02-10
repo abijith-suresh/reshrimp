@@ -1,0 +1,50 @@
+---
+// Shared header component
+import { GITHUB_URL, SITE_NAME, ROUTES } from '../../config/constants';
+
+interface Props {
+  currentPath?: string;
+}
+
+const { currentPath = '/' } = Astro.props;
+const baseUrl = import.meta.env.BASE_URL;
+---
+
+<header class="mb-8">
+  <nav class="flex items-center justify-between">
+    <a
+      href={baseUrl}
+      class="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
+    >
+      🦐 {SITE_NAME}
+    </a>
+    <div class="flex gap-6">
+      <a
+        href={baseUrl}
+        class:list={[
+          'text-gray-600 hover:text-gray-900 transition-colors',
+          { 'font-semibold text-gray-900': currentPath === '/' },
+        ]}
+      >
+        Home
+      </a>
+      <a
+        href={`${baseUrl}${ROUTES.APP}`.replace(/\/+/g, '/')}
+        class:list={[
+          'text-gray-600 hover:text-gray-900 transition-colors',
+          { 'font-semibold text-gray-900': currentPath === '/app' },
+        ]}
+      >
+        App
+      </a>
+      <a
+        href={GITHUB_URL}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-gray-600 hover:text-gray-900 transition-colors"
+      >
+        GitHub
+      </a>
+    </div>
+  </nav>
+</header>

@@ -1,12 +1,29 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Header from '../components/shared/Header.astro';
+import Footer from '../components/shared/Footer.astro';
+import Hero from '../components/marketing/Hero.astro';
+import Features from '../components/marketing/Features.astro';
+import CallToAction from '../components/marketing/CallToAction.astro';
 ---
 
-<Layout title="Reshrimp - Image Processing Tool">
-  <main class="min-h-screen bg-gray-50 flex items-center justify-center">
-    <div class="text-center">
-      <h1 class="text-4xl font-bold text-gray-900 mb-4">Reshrimp</h1>
-      <p class="text-lg text-gray-600">Image processing tool coming soon...</p>
+<Layout title="Reshrimp - Privacy-First Image Processing">
+  <main class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto">
+      <!-- Header -->
+      <Header currentPath="/" />
+
+      <!-- Hero Section -->
+      <Hero />
+
+      <!-- Features Section -->
+      <Features />
+
+      <!-- Call to Action -->
+      <CallToAction />
+
+      <!-- Footer -->
+      <Footer />
     </div>
   </main>
 </Layout>
