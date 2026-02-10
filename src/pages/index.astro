@@ -1,5 +1,7 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Header from '../components/shared/Header.astro';
+import Footer from '../components/shared/Footer.astro';
 import Hero from '../components/marketing/Hero.astro';
 import Features from '../components/marketing/Features.astro';
 import CallToAction from '../components/marketing/CallToAction.astro';
@@ -8,6 +10,9 @@ import CallToAction from '../components/marketing/CallToAction.astro';
 <Layout title="Reshrimp - Privacy-First Image Processing">
   <main class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
     <div class="max-w-6xl mx-auto">
+      <!-- Header -->
+      <Header currentPath="/" />
+
       <!-- Hero Section -->
       <Hero />
 
@@ -17,20 +22,8 @@ import CallToAction from '../components/marketing/CallToAction.astro';
       <!-- Call to Action -->
       <CallToAction />
 
-      <!-- Footer Info -->
-      <footer class="text-center text-sm text-gray-500">
-        <p class="mb-2">Powered by the Canvas API • Open source • No data collection</p>
-        <p>
-          <a
-            href="https://github.com/abijithanikkuruthi/reshrimp"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="text-blue-600 hover:text-blue-700"
-          >
-            View on GitHub
-          </a>
-        </p>
-      </footer>
+      <!-- Footer -->
+      <Footer />
     </div>
   </main>
 </Layout>

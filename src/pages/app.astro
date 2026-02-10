@@ -1,22 +1,26 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Header from '../components/shared/Header.astro';
+import Footer from '../components/shared/Footer.astro';
 import ImageUploadArea from '../components/app/ImageUploadArea.astro';
 import ProcessingControls from '../components/app/ProcessingControls.astro';
 import ImagePreview from '../components/app/ImagePreview.astro';
 import DownloadButton from '../components/app/DownloadButton.astro';
 ---
 
-<Layout title="Reshrimp - Privacy-First Image Processing">
+<Layout title="Reshrimp - Image Processing App">
   <main class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
     <div class="max-w-6xl mx-auto">
       <!-- Header -->
-      <header class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-gray-900 mb-2">Reshrimp</h1>
-        <p class="text-lg text-gray-600">Privacy-first image processing in your browser</p>
-        <p class="text-sm text-gray-500 mt-2">
+      <Header currentPath="/app" />
+
+      <!-- App Header -->
+      <div class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Image Processor</h1>
+        <p class="text-gray-600">
           All processing happens on your device. Your images never leave your computer.
         </p>
-      </header>
+      </div>
 
       <!-- Main Content -->
       <div class="space-y-8">
@@ -41,10 +45,8 @@ import DownloadButton from '../components/app/DownloadButton.astro';
         </section>
       </div>
 
-      <!-- Footer Info -->
-      <footer class="mt-12 text-center text-sm text-gray-500">
-        <p>Powered by the Canvas API • Open source • No data collection • Works offline</p>
-      </footer>
+      <!-- Footer -->
+      <Footer />
     </div>
   </main>
 </Layout>

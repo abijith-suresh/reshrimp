@@ -1,0 +1,44 @@
+---
+// Shared header component
+interface Props {
+  currentPath?: string;
+}
+
+const { currentPath = '/' } = Astro.props;
+---
+
+<header class="mb-8">
+  <nav class="flex items-center justify-between">
+    <a href="/" class="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors">
+      🦐 Reshrimp
+    </a>
+    <div class="flex gap-6">
+      <a
+        href="/"
+        class:list={[
+          'text-gray-600 hover:text-gray-900 transition-colors',
+          { 'font-semibold text-gray-900': currentPath === '/' },
+        ]}
+      >
+        Home
+      </a>
+      <a
+        href="/app"
+        class:list={[
+          'text-gray-600 hover:text-gray-900 transition-colors',
+          { 'font-semibold text-gray-900': currentPath === '/app' },
+        ]}
+      >
+        App
+      </a>
+      <a
+        href="https://github.com/abijithanikkuruthi/reshrimp"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-gray-600 hover:text-gray-900 transition-colors"
+      >
+        GitHub
+      </a>
+    </div>
+  </nav>
+</header>
