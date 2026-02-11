@@ -1,6 +1,5 @@
 ---
-// Shared header component
-import { GITHUB_URL, SITE_NAME, ROUTES } from '../../config/constants';
+import { GITHUB_URL, SITE_NAME, ROUTES, NAV_LINKS } from '../../config/constants';
 
 interface Props {
   currentPath?: string;
@@ -8,43 +7,249 @@ interface Props {
 
 const { currentPath = '/' } = Astro.props;
 const baseUrl = import.meta.env.BASE_URL;
+
+function makeHref(path: string): string {
+  return `${baseUrl}${path}`.replace(/\/+/g, '/');
+}
 ---
 
-<header class="mb-8">
-  <nav class="flex items-center justify-between">
-    <a
-      href={baseUrl}
-      class="text-2xl font-bold text-gray-900 hover:text-blue-600 transition-colors"
-    >
-      🦐 {SITE_NAME}
+<header class="sp-header" transition:persist transition:name="header">
+  <nav class="sp-header-inner">
+    <a href={makeHref('/')} class="sp-logo" transition:name="logo">
+      <span class="sp-logo-dot"></span>
+      {SITE_NAME.toLowerCase()}
     </a>
-    <div class="flex gap-6">
-      <a
-        href={baseUrl}
-        class:list={[
-          'text-gray-600 hover:text-gray-900 transition-colors',
-          { 'font-semibold text-gray-900': currentPath === '/' },
-        ]}
-      >
-        Home
-      </a>
-      <a
-        href={`${baseUrl}${ROUTES.APP}`.replace(/\/+/g, '/')}
-        class:list={[
-          'text-gray-600 hover:text-gray-900 transition-colors',
-          { 'font-semibold text-gray-900': currentPath === '/app' },
-        ]}
-      >
-        App
-      </a>
+
+    <!-- Desktop nav -->
+    <div class="sp-nav-desktop">
+      {
+        NAV_LINKS.map((link) => (
+          <a
+            href={makeHref(link.path)}
+            class:list={['sp-nav-link', { 'sp-nav-link-active': currentPath === link.path }]}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+      <a href={makeHref(ROUTES.APP)} class="sp-nav-cta">Try it free</a>
       <a
         href={GITHUB_URL}
         target="_blank"
         rel="noopener noreferrer"
-        class="text-gray-600 hover:text-gray-900 transition-colors"
+        class="sp-nav-link sp-nav-github"
+        aria-label="GitHub"
       >
-        GitHub
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <path
+            d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"
+          ></path>
+        </svg>
       </a>
     </div>
+
+    <!-- Mobile toggle -->
+    <button
+      type="button"
+      class="sp-hamburger"
+      id="mobile-menu-btn"
+      aria-label="Toggle menu"
+      aria-expanded="false"
+    >
+      <svg
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="2"
+        stroke-linecap="round"
+      >
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+    </button>
   </nav>
+
+  <!-- Mobile menu -->
+  <div class="sp-mobile-panel" id="mobile-menu-panel">
+    {
+      NAV_LINKS.map((link) => (
+        <a
+          href={makeHref(link.path)}
+          class:list={['sp-mobile-link', { 'sp-mobile-link-active': currentPath === link.path }]}
+        >
+          {link.label}
+        </a>
+      ))
+    }
+    <a href={makeHref(ROUTES.APP)} class="sp-nav-cta sp-mobile-cta">Try it free</a>
+    <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" class="sp-mobile-link">
+      GitHub
+    </a>
+  </div>
 </header>
+
+<style>
+  .sp-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(248, 247, 255, 0.85);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--sp-border-light);
+  }
+
+  .sp-header-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.85rem 2rem;
+  }
+
+  .sp-logo {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-family: var(--sp-font-display);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--sp-text);
+    text-decoration: none;
+  }
+
+  .sp-logo-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--sp-coral);
+    flex-shrink: 0;
+  }
+
+  .sp-nav-desktop {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .sp-nav-link {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--sp-text-muted);
+    text-decoration: none;
+    padding: 0.45rem 0.85rem;
+    border-radius: var(--sp-radius-full);
+    transition: all 0.2s;
+  }
+
+  .sp-nav-link:hover {
+    color: var(--sp-text);
+    background: var(--sp-border-light);
+  }
+
+  .sp-nav-link-active {
+    color: var(--sp-text);
+    font-weight: 600;
+  }
+
+  .sp-nav-cta {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #fff;
+    text-decoration: none;
+    padding: 0.45rem 1.1rem;
+    border-radius: var(--sp-radius-full);
+    background: var(--sp-text);
+    transition: all 0.2s;
+  }
+
+  .sp-nav-cta:hover {
+    background: var(--sp-lavender-dark);
+  }
+
+  .sp-nav-github {
+    display: flex;
+    align-items: center;
+    padding: 0.45rem;
+  }
+
+  /* Hamburger — hidden on desktop */
+  .sp-hamburger {
+    display: none;
+    cursor: pointer;
+    color: var(--sp-text);
+    background: none;
+    border: none;
+    padding: 0.25rem;
+  }
+
+  /* Mobile panel — hidden by default */
+  .sp-mobile-panel {
+    display: none;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem 2rem 1.5rem;
+    border-bottom: 1px solid var(--sp-border-light);
+  }
+
+  .sp-mobile-panel.sp-mobile-open {
+    display: flex;
+  }
+
+  .sp-mobile-link {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--sp-text-muted);
+    text-decoration: none;
+    padding: 0.6rem 0;
+    transition: color 0.2s;
+  }
+
+  .sp-mobile-link:hover {
+    color: var(--sp-text);
+  }
+
+  .sp-mobile-link-active {
+    color: var(--sp-text);
+    font-weight: 600;
+  }
+
+  .sp-mobile-cta {
+    display: inline-block;
+    text-align: center;
+    margin-top: 0.5rem;
+  }
+
+  @media (max-width: 768px) {
+    .sp-nav-desktop {
+      display: none;
+    }
+
+    .sp-hamburger {
+      display: flex;
+    }
+
+    .sp-mobile-panel.sp-mobile-open {
+      display: flex;
+    }
+  }
+</style>
+
+<script>
+  function initMobileMenu() {
+    const btn = document.getElementById('mobile-menu-btn');
+    const panel = document.getElementById('mobile-menu-panel');
+    if (!btn || !panel) return;
+
+    btn.addEventListener('click', () => {
+      const open = panel.classList.toggle('sp-mobile-open');
+      btn.setAttribute('aria-expanded', String(open));
+    });
+  }
+
+  document.addEventListener('astro:page-load', initMobileMenu);
+</script>

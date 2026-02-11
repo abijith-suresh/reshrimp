@@ -62,16 +62,16 @@ export class ImageProcessorController {
 
     uploadArea?.addEventListener('dragover', (e) => {
       e.preventDefault();
-      uploadArea.classList.add('border-blue-500', 'bg-blue-50');
+      uploadArea.classList.add('sp-drag-active');
     });
 
     uploadArea?.addEventListener('dragleave', () => {
-      uploadArea.classList.remove('border-blue-500', 'bg-blue-50');
+      uploadArea.classList.remove('sp-drag-active');
     });
 
     uploadArea?.addEventListener('drop', (e) => {
       e.preventDefault();
-      uploadArea.classList.remove('border-blue-500', 'bg-blue-50');
+      uploadArea.classList.remove('sp-drag-active');
 
       const file = e.dataTransfer?.files[0];
       if (file) {
@@ -246,11 +246,11 @@ export class ImageProcessorController {
 
     if (validation.error) {
       messageEl.textContent = validation.error;
-      messageEl.className = 'mt-2 text-sm text-red-600';
+      messageEl.className = 'sp-validation-error';
       messageEl.classList.remove('hidden');
     } else if (validation.warning) {
       messageEl.textContent = validation.warning;
-      messageEl.className = 'mt-2 text-sm text-yellow-600';
+      messageEl.className = 'sp-validation-warning';
       messageEl.classList.remove('hidden');
     } else {
       messageEl.classList.add('hidden');
@@ -457,8 +457,7 @@ export class ImageProcessorController {
       const sign = difference > 0 ? '+' : '';
 
       differenceEl.textContent = `Change: ${sign}${formatFileSize(Math.abs(difference))} (${sign}${percentChange}%)`;
-      differenceEl.className =
-        difference > 0 ? 'font-medium text-red-600' : 'font-medium text-green-600';
+      differenceEl.className = difference > 0 ? 'sp-text-increase' : 'sp-text-decrease';
     }
 
     infoEl?.classList.remove('hidden');

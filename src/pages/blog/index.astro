@@ -1,0 +1,181 @@
+---
+import { getCollection } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/shared/Header.astro';
+import Footer from '../../components/shared/Footer.astro';
+import FloatingShapes from '../../components/shared/FloatingShapes.astro';
+import { ROUTES } from '../../config/constants';
+
+const baseUrl = import.meta.env.BASE_URL;
+function makeHref(path: string): string {
+  return `${baseUrl}${path}`.replace(/\/+/g, '/');
+}
+
+const posts = (await getCollection('blog'))
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
+---
+
+<Layout
+  title="Reshrimp — Blog"
+  description="Guides, tips, and insights about image processing, web privacy, and browser-based tools."
+>
+  <div class="page-pop">
+    <FloatingShapes />
+    <Header currentPath="/blog" />
+
+    <main transition:animate="fade">
+      <section class="blog-hero">
+        <div class="blog-container">
+          <span class="pop-chip pop-chip-lavender">Blog</span>
+          <h1 class="blog-title">Guides & insights</h1>
+          <p class="blog-subtitle">
+            Tips on image processing, format comparisons, and the tech behind Reshrimp.
+          </p>
+        </div>
+      </section>
+
+      <section class="blog-grid-section">
+        <div class="blog-container">
+          <div class="blog-grid">
+            {
+              posts.map((post) => (
+                <a href={makeHref(`${ROUTES.BLOG}/${post.id}`)} class="blog-card">
+                  <div class="blog-card-inner">
+                    <div class="blog-card-tags">
+                      {post.data.tags.map((tag) => (
+                        <span class="pop-chip pop-chip-lavender">{tag}</span>
+                      ))}
+                    </div>
+                    <h2 class="blog-card-title">{post.data.title}</h2>
+                    <p class="blog-card-desc">{post.data.description}</p>
+                    <div class="blog-card-meta">
+                      <time datetime={post.data.publishDate.toISOString()}>
+                        {post.data.publishDate.toLocaleDateString('en-US', {
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                        })}
+                      </time>
+                      <span class="blog-card-read">Read more &rarr;</span>
+                    </div>
+                  </div>
+                </a>
+              ))
+            }
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <Footer />
+  </div>
+</Layout>
+
+<style>
+  .page-pop {
+    position: relative;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  .blog-hero {
+    padding: 5rem 2rem 3rem;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .blog-container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .blog-title {
+    font-family: var(--sp-font-display);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin: 1rem 0 1.25rem;
+    letter-spacing: -0.03em;
+  }
+
+  .blog-subtitle {
+    font-size: 1.05rem;
+    color: var(--sp-text-muted);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  .blog-grid-section {
+    padding: 2rem 2rem 5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .blog-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .blog-card {
+    background: var(--sp-bg-card);
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius-xl);
+    text-decoration: none;
+    color: inherit;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: var(--sp-shadow);
+    display: block;
+  }
+
+  .blog-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--sp-shadow-hover);
+    border-color: var(--sp-lavender);
+  }
+
+  .blog-card-inner {
+    padding: 1.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .blog-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .blog-card-title {
+    font-family: var(--sp-font-display);
+    font-size: 1.15rem;
+    font-weight: 700;
+    margin: 0;
+    line-height: 1.3;
+    letter-spacing: -0.01em;
+  }
+
+  .blog-card-desc {
+    font-size: 0.9rem;
+    color: var(--sp-text-muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .blog-card-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    color: var(--sp-text-soft);
+    margin-top: 0.5rem;
+  }
+
+  .blog-card-read {
+    color: var(--sp-coral);
+    font-weight: 500;
+  }
+</style>

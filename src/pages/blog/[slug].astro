@@ -1,0 +1,145 @@
+---
+import { getCollection, render } from 'astro:content';
+import Layout from '../../layouts/Layout.astro';
+import Header from '../../components/shared/Header.astro';
+import Footer from '../../components/shared/Footer.astro';
+import { ROUTES } from '../../config/constants';
+
+const baseUrl = import.meta.env.BASE_URL;
+function makeHref(path: string): string {
+  return `${baseUrl}${path}`.replace(/\/+/g, '/');
+}
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<Layout title={`${post.data.title} — Reshrimp Blog`} description={post.data.description}>
+  <div class="page-pop">
+    <Header currentPath="/blog" />
+
+    <main transition:animate="fade">
+      <article class="blog-article">
+        <div class="blog-article-container">
+          <!-- Back link -->
+          <a href={makeHref(ROUTES.BLOG)} class="blog-back">&larr; Back to Blog</a>
+
+          <!-- Header -->
+          <header class="blog-article-header">
+            <div class="blog-article-tags">
+              {
+                post.data.tags.map((tag: string) => (
+                  <span class="pop-chip pop-chip-lavender">{tag}</span>
+                ))
+              }
+            </div>
+            <h1 class="blog-article-title">{post.data.title}</h1>
+            <div class="blog-article-meta">
+              <time datetime={post.data.publishDate.toISOString()}>
+                {
+                  post.data.publishDate.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })
+                }
+              </time>
+              <span class="blog-article-dot">&middot;</span>
+              <span>{post.data.author}</span>
+            </div>
+          </header>
+
+          <!-- Content -->
+          <div class="prose-sp">
+            <Content />
+          </div>
+
+          <!-- Footer nav -->
+          <div class="blog-article-footer">
+            <a href={makeHref(ROUTES.BLOG)} class="blog-back">&larr; Back to Blog</a>
+          </div>
+        </div>
+      </article>
+    </main>
+
+    <Footer />
+  </div>
+</Layout>
+
+<style>
+  .page-pop {
+    position: relative;
+    min-height: 100vh;
+  }
+
+  .blog-article {
+    padding: 2rem 2rem 5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .blog-article-container {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .blog-back {
+    display: inline-block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--sp-text-muted);
+    text-decoration: none;
+    margin-bottom: 2rem;
+    transition: color 0.2s;
+  }
+
+  .blog-back:hover {
+    color: var(--sp-coral);
+  }
+
+  .blog-article-header {
+    margin-bottom: 2.5rem;
+  }
+
+  .blog-article-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-bottom: 1rem;
+  }
+
+  .blog-article-title {
+    font-family: var(--sp-font-display);
+    font-size: clamp(1.8rem, 4.5vw, 2.5rem);
+    font-weight: 800;
+    line-height: 1.2;
+    margin: 0 0 1rem;
+    letter-spacing: -0.03em;
+  }
+
+  .blog-article-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    color: var(--sp-text-soft);
+  }
+
+  .blog-article-dot {
+    color: var(--sp-border);
+  }
+
+  .blog-article-footer {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--sp-border);
+  }
+</style>

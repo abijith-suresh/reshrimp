@@ -1,22 +1,88 @@
 ---
-// Shared footer component
-import { GITHUB_URL, SITE_NAME } from '../../config/constants';
+import { GITHUB_URL, SITE_NAME, ROUTES } from '../../config/constants';
+
+const baseUrl = import.meta.env.BASE_URL;
+
+function makeHref(path: string): string {
+  return `${baseUrl}${path}`.replace(/\/+/g, '/');
+}
+
+const footerLinks = [
+  { label: 'Features', path: ROUTES.FEATURES },
+  { label: 'Privacy', path: ROUTES.PRIVACY },
+  { label: 'Blog', path: ROUTES.BLOG },
+  { label: 'About', path: ROUTES.ABOUT },
+  { label: 'FAQ', path: ROUTES.FAQ },
+];
 ---
 
-<footer class="mt-12 pt-8 border-t border-gray-200">
-  <div class="text-center text-sm text-gray-500 space-y-2">
-    <p>Powered by the Canvas API • Open source • No data collection</p>
-    <p>
-      <a
-        href={GITHUB_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="text-blue-600 hover:text-blue-700"
-      >
-        View on GitHub
+<footer class="sp-footer">
+  <div class="sp-footer-inner">
+    <div class="sp-footer-links">
+      {
+        footerLinks.map((link) => (
+          <a href={makeHref(link.path)} class="sp-footer-link">
+            {link.label}
+          </a>
+        ))
+      }
+      <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" class="sp-footer-link">
+        GitHub
       </a>
-      •
-      <span>© {new Date().getFullYear()} {SITE_NAME}</span>
-    </p>
+    </div>
+    <div class="sp-footer-bottom">
+      <span>&copy; {new Date().getFullYear()} {SITE_NAME}</span>
+      <span class="sp-footer-dot">&middot;</span>
+      <span>Processed locally in your browser</span>
+    </div>
   </div>
 </footer>
+
+<style>
+  .sp-footer {
+    border-top: 1px solid var(--sp-border-light);
+    padding: 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .sp-footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+  }
+
+  .sp-footer-links {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 1.5rem;
+  }
+
+  .sp-footer-link {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--sp-text-muted);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .sp-footer-link:hover {
+    color: var(--sp-coral);
+  }
+
+  .sp-footer-bottom {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    font-size: 0.8rem;
+    color: var(--sp-text-soft);
+  }
+
+  .sp-footer-dot {
+    color: var(--sp-border);
+  }
+</style>

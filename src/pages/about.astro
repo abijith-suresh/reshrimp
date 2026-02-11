@@ -1,0 +1,205 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/shared/Header.astro';
+import Footer from '../components/shared/Footer.astro';
+import FloatingShapes from '../components/shared/FloatingShapes.astro';
+import { GITHUB_URL } from '../config/constants';
+---
+
+<Layout
+  title="Reshrimp — About"
+  description="Learn about the Reshrimp project — a free, open source, privacy-first image processing tool built for the browser."
+>
+  <div class="page-pop">
+    <FloatingShapes />
+    <Header currentPath="/about" />
+
+    <main transition:animate="fade">
+      <section class="about-hero">
+        <div class="about-container">
+          <span class="pop-chip pop-chip-coral">About</span>
+          <h1 class="about-title">Built for people who care about their images.</h1>
+          <p class="about-subtitle">
+            Reshrimp is a free, open source image processing tool that runs entirely in your
+            browser.
+          </p>
+        </div>
+      </section>
+
+      <section class="about-content">
+        <div class="about-container">
+          <!-- Story -->
+          <div class="about-card">
+            <h2 class="about-card-title">The story</h2>
+            <p>
+              Most online image tools require uploading your photos to someone else's server. That
+              means trusting a third party with your personal images, waiting for uploads and
+              downloads, and dealing with file size limits and account requirements.
+            </p>
+            <p>
+              Reshrimp was built to prove that you don't need any of that. Modern browsers have
+              everything needed to resize, convert, and compress images — the Canvas API, Blob
+              handling, and efficient JavaScript engines. Why send data across the internet when
+              your computer can handle it locally in milliseconds?
+            </p>
+          </div>
+
+          <!-- Tech stack -->
+          <div class="about-card">
+            <h2 class="about-card-title">Tech stack</h2>
+            <div class="about-tech-grid">
+              <div class="about-tech-item">
+                <span class="about-tech-name">Astro</span>
+                <span class="about-tech-desc">Static site framework</span>
+              </div>
+              <div class="about-tech-item">
+                <span class="about-tech-name">TypeScript</span>
+                <span class="about-tech-desc">Type-safe processing logic</span>
+              </div>
+              <div class="about-tech-item">
+                <span class="about-tech-name">Canvas API</span>
+                <span class="about-tech-desc">Browser-native image processing</span>
+              </div>
+              <div class="about-tech-item">
+                <span class="about-tech-name">Tailwind CSS</span>
+                <span class="about-tech-desc">Utility-first styling</span>
+              </div>
+              <div class="about-tech-item">
+                <span class="about-tech-name">GitHub Pages</span>
+                <span class="about-tech-desc">Free static hosting</span>
+              </div>
+              <div class="about-tech-item">
+                <span class="about-tech-name">Vitest</span>
+                <span class="about-tech-desc">Unit testing framework</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contributing -->
+          <div class="about-card">
+            <h2 class="about-card-title">Contributing</h2>
+            <p>
+              Reshrimp is open source under the MIT license. Contributions of all kinds are welcome
+              — bug fixes, new features, documentation improvements, or just feedback.
+            </p>
+            <p>
+              Check out the
+              <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub repository</a>
+              for open issues, the project roadmap, and contribution guidelines.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <Footer />
+  </div>
+</Layout>
+
+<style>
+  .page-pop {
+    position: relative;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  .about-hero {
+    padding: 5rem 2rem 3rem;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .about-container {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .about-title {
+    font-family: var(--sp-font-display);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin: 1rem 0 1.25rem;
+    letter-spacing: -0.03em;
+  }
+
+  .about-subtitle {
+    font-size: 1.05rem;
+    color: var(--sp-text-muted);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  .about-content {
+    padding: 2rem 2rem 5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .about-card {
+    background: var(--sp-bg-card);
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius-xl);
+    padding: 2rem;
+    box-shadow: var(--sp-shadow);
+    margin-bottom: 1.5rem;
+  }
+
+  .about-card-title {
+    font-family: var(--sp-font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+    letter-spacing: -0.01em;
+  }
+
+  .about-card p {
+    font-size: 0.95rem;
+    color: var(--sp-text-muted);
+    line-height: 1.7;
+    margin: 0 0 1rem;
+  }
+
+  .about-card p:last-child {
+    margin-bottom: 0;
+  }
+
+  .about-card a {
+    color: var(--sp-coral);
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 107, 107, 0.3);
+    text-underline-offset: 2px;
+  }
+
+  .about-card a:hover {
+    text-decoration-color: var(--sp-coral);
+  }
+
+  .about-tech-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .about-tech-item {
+    background: var(--sp-bg);
+    border: 1px solid var(--sp-border-light);
+    border-radius: var(--sp-radius);
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .about-tech-name {
+    font-family: var(--sp-font-display);
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .about-tech-desc {
+    font-size: 0.8rem;
+    color: var(--sp-text-soft);
+  }
+</style>

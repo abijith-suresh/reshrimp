@@ -1,0 +1,252 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/shared/Header.astro';
+import Footer from '../components/shared/Footer.astro';
+import FloatingShapes from '../components/shared/FloatingShapes.astro';
+import { GITHUB_URL, ROUTES } from '../config/constants';
+
+const baseUrl = import.meta.env.BASE_URL;
+function makeHref(path: string): string {
+  return `${baseUrl}${path}`.replace(/\/+/g, '/');
+}
+
+const faqs = [
+  {
+    question: 'Is Reshrimp really free?',
+    answer:
+      'Yes, completely free with no limits. No accounts, no premium tiers, no hidden costs. Reshrimp is open source under the MIT license and hosted for free on GitHub Pages.',
+  },
+  {
+    question: 'How does the privacy work?',
+    answer:
+      'All image processing happens entirely in your browser using the HTML5 Canvas API. Your images are never uploaded to any server. When you close the tab, all data is released from memory. There are no analytics, no cookies, and no tracking of any kind.',
+  },
+  {
+    question: 'What image formats are supported?',
+    answer:
+      "Reshrimp can read JPEG, PNG, WebP, and GIF images. It can output to JPEG, PNG, and WebP formats. Format conversion is handled natively by your browser's built-in encoding capabilities.",
+  },
+  {
+    question: "What's the maximum file size?",
+    answer:
+      "The upload limit is 50MB per image. In practice, the actual limit depends on your device's available memory since processing happens locally. Most devices handle images up to 50MB without issues.",
+  },
+  {
+    question: 'Does it work offline?',
+    answer:
+      'Yes. After the initial page load, Reshrimp works entirely without an internet connection. All processing code runs locally in your browser. You can even use it on an air-gapped machine for maximum security.',
+  },
+  {
+    question: "Where's the source code?",
+    answer: `The entire project is open source on <a href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer">GitHub</a>. You can read, fork, or contribute to the code. The image processing logic lives in a single TypeScript file that you can audit in minutes.`,
+  },
+  {
+    question: 'Can I use it for commercial purposes?',
+    answer:
+      'Absolutely. There are no restrictions on how you use Reshrimp or the images you process with it. The tool itself is MIT-licensed, meaning you can even modify and redistribute it.',
+  },
+  {
+    question: 'How do quality settings work?',
+    answer:
+      'The quality slider controls the compression level for JPEG and WebP output (0-100%). Higher values mean better image quality but larger file sizes. PNG output is always lossless regardless of the quality setting. The side-by-side preview lets you compare results before downloading.',
+  },
+];
+---
+
+<Layout
+  title="Reshrimp — FAQ"
+  description="Frequently asked questions about Reshrimp — the free, private, browser-based image processing tool."
+>
+  <div class="page-pop">
+    <FloatingShapes />
+    <Header currentPath="/faq" />
+
+    <main transition:animate="fade">
+      <section class="faq-hero">
+        <div class="faq-container">
+          <span class="pop-chip pop-chip-yellow">FAQ</span>
+          <h1 class="faq-title">Frequently asked questions</h1>
+          <p class="faq-subtitle">Everything you want to know about Reshrimp.</p>
+        </div>
+      </section>
+
+      <section class="faq-content">
+        <div class="faq-container">
+          {
+            faqs.map((faq) => (
+              <details class="faq-item">
+                <summary class="faq-question">{faq.question}</summary>
+                <p class="faq-answer" set:html={faq.answer} />
+              </details>
+            ))
+          }
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="faq-cta">
+        <div class="faq-cta-container">
+          <h2 class="faq-cta-title">Still have questions?</h2>
+          <p class="faq-cta-desc">
+            Check out the <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="faq-cta-link">GitHub repository</a
+            > or just
+            <a href={makeHref(ROUTES.APP)} class="faq-cta-link">try the app</a> — it's the best way to
+            see how it works.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <Footer />
+  </div>
+</Layout>
+
+<style>
+  .page-pop {
+    position: relative;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  .faq-hero {
+    padding: 5rem 2rem 3rem;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .faq-container {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .faq-title {
+    font-family: var(--sp-font-display);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin: 1rem 0 1.25rem;
+    letter-spacing: -0.03em;
+  }
+
+  .faq-subtitle {
+    font-size: 1.05rem;
+    color: var(--sp-text-muted);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  .faq-content {
+    padding: 2rem 2rem 3rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .faq-item {
+    background: var(--sp-bg-card);
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius);
+    margin-bottom: 0.75rem;
+    box-shadow: var(--sp-shadow);
+    overflow: hidden;
+  }
+
+  .faq-item[open] {
+    border-color: var(--sp-lavender);
+  }
+
+  .faq-question {
+    font-family: var(--sp-font-display);
+    font-size: 1.05rem;
+    font-weight: 600;
+    padding: 1.25rem 1.5rem;
+    cursor: pointer;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    transition: color 0.2s;
+  }
+
+  .faq-question::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-question::after {
+    content: '+';
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: var(--sp-coral);
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+
+  .faq-item[open] .faq-question::after {
+    transform: rotate(45deg);
+  }
+
+  .faq-question:hover {
+    color: var(--sp-coral);
+  }
+
+  .faq-answer {
+    font-size: 0.95rem;
+    color: var(--sp-text-muted);
+    line-height: 1.7;
+    padding: 0 1.5rem 1.25rem;
+    margin: 0;
+  }
+
+  .faq-answer :global(a) {
+    color: var(--sp-coral);
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 107, 107, 0.3);
+    text-underline-offset: 2px;
+  }
+
+  .faq-answer :global(a:hover) {
+    text-decoration-color: var(--sp-coral);
+  }
+
+  .faq-cta {
+    padding: 2rem 2rem 5rem;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .faq-cta-container {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .faq-cta-title {
+    font-family: var(--sp-font-display);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.75rem;
+  }
+
+  .faq-cta-desc {
+    font-size: 1rem;
+    color: var(--sp-text-muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  .faq-cta-link {
+    color: var(--sp-coral);
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 107, 107, 0.3);
+    text-underline-offset: 2px;
+  }
+
+  .faq-cta-link:hover {
+    text-decoration-color: var(--sp-coral);
+  }
+</style>

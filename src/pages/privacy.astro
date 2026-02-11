@@ -1,0 +1,202 @@
+---
+import Layout from '../layouts/Layout.astro';
+import Header from '../components/shared/Header.astro';
+import Footer from '../components/shared/Footer.astro';
+import FloatingShapes from '../components/shared/FloatingShapes.astro';
+import { GITHUB_URL } from '../config/constants';
+---
+
+<Layout
+  title="Reshrimp — Privacy"
+  description="Reshrimp processes all images locally in your browser. No servers, no uploads, no tracking. Learn how it works."
+>
+  <div class="page-pop">
+    <FloatingShapes />
+    <Header currentPath="/privacy" />
+
+    <main transition:animate="fade">
+      <section class="privacy-hero">
+        <div class="privacy-container">
+          <span class="pop-chip pop-chip-mint">Privacy</span>
+          <h1 class="privacy-title">Your images never leave your device.</h1>
+          <p class="privacy-subtitle">
+            Reshrimp is built with privacy as a core principle, not an afterthought. Here's exactly
+            how it works.
+          </p>
+        </div>
+      </section>
+
+      <section class="privacy-content">
+        <div class="privacy-container">
+          <!-- How it works -->
+          <div class="privacy-card">
+            <h2 class="privacy-card-title">How it works technically</h2>
+            <p>
+              When you select an image, it stays entirely in your browser's memory. Reshrimp uses
+              the HTML5 Canvas API to read, manipulate, and re-encode your image — all within a
+              single browser tab. No data is sent to any server at any point during processing.
+            </p>
+            <p>
+              The processed image is generated as a Blob URL, which exists only in your browser's
+              memory. When you download it, the file is saved directly from your browser to your
+              disk. When you close the tab, all data is released.
+            </p>
+          </div>
+
+          <!-- What we don't do -->
+          <div class="privacy-card">
+            <h2 class="privacy-card-title">What we don't do</h2>
+            <ul class="privacy-list">
+              <li>We don't upload your images anywhere</li>
+              <li>We don't use cookies or local storage for tracking</li>
+              <li>We don't run analytics scripts (no Google Analytics, no Plausible, nothing)</li>
+              <li>We don't require accounts or collect personal information</li>
+              <li>We don't make any network requests after the initial page load</li>
+              <li>We don't fingerprint your browser or device</li>
+            </ul>
+          </div>
+
+          <!-- Open source -->
+          <div class="privacy-card">
+            <h2 class="privacy-card-title">Open source verification</h2>
+            <p>
+              Don't take our word for it — read the source code. Reshrimp is fully open source under
+              the MIT license. Every line of code is available for inspection.
+            </p>
+            <p>
+              The entire image processing pipeline lives in a single TypeScript file. You can audit
+              it in minutes. Check the
+              <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub repository</a>
+              to verify our claims.
+            </p>
+          </div>
+
+          <!-- Third-party services -->
+          <div class="privacy-card">
+            <h2 class="privacy-card-title">Third-party services</h2>
+            <p>
+              Reshrimp is hosted on GitHub Pages as a static site. The only third-party service
+              involved is the initial page delivery. After the page loads, everything runs locally.
+            </p>
+            <p>
+              We load Google Fonts (Bricolage Grotesque and Plus Jakarta Sans) for typography. This
+              is the only external request made after page load. No user data is sent with these
+              requests.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <Footer />
+  </div>
+</Layout>
+
+<style>
+  .page-pop {
+    position: relative;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  .privacy-hero {
+    padding: 5rem 2rem 3rem;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .privacy-container {
+    max-width: 700px;
+    margin: 0 auto;
+  }
+
+  .privacy-title {
+    font-family: var(--sp-font-display);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin: 1rem 0 1.25rem;
+    letter-spacing: -0.03em;
+  }
+
+  .privacy-subtitle {
+    font-size: 1.05rem;
+    color: var(--sp-text-muted);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  .privacy-content {
+    padding: 2rem 2rem 5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .privacy-card {
+    background: var(--sp-bg-card);
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius-xl);
+    padding: 2rem;
+    box-shadow: var(--sp-shadow);
+    margin-bottom: 1.5rem;
+  }
+
+  .privacy-card-title {
+    font-family: var(--sp-font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 1rem;
+    letter-spacing: -0.01em;
+  }
+
+  .privacy-card p {
+    font-size: 0.95rem;
+    color: var(--sp-text-muted);
+    line-height: 1.7;
+    margin: 0 0 1rem;
+  }
+
+  .privacy-card p:last-child {
+    margin-bottom: 0;
+  }
+
+  .privacy-card a {
+    color: var(--sp-coral);
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 107, 107, 0.3);
+    text-underline-offset: 2px;
+  }
+
+  .privacy-card a:hover {
+    text-decoration-color: var(--sp-coral);
+  }
+
+  .privacy-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+
+  .privacy-list li {
+    font-size: 0.95rem;
+    color: var(--sp-text-muted);
+    line-height: 1.6;
+    padding-left: 1.5rem;
+    position: relative;
+  }
+
+  .privacy-list li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.55rem;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--sp-mint);
+  }
+</style>
