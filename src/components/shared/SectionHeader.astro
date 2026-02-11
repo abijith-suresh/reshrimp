@@ -1,0 +1,19 @@
+---
+interface Props {
+  label: string;
+  title: string;
+}
+
+const { label, title } = Astro.props;
+---
+
+<div class="sp-section-header">
+  <span class="pop-section-label">{label}</span>
+  <h2 class="pop-section-title">{title}</h2>
+</div>
+
+<style>
+  .sp-section-header {
+    text-align: center;
+  }
+</style>
