@@ -277,10 +277,6 @@ export class ImageProcessorController {
     const sizeEl = document.getElementById('original-size');
     const containerEl = document.getElementById('preview-container');
 
-    if (previewImg) {
-      previewImg.src = image.originalUrl;
-    }
-
     if (dimensionsEl) {
       dimensionsEl.textContent = `Dimensions: ${image.metadata.width} × ${image.metadata.height}px`;
     }
@@ -289,7 +285,18 @@ export class ImageProcessorController {
       sizeEl.textContent = `Size: ${formatFileSize(image.metadata.fileSize)}`;
     }
 
-    containerEl?.classList.remove('hidden');
+    if (previewImg) {
+      const reveal = () => {
+        containerEl?.classList.remove('hidden');
+      };
+
+      if (previewImg.src === image.originalUrl && previewImg.complete) {
+        reveal();
+      } else {
+        previewImg.onload = reveal;
+        previewImg.src = image.originalUrl;
+      }
+    }
   }
 
   /**
@@ -297,7 +304,7 @@ export class ImageProcessorController {
    */
   private showControls(): void {
     const controlsEl = document.getElementById('processing-controls');
-    controlsEl?.classList.remove('sbs-controls-inactive');
+    controlsEl?.classList.remove('controls-inactive');
     controlsEl
       ?.querySelectorAll('input, select, button')
       .forEach((el) => ((el as HTMLInputElement).disabled = false));
@@ -477,7 +484,7 @@ export class ImageProcessorController {
       downloadButton.disabled = false;
     }
 
-    downloadSection?.classList.remove('sbs-download-inactive');
+    downloadSection?.classList.remove('download-inactive');
   }
 
   /**

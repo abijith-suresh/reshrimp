@@ -5,6 +5,7 @@ import Footer from '../components/shared/Footer.astro';
 import FloatingShapes from '../components/shared/FloatingShapes.astro';
 import SectionHeader from '../components/shared/SectionHeader.astro';
 import { ROUTES } from '../config/constants';
+import { Scaling, ArrowLeftRight, Gauge, ShieldCheck } from 'lucide-astro';
 
 const baseUrl = import.meta.env.BASE_URL;
 function makeHref(path: string): string {
@@ -64,7 +65,7 @@ function makeHref(path: string): string {
           <div class="bento-grid">
             <div class="bento-card bento-card-lg bento-coral">
               <div class="bento-card-content">
-                <span class="bento-emoji">&#9986;</span>
+                <Scaling size={32} strokeWidth={1.75} class="bento-icon" />
                 <h3 class="bento-title">Resize with precision</h3>
                 <p class="bento-desc">
                   Scale to exact pixel dimensions. Aspect ratio lock keeps everything balanced.
@@ -74,7 +75,7 @@ function makeHref(path: string): string {
             </div>
             <div class="bento-card bento-mint">
               <div class="bento-card-content">
-                <span class="bento-emoji">&#128260;</span>
+                <ArrowLeftRight size={32} strokeWidth={1.75} class="bento-icon" />
                 <h3 class="bento-title">Convert formats</h3>
                 <p class="bento-desc">
                   Switch between JPEG, PNG, and WebP in a click. Browser-native encoding, zero
@@ -84,7 +85,7 @@ function makeHref(path: string): string {
             </div>
             <div class="bento-card bento-lavender">
               <div class="bento-card-content">
-                <span class="bento-emoji">&#128200;</span>
+                <Gauge size={32} strokeWidth={1.75} class="bento-icon" />
                 <h3 class="bento-title">Compress smartly</h3>
                 <p class="bento-desc">
                   Fine-tune quality from 0-100%. Watch file sizes shrink live with side-by-side
@@ -94,7 +95,7 @@ function makeHref(path: string): string {
             </div>
             <div class="bento-card bento-card-lg bento-yellow">
               <div class="bento-card-content">
-                <span class="bento-emoji">&#128274;</span>
+                <ShieldCheck size={32} strokeWidth={1.75} class="bento-icon" />
                 <h3 class="bento-title">Completely private</h3>
                 <p class="bento-desc">
                   All processing happens locally via the Canvas API. Zero servers, zero uploads,
@@ -355,10 +356,11 @@ function makeHref(path: string): string {
     border-color: rgba(253, 230, 138, 0.3);
   }
 
-  .bento-emoji {
-    font-size: 2rem;
+  .bento-icon {
     display: block;
     margin-bottom: 1rem;
+    color: currentColor;
+    opacity: 0.8;
   }
 
   .bento-title {

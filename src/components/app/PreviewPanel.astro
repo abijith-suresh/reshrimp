@@ -1,0 +1,313 @@
+<div
+  class="bg-sp-bg-card border border-sp-border rounded-sp-xl shadow-sp overflow-hidden flex flex-col"
+>
+  <!-- Empty State -->
+  <div
+    id="sbs-empty-state"
+    class="flex-1 flex flex-col items-center justify-center text-center p-8 transition-opacity duration-300"
+  >
+    <svg
+      class="w-16 h-16 text-sp-lavender opacity-40 mb-4 animate-float"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="1.5"
+        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+      ></path>
+    </svg>
+    <p class="font-display text-[1.1rem] font-semibold text-sp-text-soft m-0 mb-1">
+      Upload an image to get started
+    </p>
+    <p class="text-[0.85rem] text-sp-text-soft opacity-70 m-0">Your preview will appear here</p>
+  </div>
+
+  <!-- Preview Container -->
+  <div id="preview-container" class="preview-container flex-1 flex-col hidden">
+    <!-- Tabs -->
+    <div class="flex border-b border-sp-border-light px-4 shrink-0">
+      <button type="button" class="sbs-tab sbs-tab-active" data-tab="original"> Original </button>
+      <button type="button" class="sbs-tab" data-tab="processed">Processed</button>
+    </div>
+
+    <!-- Tab Content -->
+    <div class="flex-1 relative min-h-[380px] max-lg:min-h-[300px] max-md:min-h-[250px]">
+      <!-- Original Tab -->
+      <div class="tab-panel tab-panel-active" data-tabpanel="original">
+        <div class="preview-frame">
+          <img id="original-preview" alt="Original" class="max-w-full max-h-full object-contain" />
+        </div>
+        <div id="original-info" class="info-bar">
+          <p id="original-dimensions"></p>
+          <p id="original-size"></p>
+        </div>
+      </div>
+
+      <!-- Processed Tab -->
+      <div class="tab-panel" data-tabpanel="processed">
+        <div class="preview-frame">
+          <div id="processed-placeholder" class="text-center text-sp-text-soft p-8">
+            <svg
+              class="w-12 h-12 mx-auto mb-2 text-sp-lavender opacity-50"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="1.5"
+                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"
+              ></path>
+            </svg>
+            <p class="text-[0.85rem] m-0">Process to see result</p>
+          </div>
+          <img
+            id="processed-preview"
+            alt="Processed"
+            class="max-w-full max-h-full object-contain hidden"
+          />
+        </div>
+        <div id="processed-info" class="info-bar hidden">
+          <p id="processed-dimensions"></p>
+          <p id="processed-size"></p>
+          <p id="size-difference"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Error -->
+    <div id="error-message" class="error-container hidden">
+      <div class="flex gap-3">
+        <svg
+          class="w-5 h-5 text-sp-coral shrink-0 mt-0.5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+        </svg>
+        <div>
+          <h3 class="text-[0.85rem] font-semibold text-sp-coral-dark m-0 mb-1">Processing Error</h3>
+          <p id="error-text" class="text-[0.8rem] text-sp-coral m-0"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Download -->
+    <div
+      id="download-section"
+      class="download-section download-inactive border-t border-sp-border-light p-4 shrink-0"
+    >
+      <button id="download-button" disabled class="download-btn">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path>
+        </svg>
+        <span>Download</span>
+      </button>
+    </div>
+  </div>
+</div>
+
+<style>
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  .preview-container:not(.hidden) {
+    display: flex;
+    animation: fade-in 0.35s ease;
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* Tabs */
+  .sbs-tab {
+    padding: 0.85rem 1.25rem;
+    font-family: var(--sp-font-body);
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--sp-text-muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .sbs-tab:hover {
+    color: var(--sp-text);
+  }
+
+  .sbs-tab-active {
+    color: var(--sp-coral);
+    border-bottom-color: var(--sp-coral);
+    font-weight: 600;
+  }
+
+  /* Tab Panels */
+  .tab-panel {
+    position: absolute;
+    inset: 0;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.25s ease,
+      visibility 0.25s ease;
+  }
+
+  .tab-panel-active {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  /* Preview Frame — checkerboard background */
+  .preview-frame {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--sp-bg);
+    background-image:
+      linear-gradient(45deg, #e8e6f0 25%, transparent 25%),
+      linear-gradient(-45deg, #e8e6f0 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, #e8e6f0 75%),
+      linear-gradient(-45deg, transparent 75%, #e8e6f0 75%);
+    background-size: 16px 16px;
+    background-position:
+      0 0,
+      0 8px,
+      8px -8px,
+      -8px 0;
+    border: 1px solid var(--sp-border-light);
+    border-radius: var(--sp-radius);
+  }
+
+  /* Info Bar */
+  .info-bar {
+    font-size: 0.78rem;
+    color: var(--sp-text-muted);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.15rem 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .info-bar p {
+    margin: 0;
+  }
+
+  .info-bar p:not(:last-child)::after {
+    content: '\00b7';
+    margin-left: 0.5rem;
+    color: var(--sp-border);
+  }
+
+  .info-bar.hidden {
+    display: none;
+  }
+
+  /* Error */
+  .error-container {
+    background: var(--sp-coral-light);
+    border: 1px solid rgba(255, 107, 107, 0.2);
+    border-radius: var(--sp-radius);
+    padding: 1rem 1.25rem;
+    margin: 0 1.25rem;
+  }
+
+  .error-container.hidden {
+    display: none;
+  }
+
+  .error-container:not(.hidden) {
+    animation: slide-in 0.3s ease;
+  }
+
+  @keyframes slide-in {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Download */
+  .download-inactive {
+    opacity: 0.3;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+
+  .download-section:not(.download-inactive) {
+    transition: opacity 0.4s ease;
+  }
+
+  .download-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-family: var(--sp-font-body);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #fff;
+    background: var(--sp-mint);
+    border: none;
+    border-radius: var(--sp-radius-full);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 16px rgba(45, 212, 191, 0.3);
+  }
+
+  .download-btn:hover:not(:disabled) {
+    background: var(--sp-mint-dark);
+    transform: translateY(-2px) scale(1.01);
+    box-shadow: 0 6px 24px rgba(45, 212, 191, 0.4);
+  }
+
+  .download-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+</style>
