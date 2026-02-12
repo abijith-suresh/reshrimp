@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Soft Pop design system with custom CSS variables for tokens
+- Smooth fade and slide animations with dedicated keyframes
+- Cross-fade transitions between Original/Processed image tabs
+
+### Changed
+
+- Consolidated app UI components into single page file for better animation control
+- Removed preview 'popup' animation (unwanted translateY effect)
+- Tab switching now uses visibility/opacity for smooth transitions instead of display toggle
+- Page transitions updated to use consistent fade animations
+
+### Removed
+
+- TODO.md (moving to integrated task management)
+- Separated component files (DownloadButton, ImagePreview, ImageUploadArea, ProcessingControls)
+
+## [0.1.0] - 2025-02-08
+
+### Added
+
 - Initial project setup with Astro framework
 - Image processing functionality (resize, convert, compress)
 - Privacy-first browser-based image processing (no server uploads)
@@ -16,10 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Drag-and-drop image upload interface
 - Marketing landing page with feature highlights
 - AGENTS.md documentation for AI contributors
-
-### Changed
-
-- Improved AGENTS.md with comprehensive code style guidelines and development commands
 
 ## [0.1.0] - 2025-02-08
 
