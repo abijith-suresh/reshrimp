@@ -1,5 +1,6 @@
 ---
 import { ClientRouter } from 'astro:transitions';
+import '../styles/global.css';
 
 interface Props {
   title: string;
@@ -44,7 +45,3 @@ const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
     <slot />
   </body>
 </html>
-
-<style>
-  @import '../styles/global.css';
-</style>
