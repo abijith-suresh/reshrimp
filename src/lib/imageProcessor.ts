@@ -297,7 +297,10 @@ export class ImageProcessorController {
    */
   private showControls(): void {
     const controlsEl = document.getElementById('processing-controls');
-    controlsEl?.classList.remove('hidden');
+    controlsEl?.classList.remove('sbs-controls-inactive');
+    controlsEl
+      ?.querySelectorAll('input, select, button')
+      .forEach((el) => ((el as HTMLInputElement).disabled = false));
   }
 
   /**
@@ -398,21 +401,21 @@ export class ImageProcessorController {
   }
 
   /**
-   * Set processing state in UI
+   * Set processing state in UI — shows inline spinner in the process button
    */
   private setProcessingState(processing: boolean): void {
     const processButton = document.getElementById('process-button') as HTMLButtonElement;
-    const statusEl = document.getElementById('processing-status');
 
     if (processButton) {
       processButton.disabled = processing;
-    }
-
-    if (statusEl) {
       if (processing) {
-        statusEl.classList.remove('hidden');
+        processButton.classList.add('sp-process-btn-loading');
+        processButton.dataset.originalText = processButton.textContent?.trim() || 'Process Image';
+        processButton.innerHTML =
+          '<span class="sp-btn-spinner"></span><span>Processing\u2026</span>';
       } else {
-        statusEl.classList.add('hidden');
+        processButton.classList.remove('sp-process-btn-loading');
+        processButton.textContent = processButton.dataset.originalText || 'Process Image';
       }
     }
   }
@@ -474,7 +477,7 @@ export class ImageProcessorController {
       downloadButton.disabled = false;
     }
 
-    downloadSection?.classList.remove('hidden');
+    downloadSection?.classList.remove('sbs-download-inactive');
   }
 
   /**
