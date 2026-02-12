@@ -61,10 +61,7 @@ import PreviewPanel from '../components/app/PreviewPanel.astro';
     if (preview && emptyState) {
       new MutationObserver(() => {
         if (!preview.classList.contains('hidden')) {
-          emptyState.style.opacity = '0';
-          setTimeout(() => {
-            emptyState.style.display = 'none';
-          }, 300);
+          emptyState.style.display = 'none';
         }
       }).observe(preview, { attributes: true, attributeFilter: ['class'] });
     }
