@@ -4,6 +4,7 @@ import Header from '../components/shared/Header.astro';
 import Footer from '../components/shared/Footer.astro';
 import FloatingShapes from '../components/shared/FloatingShapes.astro';
 import { ROUTES } from '../config/constants';
+import { Scaling, ArrowLeftRight, Gauge, ShieldCheck, WifiOff, Code } from 'lucide-astro';
 
 const baseUrl = import.meta.env.BASE_URL;
 function makeHref(path: string): string {
@@ -12,42 +13,42 @@ function makeHref(path: string): string {
 
 const features = [
   {
-    emoji: '&#9986;',
+    icon: Scaling,
     title: 'Resize with precision',
     color: 'coral',
     description:
       'Scale images to exact pixel dimensions with intelligent aspect ratio lock. Perfect for social media thumbnails, website banners, or print-ready exports. Set width, height, or both — the calculator handles the math.',
   },
   {
-    emoji: '&#128260;',
+    icon: ArrowLeftRight,
     title: 'Convert between formats',
     color: 'mint',
     description:
       'Switch between JPEG, PNG, and WebP with a single click. Browser-native encoding means zero quality loss during conversion. Choose the right format for your use case — WebP for web, PNG for transparency, JPEG for photos.',
   },
   {
-    emoji: '&#128200;',
+    icon: Gauge,
     title: 'Smart compression',
     color: 'lavender',
     description:
       'Fine-tune quality from 0 to 100% with a live slider. Watch file sizes shrink in real-time with side-by-side before/after preview. Find the sweet spot between quality and file size for your needs.',
   },
   {
-    emoji: '&#128274;',
+    icon: ShieldCheck,
     title: 'Complete privacy',
     color: 'yellow',
     description:
       'Every pixel is processed locally using the Canvas API. No servers, no uploads, no tracking, no cookies, no accounts. Your images never leave your device. Verify it yourself — the source code is open.',
   },
   {
-    emoji: '&#128268;',
+    icon: WifiOff,
     title: 'Works offline',
     color: 'coral',
     description:
       'After the first load, Reshrimp works entirely without an internet connection. Process sensitive images on an air-gapped machine if you need to. No network requests, ever.',
   },
   {
-    emoji: '&#128736;',
+    icon: Code,
     title: 'Open source',
     color: 'mint',
     description:
@@ -87,7 +88,11 @@ const features = [
             features.map((feature, i) => (
               <div class:list={['feature-row', { 'feature-row-reverse': i % 2 === 1 }]}>
                 <div class={`feature-icon-box feature-icon-${feature.color}`}>
-                  <span class="feature-icon-emoji" set:html={feature.emoji} />
+                  <feature.icon
+                    size={40}
+                    strokeWidth={1.75}
+                    class={`feature-icon feature-icon-stroke-${feature.color}`}
+                  />
                 </div>
                 <div class="feature-text">
                   <h2 class="feature-title">{feature.title}</h2>
@@ -224,8 +229,20 @@ const features = [
     background: var(--sp-yellow-light);
   }
 
-  .feature-icon-emoji {
-    font-size: 2.5rem;
+  .feature-icon-stroke-coral {
+    color: var(--sp-coral-dark);
+  }
+
+  .feature-icon-stroke-mint {
+    color: var(--sp-mint-dark);
+  }
+
+  .feature-icon-stroke-lavender {
+    color: var(--sp-lavender-dark);
+  }
+
+  .feature-icon-stroke-yellow {
+    color: #a16207;
   }
 
   .feature-text {
