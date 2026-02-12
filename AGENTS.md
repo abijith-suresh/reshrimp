@@ -93,7 +93,7 @@ type(scope): subject
 3. Push branch: `git push -u origin feat/your-feature-name`
 4. Create PR: `gh pr create --title "feat: add feature" --body "Description"`
 5. Wait for CI checks (lint, format, build) to pass
-6. Merge using squash merge
+6. Merge using regular merge commit (not squash) with a clean message
 7. Delete branch after merge
 
 ## Code Style
