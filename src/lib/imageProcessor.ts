@@ -297,7 +297,7 @@ export class ImageProcessorController {
    */
   private showControls(): void {
     const controlsEl = document.getElementById('processing-controls');
-    controlsEl?.classList.remove('sbs-controls-inactive');
+    controlsEl?.classList.remove('controls-inactive');
     controlsEl
       ?.querySelectorAll('input, select, button')
       .forEach((el) => ((el as HTMLInputElement).disabled = false));
@@ -477,7 +477,7 @@ export class ImageProcessorController {
       downloadButton.disabled = false;
     }
 
-    downloadSection?.classList.remove('sbs-download-inactive');
+    downloadSection?.classList.remove('download-inactive');
   }
 
   /**
