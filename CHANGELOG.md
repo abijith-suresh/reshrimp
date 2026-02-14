@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Background removal feature using @imgly/background-removal (#16)
+  - Client-side background removal with WebAssembly/ONNX
+  - Automatic PNG output to preserve transparency
+  - Progress indicator during model loading
+  - Checkbox control in processing panel
 - Soft Pop design system with custom CSS variables for tokens
 - Smooth fade and slide animations with dedicated keyframes
 - Cross-fade transitions between Original/Processed image tabs
