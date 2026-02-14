@@ -1,6 +1,12 @@
 import type { ImageFormat } from '../types/image';
-import type { ResizeOptions, ProcessOptions, ProcessResult } from '../types/processing';
+import type {
+  ResizeOptions,
+  ProcessOptions,
+  ProcessResult,
+  BackgroundRemovalProgressCallback,
+} from '../types/processing';
 import { loadImage, resizeOnCanvas, canvasToBlob, getBestFormat } from './canvasService';
+import { removeBackground } from './backgroundRemovalService';
 
 /**
  * Calculate dimensions maintaining aspect ratio
@@ -90,12 +96,27 @@ export async function compressImage(file: File, quality: number): Promise<Blob> 
 
 /**
  * Process an image with combined operations (resize, format conversion, compression)
- * Operations are applied in order: resize -> format conversion -> compression
+ * Operations are applied in order: background removal -> resize -> format conversion -> compression
+ *
+ * When background removal is enabled, the output is always PNG to preserve transparency.
  */
-export async function processImage(file: File, options: ProcessOptions): Promise<ProcessResult> {
-  const img = await loadImage(file);
+export async function processImage(
+  file: File,
+  options: ProcessOptions,
+  onBackgroundRemovalProgress?: BackgroundRemovalProgressCallback
+): Promise<ProcessResult> {
+  let currentFile = file;
 
-  // Step 1: Determine dimensions (resize or original)
+  // Step 1: Remove background if requested
+  if (options.removeBackground) {
+    const transparentBlob = await removeBackground(file, onBackgroundRemovalProgress);
+    currentFile = new File([transparentBlob], file.name, { type: 'image/png' });
+  }
+
+  // Step 2: Load image (either original or background-removed)
+  const img = await loadImage(currentFile);
+
+  // Step 3: Determine dimensions (resize or original)
   let width = img.width;
   let height = img.height;
 
@@ -105,17 +126,27 @@ export async function processImage(file: File, options: ProcessOptions): Promise
     height = dimensions.height;
   }
 
-  // Step 2: Create canvas with final dimensions
+  // Step 4: Create canvas with final dimensions
   const canvas = resizeOnCanvas(img, width, height);
 
-  // Step 3: Determine format (convert or original)
-  let format: ImageFormat = options.format || (file.type as ImageFormat);
+  // Step 5: Determine format (convert or original)
+  // If background removal is enabled, force PNG to preserve transparency
+  let format: ImageFormat;
+  if (options.removeBackground) {
+    format = 'image/png';
+  } else {
+    format = options.format || (currentFile.type as ImageFormat);
+  }
   format = getBestFormat(format);
 
-  // Step 4: Determine quality (compress or default)
-  const quality = options.quality !== undefined ? options.quality : 0.92;
+  // Step 6: Determine quality (compress or default)
+  // PNG doesn't benefit from quality setting, so we only apply it for other formats
+  let quality: number | undefined;
+  if (format === 'image/jpeg' || format === 'image/webp') {
+    quality = options.quality !== undefined ? options.quality : 0.92;
+  }
 
-  // Step 5: Convert to blob
+  // Step 7: Convert to blob
   const blob = await canvasToBlob(canvas, format, quality);
 
   return {
