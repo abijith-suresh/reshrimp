@@ -17,7 +17,13 @@ export interface ProcessOptions {
   resize?: ResizeOptions;
   format?: ImageFormat;
   quality?: number; // 0-1 range for compression quality
+  removeBackground?: boolean;
 }
+
+/**
+ * Progress callback for background removal operations
+ */
+export type BackgroundRemovalProgressCallback = (progress: number) => void;
 
 /**
  * Result of image processing operation
