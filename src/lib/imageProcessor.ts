@@ -30,6 +30,7 @@ export class ImageProcessorController {
     this.setupDownloadButton();
     this.setupQualitySlider();
     this.setupResizeInputs();
+    this.setupBackgroundRemovalCheckbox();
   }
 
   /**
@@ -146,6 +147,29 @@ export class ImageProcessorController {
         this.updateHeightFromWidth();
       } else if (aspectRatioCheckbox.checked && lastChanged === 'height') {
         this.updateWidthFromHeight();
+      }
+    });
+  }
+
+  /**
+   * Set up background removal checkbox to show/hide notes and handle format override
+   */
+  private setupBackgroundRemovalCheckbox(): void {
+    const removeBgCheckbox = document.getElementById(
+      'remove-background-checkbox'
+    ) as HTMLInputElement;
+    const bgNote = document.getElementById('background-removal-note');
+    const formatNote = document.getElementById('format-override-note');
+
+    removeBgCheckbox?.addEventListener('change', () => {
+      const isChecked = removeBgCheckbox?.checked ?? false;
+
+      if (bgNote) {
+        bgNote.classList.toggle('hidden', !isChecked);
+      }
+
+      if (formatNote) {
+        formatNote.classList.toggle('hidden', !isChecked);
       }
     });
   }
@@ -343,8 +367,16 @@ export class ImageProcessorController {
     this.hideError();
 
     try {
-      // Process the image
-      const result = await processImage(currentImage.file, options);
+      // Process the image with progress callback for background removal
+      const result = await processImage(
+        currentImage.file,
+        options,
+        options.removeBackground
+          ? (progress) => {
+              this.updateBackgroundRemovalProgress(progress);
+            }
+          : undefined
+      );
 
       // Create object URL for processed image
       const processedUrl = URL.createObjectURL(result.blob);
@@ -369,6 +401,17 @@ export class ImageProcessorController {
   }
 
   /**
+   * Update the process button text with background removal progress
+   */
+  private updateBackgroundRemovalProgress(progress: number): void {
+    const processButton = document.getElementById('process-button') as HTMLButtonElement;
+    if (processButton && processButton.classList.contains('sp-process-btn-loading')) {
+      const percentage = Math.round(progress * 100);
+      processButton.innerHTML = `<span class="sp-btn-spinner"></span><span>Loading model ${percentage}%...</span>`;
+    }
+  }
+
+  /**
    * Get processing options from UI controls
    */
   private getProcessingOptions(): ProcessOptions {
@@ -379,8 +422,14 @@ export class ImageProcessorController {
     ) as HTMLInputElement;
     const formatSelect = document.getElementById('format-select') as HTMLSelectElement;
     const qualitySlider = document.getElementById('quality-slider') as HTMLInputElement;
+    const removeBgCheckbox = document.getElementById(
+      'remove-background-checkbox'
+    ) as HTMLInputElement;
 
     const options: ProcessOptions = {};
+
+    // Background removal option
+    options.removeBackground = removeBgCheckbox?.checked ?? false;
 
     // Resize options
     const width = widthInput?.value ? parseInt(widthInput.value, 10) : undefined;
@@ -498,7 +547,17 @@ export class ImageProcessorController {
 
     // Get the target format from UI or use original
     const formatSelect = document.getElementById('format-select') as HTMLSelectElement;
-    const targetFormat = (formatSelect?.value || currentImage.metadata.format) as ImageFormat;
+    const removeBgCheckbox = document.getElementById(
+      'remove-background-checkbox'
+    ) as HTMLInputElement;
+
+    // If background removal was enabled, force PNG format
+    let targetFormat: ImageFormat;
+    if (removeBgCheckbox?.checked) {
+      targetFormat = 'image/png';
+    } else {
+      targetFormat = (formatSelect?.value || currentImage.metadata.format) as ImageFormat;
+    }
 
     // Generate filename
     const filename = generateDownloadFilename(currentImage.metadata.fileName, targetFormat);

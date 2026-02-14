@@ -43,6 +43,26 @@
     </label>
   </div>
 
+  <!-- Background Removal -->
+  <div class="flex flex-col gap-2.5 border-t border-sp-border-light pt-5">
+    <h4 class="text-[0.8rem] font-semibold text-sp-text m-0 uppercase tracking-wider">
+      Background Removal
+    </h4>
+    <label class="flex items-center gap-2 text-[0.85rem] text-sp-text cursor-pointer">
+      <input
+        type="checkbox"
+        id="remove-background-checkbox"
+        class="w-4 h-4 accent-sp-lavender cursor-pointer"
+        disabled
+      />
+      <span>Remove background</span>
+    </label>
+    <p id="background-removal-note" class="text-[0.75rem] text-sp-text-muted m-0 hidden">
+      Output will be PNG to preserve transparency. This may take a moment while the model loads
+      (first time only).
+    </p>
+  </div>
+
   <!-- Format -->
   <div class="flex flex-col gap-2.5 border-t border-sp-border-light pt-5">
     <h4 class="text-[0.8rem] font-semibold text-sp-text m-0 uppercase tracking-wider">Format</h4>
@@ -70,6 +90,9 @@
         ></path>
       </svg>
     </div>
+    <p id="format-override-note" class="text-[0.75rem] text-sp-text-muted m-0 hidden">
+      Format set to PNG to preserve transparency from background removal.
+    </p>
   </div>
 
   <!-- Quality -->
