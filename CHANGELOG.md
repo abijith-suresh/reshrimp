@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- robots.txt with sitemap reference (#11)
+- Sitemap generation via @astrojs/sitemap integration (#11)
+- Open Graph and Twitter Card meta tags in Layout (#11)
+- Named `<slot name="head" />` in Layout for per-page head content (#11)
+- JSON-LD WebApplication structured data on home page (#11)
+- `og-image.png` (1200×630) and `apple-touch-icon.png` (180×180) static assets (#15)
+- `SITE_DESCRIPTION` constant in config/constants.ts (#11)
 - Background removal feature using @imgly/background-removal (#16)
   - Client-side background removal with WebAssembly/ONNX
   - Automatic PNG output to preserve transparency

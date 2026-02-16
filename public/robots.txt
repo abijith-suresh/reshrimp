@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://abijith-suresh.github.io/reshrimp/sitemap-index.xml

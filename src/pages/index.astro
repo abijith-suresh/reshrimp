@@ -4,16 +4,36 @@ import Header from '../components/shared/Header.astro';
 import Footer from '../components/shared/Footer.astro';
 import FloatingShapes from '../components/shared/FloatingShapes.astro';
 import SectionHeader from '../components/shared/SectionHeader.astro';
-import { ROUTES } from '../config/constants';
+import { ROUTES, SITE_NAME, SITE_DESCRIPTION } from '../config/constants';
 import { Scaling, ArrowLeftRight, Gauge, ShieldCheck } from 'lucide-astro';
 
 const baseUrl = import.meta.env.BASE_URL;
 function makeHref(path: string): string {
   return `${baseUrl}${path}`.replace(/\/+/g, '/');
 }
+
+const siteUrl = new URL(baseUrl, Astro.site).href;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: SITE_NAME,
+  description: SITE_DESCRIPTION,
+  url: siteUrl,
+  applicationCategory: 'MultimediaApplication',
+  operatingSystem: 'Any',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'USD',
+  },
+  featureList: ['Image resizing', 'Format conversion', 'Image compression', 'Background removal'],
+};
 ---
 
 <Layout title="Reshrimp — Your Images Deserve Better">
+  <Fragment slot="head">
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </Fragment>
   <div class="page-pop">
     <FloatingShapes />
     <Header currentPath="/" />
