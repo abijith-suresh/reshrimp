@@ -9,12 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Build-time dynamic OG image generation via satori + @resvg/resvg-js
+- Per-page OG images with Soft Pop design (decorative blobs, branded typography)
+- OG images for all static pages and blog posts at `/og/{route}.png`
+- Branded coral dot favicon replacing default Astro logo
+- Build-time apple-touch-icon generation via @resvg/resvg-js endpoint
+- `ogImagePath` prop on Layout for explicit OG image overrides
 - robots.txt with sitemap reference (#11)
 - Sitemap generation via @astrojs/sitemap integration (#11)
 - Open Graph and Twitter Card meta tags in Layout (#11)
 - Named `<slot name="head" />` in Layout for per-page head content (#11)
 - JSON-LD WebApplication structured data on home page (#11)
-- `og-image.png` (1200×630) and `apple-touch-icon.png` (180×180) static assets (#15)
 - `SITE_DESCRIPTION` constant in config/constants.ts (#11)
 - Background removal feature using @imgly/background-removal (#16)
   - Client-side background removal with WebAssembly/ONNX
@@ -46,6 +51,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- Static `og-image.png` and `apple-touch-icon.png` (replaced by build-time generation)
+- Default Astro rocket favicon
 - TODO.md (moving to integrated task management)
 - Separated component files (DownloadButton, ImagePreview, ImageUploadArea, ProcessingControls)
 
