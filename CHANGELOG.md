@@ -14,12 +14,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Automatic PNG output to preserve transparency
   - Progress indicator during model loading
   - Checkbox control in processing panel
+- Info tooltip on background removal checkbox (Lucide icon, hover + click)
 - Soft Pop design system with custom CSS variables for tokens
 - Smooth fade and slide animations with dedicated keyframes
 - Cross-fade transitions between Original/Processed image tabs
 
+### Fixed
+
+- Progress indicator showing "NaN%" on repeated background removal runs
+- Format selector not visually reflecting PNG override when background removal is enabled
+- Stale processed results persisting in UI when uploading a new image
+- File selector opening twice on second image upload
+- Layout shift when toggling background removal checkbox
+
 ### Changed
 
+- Format selector now locks to PNG and disables when background removal is checked
+- Background removal info displayed via tooltip instead of inline notes
+- Processed state and controls reset to defaults on new image upload
 - Consolidated app UI components into single page file for better animation control
 - Removed preview 'popup' animation (unwanted translateY effect)
 - Tab switching now uses visibility/opacity for smooth transitions instead of display toggle

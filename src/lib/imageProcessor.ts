@@ -15,6 +15,7 @@ export class ImageProcessorController {
   };
 
   private objectUrls: string[] = [];
+  private previousFormatValue: string = '';
 
   constructor() {
     this.initialize();
@@ -40,15 +41,20 @@ export class ImageProcessorController {
     const fileInput = document.getElementById('file-input') as HTMLInputElement;
     const uploadArea = document.getElementById('upload-area');
 
+    // Prevent file input clicks from bubbling back to the upload area
+    fileInput?.addEventListener('click', (e) => {
+      e.stopPropagation();
+    });
+
     uploadArea?.addEventListener('click', () => {
       fileInput?.click();
     });
 
-    fileInput?.addEventListener('change', (e) => {
+    fileInput?.addEventListener('change', async (e) => {
       const target = e.target as HTMLInputElement;
       const file = target.files?.[0];
       if (file) {
-        this.handleFileUpload(file);
+        await this.handleFileUpload(file);
         // Reset file input to allow re-selection of same file
         target.value = '';
       }
@@ -158,19 +164,43 @@ export class ImageProcessorController {
     const removeBgCheckbox = document.getElementById(
       'remove-background-checkbox'
     ) as HTMLInputElement;
-    const bgNote = document.getElementById('background-removal-note');
-    const formatNote = document.getElementById('format-override-note');
+    const formatSelect = document.getElementById('format-select') as HTMLSelectElement;
+    const infoTip = document.getElementById('bg-removal-info-tip');
 
     removeBgCheckbox?.addEventListener('change', () => {
       const isChecked = removeBgCheckbox?.checked ?? false;
 
-      if (bgNote) {
-        bgNote.classList.toggle('hidden', !isChecked);
+      if (infoTip) {
+        infoTip.classList.toggle('invisible', !isChecked);
       }
 
-      if (formatNote) {
-        formatNote.classList.toggle('hidden', !isChecked);
+      if (formatSelect) {
+        if (isChecked) {
+          this.previousFormatValue = formatSelect.value;
+          formatSelect.value = 'image/png';
+          formatSelect.disabled = true;
+          formatSelect.classList.add('sp-select-disabled');
+        } else {
+          formatSelect.value = this.previousFormatValue;
+          formatSelect.disabled = false;
+          formatSelect.classList.remove('sp-select-disabled');
+        }
       }
+    });
+
+    // Tooltip toggle on click
+    const infoIcon = document.getElementById('bg-removal-info-icon');
+    const tooltip = document.getElementById('bg-removal-tooltip');
+
+    infoIcon?.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      tooltip?.classList.toggle('active');
+    });
+
+    // Close tooltip when clicking outside
+    document.addEventListener('click', () => {
+      tooltip?.classList.remove('active');
     });
   }
 
@@ -244,6 +274,10 @@ export class ImageProcessorController {
       // Update state (array-based for future batch support)
       this.state.images = [processedImage];
       this.state.selectedIndex = 0;
+
+      // Reset stale processed results and controls
+      this.resetProcessedState();
+      this.resetControlValues();
 
       // Update UI
       this.displayFileInfo(file);
@@ -351,6 +385,80 @@ export class ImageProcessorController {
   }
 
   /**
+   * Reset processed preview, info, and download state
+   */
+  private resetProcessedState(): void {
+    const previewImg = document.getElementById('processed-preview') as HTMLImageElement;
+    const placeholderEl = document.getElementById('processed-placeholder');
+    const infoEl = document.getElementById('processed-info');
+    const dimensionsEl = document.getElementById('processed-dimensions');
+    const sizeEl = document.getElementById('processed-size');
+    const differenceEl = document.getElementById('size-difference');
+    const downloadSection = document.getElementById('download-section');
+    const downloadButton = document.getElementById('download-button') as HTMLButtonElement;
+
+    if (previewImg) {
+      previewImg.src = '';
+      previewImg.classList.add('hidden');
+    }
+
+    placeholderEl?.classList.remove('hidden');
+    infoEl?.classList.add('hidden');
+
+    if (dimensionsEl) dimensionsEl.textContent = '';
+    if (sizeEl) sizeEl.textContent = '';
+    if (differenceEl) differenceEl.textContent = '';
+
+    downloadSection?.classList.add('download-inactive');
+    if (downloadButton) downloadButton.disabled = true;
+
+    // Switch to Original tab via direct class manipulation
+    document.querySelectorAll('.sbs-tab').forEach((t) => t.classList.remove('sbs-tab-active'));
+    document.querySelectorAll('.tab-panel').forEach((p) => p.classList.remove('tab-panel-active'));
+    document.querySelector('.sbs-tab[data-tab="original"]')?.classList.add('sbs-tab-active');
+    document
+      .querySelector('.tab-panel[data-tabpanel="original"]')
+      ?.classList.add('tab-panel-active');
+  }
+
+  /**
+   * Reset all processing controls to default values
+   */
+  private resetControlValues(): void {
+    const widthInput = document.getElementById('width-input') as HTMLInputElement;
+    const heightInput = document.getElementById('height-input') as HTMLInputElement;
+    const aspectRatioCheckbox = document.getElementById(
+      'maintain-aspect-ratio'
+    ) as HTMLInputElement;
+    const removeBgCheckbox = document.getElementById(
+      'remove-background-checkbox'
+    ) as HTMLInputElement;
+    const infoTip = document.getElementById('bg-removal-info-tip');
+    const tooltip = document.getElementById('bg-removal-tooltip');
+    const formatSelect = document.getElementById('format-select') as HTMLSelectElement;
+    const qualitySlider = document.getElementById('quality-slider') as HTMLInputElement;
+    const qualityValue = document.getElementById('quality-value');
+
+    if (widthInput) widthInput.value = '';
+    if (heightInput) heightInput.value = '';
+    if (aspectRatioCheckbox) aspectRatioCheckbox.checked = true;
+
+    if (removeBgCheckbox) removeBgCheckbox.checked = false;
+    infoTip?.classList.add('invisible');
+    tooltip?.classList.remove('active');
+
+    if (formatSelect) {
+      formatSelect.value = '';
+      formatSelect.disabled = false;
+      formatSelect.classList.remove('sp-select-disabled');
+    }
+    this.previousFormatValue = '';
+
+    if (qualitySlider) qualitySlider.value = '92';
+    if (qualityValue) qualityValue.textContent = '92%';
+  }
+
+  /**
    * Process the current image with selected options
    */
   private async processCurrentImage(): Promise<void> {
@@ -365,6 +473,15 @@ export class ImageProcessorController {
     // Update UI to show processing state
     this.setProcessingState(true);
     this.hideError();
+
+    // Reset progress text for background removal to avoid stale percentage
+    if (options.removeBackground) {
+      const processButton = document.getElementById('process-button') as HTMLButtonElement;
+      if (processButton) {
+        processButton.innerHTML =
+          '<span class="sp-btn-spinner"></span><span>Loading model\u2026</span>';
+      }
+    }
 
     try {
       // Process the image with progress callback for background removal

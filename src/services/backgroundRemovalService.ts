@@ -20,7 +20,8 @@ export async function removeBackground(
 
   if (onProgress) {
     config.progress = (key: string, current: number, total: number) => {
-      const progress = current / total;
+      if (total === 0) return;
+      const progress = Math.min(current / total, 1);
       onProgress(progress);
     };
   }
