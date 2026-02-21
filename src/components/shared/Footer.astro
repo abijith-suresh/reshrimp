@@ -1,18 +1,18 @@
 ---
-import { GITHUB_URL, SITE_NAME, ROUTES } from '../../config/constants';
+import { GITHUB_URL, SITE_NAME, ROUTES } from "../../config/constants";
 
 const baseUrl = import.meta.env.BASE_URL;
 
 function makeHref(path: string): string {
-  return `${baseUrl}${path}`.replace(/\/+/g, '/');
+  return `${baseUrl}${path}`.replace(/\/+/g, "/");
 }
 
 const footerLinks = [
-  { label: 'Features', path: ROUTES.FEATURES },
-  { label: 'Privacy', path: ROUTES.PRIVACY },
-  { label: 'Blog', path: ROUTES.BLOG },
-  { label: 'About', path: ROUTES.ABOUT },
-  { label: 'FAQ', path: ROUTES.FAQ },
+  { label: "Features", path: ROUTES.FEATURES },
+  { label: "Privacy", path: ROUTES.PRIVACY },
+  { label: "Blog", path: ROUTES.BLOG },
+  { label: "About", path: ROUTES.ABOUT },
+  { label: "FAQ", path: ROUTES.FAQ },
 ];
 ---
 

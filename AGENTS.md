@@ -49,6 +49,9 @@ bun run lint
 # Lint and fix issues
 bun run lint:fix
 
+# Type check
+bun run type-check
+
 # Format code
 bun run format
 
@@ -56,103 +59,64 @@ bun run format
 bun run format:check
 ```
 
+## DevContainer
+
+The repository includes a DevContainer configuration for a consistent, fully containerized development environment.
+
+**Includes:** Node.js 24, Bun, GitHub CLI, and VSCode extensions (Astro, ESLint, Prettier, Tailwind CSS, EditorConfig, Vitest, Path IntelliSense).
+
+**Setup (requires Docker Desktop or Podman):**
+
+1. Install the VSCode **Dev Containers** extension (`ms-vscode-remote.remote-containers`)
+2. Open the repository in VSCode
+3. Press `F1` → **"Dev Containers: Reopen in Container"**
+
+The container automatically runs `bun install` on creation and forwards port 4321 for the Astro dev server.
+
 ## Git Workflow
 
-### Branch Naming Conventions
+### Branch Naming
 
-All branches should follow the `type/description` format:
-
-| Prefix      | Purpose               | Example                   |
-| ----------- | --------------------- | ------------------------- |
-| `feat/`     | New features          | `feat/add-search-modal`   |
-| `fix/`      | Bug fixes             | `fix/header-alignment`    |
-| `docs/`     | Documentation changes | `docs/update-readme`      |
-| `refactor/` | Code refactoring      | `refactor/simplify-utils` |
-| `chore/`    | Maintenance tasks     | `chore/update-deps`       |
+- Format: `type/description` (kebab-case)
+- Examples: `feat/add-og-images`, `fix/broken-nav`, `chore/update-deps`
+- Types: `feat`, `fix`, `docs`, `refactor`, `chore`, `test`
 
 ### Commit Message Format
 
-Use Conventional Commits format:
+Follows [Conventional Commits](https://www.conventionalcommits.org/):
 
 ```
 type(scope): subject
 ```
 
-**Types:** feat, fix, docs, refactor, chore, test
+- **type**: `feat`, `fix`, `docs`, `refactor`, `chore`, `test`
+- **scope**: optional, e.g., `feat(nav): add mobile menu`
+- **subject**: present tense, ≤50 chars, no period at end
 
-**Guidelines:**
+| Type       | When to use                     |
+| ---------- | ------------------------------- |
+| `feat`     | New feature                     |
+| `fix`      | Bug fix                         |
+| `docs`     | Documentation only              |
+| `refactor` | Code change without feature/fix |
+| `chore`    | Build, deps, config             |
+| `test`     | Tests only                      |
 
-- Use present tense ("add" not "added")
-- Keep subject under 50 characters
-- Reference issue numbers: `fix: resolve header bug (#42)`
+### PR Workflow
 
-### Pull Request Workflow
+1. Pull latest main: `git checkout main && git pull origin main`
+2. Cut branch: `git checkout -b type/description`
+3. Make atomic commits (one logical change per commit)
+4. Push branch: `git push -u origin type/description`
+5. Open PR: `gh pr create --title "type: description" --body "..."`
+6. Wait for CI to pass
+7. **Merge using squash merge** (keeps main history linear)
+8. Delete branch after merge
+9. Update `CHANGELOG.md` with a summary of changes
 
-1. Create branch from main: `git checkout -b feat/your-feature-name`
-2. Make atomic commits with clear messages
-3. Push branch: `git push -u origin feat/your-feature-name`
-4. Create PR: `gh pr create --title "feat: add feature" --body "Description"`
-5. Wait for CI checks (lint, format, build) to pass
-6. Merge using regular merge commit (not squash) with a clean message
-7. Delete branch after merge
+### Key Rules
 
-## Code Style
-
-### TypeScript
-
-- Use strict TypeScript with explicit types
-- Use `type` keyword for type imports: `import type { Foo } from './types'`
-- Define interfaces in dedicated files under `src/types/`
-- Use PascalCase for types/interfaces, camelCase for variables/functions
-- Export explicit return types on public functions
-
-### Formatting (Prettier)
-
-- Semi-colons: enabled
-- Single quotes: enabled
-- Tab width: 2 spaces
-- Trailing commas: ES5 compatible
-- Print width: 100 characters
-
-### Imports
-
-- Group imports: external libs first, then internal modules
-- Use path aliases when configured
-- Avoid default exports, prefer named exports
-- Use `type` imports for type-only dependencies
-
-### Naming Conventions
-
-- Components: PascalCase (e.g., `ImageUpload.astro`)
-- Functions: camelCase (e.g., `processImage()`)
-- Constants: UPPER_SNAKE_CASE for true constants
-- Files: camelCase for TS/JS, PascalCase for components
-
-### Error Handling
-
-- Use async/await with try/catch for async operations
-- Return validation results as objects with `valid` and `error` fields
-- Avoid throwing errors for expected failure cases
-- Use descriptive error messages
-
-### Documentation
-
-- Add JSDoc comments for exported functions explaining purpose and params
-- Keep inline comments minimal - prefer self-documenting code
-- Document complex algorithms or business logic
-
-### Testing
-
-- Co-locate tests next to source files: `file.ts` → `file.test.ts`
-- Use Vitest with jsdom environment
-- Import from `vitest` for test utilities
-- Test behavior, not implementation details
-
-## AI Agent Guidelines
-
-- Always check git status before making changes
-- Follow branch naming and commit conventions
-- Never commit directly to `main` - always use PR workflow
-- Keep responses concise and to the point
-- Avoid unnecessary explanations in code comments
-- Run `bun run lint && bun run format:check` before committing
+- Never commit directly to `main`
+- Pre-commit hook runs lint-staged automatically
+- `commit-msg` hook validates commit format via commitlint
+- Keep commits atomic — one logical change, one commit

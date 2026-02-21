@@ -1,9 +1,9 @@
 ---
-title: 'Image Compression Explained: Quality vs File Size'
-description: 'Understand how image compression works, what the quality slider actually does, and how to find the sweet spot for your images.'
+title: "Image Compression Explained: Quality vs File Size"
+description: "Understand how image compression works, what the quality slider actually does, and how to find the sweet spot for your images."
 publishDate: 2025-01-01
-author: 'Reshrimp Team'
-tags: ['guide', 'compression', 'optimization']
+author: "Reshrimp Team"
+tags: ["guide", "compression", "optimization"]
 ---
 
 ## What is image compression?

@@ -5,7 +5,8 @@
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
     "editorconfig.editorconfig",
-    "vitest.explorer"
+    "vitest.explorer",
+    "christian-kohler.path-intellisense"
   ],
   "unwantedRecommendations": []
 }

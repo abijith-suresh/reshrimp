@@ -1,10 +1,10 @@
 ---
-import { SITE_NAME, ROUTES } from '../../config/constants';
+import { SITE_NAME, ROUTES } from "../../config/constants";
 
 const baseUrl = import.meta.env.BASE_URL;
 
 function makeHref(path: string): string {
-  return `${baseUrl}${path}`.replace(/\/+/g, '/');
+  return `${baseUrl}${path}`.replace(/\/+/g, "/");
 }
 ---
 

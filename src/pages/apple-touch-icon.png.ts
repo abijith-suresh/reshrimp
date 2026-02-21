@@ -1,5 +1,5 @@
-import type { APIRoute } from 'astro';
-import { Resvg } from '@resvg/resvg-js';
+import type { APIRoute } from "astro";
+import { Resvg } from "@resvg/resvg-js";
 
 const SIZE = 180;
 
@@ -10,15 +10,15 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${SIZE}" height="${S
 
 export const GET: APIRoute = () => {
   const resvg = new Resvg(svg, {
-    fitTo: { mode: 'width', value: SIZE },
+    fitTo: { mode: "width", value: SIZE },
   });
 
   const png = Buffer.from(resvg.render().asPng());
 
   return new Response(png, {
     headers: {
-      'Content-Type': 'image/png',
-      'Cache-Control': 'public, max-age=31536000, immutable',
+      "Content-Type": "image/png",
+      "Cache-Control": "public, max-age=31536000, immutable",
     },
   });
 };

@@ -1,9 +1,9 @@
 ---
-title: 'JPEG vs PNG vs WebP: Which Format Should You Use?'
-description: 'A practical guide to choosing the right image format. Learn when to use JPEG, PNG, or WebP based on your specific needs.'
+title: "JPEG vs PNG vs WebP: Which Format Should You Use?"
+description: "A practical guide to choosing the right image format. Learn when to use JPEG, PNG, or WebP based on your specific needs."
 publishDate: 2025-01-08
-author: 'Reshrimp Team'
-tags: ['guide', 'formats', 'optimization']
+author: "Reshrimp Team"
+tags: ["guide", "formats", "optimization"]
 ---
 
 ## The three formats you need to know
