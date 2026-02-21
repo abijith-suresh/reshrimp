@@ -4,29 +4,29 @@
  */
 
 // GitHub repository URL
-export const GITHUB_URL = 'https://github.com/abijith-suresh/reshrimp';
+export const GITHUB_URL = "https://github.com/abijith-suresh/reshrimp";
 
 // Site metadata
-export const SITE_NAME = 'Reshrimp';
-export const SITE_TAGLINE = 'Privacy-first image processing in your browser';
+export const SITE_NAME = "Reshrimp";
+export const SITE_TAGLINE = "Privacy-first image processing in your browser";
 export const SITE_DESCRIPTION =
-  'Resize, convert, and compress images right in your browser. Nothing gets uploaded. Nothing gets tracked. It just works.';
+  "Resize, convert, and compress images right in your browser. Nothing gets uploaded. Nothing gets tracked. It just works.";
 
 // Navigation paths (relative to base URL)
 export const ROUTES = {
-  HOME: '/',
-  APP: '/app',
-  FEATURES: '/features',
-  PRIVACY: '/privacy',
-  BLOG: '/blog',
-  ABOUT: '/about',
-  FAQ: '/faq',
+  HOME: "/",
+  APP: "/app",
+  FEATURES: "/features",
+  PRIVACY: "/privacy",
+  BLOG: "/blog",
+  ABOUT: "/about",
+  FAQ: "/faq",
 } as const;
 
 // Header navigation links
 export const NAV_LINKS = [
-  { label: 'Home', path: ROUTES.HOME },
-  { label: 'Features', path: ROUTES.FEATURES },
-  { label: 'Blog', path: ROUTES.BLOG },
-  { label: 'About', path: ROUTES.ABOUT },
+  { label: "Home", path: ROUTES.HOME },
+  { label: "Features", path: ROUTES.FEATURES },
+  { label: "Blog", path: ROUTES.BLOG },
+  { label: "About", path: ROUTES.ABOUT },
 ] as const;

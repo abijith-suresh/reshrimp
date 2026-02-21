@@ -1,4 +1,4 @@
-import type { ImageFormat } from './image';
+import type { ImageFormat } from "./image";
 
 /**
  * Options for resizing images

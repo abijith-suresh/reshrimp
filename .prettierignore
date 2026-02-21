@@ -1,0 +1,18 @@
+# Build outputs
+dist/
+.astro/
+
+# Dependencies
+node_modules/
+
+# Lock files
+bun.lock
+package-lock.json
+yarn.lock
+
+# Environment files
+.env
+.env.*
+
+# Cache
+.cache/

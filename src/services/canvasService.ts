@@ -1,4 +1,4 @@
-import type { ImageFormat } from '../types/image';
+import type { ImageFormat } from "../types/image";
 
 /**
  * Load an image from a File object into an HTMLImageElement
@@ -15,7 +15,7 @@ export async function loadImage(file: File): Promise<HTMLImageElement> {
 
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      reject(new Error('Failed to load image'));
+      reject(new Error("Failed to load image"));
     };
 
     img.src = url;
@@ -31,18 +31,18 @@ export function resizeOnCanvas(
   width: number,
   height: number
 ): HTMLCanvasElement {
-  const canvas = document.createElement('canvas');
+  const canvas = document.createElement("canvas");
   canvas.width = width;
   canvas.height = height;
 
-  const ctx = canvas.getContext('2d');
+  const ctx = canvas.getContext("2d");
   if (!ctx) {
-    throw new Error('Failed to get canvas context');
+    throw new Error("Failed to get canvas context");
   }
 
   // Use high-quality image smoothing
   ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
+  ctx.imageSmoothingQuality = "high";
 
   ctx.drawImage(img, 0, 0, width, height);
 
@@ -55,7 +55,7 @@ export function resizeOnCanvas(
  */
 export async function canvasToBlob(
   canvas: HTMLCanvasElement,
-  format: ImageFormat = 'image/png',
+  format: ImageFormat = "image/png",
   quality: number = 0.92
 ): Promise<Blob> {
   return new Promise((resolve, reject) => {
@@ -77,7 +77,7 @@ export async function canvasToBlob(
  * Check if the browser supports a specific image format
  */
 export function supportsFormat(format: ImageFormat): boolean {
-  const canvas = document.createElement('canvas');
+  const canvas = document.createElement("canvas");
   const dataUrl = canvas.toDataURL(format);
   return dataUrl.startsWith(`data:${format}`);
 }
@@ -92,5 +92,5 @@ export function getBestFormat(requestedFormat: ImageFormat): ImageFormat {
 
   // Fallback to PNG for unsupported formats
   console.warn(`Format ${requestedFormat} not supported, falling back to PNG`);
-  return 'image/png';
+  return "image/png";
 }

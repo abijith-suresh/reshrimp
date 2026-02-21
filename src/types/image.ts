@@ -1,7 +1,7 @@
 /**
  * Supported image formats for conversion
  */
-export type ImageFormat = 'image/jpeg' | 'image/png' | 'image/webp' | 'image/gif';
+export type ImageFormat = "image/jpeg" | "image/png" | "image/webp" | "image/gif";
 
 /**
  * Image metadata extracted from files

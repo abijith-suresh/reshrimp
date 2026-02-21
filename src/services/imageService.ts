@@ -1,12 +1,12 @@
-import type { ImageFormat } from '../types/image';
+import type { ImageFormat } from "../types/image";
 import type {
   ResizeOptions,
   ProcessOptions,
   ProcessResult,
   BackgroundRemovalProgressCallback,
-} from '../types/processing';
-import { loadImage, resizeOnCanvas, canvasToBlob, getBestFormat } from './canvasService';
-import { removeBackground } from './backgroundRemovalService';
+} from "../types/processing";
+import { loadImage, resizeOnCanvas, canvasToBlob, getBestFormat } from "./canvasService";
+import { removeBackground } from "./backgroundRemovalService";
 
 /**
  * Calculate dimensions maintaining aspect ratio
@@ -86,9 +86,9 @@ export async function compressImage(file: File, quality: number): Promise<Blob> 
 
   // Use original format or default to JPEG for compression
   let format = file.type as ImageFormat;
-  if (format === 'image/gif' || format === 'image/png') {
+  if (format === "image/gif" || format === "image/png") {
     // PNG and GIF don't support quality parameter well, convert to JPEG
-    format = 'image/jpeg';
+    format = "image/jpeg";
   }
 
   return canvasToBlob(canvas, getBestFormat(format), clampedQuality);
@@ -110,7 +110,7 @@ export async function processImage(
   // Step 1: Remove background if requested
   if (options.removeBackground) {
     const transparentBlob = await removeBackground(file, onBackgroundRemovalProgress);
-    currentFile = new File([transparentBlob], file.name, { type: 'image/png' });
+    currentFile = new File([transparentBlob], file.name, { type: "image/png" });
   }
 
   // Step 2: Load image (either original or background-removed)
@@ -133,7 +133,7 @@ export async function processImage(
   // If background removal is enabled, force PNG to preserve transparency
   let format: ImageFormat;
   if (options.removeBackground) {
-    format = 'image/png';
+    format = "image/png";
   } else {
     format = options.format || (currentFile.type as ImageFormat);
   }
@@ -142,7 +142,7 @@ export async function processImage(
   // Step 6: Determine quality (compress or default)
   // PNG doesn't benefit from quality setting, so we only apply it for other formats
   let quality: number | undefined;
-  if (format === 'image/jpeg' || format === 'image/webp') {
+  if (format === "image/jpeg" || format === "image/webp") {
     quality = options.quality !== undefined ? options.quality : 0.92;
   }
 

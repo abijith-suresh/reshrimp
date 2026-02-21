@@ -1,8 +1,8 @@
-import type { ImageState, ProcessedImage, ImageFormat } from '../types/image';
-import type { ProcessOptions } from '../types/processing';
-import { processImage, getImageMetadata } from '../services/imageService';
-import { validateImageFile, generateDownloadFilename } from '../services/validationService';
-import { createDownloadLink, formatFileSize, generateId } from '../utils/imageUtils';
+import type { ImageState, ProcessedImage, ImageFormat } from "../types/image";
+import type { ProcessOptions } from "../types/processing";
+import { processImage, getImageMetadata } from "../services/imageService";
+import { validateImageFile, generateDownloadFilename } from "../services/validationService";
+import { createDownloadLink, formatFileSize, generateId } from "../utils/imageUtils";
 
 /**
  * Main controller class for image processing
@@ -15,7 +15,7 @@ export class ImageProcessorController {
   };
 
   private objectUrls: string[] = [];
-  private previousFormatValue: string = '';
+  private previousFormatValue: string = "";
 
   constructor() {
     this.initialize();
@@ -38,25 +38,25 @@ export class ImageProcessorController {
    * Set up file input change listener
    */
   private setupFileInput(): void {
-    const fileInput = document.getElementById('file-input') as HTMLInputElement;
-    const uploadArea = document.getElementById('upload-area');
+    const fileInput = document.getElementById("file-input") as HTMLInputElement;
+    const uploadArea = document.getElementById("upload-area");
 
     // Prevent file input clicks from bubbling back to the upload area
-    fileInput?.addEventListener('click', (e) => {
+    fileInput?.addEventListener("click", (e) => {
       e.stopPropagation();
     });
 
-    uploadArea?.addEventListener('click', () => {
+    uploadArea?.addEventListener("click", () => {
       fileInput?.click();
     });
 
-    fileInput?.addEventListener('change', async (e) => {
+    fileInput?.addEventListener("change", async (e) => {
       const target = e.target as HTMLInputElement;
       const file = target.files?.[0];
       if (file) {
         await this.handleFileUpload(file);
         // Reset file input to allow re-selection of same file
-        target.value = '';
+        target.value = "";
       }
     });
   }
@@ -65,20 +65,20 @@ export class ImageProcessorController {
    * Set up drag and drop listeners
    */
   private setupDragAndDrop(): void {
-    const uploadArea = document.getElementById('upload-area');
+    const uploadArea = document.getElementById("upload-area");
 
-    uploadArea?.addEventListener('dragover', (e) => {
+    uploadArea?.addEventListener("dragover", (e) => {
       e.preventDefault();
-      uploadArea.classList.add('sp-drag-active');
+      uploadArea.classList.add("sp-drag-active");
     });
 
-    uploadArea?.addEventListener('dragleave', () => {
-      uploadArea.classList.remove('sp-drag-active');
+    uploadArea?.addEventListener("dragleave", () => {
+      uploadArea.classList.remove("sp-drag-active");
     });
 
-    uploadArea?.addEventListener('drop', (e) => {
+    uploadArea?.addEventListener("drop", (e) => {
       e.preventDefault();
-      uploadArea.classList.remove('sp-drag-active');
+      uploadArea.classList.remove("sp-drag-active");
 
       const file = e.dataTransfer?.files[0];
       if (file) {
@@ -91,8 +91,8 @@ export class ImageProcessorController {
    * Set up process button listener
    */
   private setupProcessButton(): void {
-    const processButton = document.getElementById('process-button');
-    processButton?.addEventListener('click', (e) => {
+    const processButton = document.getElementById("process-button");
+    processButton?.addEventListener("click", (e) => {
       e.preventDefault();
       this.processCurrentImage();
     });
@@ -102,8 +102,8 @@ export class ImageProcessorController {
    * Set up download button listener
    */
   private setupDownloadButton(): void {
-    const downloadButton = document.getElementById('download-button');
-    downloadButton?.addEventListener('click', () => {
+    const downloadButton = document.getElementById("download-button");
+    downloadButton?.addEventListener("click", () => {
       this.downloadProcessedImage();
     });
   }
@@ -112,10 +112,10 @@ export class ImageProcessorController {
    * Set up quality slider to update display value
    */
   private setupQualitySlider(): void {
-    const qualitySlider = document.getElementById('quality-slider') as HTMLInputElement;
-    const qualityValue = document.getElementById('quality-value');
+    const qualitySlider = document.getElementById("quality-slider") as HTMLInputElement;
+    const qualityValue = document.getElementById("quality-value");
 
-    qualitySlider?.addEventListener('input', () => {
+    qualitySlider?.addEventListener("input", () => {
       if (qualityValue) {
         qualityValue.textContent = `${qualitySlider.value}%`;
       }
@@ -126,32 +126,32 @@ export class ImageProcessorController {
    * Set up resize inputs to auto-calculate based on aspect ratio
    */
   private setupResizeInputs(): void {
-    const widthInput = document.getElementById('width-input') as HTMLInputElement;
-    const heightInput = document.getElementById('height-input') as HTMLInputElement;
+    const widthInput = document.getElementById("width-input") as HTMLInputElement;
+    const heightInput = document.getElementById("height-input") as HTMLInputElement;
     const aspectRatioCheckbox = document.getElementById(
-      'maintain-aspect-ratio'
+      "maintain-aspect-ratio"
     ) as HTMLInputElement;
 
-    let lastChanged: 'width' | 'height' | null = null;
+    let lastChanged: "width" | "height" | null = null;
 
-    widthInput?.addEventListener('input', () => {
-      lastChanged = 'width';
+    widthInput?.addEventListener("input", () => {
+      lastChanged = "width";
       if (aspectRatioCheckbox?.checked) {
         this.updateHeightFromWidth();
       }
     });
 
-    heightInput?.addEventListener('input', () => {
-      lastChanged = 'height';
+    heightInput?.addEventListener("input", () => {
+      lastChanged = "height";
       if (aspectRatioCheckbox?.checked) {
         this.updateWidthFromHeight();
       }
     });
 
-    aspectRatioCheckbox?.addEventListener('change', () => {
-      if (aspectRatioCheckbox.checked && lastChanged === 'width') {
+    aspectRatioCheckbox?.addEventListener("change", () => {
+      if (aspectRatioCheckbox.checked && lastChanged === "width") {
         this.updateHeightFromWidth();
-      } else if (aspectRatioCheckbox.checked && lastChanged === 'height') {
+      } else if (aspectRatioCheckbox.checked && lastChanged === "height") {
         this.updateWidthFromHeight();
       }
     });
@@ -162,45 +162,45 @@ export class ImageProcessorController {
    */
   private setupBackgroundRemovalCheckbox(): void {
     const removeBgCheckbox = document.getElementById(
-      'remove-background-checkbox'
+      "remove-background-checkbox"
     ) as HTMLInputElement;
-    const formatSelect = document.getElementById('format-select') as HTMLSelectElement;
-    const infoTip = document.getElementById('bg-removal-info-tip');
+    const formatSelect = document.getElementById("format-select") as HTMLSelectElement;
+    const infoTip = document.getElementById("bg-removal-info-tip");
 
-    removeBgCheckbox?.addEventListener('change', () => {
+    removeBgCheckbox?.addEventListener("change", () => {
       const isChecked = removeBgCheckbox?.checked ?? false;
 
       if (infoTip) {
-        infoTip.classList.toggle('invisible', !isChecked);
+        infoTip.classList.toggle("invisible", !isChecked);
       }
 
       if (formatSelect) {
         if (isChecked) {
           this.previousFormatValue = formatSelect.value;
-          formatSelect.value = 'image/png';
+          formatSelect.value = "image/png";
           formatSelect.disabled = true;
-          formatSelect.classList.add('sp-select-disabled');
+          formatSelect.classList.add("sp-select-disabled");
         } else {
           formatSelect.value = this.previousFormatValue;
           formatSelect.disabled = false;
-          formatSelect.classList.remove('sp-select-disabled');
+          formatSelect.classList.remove("sp-select-disabled");
         }
       }
     });
 
     // Tooltip toggle on click
-    const infoIcon = document.getElementById('bg-removal-info-icon');
-    const tooltip = document.getElementById('bg-removal-tooltip');
+    const infoIcon = document.getElementById("bg-removal-info-icon");
+    const tooltip = document.getElementById("bg-removal-tooltip");
 
-    infoIcon?.addEventListener('click', (e) => {
+    infoIcon?.addEventListener("click", (e) => {
       e.preventDefault();
       e.stopPropagation();
-      tooltip?.classList.toggle('active');
+      tooltip?.classList.toggle("active");
     });
 
     // Close tooltip when clicking outside
-    document.addEventListener('click', () => {
-      tooltip?.classList.remove('active');
+    document.addEventListener("click", () => {
+      tooltip?.classList.remove("active");
     });
   }
 
@@ -211,8 +211,8 @@ export class ImageProcessorController {
     const currentImage = this.state.images[this.state.selectedIndex];
     if (!currentImage) return;
 
-    const widthInput = document.getElementById('width-input') as HTMLInputElement;
-    const heightInput = document.getElementById('height-input') as HTMLInputElement;
+    const widthInput = document.getElementById("width-input") as HTMLInputElement;
+    const heightInput = document.getElementById("height-input") as HTMLInputElement;
 
     if (widthInput && heightInput && widthInput.value) {
       const width = parseInt(widthInput.value, 10);
@@ -229,8 +229,8 @@ export class ImageProcessorController {
     const currentImage = this.state.images[this.state.selectedIndex];
     if (!currentImage) return;
 
-    const widthInput = document.getElementById('width-input') as HTMLInputElement;
-    const heightInput = document.getElementById('height-input') as HTMLInputElement;
+    const widthInput = document.getElementById("width-input") as HTMLInputElement;
+    const heightInput = document.getElementById("height-input") as HTMLInputElement;
 
     if (widthInput && heightInput && heightInput.value) {
       const height = parseInt(heightInput.value, 10);
@@ -286,8 +286,8 @@ export class ImageProcessorController {
       this.populateDefaultValues(metadata);
       this.hideError();
     } catch (error) {
-      this.displayError('Failed to load image. Please try another file.');
-      console.error('Error loading image:', error);
+      this.displayError("Failed to load image. Please try another file.");
+      console.error("Error loading image:", error);
     }
   }
 
@@ -299,19 +299,19 @@ export class ImageProcessorController {
     error?: string;
     warning?: string;
   }): void {
-    const messageEl = document.getElementById('validation-message');
+    const messageEl = document.getElementById("validation-message");
     if (!messageEl) return;
 
     if (validation.error) {
       messageEl.textContent = validation.error;
-      messageEl.className = 'sp-validation-error';
-      messageEl.classList.remove('hidden');
+      messageEl.className = "sp-validation-error";
+      messageEl.classList.remove("hidden");
     } else if (validation.warning) {
       messageEl.textContent = validation.warning;
-      messageEl.className = 'sp-validation-warning';
-      messageEl.classList.remove('hidden');
+      messageEl.className = "sp-validation-warning";
+      messageEl.classList.remove("hidden");
     } else {
-      messageEl.classList.add('hidden');
+      messageEl.classList.add("hidden");
     }
   }
 
@@ -319,10 +319,10 @@ export class ImageProcessorController {
    * Display file information
    */
   private displayFileInfo(file: File): void {
-    const fileInfoEl = document.getElementById('file-info');
+    const fileInfoEl = document.getElementById("file-info");
     if (fileInfoEl) {
       fileInfoEl.textContent = `Selected: ${file.name} (${formatFileSize(file.size)})`;
-      fileInfoEl.classList.remove('hidden');
+      fileInfoEl.classList.remove("hidden");
     }
   }
 
@@ -330,10 +330,10 @@ export class ImageProcessorController {
    * Display original image preview
    */
   private displayOriginalPreview(image: ProcessedImage): void {
-    const previewImg = document.getElementById('original-preview') as HTMLImageElement;
-    const dimensionsEl = document.getElementById('original-dimensions');
-    const sizeEl = document.getElementById('original-size');
-    const containerEl = document.getElementById('preview-container');
+    const previewImg = document.getElementById("original-preview") as HTMLImageElement;
+    const dimensionsEl = document.getElementById("original-dimensions");
+    const sizeEl = document.getElementById("original-size");
+    const containerEl = document.getElementById("preview-container");
 
     if (dimensionsEl) {
       dimensionsEl.textContent = `Dimensions: ${image.metadata.width} × ${image.metadata.height}px`;
@@ -345,7 +345,7 @@ export class ImageProcessorController {
 
     if (previewImg) {
       const reveal = () => {
-        containerEl?.classList.remove('hidden');
+        containerEl?.classList.remove("hidden");
       };
 
       if (previewImg.src === image.originalUrl && previewImg.complete) {
@@ -361,10 +361,10 @@ export class ImageProcessorController {
    * Show processing controls
    */
   private showControls(): void {
-    const controlsEl = document.getElementById('processing-controls');
-    controlsEl?.classList.remove('controls-inactive');
+    const controlsEl = document.getElementById("processing-controls");
+    controlsEl?.classList.remove("controls-inactive");
     controlsEl
-      ?.querySelectorAll('input, select, button')
+      ?.querySelectorAll("input, select, button")
       .forEach((el) => ((el as HTMLInputElement).disabled = false));
   }
 
@@ -372,8 +372,8 @@ export class ImageProcessorController {
    * Populate default values in controls
    */
   private populateDefaultValues(metadata: { width: number; height: number; format: string }): void {
-    const widthInput = document.getElementById('width-input') as HTMLInputElement;
-    const heightInput = document.getElementById('height-input') as HTMLInputElement;
+    const widthInput = document.getElementById("width-input") as HTMLInputElement;
+    const heightInput = document.getElementById("height-input") as HTMLInputElement;
 
     if (widthInput) {
       widthInput.placeholder = `${metadata.width}`;
@@ -388,74 +388,74 @@ export class ImageProcessorController {
    * Reset processed preview, info, and download state
    */
   private resetProcessedState(): void {
-    const previewImg = document.getElementById('processed-preview') as HTMLImageElement;
-    const placeholderEl = document.getElementById('processed-placeholder');
-    const infoEl = document.getElementById('processed-info');
-    const dimensionsEl = document.getElementById('processed-dimensions');
-    const sizeEl = document.getElementById('processed-size');
-    const differenceEl = document.getElementById('size-difference');
-    const downloadSection = document.getElementById('download-section');
-    const downloadButton = document.getElementById('download-button') as HTMLButtonElement;
+    const previewImg = document.getElementById("processed-preview") as HTMLImageElement;
+    const placeholderEl = document.getElementById("processed-placeholder");
+    const infoEl = document.getElementById("processed-info");
+    const dimensionsEl = document.getElementById("processed-dimensions");
+    const sizeEl = document.getElementById("processed-size");
+    const differenceEl = document.getElementById("size-difference");
+    const downloadSection = document.getElementById("download-section");
+    const downloadButton = document.getElementById("download-button") as HTMLButtonElement;
 
     if (previewImg) {
-      previewImg.src = '';
-      previewImg.classList.add('hidden');
+      previewImg.src = "";
+      previewImg.classList.add("hidden");
     }
 
-    placeholderEl?.classList.remove('hidden');
-    infoEl?.classList.add('hidden');
+    placeholderEl?.classList.remove("hidden");
+    infoEl?.classList.add("hidden");
 
-    if (dimensionsEl) dimensionsEl.textContent = '';
-    if (sizeEl) sizeEl.textContent = '';
-    if (differenceEl) differenceEl.textContent = '';
+    if (dimensionsEl) dimensionsEl.textContent = "";
+    if (sizeEl) sizeEl.textContent = "";
+    if (differenceEl) differenceEl.textContent = "";
 
-    downloadSection?.classList.add('download-inactive');
+    downloadSection?.classList.add("download-inactive");
     if (downloadButton) downloadButton.disabled = true;
 
     // Switch to Original tab via direct class manipulation
-    document.querySelectorAll('.sbs-tab').forEach((t) => t.classList.remove('sbs-tab-active'));
-    document.querySelectorAll('.tab-panel').forEach((p) => p.classList.remove('tab-panel-active'));
-    document.querySelector('.sbs-tab[data-tab="original"]')?.classList.add('sbs-tab-active');
+    document.querySelectorAll(".sbs-tab").forEach((t) => t.classList.remove("sbs-tab-active"));
+    document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("tab-panel-active"));
+    document.querySelector('.sbs-tab[data-tab="original"]')?.classList.add("sbs-tab-active");
     document
       .querySelector('.tab-panel[data-tabpanel="original"]')
-      ?.classList.add('tab-panel-active');
+      ?.classList.add("tab-panel-active");
   }
 
   /**
    * Reset all processing controls to default values
    */
   private resetControlValues(): void {
-    const widthInput = document.getElementById('width-input') as HTMLInputElement;
-    const heightInput = document.getElementById('height-input') as HTMLInputElement;
+    const widthInput = document.getElementById("width-input") as HTMLInputElement;
+    const heightInput = document.getElementById("height-input") as HTMLInputElement;
     const aspectRatioCheckbox = document.getElementById(
-      'maintain-aspect-ratio'
+      "maintain-aspect-ratio"
     ) as HTMLInputElement;
     const removeBgCheckbox = document.getElementById(
-      'remove-background-checkbox'
+      "remove-background-checkbox"
     ) as HTMLInputElement;
-    const infoTip = document.getElementById('bg-removal-info-tip');
-    const tooltip = document.getElementById('bg-removal-tooltip');
-    const formatSelect = document.getElementById('format-select') as HTMLSelectElement;
-    const qualitySlider = document.getElementById('quality-slider') as HTMLInputElement;
-    const qualityValue = document.getElementById('quality-value');
+    const infoTip = document.getElementById("bg-removal-info-tip");
+    const tooltip = document.getElementById("bg-removal-tooltip");
+    const formatSelect = document.getElementById("format-select") as HTMLSelectElement;
+    const qualitySlider = document.getElementById("quality-slider") as HTMLInputElement;
+    const qualityValue = document.getElementById("quality-value");
 
-    if (widthInput) widthInput.value = '';
-    if (heightInput) heightInput.value = '';
+    if (widthInput) widthInput.value = "";
+    if (heightInput) heightInput.value = "";
     if (aspectRatioCheckbox) aspectRatioCheckbox.checked = true;
 
     if (removeBgCheckbox) removeBgCheckbox.checked = false;
-    infoTip?.classList.add('invisible');
-    tooltip?.classList.remove('active');
+    infoTip?.classList.add("invisible");
+    tooltip?.classList.remove("active");
 
     if (formatSelect) {
-      formatSelect.value = '';
+      formatSelect.value = "";
       formatSelect.disabled = false;
-      formatSelect.classList.remove('sp-select-disabled');
+      formatSelect.classList.remove("sp-select-disabled");
     }
-    this.previousFormatValue = '';
+    this.previousFormatValue = "";
 
-    if (qualitySlider) qualitySlider.value = '92';
-    if (qualityValue) qualityValue.textContent = '92%';
+    if (qualitySlider) qualitySlider.value = "92";
+    if (qualityValue) qualityValue.textContent = "92%";
   }
 
   /**
@@ -476,7 +476,7 @@ export class ImageProcessorController {
 
     // Reset progress text for background removal to avoid stale percentage
     if (options.removeBackground) {
-      const processButton = document.getElementById('process-button') as HTMLButtonElement;
+      const processButton = document.getElementById("process-button") as HTMLButtonElement;
       if (processButton) {
         processButton.innerHTML =
           '<span class="sp-btn-spinner"></span><span>Loading model\u2026</span>';
@@ -510,10 +510,10 @@ export class ImageProcessorController {
       this.setProcessingState(false);
     } catch (error) {
       currentImage.processing = false;
-      currentImage.error = error instanceof Error ? error.message : 'Processing failed';
+      currentImage.error = error instanceof Error ? error.message : "Processing failed";
       this.displayError(currentImage.error);
       this.setProcessingState(false);
-      console.error('Error processing image:', error);
+      console.error("Error processing image:", error);
     }
   }
 
@@ -521,8 +521,8 @@ export class ImageProcessorController {
    * Update the process button text with background removal progress
    */
   private updateBackgroundRemovalProgress(progress: number): void {
-    const processButton = document.getElementById('process-button') as HTMLButtonElement;
-    if (processButton && processButton.classList.contains('sp-process-btn-loading')) {
+    const processButton = document.getElementById("process-button") as HTMLButtonElement;
+    if (processButton && processButton.classList.contains("sp-process-btn-loading")) {
       const percentage = Math.round(progress * 100);
       processButton.innerHTML = `<span class="sp-btn-spinner"></span><span>Loading model ${percentage}%...</span>`;
     }
@@ -532,15 +532,15 @@ export class ImageProcessorController {
    * Get processing options from UI controls
    */
   private getProcessingOptions(): ProcessOptions {
-    const widthInput = document.getElementById('width-input') as HTMLInputElement;
-    const heightInput = document.getElementById('height-input') as HTMLInputElement;
+    const widthInput = document.getElementById("width-input") as HTMLInputElement;
+    const heightInput = document.getElementById("height-input") as HTMLInputElement;
     const aspectRatioCheckbox = document.getElementById(
-      'maintain-aspect-ratio'
+      "maintain-aspect-ratio"
     ) as HTMLInputElement;
-    const formatSelect = document.getElementById('format-select') as HTMLSelectElement;
-    const qualitySlider = document.getElementById('quality-slider') as HTMLInputElement;
+    const formatSelect = document.getElementById("format-select") as HTMLSelectElement;
+    const qualitySlider = document.getElementById("quality-slider") as HTMLInputElement;
     const removeBgCheckbox = document.getElementById(
-      'remove-background-checkbox'
+      "remove-background-checkbox"
     ) as HTMLInputElement;
 
     const options: ProcessOptions = {};
@@ -577,18 +577,18 @@ export class ImageProcessorController {
    * Set processing state in UI — shows inline spinner in the process button
    */
   private setProcessingState(processing: boolean): void {
-    const processButton = document.getElementById('process-button') as HTMLButtonElement;
+    const processButton = document.getElementById("process-button") as HTMLButtonElement;
 
     if (processButton) {
       processButton.disabled = processing;
       if (processing) {
-        processButton.classList.add('sp-process-btn-loading');
-        processButton.dataset.originalText = processButton.textContent?.trim() || 'Process Image';
+        processButton.classList.add("sp-process-btn-loading");
+        processButton.dataset.originalText = processButton.textContent?.trim() || "Process Image";
         processButton.innerHTML =
           '<span class="sp-btn-spinner"></span><span>Processing\u2026</span>';
       } else {
-        processButton.classList.remove('sp-process-btn-loading');
-        processButton.textContent = processButton.dataset.originalText || 'Process Image';
+        processButton.classList.remove("sp-process-btn-loading");
+        processButton.textContent = processButton.dataset.originalText || "Process Image";
       }
     }
   }
@@ -603,20 +603,20 @@ export class ImageProcessorController {
     },
     originalImage: ProcessedImage
   ): void {
-    const previewImg = document.getElementById('processed-preview') as HTMLImageElement;
-    const placeholderEl = document.getElementById('processed-placeholder');
-    const dimensionsEl = document.getElementById('processed-dimensions');
-    const sizeEl = document.getElementById('processed-size');
-    const differenceEl = document.getElementById('size-difference');
-    const infoEl = document.getElementById('processed-info');
+    const previewImg = document.getElementById("processed-preview") as HTMLImageElement;
+    const placeholderEl = document.getElementById("processed-placeholder");
+    const dimensionsEl = document.getElementById("processed-dimensions");
+    const sizeEl = document.getElementById("processed-size");
+    const differenceEl = document.getElementById("size-difference");
+    const infoEl = document.getElementById("processed-info");
 
     if (previewImg && originalImage.processedUrl) {
       previewImg.src = originalImage.processedUrl;
-      previewImg.classList.remove('hidden');
+      previewImg.classList.remove("hidden");
     }
 
     if (placeholderEl) {
-      placeholderEl.classList.add('hidden');
+      placeholderEl.classList.add("hidden");
     }
 
     if (dimensionsEl) {
@@ -630,27 +630,27 @@ export class ImageProcessorController {
     if (differenceEl) {
       const difference = result.metadata.fileSize - originalImage.metadata.fileSize;
       const percentChange = ((difference / originalImage.metadata.fileSize) * 100).toFixed(1);
-      const sign = difference > 0 ? '+' : '';
+      const sign = difference > 0 ? "+" : "";
 
       differenceEl.textContent = `Change: ${sign}${formatFileSize(Math.abs(difference))} (${sign}${percentChange}%)`;
-      differenceEl.className = difference > 0 ? 'sp-text-increase' : 'sp-text-decrease';
+      differenceEl.className = difference > 0 ? "sp-text-increase" : "sp-text-decrease";
     }
 
-    infoEl?.classList.remove('hidden');
+    infoEl?.classList.remove("hidden");
   }
 
   /**
    * Enable download button
    */
   private enableDownload(): void {
-    const downloadButton = document.getElementById('download-button') as HTMLButtonElement;
-    const downloadSection = document.getElementById('download-section');
+    const downloadButton = document.getElementById("download-button") as HTMLButtonElement;
+    const downloadSection = document.getElementById("download-section");
 
     if (downloadButton) {
       downloadButton.disabled = false;
     }
 
-    downloadSection?.classList.remove('download-inactive');
+    downloadSection?.classList.remove("download-inactive");
   }
 
   /**
@@ -663,15 +663,15 @@ export class ImageProcessorController {
     }
 
     // Get the target format from UI or use original
-    const formatSelect = document.getElementById('format-select') as HTMLSelectElement;
+    const formatSelect = document.getElementById("format-select") as HTMLSelectElement;
     const removeBgCheckbox = document.getElementById(
-      'remove-background-checkbox'
+      "remove-background-checkbox"
     ) as HTMLInputElement;
 
     // If background removal was enabled, force PNG format
     let targetFormat: ImageFormat;
     if (removeBgCheckbox?.checked) {
-      targetFormat = 'image/png';
+      targetFormat = "image/png";
     } else {
       targetFormat = (formatSelect?.value || currentImage.metadata.format) as ImageFormat;
     }
@@ -686,8 +686,8 @@ export class ImageProcessorController {
         createDownloadLink(blob, filename);
       })
       .catch((error) => {
-        this.displayError('Failed to download image');
-        console.error('Download error:', error);
+        this.displayError("Failed to download image");
+        console.error("Download error:", error);
       });
   }
 
@@ -695,22 +695,22 @@ export class ImageProcessorController {
    * Display error message
    */
   private displayError(message: string): void {
-    const errorContainer = document.getElementById('error-message');
-    const errorText = document.getElementById('error-text');
+    const errorContainer = document.getElementById("error-message");
+    const errorText = document.getElementById("error-text");
 
     if (errorText) {
       errorText.textContent = message;
     }
 
-    errorContainer?.classList.remove('hidden');
+    errorContainer?.classList.remove("hidden");
   }
 
   /**
    * Hide error message
    */
   private hideError(): void {
-    const errorContainer = document.getElementById('error-message');
-    errorContainer?.classList.add('hidden');
+    const errorContainer = document.getElementById("error-message");
+    errorContainer?.classList.add("hidden");
   }
 
   /**

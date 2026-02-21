@@ -1,58 +1,58 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Header from '../components/shared/Header.astro';
-import Footer from '../components/shared/Footer.astro';
-import FloatingShapes from '../components/shared/FloatingShapes.astro';
-import { ROUTES } from '../config/constants';
-import { Scaling, ArrowLeftRight, Gauge, ShieldCheck, WifiOff, Code } from 'lucide-astro';
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/shared/Header.astro";
+import Footer from "../components/shared/Footer.astro";
+import FloatingShapes from "../components/shared/FloatingShapes.astro";
+import { ROUTES } from "../config/constants";
+import { Scaling, ArrowLeftRight, Gauge, ShieldCheck, WifiOff, Code } from "lucide-astro";
 
 const baseUrl = import.meta.env.BASE_URL;
 function makeHref(path: string): string {
-  return `${baseUrl}${path}`.replace(/\/+/g, '/');
+  return `${baseUrl}${path}`.replace(/\/+/g, "/");
 }
 
 const features = [
   {
     icon: Scaling,
-    title: 'Resize with precision',
-    color: 'coral',
+    title: "Resize with precision",
+    color: "coral",
     description:
-      'Scale images to exact pixel dimensions with intelligent aspect ratio lock. Perfect for social media thumbnails, website banners, or print-ready exports. Set width, height, or both — the calculator handles the math.',
+      "Scale images to exact pixel dimensions with intelligent aspect ratio lock. Perfect for social media thumbnails, website banners, or print-ready exports. Set width, height, or both — the calculator handles the math.",
   },
   {
     icon: ArrowLeftRight,
-    title: 'Convert between formats',
-    color: 'mint',
+    title: "Convert between formats",
+    color: "mint",
     description:
-      'Switch between JPEG, PNG, and WebP with a single click. Browser-native encoding means zero quality loss during conversion. Choose the right format for your use case — WebP for web, PNG for transparency, JPEG for photos.',
+      "Switch between JPEG, PNG, and WebP with a single click. Browser-native encoding means zero quality loss during conversion. Choose the right format for your use case — WebP for web, PNG for transparency, JPEG for photos.",
   },
   {
     icon: Gauge,
-    title: 'Smart compression',
-    color: 'lavender',
+    title: "Smart compression",
+    color: "lavender",
     description:
-      'Fine-tune quality from 0 to 100% with a live slider. Watch file sizes shrink in real-time with side-by-side before/after preview. Find the sweet spot between quality and file size for your needs.',
+      "Fine-tune quality from 0 to 100% with a live slider. Watch file sizes shrink in real-time with side-by-side before/after preview. Find the sweet spot between quality and file size for your needs.",
   },
   {
     icon: ShieldCheck,
-    title: 'Complete privacy',
-    color: 'yellow',
+    title: "Complete privacy",
+    color: "yellow",
     description:
-      'Every pixel is processed locally using the Canvas API. No servers, no uploads, no tracking, no cookies, no accounts. Your images never leave your device. Verify it yourself — the source code is open.',
+      "Every pixel is processed locally using the Canvas API. No servers, no uploads, no tracking, no cookies, no accounts. Your images never leave your device. Verify it yourself — the source code is open.",
   },
   {
     icon: WifiOff,
-    title: 'Works offline',
-    color: 'coral',
+    title: "Works offline",
+    color: "coral",
     description:
-      'After the first load, Reshrimp works entirely without an internet connection. Process sensitive images on an air-gapped machine if you need to. No network requests, ever.',
+      "After the first load, Reshrimp works entirely without an internet connection. Process sensitive images on an air-gapped machine if you need to. No network requests, ever.",
   },
   {
     icon: Code,
-    title: 'Open source',
-    color: 'mint',
+    title: "Open source",
+    color: "mint",
     description:
-      'Built with Astro and TypeScript, licensed under MIT. Read the code, fork it, improve it, self-host it. Contributions are welcome — check the GitHub repository for open issues.',
+      "Built with Astro and TypeScript, licensed under MIT. Read the code, fork it, improve it, self-host it. Contributions are welcome — check the GitHub repository for open issues.",
   },
 ];
 ---
@@ -86,7 +86,7 @@ const features = [
         <div class="features-list-container">
           {
             features.map((feature, i) => (
-              <div class:list={['feature-row', { 'feature-row-reverse': i % 2 === 1 }]}>
+              <div class:list={["feature-row", { "feature-row-reverse": i % 2 === 1 }]}>
                 <div class={`feature-icon-box feature-icon-${feature.color}`}>
                   <feature.icon
                     size={40}

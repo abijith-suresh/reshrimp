@@ -3,7 +3,7 @@
  */
 export function calculateAspectRatio(width: number, height: number): number {
   if (height === 0) {
-    throw new Error('Height cannot be zero');
+    throw new Error("Height cannot be zero");
   }
   return width / height;
 }
@@ -26,7 +26,7 @@ export async function getImageDimensions(file: File): Promise<{ width: number; h
 
     img.onerror = () => {
       URL.revokeObjectURL(url);
-      reject(new Error('Failed to load image dimensions'));
+      reject(new Error("Failed to load image dimensions"));
     };
 
     img.src = url;
@@ -38,10 +38,10 @@ export async function getImageDimensions(file: File): Promise<{ width: number; h
  */
 export function createDownloadLink(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
-  const link = document.createElement('a');
+  const link = document.createElement("a");
   link.href = url;
   link.download = filename;
-  link.style.display = 'none';
+  link.style.display = "none";
 
   document.body.appendChild(link);
   link.click();
@@ -57,9 +57,9 @@ export function createDownloadLink(blob: Blob, filename: string): void {
  * Format file size in human-readable format
  */
 export function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 B';
+  if (bytes === 0) return "0 B";
 
-  const units = ['B', 'KB', 'MB', 'GB'];
+  const units = ["B", "KB", "MB", "GB"];
   const k = 1024;
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 

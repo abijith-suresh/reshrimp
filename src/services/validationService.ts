@@ -1,4 +1,4 @@
-import type { ImageFormat, ValidationResult } from '../types/image';
+import type { ImageFormat, ValidationResult } from "../types/image";
 
 /**
  * Maximum file size in bytes (50MB)
@@ -16,7 +16,7 @@ const RECOMMENDED_MAX_SIZE = 10 * 1024 * 1024;
  * Get list of supported image formats
  */
 export function getSupportedFormats(): ImageFormat[] {
-  return ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+  return ["image/jpeg", "image/png", "image/webp", "image/gif"];
 }
 
 /**
@@ -35,15 +35,15 @@ export function validateImageFile(file: File): ValidationResult {
   if (!file) {
     return {
       valid: false,
-      error: 'No file provided',
+      error: "No file provided",
     };
   }
 
   // Check if it's an image file
-  if (!file.type.startsWith('image/')) {
+  if (!file.type.startsWith("image/")) {
     return {
       valid: false,
-      error: 'File must be an image',
+      error: "File must be an image",
     };
   }
 
@@ -94,13 +94,13 @@ function formatFileSize(bytes: number): string {
  */
 export function getFileExtension(format: ImageFormat): string {
   const extensionMap: Record<ImageFormat, string> = {
-    'image/jpeg': 'jpg',
-    'image/png': 'png',
-    'image/webp': 'webp',
-    'image/gif': 'gif',
+    "image/jpeg": "jpg",
+    "image/png": "png",
+    "image/webp": "webp",
+    "image/gif": "gif",
   };
 
-  return extensionMap[format] || 'png';
+  return extensionMap[format] || "png";
 }
 
 /**
@@ -111,6 +111,6 @@ export function generateDownloadFilename(
   targetFormat: ImageFormat
 ): string {
   const extension = getFileExtension(targetFormat);
-  const nameWithoutExtension = originalFilename.replace(/\.[^.]+$/, '');
+  const nameWithoutExtension = originalFilename.replace(/\.[^.]+$/, "");
   return `${nameWithoutExtension}-processed.${extension}`;
 }

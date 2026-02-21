@@ -1,9 +1,9 @@
 ---
-title: 'Why Client-Side Image Processing Matters'
-description: 'Explore why processing images in the browser is better for privacy, speed, and user experience compared to traditional server-based tools.'
+title: "Why Client-Side Image Processing Matters"
+description: "Explore why processing images in the browser is better for privacy, speed, and user experience compared to traditional server-based tools."
 publishDate: 2025-01-15
-author: 'Reshrimp Team'
-tags: ['privacy', 'technology', 'web']
+author: "Reshrimp Team"
+tags: ["privacy", "technology", "web"]
 ---
 
 ## The problem with uploading your images

@@ -1,5 +1,5 @@
-import { removeBackground as imglyRemoveBackground } from '@imgly/background-removal';
-import type { BackgroundRemovalProgressCallback } from '../types/processing';
+import { removeBackground as imglyRemoveBackground } from "@imgly/background-removal";
+import type { BackgroundRemovalProgressCallback } from "../types/processing";
 
 /**
  * Removes the background from an image using imgly's client-side ML model
@@ -15,7 +15,7 @@ export async function removeBackground(
 ): Promise<Blob> {
   const config: {
     progress?: (key: string, current: number, total: number) => void;
-    model?: 'isnet' | 'isnet_fp16' | 'isnet_quint8';
+    model?: "isnet" | "isnet_fp16" | "isnet_quint8";
   } = {};
 
   if (onProgress) {
@@ -26,7 +26,7 @@ export async function removeBackground(
     };
   }
 
-  config.model = 'isnet_fp16';
+  config.model = "isnet_fp16";
 
   const blob = await imglyRemoveBackground(imageFile, config);
 
@@ -40,5 +40,5 @@ export async function removeBackground(
  * @returns boolean indicating support
  */
 export function isBackgroundRemovalSupported(): boolean {
-  return typeof window !== 'undefined' && 'WebAssembly' in window;
+  return typeof window !== "undefined" && "WebAssembly" in window;
 }

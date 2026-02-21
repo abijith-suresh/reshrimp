@@ -1,17 +1,17 @@
 ---
-import { getCollection } from 'astro:content';
-import Layout from '../../layouts/Layout.astro';
-import Header from '../../components/shared/Header.astro';
-import Footer from '../../components/shared/Footer.astro';
-import FloatingShapes from '../../components/shared/FloatingShapes.astro';
-import { ROUTES } from '../../config/constants';
+import { getCollection } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/shared/Header.astro";
+import Footer from "../../components/shared/Footer.astro";
+import FloatingShapes from "../../components/shared/FloatingShapes.astro";
+import { ROUTES } from "../../config/constants";
 
 const baseUrl = import.meta.env.BASE_URL;
 function makeHref(path: string): string {
-  return `${baseUrl}${path}`.replace(/\/+/g, '/');
+  return `${baseUrl}${path}`.replace(/\/+/g, "/");
 }
 
-const posts = (await getCollection('blog'))
+const posts = (await getCollection("blog"))
   .filter((post) => !post.data.draft)
   .sort((a, b) => b.data.publishDate.valueOf() - a.data.publishDate.valueOf());
 ---
@@ -51,10 +51,10 @@ const posts = (await getCollection('blog'))
                     <p class="blog-card-desc">{post.data.description}</p>
                     <div class="blog-card-meta">
                       <time datetime={post.data.publishDate.toISOString()}>
-                        {post.data.publishDate.toLocaleDateString('en-US', {
-                          year: 'numeric',
-                          month: 'long',
-                          day: 'numeric',
+                        {post.data.publishDate.toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
                         })}
                       </time>
                       <span class="blog-card-read">Read more &rarr;</span>
