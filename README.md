@@ -4,7 +4,9 @@ A client-side image manipulation tool built with Astro and TypeScript. Resize, c
 
 ## 🚀 Live Demo
 
-Visit: https://abijith-suresh.github.io/reshrimp
+[![Vercel](https://img.shields.io/badge/deployed-vercel-black?logo=vercel)](https://reshrimp.vercel.app)
+
+Visit: https://reshrimp.vercel.app
 
 ## ✨ Features
 
