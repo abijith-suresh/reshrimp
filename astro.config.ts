@@ -6,8 +6,6 @@ import { visualizer } from "rollup-plugin-visualizer";
 
 // https://astro.build/config
 export default defineConfig({
-  site: "https://abijith-suresh.github.io",
-  base: "/reshrimp",
   integrations: [solid(), sitemap()],
   vite: {
     plugins: [
