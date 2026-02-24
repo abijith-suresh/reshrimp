@@ -1,9 +1,7 @@
 ---
 import Layout from "../layouts/Layout.astro";
 import AppHeader from "../components/app/AppHeader.astro";
-import UploadArea from "../components/app/UploadArea.astro";
-import ProcessingControls from "../components/app/ProcessingControls.astro";
-import PreviewPanel from "../components/app/PreviewPanel.astro";
+import ImageApp from "../components/app/ImageApp";
 ---
 
 <Layout
@@ -17,70 +15,8 @@ import PreviewPanel from "../components/app/PreviewPanel.astro";
       <div
         class="grid grid-cols-[360px_1fr] max-lg:grid-cols-[300px_1fr] max-md:grid-cols-1 gap-6 max-w-[1400px] mx-auto px-8 max-lg:px-6 max-md:px-4 pt-4 pb-6 max-md:pt-3 min-h-[calc(100vh-52px)]"
       >
-        <div
-          class="flex flex-col gap-4 sticky top-[70px] self-start min-h-[calc(100vh-86px)] max-md:static max-md:min-h-0"
-        >
-          <UploadArea />
-          <ProcessingControls />
-        </div>
-
-        <PreviewPanel />
+        <ImageApp client:only="solid-js" />
       </div>
     </main>
   </div>
 </Layout>
-
-<script>
-  import { ImageProcessorController } from "../lib/imageProcessor";
-
-  let controller: ImageProcessorController | null = null;
-
-  function initApp() {
-    if (!document.getElementById("upload-area")) return;
-    controller?.cleanup();
-    controller = new ImageProcessorController();
-
-    // Tab switching
-    document.querySelectorAll(".sbs-tab").forEach((tab) => {
-      tab.addEventListener("click", () => {
-        const target = (tab as HTMLElement).dataset.tab;
-        document.querySelectorAll(".sbs-tab").forEach((t) => t.classList.remove("sbs-tab-active"));
-        document
-          .querySelectorAll(".tab-panel")
-          .forEach((p) => p.classList.remove("tab-panel-active"));
-        tab.classList.add("sbs-tab-active");
-        document
-          .querySelector(`.tab-panel[data-tabpanel="${target}"]`)
-          ?.classList.add("tab-panel-active");
-      });
-    });
-
-    // Hide empty state when preview appears
-    const preview = document.getElementById("preview-container");
-    const emptyState = document.getElementById("sbs-empty-state");
-    if (preview && emptyState) {
-      new MutationObserver(() => {
-        if (!preview.classList.contains("hidden")) {
-          emptyState.style.display = "none";
-        }
-      }).observe(preview, { attributes: true, attributeFilter: ["class"] });
-    }
-
-    // Auto-switch to processed tab when download becomes available
-    const downloadSection = document.getElementById("download-section");
-    if (downloadSection) {
-      new MutationObserver(() => {
-        if (!downloadSection.classList.contains("download-inactive")) {
-          const processedTab = document.querySelector('.sbs-tab[data-tab="processed"]');
-          processedTab?.dispatchEvent(new Event("click"));
-        }
-      }).observe(downloadSection, { attributes: true, attributeFilter: ["class"] });
-    }
-  }
-
-  document.addEventListener("astro:page-load", initApp);
-  document.addEventListener("astro:before-preparation", () => {
-    controller?.cleanup();
-    controller = null;
-  });
-</script>
