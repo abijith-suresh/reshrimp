@@ -1,10 +1,4 @@
-import {
-  createSignal,
-  createMemo,
-  createEffect,
-  onCleanup,
-  type Setter,
-} from "solid-js";
+import { createSignal, createMemo, createEffect, onCleanup, type Setter } from "solid-js";
 import type { ProcessedImage, ValidationResult, ImageFormat } from "@/types/image";
 import type { ProcessResult } from "@/types/processing";
 import { processImage, getImageMetadata } from "@/services/imageService";
@@ -154,7 +148,13 @@ export default function ImageApp() {
     const options = {
       removeBackground: removeBackground(),
       ...(widthNum || heightNum
-        ? { resize: { width: widthNum, height: heightNum, maintainAspectRatio: maintainAspectRatio() } }
+        ? {
+            resize: {
+              width: widthNum,
+              height: heightNum,
+              maintainAspectRatio: maintainAspectRatio(),
+            },
+          }
         : {}),
       ...(formatValue() ? { format: formatValue() as ImageFormat } : {}),
       quality: qualityValue() / 100,

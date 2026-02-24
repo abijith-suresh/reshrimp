@@ -61,7 +61,9 @@ export default function UploadArea(props: UploadAreaProps) {
         onDrop={handleDrop}
       >
         <input
-          ref={(el) => { fileInputRef = el; }}
+          ref={(el) => {
+            fileInputRef = el;
+          }}
           type="file"
           id="file-input"
           accept="image/jpeg,image/png,image/webp,image/gif"

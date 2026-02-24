@@ -176,7 +176,12 @@ export default function ProcessingControls(props: ProcessingControlsProps) {
             stroke="currentColor"
             aria-hidden="true"
           >
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4.5l3 3 3-3" />
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 4.5l3 3 3-3"
+            />
           </svg>
         </div>
       </div>
@@ -199,9 +204,7 @@ export default function ProcessingControls(props: ProcessingControlsProps) {
           value={props.qualityValue()}
           class="sp-slider"
           disabled={!props.controlsActive()}
-          onInput={(e) =>
-            props.setQualityValue(parseInt((e.target as HTMLInputElement).value, 10))
-          }
+          onInput={(e) => props.setQualityValue(parseInt((e.target as HTMLInputElement).value, 10))}
         />
       </div>
 
