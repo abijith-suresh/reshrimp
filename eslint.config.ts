@@ -3,6 +3,7 @@ import tseslint from "typescript-eslint";
 import astro from "eslint-plugin-astro";
 import prettier from "eslint-config-prettier";
 import jsxA11y from "eslint-plugin-jsx-a11y";
+import solid from "eslint-plugin-solid";
 import globals from "globals";
 
 export default [
@@ -15,6 +16,13 @@ export default [
     files: ["**/*.astro"],
     languageOptions: {
       parser: astro.parser,
+    },
+  },
+  {
+    files: ["**/*.{tsx,jsx}"],
+    plugins: { solid },
+    rules: {
+      ...solid.configs["flat/typescript"].rules,
     },
   },
   {
