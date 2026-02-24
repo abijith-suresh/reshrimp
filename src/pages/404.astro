@@ -1,0 +1,114 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Header from "../components/shared/Header.astro";
+import Footer from "../components/shared/Footer.astro";
+import FloatingShapes from "../components/shared/FloatingShapes.astro";
+import { ROUTES } from "../config/constants";
+
+const baseUrl = import.meta.env.BASE_URL;
+function makeHref(path: string): string {
+  return `${baseUrl}${path}`.replace(/\/+/g, "/");
+}
+---
+
+<Layout
+  title="404 — Page Not Found | Reshrimp"
+  description="The page you're looking for doesn't exist. Resize, convert, and compress images right in your browser with Reshrimp."
+>
+  <div class="page-pop">
+    <FloatingShapes />
+    <Header currentPath={ROUTES.HOME} />
+
+    <main class="not-found-main" transition:animate="fade">
+      <div class="not-found-container">
+        <div class="not-found-content">
+          <span class="not-found-code">404</span>
+          <h1 class="not-found-title">Page not found</h1>
+          <p class="not-found-message">
+            Looks like this page drifted off into the void. Let's get you back on track.
+          </p>
+          <a href={makeHref(ROUTES.HOME)} class="cta-pop">
+            Back to Home
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              class="cta-pop-arrow"
+            >
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+              <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <Footer />
+  </div>
+</Layout>
+
+<style>
+  .page-pop {
+    position: relative;
+    overflow-x: hidden;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .not-found-main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .not-found-container {
+    max-width: 500px;
+    text-align: center;
+  }
+
+  .not-found-content {
+    opacity: 0;
+    animation: popBounceIn 0.6s 0.1s forwards;
+  }
+
+  .not-found-code {
+    display: inline-block;
+    font-family: var(--sp-font-display);
+    font-size: clamp(5rem, 15vw, 8rem);
+    font-weight: 800;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--sp-coral), var(--sp-lavender));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: -0.03em;
+  }
+
+  .not-found-title {
+    font-family: var(--sp-font-display);
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    font-weight: 800;
+    margin: 1rem 0 1rem;
+    letter-spacing: -0.02em;
+  }
+
+  .not-found-message {
+    font-size: 1.1rem;
+    color: var(--sp-text-muted);
+    line-height: 1.7;
+    margin: 0 0 2.5rem;
+    max-width: 360px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+</style>
