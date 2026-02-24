@@ -1,4 +1,3 @@
-/** @jsxImportSource solid-js */
 import { Show, onMount, onCleanup, type Accessor, type Setter } from "solid-js";
 
 interface ProcessingControlsProps {

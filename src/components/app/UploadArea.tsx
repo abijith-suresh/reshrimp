@@ -1,4 +1,3 @@
-/** @jsxImportSource solid-js */
 import { Show, type Accessor } from "solid-js";
 import type { ProcessedImage, ValidationResult } from "@/types/image";
 import { formatFileSize } from "@/utils/imageUtils";
@@ -14,7 +13,7 @@ interface UploadAreaProps {
 }
 
 export default function UploadArea(props: UploadAreaProps) {
-  let fileInputRef!: HTMLInputElement;
+  let fileInputRef: HTMLInputElement | undefined;
 
   function handleDragOver(e: DragEvent) {
     e.preventDefault();
@@ -39,7 +38,7 @@ export default function UploadArea(props: UploadAreaProps) {
   }
 
   function handleUploadAreaClick() {
-    fileInputRef.click();
+    fileInputRef?.click();
   }
 
   return (
@@ -48,13 +47,21 @@ export default function UploadArea(props: UploadAreaProps) {
         id="upload-area"
         class="bg-sp-bg-card border-2 border-dashed border-sp-border rounded-sp-xl px-5 py-6 text-center cursor-pointer transition-all duration-200 shadow-sp hover:border-sp-lavender"
         classList={{ "sp-drag-active": props.isDragOver() }}
+        role="button"
+        tabIndex={0}
         onClick={handleUploadAreaClick}
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            e.preventDefault();
+            fileInputRef?.click();
+          }
+        }}
         onDragOver={handleDragOver}
         onDragLeave={props.onDragLeave}
         onDrop={handleDrop}
       >
         <input
-          ref={fileInputRef}
+          ref={(el) => { fileInputRef = el; }}
           type="file"
           id="file-input"
           accept="image/jpeg,image/png,image/webp,image/gif"

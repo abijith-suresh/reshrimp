@@ -1,10 +1,8 @@
-/** @jsxImportSource solid-js */
 import {
   createSignal,
   createMemo,
   createEffect,
   onCleanup,
-  type Accessor,
   type Setter,
 } from "solid-js";
 import type { ProcessedImage, ValidationResult, ImageFormat } from "@/types/image";

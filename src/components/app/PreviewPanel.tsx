@@ -1,4 +1,3 @@
-/** @jsxImportSource solid-js */
 import { Show, type Accessor, type Setter } from "solid-js";
 import type { ProcessedImage } from "@/types/image";
 import type { ProcessResult } from "@/types/processing";
