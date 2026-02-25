@@ -19,6 +19,9 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Generate Astro types
+        run: bun run astro sync
+
       - name: Type check
         run: bun run type-check
 
