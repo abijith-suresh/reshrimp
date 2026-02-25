@@ -1,0 +1,25 @@
+---
+import Layout from "./Layout.astro";
+import MarketingHeader from "../components/shared/MarketingHeader.astro";
+import MarketingFooter from "../components/shared/MarketingFooter.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImagePath?: string;
+  currentPath?: string;
+}
+
+const { title, description, ogImagePath, currentPath = "/" } = Astro.props;
+---
+
+<Layout title={title} description={description} ogImagePath={ogImagePath}>
+  <Fragment slot="head">
+    <slot name="head" />
+  </Fragment>
+  <MarketingHeader currentPath={currentPath} />
+  <main>
+    <slot />
+  </main>
+  <MarketingFooter />
+</Layout>

@@ -1,0 +1,22 @@
+---
+import Layout from "./Layout.astro";
+import AppHeader from "../components/app/AppHeader.astro";
+
+interface Props {
+  title: string;
+  description?: string;
+  ogImagePath?: string;
+}
+
+const { title, description, ogImagePath } = Astro.props;
+---
+
+<Layout title={title} description={description} ogImagePath={ogImagePath}>
+  <Fragment slot="head">
+    <slot name="head" />
+  </Fragment>
+  <AppHeader />
+  <main>
+    <slot />
+  </main>
+</Layout>
