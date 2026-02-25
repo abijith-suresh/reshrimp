@@ -21,6 +21,7 @@ export const ROUTES = {
   BLOG: "/blog",
   ABOUT: "/about",
   FAQ: "/faq",
+  CHANGELOG: "/changelog",
 } as const;
 
 // Header navigation links
@@ -28,5 +29,6 @@ export const NAV_LINKS = [
   { label: "Home", path: ROUTES.HOME },
   { label: "Features", path: ROUTES.FEATURES },
   { label: "Blog", path: ROUTES.BLOG },
+  { label: "Changelog", path: ROUTES.CHANGELOG },
   { label: "About", path: ROUTES.ABOUT },
 ] as const;

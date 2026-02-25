@@ -111,6 +111,69 @@ body {
   }
 }
 
+@keyframes revealUp {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes rippleEffect {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* ===== View Transitions — SPA page enter/exit ===== */
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pageExit {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+}
+
+::view-transition-old(root) {
+  animation: pageExit 0.2s ease forwards;
+}
+
+::view-transition-new(root) {
+  animation: pageEnter 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* ===== Scroll Reveal ===== */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(28px) scale(0.98);
+  transition:
+    opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-reveal].revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
 /* ===== CTA Buttons ===== */
 .cta-pop {
   display: inline-flex;
@@ -128,12 +191,27 @@ body {
   box-shadow: 0 4px 16px rgba(255, 107, 107, 0.3);
   border: none;
   cursor: pointer;
+  position: relative;
+  overflow: hidden;
 }
 
 .cta-pop:hover {
   background: var(--sp-coral-dark);
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 6px 24px rgba(255, 107, 107, 0.4);
+}
+
+/* Ripple element injected by JS */
+.sp-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  width: 40px;
+  height: 40px;
+  margin-top: -20px;
+  margin-left: -20px;
+  pointer-events: none;
+  animation: rippleEffect 0.55s ease-out forwards;
 }
 
 .cta-pop-arrow {
@@ -297,6 +375,8 @@ body {
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   box-shadow: 0 4px 16px rgba(255, 107, 107, 0.3);
   margin-top: 0.5rem;
+  position: relative;
+  overflow: hidden;
 }
 
 .sp-process-btn:hover:not(:disabled) {
@@ -559,6 +639,8 @@ body {
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   box-shadow: 0 4px 16px rgba(45, 212, 191, 0.3);
+  position: relative;
+  overflow: hidden;
 }
 
 .download-btn:hover:not(:disabled) {
