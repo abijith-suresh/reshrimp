@@ -13,12 +13,6 @@ export default [
   jsxA11y.flatConfigs.recommended,
   prettier,
   {
-    files: ["**/*.astro"],
-    languageOptions: {
-      parser: astro.parser,
-    },
-  },
-  {
     files: ["**/*.{tsx,jsx}"],
     plugins: { solid },
     rules: {

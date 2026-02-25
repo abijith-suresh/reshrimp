@@ -188,7 +188,7 @@ async function renderOgImage(data: OgPageData): Promise<Buffer> {
     loadFont("PlusJakartaSans-SemiBold.ttf"),
   ]);
 
-  const svg = await satori(buildOgImage(data) as React.ReactNode, {
+  const svg = await satori(buildOgImage(data) as unknown as Parameters<typeof satori>[0], {
     width: WIDTH,
     height: HEIGHT,
     fonts: [
@@ -248,7 +248,7 @@ export const GET: APIRoute = async ({ params }) => {
 
   const png = await renderOgImage(data);
 
-  return new Response(png, {
+  return new Response(new Uint8Array(png), {
     headers: {
       "Content-Type": "image/png",
       "Cache-Control": "public, max-age=31536000, immutable",

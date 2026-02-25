@@ -11,7 +11,7 @@ import { removeBackground } from "./backgroundRemovalService";
 /**
  * Calculate dimensions maintaining aspect ratio
  */
-function calculateDimensions(
+export function calculateDimensions(
   originalWidth: number,
   originalHeight: number,
   options: ResizeOptions
@@ -81,8 +81,8 @@ export async function compressImage(file: File, quality: number): Promise<Blob> 
   const img = await loadImage(file);
   const canvas = resizeOnCanvas(img, img.width, img.height);
 
-  // Clamp quality between 0 and 1
-  const clampedQuality = Math.max(0, Math.min(1, quality));
+  // Clamp quality between 0 and 1; treat NaN as the default quality
+  const clampedQuality = isNaN(quality) ? 0.92 : Math.max(0, Math.min(1, quality));
 
   // Use original format or default to JPEG for compression
   let format = file.type as ImageFormat;
