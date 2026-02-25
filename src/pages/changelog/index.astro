@@ -1,0 +1,317 @@
+---
+import { getCollection, render } from "astro:content";
+import Layout from "../../layouts/Layout.astro";
+import Header from "../../components/shared/Header.astro";
+import Footer from "../../components/shared/Footer.astro";
+import FloatingShapes from "../../components/shared/FloatingShapes.astro";
+
+const entries = (await getCollection("changelog")).sort(
+  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
+);
+
+const rendered = await Promise.all(
+  entries.map(async (entry) => {
+    const { Content } = await render(entry);
+    return { entry, Content };
+  })
+);
+
+const typeConfig = {
+  major: { label: "Major", class: "badge-major" },
+  minor: { label: "Minor", class: "badge-minor" },
+  patch: { label: "Patch", class: "badge-patch" },
+};
+---
+
+<Layout
+  title="Reshrimp — Changelog"
+  description="A full history of updates, improvements, and new features in Reshrimp."
+>
+  <div class="page-pop">
+    <FloatingShapes />
+    <Header currentPath="/changelog" />
+
+    <main transition:animate="fade">
+      <section class="cl-hero">
+        <div class="cl-container">
+          <span class="pop-chip pop-chip-mint">Changelog</span>
+          <h1 class="cl-title">What's new in Reshrimp</h1>
+          <p class="cl-subtitle">Every update, improvement, and fix — documented as it ships.</p>
+        </div>
+      </section>
+
+      <section class="cl-timeline-section">
+        <div class="cl-container">
+          <div class="cl-timeline">
+            {
+              rendered.map(({ entry, Content }, i) => {
+                const badge = typeConfig[entry.data.type];
+                return (
+                  <div class="cl-entry" data-reveal data-reveal-delay={i * 80}>
+                    <div class="cl-entry-aside">
+                      <div class="cl-version-badge">
+                        <span class="cl-version">v{entry.data.version}</span>
+                        <span class:list={["cl-type-badge", badge.class]}>{badge.label}</span>
+                      </div>
+                      <time class="cl-date" datetime={entry.data.date.toISOString()}>
+                        {entry.data.date.toLocaleDateString("en-US", {
+                          year: "numeric",
+                          month: "long",
+                          day: "numeric",
+                        })}
+                      </time>
+                    </div>
+
+                    <div class="cl-entry-connector">
+                      <div class="cl-dot" />
+                      {i < rendered.length - 1 && <div class="cl-line" />}
+                    </div>
+
+                    <div class="cl-entry-body">
+                      <div class="cl-entry-header">
+                        <h2 class="cl-entry-title">{entry.data.title}</h2>
+                        <p class="cl-entry-summary">{entry.data.summary}</p>
+                      </div>
+                      <div class="prose-sp cl-prose">
+                        <Content />
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            }
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <Footer />
+  </div>
+</Layout>
+
+<style>
+  .page-pop {
+    position: relative;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* Hero */
+  .cl-hero {
+    padding: 5rem 2rem 3rem;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cl-container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  .cl-title {
+    font-family: var(--sp-font-display);
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800;
+    line-height: 1.15;
+    margin: 1rem 0 1.25rem;
+    letter-spacing: -0.03em;
+  }
+
+  .cl-subtitle {
+    font-size: 1.05rem;
+    color: var(--sp-text-muted);
+    line-height: 1.7;
+    margin: 0;
+  }
+
+  /* Timeline */
+  .cl-timeline-section {
+    padding: 2rem 2rem 6rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  .cl-timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+
+  .cl-entry {
+    display: grid;
+    grid-template-columns: 200px 32px 1fr;
+    gap: 0 1.5rem;
+    position: relative;
+  }
+
+  /* Aside — version + date */
+  .cl-entry-aside {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    padding-top: 0.25rem;
+    gap: 0.35rem;
+    padding-bottom: 3rem;
+  }
+
+  .cl-version-badge {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .cl-version {
+    font-family: var(--sp-font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--sp-text);
+  }
+
+  .cl-type-badge {
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    border-radius: var(--sp-radius-full);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  .badge-major {
+    background: var(--sp-coral-light);
+    color: var(--sp-coral-dark);
+  }
+
+  .badge-minor {
+    background: var(--sp-mint-light);
+    color: var(--sp-mint-dark);
+  }
+
+  .badge-patch {
+    background: var(--sp-lavender-light);
+    color: var(--sp-lavender-dark);
+  }
+
+  .cl-date {
+    font-size: 0.78rem;
+    color: var(--sp-text-soft);
+  }
+
+  /* Connector — dot + vertical line */
+  .cl-entry-connector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+  }
+
+  .cl-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--sp-coral);
+    border: 2px solid var(--sp-bg);
+    outline: 2px solid var(--sp-coral);
+    margin-top: 0.35rem;
+    flex-shrink: 0;
+    z-index: 1;
+  }
+
+  .cl-line {
+    width: 2px;
+    flex: 1;
+    background: var(--sp-border);
+    margin-top: 4px;
+  }
+
+  /* Entry body */
+  .cl-entry-body {
+    padding-bottom: 3rem;
+  }
+
+  .cl-entry-header {
+    margin-bottom: 1.25rem;
+  }
+
+  .cl-entry-title {
+    font-family: var(--sp-font-display);
+    font-size: 1.25rem;
+    font-weight: 700;
+    margin: 0 0 0.4rem;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+  }
+
+  .cl-entry-summary {
+    font-size: 0.9rem;
+    color: var(--sp-text-muted);
+    line-height: 1.6;
+    margin: 0;
+  }
+
+  /* Scoped prose overrides for changelog */
+  .cl-prose {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    background: var(--sp-bg-card);
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius-lg);
+    padding: 1.5rem;
+    box-shadow: var(--sp-shadow);
+  }
+
+  .cl-prose :global(h2) {
+    font-size: 0.75rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--sp-text-muted);
+    margin-top: 1.25rem !important;
+    margin-bottom: 0.5rem !important;
+  }
+
+  .cl-prose :global(h2:first-child) {
+    margin-top: 0 !important;
+  }
+
+  .cl-prose :global(ul) {
+    padding-left: 1.25rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .cl-prose :global(li) {
+    margin-bottom: 0.3rem;
+    font-size: 0.88rem;
+    color: var(--sp-text);
+  }
+
+  .cl-prose :global(strong) {
+    color: var(--sp-text);
+    font-weight: 600;
+  }
+
+  /* Responsive */
+  @media (max-width: 640px) {
+    .cl-entry {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto auto;
+    }
+
+    .cl-entry-aside {
+      flex-direction: row;
+      align-items: center;
+      padding-bottom: 0.75rem;
+      grid-row: 1;
+    }
+
+    .cl-entry-connector {
+      display: none;
+    }
+
+    .cl-entry-body {
+      grid-row: 2;
+      padding-bottom: 2.5rem;
+    }
+  }
+</style>

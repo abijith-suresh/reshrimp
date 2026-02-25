@@ -13,7 +13,7 @@ function makeHref(path: string): string {
 }
 ---
 
-<header class="sp-header" transition:animate="fade">
+<header class="sp-header" id="sp-header" transition:animate="fade">
   <nav class="sp-header-inner">
     <a href={makeHref("/")} class="sp-logo" transition:name="logo">
       <span class="sp-logo-dot"></span>
@@ -57,6 +57,7 @@ function makeHref(path: string): string {
       aria-expanded="false"
     >
       <svg
+        class="sp-hamburger-icon"
         width="24"
         height="24"
         viewBox="0 0 24 24"
@@ -65,29 +66,31 @@ function makeHref(path: string): string {
         stroke-width="2"
         stroke-linecap="round"
       >
-        <line x1="3" y1="6" x2="21" y2="6"></line>
-        <line x1="3" y1="12" x2="21" y2="12"></line>
-        <line x1="3" y1="18" x2="21" y2="18"></line>
+        <line class="ham-line-1" x1="3" y1="6" x2="21" y2="6"></line>
+        <line class="ham-line-2" x1="3" y1="12" x2="21" y2="12"></line>
+        <line class="ham-line-3" x1="3" y1="18" x2="21" y2="18"></line>
       </svg>
     </button>
   </nav>
 
-  <!-- Mobile menu -->
+  <!-- Mobile menu — slide animation via max-height -->
   <div class="sp-mobile-panel" id="mobile-menu-panel">
-    {
-      NAV_LINKS.map((link) => (
-        <a
-          href={makeHref(link.path)}
-          class:list={["sp-mobile-link", { "sp-mobile-link-active": currentPath === link.path }]}
-        >
-          {link.label}
-        </a>
-      ))
-    }
-    <a href={makeHref(ROUTES.APP)} class="sp-nav-cta sp-mobile-cta">Try it free</a>
-    <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" class="sp-mobile-link">
-      GitHub
-    </a>
+    <div class="sp-mobile-panel-inner">
+      {
+        NAV_LINKS.map((link) => (
+          <a
+            href={makeHref(link.path)}
+            class:list={["sp-mobile-link", { "sp-mobile-link-active": currentPath === link.path }]}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+      <a href={makeHref(ROUTES.APP)} class="sp-nav-cta sp-mobile-cta">Try it free</a>
+      <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" class="sp-mobile-link">
+        GitHub
+      </a>
+    </div>
   </div>
 </header>
 
@@ -100,6 +103,15 @@ function makeHref(path: string): string {
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--sp-border-light);
+    transition:
+      box-shadow 0.3s ease,
+      border-bottom-color 0.3s ease;
+  }
+
+  /* Scrolled state — enhanced shadow and border */
+  .sp-header.scrolled {
+    box-shadow: 0 2px 20px rgba(30, 27, 75, 0.08);
+    border-bottom-color: var(--sp-border);
   }
 
   .sp-header-inner {
@@ -120,6 +132,11 @@ function makeHref(path: string): string {
     font-weight: 700;
     color: var(--sp-text);
     text-decoration: none;
+    transition: opacity 0.2s;
+  }
+
+  .sp-logo:hover {
+    opacity: 0.8;
   }
 
   .sp-logo-dot {
@@ -128,6 +145,11 @@ function makeHref(path: string): string {
     border-radius: 50%;
     background: var(--sp-coral);
     flex-shrink: 0;
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .sp-logo:hover .sp-logo-dot {
+    transform: scale(1.4);
   }
 
   .sp-nav-desktop {
@@ -143,7 +165,8 @@ function makeHref(path: string): string {
     text-decoration: none;
     padding: 0.45rem 0.85rem;
     border-radius: var(--sp-radius-full);
-    transition: all 0.2s;
+    transition: all 0.2s ease;
+    position: relative;
   }
 
   .sp-nav-link:hover {
@@ -151,9 +174,23 @@ function makeHref(path: string): string {
     background: var(--sp-border-light);
   }
 
+  /* Active indicator — animated underline pill */
   .sp-nav-link-active {
     color: var(--sp-text);
     font-weight: 600;
+    background: var(--sp-border-light);
+  }
+
+  .sp-nav-link-active::after {
+    content: "";
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 16px;
+    height: 2px;
+    background: var(--sp-coral);
+    border-radius: 2px;
   }
 
   .sp-nav-cta {
@@ -164,11 +201,12 @@ function makeHref(path: string): string {
     padding: 0.45rem 1.1rem;
     border-radius: var(--sp-radius-full);
     background: var(--sp-text);
-    transition: all 0.2s;
+    transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
   .sp-nav-cta:hover {
     background: var(--sp-lavender-dark);
+    transform: translateY(-1px) scale(1.03);
   }
 
   .sp-nav-github {
@@ -187,17 +225,49 @@ function makeHref(path: string): string {
     padding: 0.25rem;
   }
 
-  /* Mobile panel — hidden by default */
+  /* Hamburger X animation */
+  .ham-line-1,
+  .ham-line-2,
+  .ham-line-3 {
+    transition:
+      transform 0.25s ease,
+      opacity 0.25s ease;
+    transform-origin: center;
+  }
+
+  .sp-hamburger[aria-expanded="true"] .ham-line-1 {
+    transform: translateY(6px) rotate(45deg);
+  }
+
+  .sp-hamburger[aria-expanded="true"] .ham-line-2 {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+
+  .sp-hamburger[aria-expanded="true"] .ham-line-3 {
+    transform: translateY(-6px) rotate(-45deg);
+  }
+
+  /* Mobile panel — slide animation via max-height + overflow */
   .sp-mobile-panel {
-    display: none;
-    flex-direction: column;
-    gap: 0.25rem;
-    padding: 0.5rem 2rem 1.5rem;
-    border-bottom: 1px solid var(--sp-border-light);
+    max-height: 0;
+    overflow: hidden;
+    transition:
+      max-height 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      border-bottom-color 0.35s ease;
+    border-bottom: 1px solid transparent;
   }
 
   .sp-mobile-panel.sp-mobile-open {
+    max-height: 400px;
+    border-bottom-color: var(--sp-border-light);
+  }
+
+  .sp-mobile-panel-inner {
     display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem 2rem 1.5rem;
   }
 
   .sp-mobile-link {
@@ -207,6 +277,7 @@ function makeHref(path: string): string {
     text-decoration: none;
     padding: 0.6rem 0;
     transition: color 0.2s;
+    border-bottom: 1px solid transparent;
   }
 
   .sp-mobile-link:hover {
@@ -214,7 +285,7 @@ function makeHref(path: string): string {
   }
 
   .sp-mobile-link-active {
-    color: var(--sp-text);
+    color: var(--sp-coral);
     font-weight: 600;
   }
 
@@ -232,10 +303,6 @@ function makeHref(path: string): string {
     .sp-hamburger {
       display: flex;
     }
-
-    .sp-mobile-panel.sp-mobile-open {
-      display: flex;
-    }
   }
 </style>
 
@@ -251,5 +318,19 @@ function makeHref(path: string): string {
     });
   }
 
-  document.addEventListener("astro:page-load", initMobileMenu);
+  function initHeaderScroll() {
+    const header = document.getElementById("sp-header");
+    if (!header) return;
+
+    const update = () => {
+      header.classList.toggle("scrolled", window.scrollY > 8);
+    };
+    update();
+    window.addEventListener("scroll", update, { passive: true });
+  }
+
+  document.addEventListener("astro:page-load", () => {
+    initMobileMenu();
+    initHeaderScroll();
+  });
 </script>

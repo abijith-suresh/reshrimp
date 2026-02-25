@@ -41,7 +41,9 @@ const { Content } = await render(post);
                 ))
               }
             </div>
-            <h1 class="blog-article-title">{post.data.title}</h1>
+            <h1 class="blog-article-title" transition:name={`blog-title-${post.id}`}>
+              {post.data.title}
+            </h1>
             <div class="blog-article-meta">
               <time datetime={post.data.publishDate.toISOString()}>
                 {

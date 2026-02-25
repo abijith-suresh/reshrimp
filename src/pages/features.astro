@@ -86,7 +86,11 @@ const features = [
         <div class="features-list-container">
           {
             features.map((feature, i) => (
-              <div class:list={["feature-row", { "feature-row-reverse": i % 2 === 1 }]}>
+              <div
+                class:list={["feature-row", { "feature-row-reverse": i % 2 === 1 }]}
+                data-reveal
+                data-reveal-delay={i * 80}
+              >
                 <div class={`feature-icon-box feature-icon-${feature.color}`}>
                   <feature.icon
                     size={40}

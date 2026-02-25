@@ -39,15 +39,22 @@ const posts = (await getCollection("blog"))
         <div class="blog-container">
           <div class="blog-grid">
             {
-              posts.map((post) => (
-                <a href={makeHref(`${ROUTES.BLOG}/${post.id}`)} class="blog-card">
+              posts.map((post, i) => (
+                <a
+                  href={makeHref(`${ROUTES.BLOG}/${post.id}`)}
+                  class="blog-card"
+                  data-reveal
+                  data-reveal-delay={i * 80}
+                >
                   <div class="blog-card-inner">
                     <div class="blog-card-tags">
                       {post.data.tags.map((tag) => (
                         <span class="pop-chip pop-chip-lavender">{tag}</span>
                       ))}
                     </div>
-                    <h2 class="blog-card-title">{post.data.title}</h2>
+                    <h2 class="blog-card-title" transition:name={`blog-title-${post.id}`}>
+                      {post.data.title}
+                    </h2>
                     <p class="blog-card-desc">{post.data.description}</p>
                     <div class="blog-card-meta">
                       <time datetime={post.data.publishDate.toISOString()}>
