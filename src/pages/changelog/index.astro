@@ -1,8 +1,6 @@
 ---
 import { getCollection, render } from "astro:content";
-import Layout from "../../layouts/Layout.astro";
-import Header from "../../components/shared/Header.astro";
-import Footer from "../../components/shared/Footer.astro";
+import MarketingLayout from "../../layouts/MarketingLayout.astro";
 import FloatingShapes from "../../components/shared/FloatingShapes.astro";
 
 const entries = (await getCollection("changelog")).sort(
@@ -23,13 +21,13 @@ const typeConfig = {
 };
 ---
 
-<Layout
+<MarketingLayout
   title="Reshrimp — Changelog"
   description="A full history of updates, improvements, and new features in Reshrimp."
+  currentPath="/changelog"
 >
   <div class="page-pop">
     <FloatingShapes />
-    <Header currentPath="/changelog" />
 
     <main transition:animate="fade">
       <section class="cl-hero">
@@ -84,10 +82,8 @@ const typeConfig = {
         </div>
       </section>
     </main>
-
-    <Footer />
   </div>
-</Layout>
+</MarketingLayout>
 
 <style>
   .page-pop {

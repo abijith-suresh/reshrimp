@@ -1,23 +1,17 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import Header from "../components/shared/Header.astro";
-import Footer from "../components/shared/Footer.astro";
+import MarketingLayout from "../layouts/MarketingLayout.astro";
 import FloatingShapes from "../components/shared/FloatingShapes.astro";
+import { makeHref } from "../lib/utils";
 import { ROUTES } from "../config/constants";
-
-const baseUrl = import.meta.env.BASE_URL;
-function makeHref(path: string): string {
-  return `${baseUrl}${path}`.replace(/\/+/g, "/");
-}
 ---
 
-<Layout
+<MarketingLayout
   title="404 — Page Not Found | Reshrimp"
   description="The page you're looking for doesn't exist. Resize, convert, and compress images right in your browser with Reshrimp."
+  currentPath={ROUTES.HOME}
 >
   <div class="page-pop">
     <FloatingShapes />
-    <Header currentPath={ROUTES.HOME} />
 
     <main class="not-found-main" transition:animate="fade">
       <div class="not-found-container">
@@ -47,10 +41,8 @@ function makeHref(path: string): string {
         </div>
       </div>
     </main>
-
-    <Footer />
   </div>
-</Layout>
+</MarketingLayout>
 
 <style>
   .page-pop {

@@ -1,23 +1,17 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import Header from "../components/shared/Header.astro";
-import Footer from "../components/shared/Footer.astro";
+import MarketingLayout from "../layouts/MarketingLayout.astro";
 import FloatingShapes from "../components/shared/FloatingShapes.astro";
+import { makeHref } from "../lib/utils";
 import { GITHUB_URL, ROUTES } from "../config/constants";
-
-const baseUrl = import.meta.env.BASE_URL;
-function makeHref(path: string): string {
-  return `${baseUrl}${path}`.replace(/\/+/g, "/");
-}
 ---
 
-<Layout
+<MarketingLayout
   title="Reshrimp — About"
-  description="Learn about the Reshrimp project — a free, open source, privacy-first image processing tool built for the browser."
+  description="Learn about Reshrimp project — a free, open source, privacy-first image processing tool built for browser."
+  currentPath="/about"
 >
   <div class="page-pop">
     <FloatingShapes />
-    <Header currentPath="/about" />
 
     <main transition:animate="fade">
       <section class="about-hero">
@@ -122,10 +116,8 @@ function makeHref(path: string): string {
         </div>
       </section>
     </main>
-
-    <Footer />
   </div>
-</Layout>
+</MarketingLayout>
 
 <style>
   .page-pop {
