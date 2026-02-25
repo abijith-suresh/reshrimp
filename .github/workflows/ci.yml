@@ -20,7 +20,7 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Type check
-        run: bun run type-check || true
+        run: bun run type-check
 
       - name: Run linter
         run: bun run lint
