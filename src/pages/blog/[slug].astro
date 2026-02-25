@@ -1,14 +1,8 @@
 ---
 import { getCollection, render } from "astro:content";
-import Layout from "../../layouts/Layout.astro";
-import Header from "../../components/shared/Header.astro";
-import Footer from "../../components/shared/Footer.astro";
+import MarketingLayout from "../../layouts/MarketingLayout.astro";
+import { makeHref } from "../../lib/utils";
 import { ROUTES } from "../../config/constants";
-
-const baseUrl = import.meta.env.BASE_URL;
-function makeHref(path: string): string {
-  return `${baseUrl}${path}`.replace(/\/+/g, "/");
-}
 
 export async function getStaticPaths() {
   const posts = await getCollection("blog");
@@ -22,10 +16,12 @@ const { post } = Astro.props;
 const { Content } = await render(post);
 ---
 
-<Layout title={`${post.data.title} — Reshrimp Blog`} description={post.data.description}>
+<MarketingLayout
+  title={`${post.data.title} — Reshrimp Blog`}
+  description={post.data.description}
+  currentPath="/blog"
+>
   <div class="page-pop">
-    <Header currentPath="/blog" />
-
     <main transition:animate="fade">
       <article class="blog-article">
         <div class="blog-article-container">
@@ -71,10 +67,8 @@ const { Content } = await render(post);
         </div>
       </article>
     </main>
-
-    <Footer />
   </div>
-</Layout>
+</MarketingLayout>
 
 <style>
   .page-pop {

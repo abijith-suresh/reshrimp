@@ -1,18 +1,14 @@
 ---
-import { SITE_NAME, ROUTES } from "../../config/constants";
-
-const baseUrl = import.meta.env.BASE_URL;
-
-function makeHref(path: string): string {
-  return `${baseUrl}${path}`.replace(/\/+/g, "/");
-}
+import { ROUTES } from "../../config/constants";
+import { makeHref } from "../../lib/utils";
+import Logo from "../shared/Logo.astro";
 ---
 
 <header
   class="sticky top-0 z-100 bg-[rgba(248,247,255,0.85)] backdrop-blur-[16px] border-b border-sp-border-light"
   transition:animate="fade"
 >
-  <nav class="max-w-[1400px] mx-auto flex justify-between items-center px-8 py-2.5">
+  <nav class="max-w-[1100px] mx-auto flex justify-between items-center px-8 py-2.5">
     <a
       href={makeHref(ROUTES.HOME)}
       class="flex items-center justify-center w-8 h-8 text-sp-text-muted rounded-sp-full no-underline transition-all duration-200 hover:text-sp-text hover:bg-sp-border-light"
@@ -28,13 +24,7 @@ function makeHref(path: string): string {
       </svg>
     </a>
 
-    <a
-      href={makeHref(ROUTES.APP)}
-      class="flex items-center gap-2 font-display text-[1.2rem] font-bold text-sp-text no-underline transition-opacity duration-200 hover:opacity-70"
-    >
-      <span class="w-2.5 h-2.5 rounded-full bg-sp-coral shrink-0"></span>
-      {SITE_NAME.toLowerCase()}
-    </a>
+    <Logo href={ROUTES.APP} />
 
     <div class="w-8"></div>
   </nav>

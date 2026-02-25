@@ -1,22 +1,16 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import AppHeader from "../components/app/AppHeader.astro";
+import AppLayout from "../layouts/AppLayout.astro";
 import ImageApp from "../components/app/ImageApp";
 ---
 
-<Layout
+<AppLayout
   title="Reshrimp — Image Processor"
   description="Resize, convert, and compress images privately in your browser. No uploads, no tracking."
 >
-  <div class="page-pop">
-    <AppHeader />
-
-    <main class="relative z-1" transition:animate="fade">
-      <div
-        class="grid grid-cols-[360px_1fr] max-lg:grid-cols-[300px_1fr] max-md:grid-cols-1 gap-6 max-w-[1400px] mx-auto px-8 max-lg:px-6 max-md:px-4 pt-4 pb-6 max-md:pt-3 min-h-[calc(100vh-52px)]"
-      >
-        <ImageApp client:only="solid-js" />
-      </div>
-    </main>
+  <div
+    class="grid grid-cols-[360px_1fr] max-lg:grid-cols-[300px_1fr] max-md:grid-cols-1 gap-6 max-w-[1100px] mx-auto px-8 max-lg:px-6 max-md:px-4 pt-4 pb-6 max-md:pt-3 min-h-[calc(100vh-52px)]"
+    transition:animate="fade"
+  >
+    <ImageApp client:only="solid-js" />
   </div>
-</Layout>
+</AppLayout>

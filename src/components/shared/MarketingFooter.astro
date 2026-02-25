@@ -1,11 +1,6 @@
 ---
-import { GITHUB_URL, SITE_NAME, ROUTES } from "../../config/constants";
-
-const baseUrl = import.meta.env.BASE_URL;
-
-function makeHref(path: string): string {
-  return `${baseUrl}${path}`.replace(/\/+/g, "/");
-}
+import { SITE_NAME, ROUTES } from "../../config/constants";
+import { makeHref } from "../../lib/utils";
 
 const footerLinks = [
   { label: "Features", path: ROUTES.FEATURES },
@@ -27,9 +22,6 @@ const footerLinks = [
           </a>
         ))
       }
-      <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" class="sp-footer-link">
-        GitHub
-      </a>
     </div>
     <div class="sp-footer-bottom">
       <span>&copy; {new Date().getFullYear()} {SITE_NAME}</span>

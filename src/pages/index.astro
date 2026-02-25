@@ -1,18 +1,12 @@
 ---
-import Layout from "../layouts/Layout.astro";
-import Header from "../components/shared/Header.astro";
-import Footer from "../components/shared/Footer.astro";
+import MarketingLayout from "../layouts/MarketingLayout.astro";
 import FloatingShapes from "../components/shared/FloatingShapes.astro";
 import SectionHeader from "../components/shared/SectionHeader.astro";
+import { makeHref } from "../lib/utils";
 import { ROUTES, SITE_NAME, SITE_DESCRIPTION } from "../config/constants";
 import { Scaling, ArrowLeftRight, Gauge, ShieldCheck } from "lucide-astro";
 
-const baseUrl = import.meta.env.BASE_URL;
-function makeHref(path: string): string {
-  return `${baseUrl}${path}`.replace(/\/+/g, "/");
-}
-
-const siteUrl = new URL(baseUrl, Astro.site).href;
+const siteUrl = new URL(Astro.url.pathname, Astro.site).href;
 const jsonLd = {
   "@context": "https://schema.org",
   "@type": "WebApplication",
@@ -30,13 +24,12 @@ const jsonLd = {
 };
 ---
 
-<Layout title="Reshrimp — Your Images Deserve Better">
+<MarketingLayout title="Reshrimp — Your Images Deserve Better" currentPath="/">
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </Fragment>
   <div class="page-pop">
     <FloatingShapes />
-    <Header currentPath="/" />
 
     <main transition:animate="fade">
       <!-- Hero -->
@@ -248,10 +241,8 @@ const jsonLd = {
         </div>
       </section>
     </main>
-
-    <Footer />
   </div>
-</Layout>
+</MarketingLayout>
 
 <style>
   .page-pop {
