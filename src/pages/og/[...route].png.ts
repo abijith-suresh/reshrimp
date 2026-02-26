@@ -1,5 +1,4 @@
 import type { APIRoute, GetStaticPaths } from "astro";
-import { getCollection } from "astro:content";
 import satori from "satori";
 import { Resvg } from "@resvg/resvg-js";
 import { readFile } from "node:fs/promises";
@@ -206,44 +205,18 @@ async function renderOgImage(data: OgPageData): Promise<Buffer> {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const blogPosts = await getCollection("blog");
-
-  const staticPages = Object.keys(ogPageData).map((key) => ({
+  return Object.keys(ogPageData).map((key) => ({
     params: { route: key },
   }));
-
-  const blogPages = blogPosts.map((post) => ({
-    params: { route: `blog/${post.id}` },
-  }));
-
-  return [...staticPages, ...blogPages];
 };
 
 export const GET: APIRoute = async ({ params }) => {
   const route = params.route as string;
 
-  let data: OgPageData;
+  const data: OgPageData = ogPageData[route];
 
-  if (route.startsWith("blog/")) {
-    const slug = route.replace("blog/", "");
-    const blogPosts = await getCollection("blog");
-    const post = blogPosts.find((p) => p.id === slug);
-
-    if (!post) {
-      return new Response("Not found", { status: 404 });
-    }
-
-    data = {
-      title: post.data.title,
-      description: post.data.description,
-      label: "Blog",
-    };
-  } else {
-    data = ogPageData[route];
-
-    if (!data) {
-      return new Response("Not found", { status: 404 });
-    }
+  if (!data) {
+    return new Response("Not found", { status: 404 });
   }
 
   const png = await renderOgImage(data);
