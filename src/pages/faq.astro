@@ -77,16 +77,24 @@ const faqs = [
       <section class="px-8 py-8 pb-12 relative z-10">
         <div class="max-w-[700px] mx-auto">
           {
-            faqs.map((faq) => (
-              <details class="faq-item bg-sp-bg-card border border-sp-border rounded-sp mb-3 shadow-sp overflow-hidden">
-                <summary class="faq-question font-display text-[1.05rem] font-semibold py-5 px-6 cursor-pointer list-none flex items-center justify-between gap-4 transition-colors duration-200">
+            faqs.map((faq, i) => (
+              <div
+                class="faq-item group border border-sp-border rounded-sp bg-sp-bg-card mb-3 shadow-sp overflow-hidden transition-[border-color,box-shadow,transform] duration-[250ms] [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]"
+                data-reveal
+                data-reveal-delay={i * 60}
+              >
+                <button class="faq-question w-full text-left font-display text-[1.05rem] font-semibold py-5 px-6 flex items-center justify-between gap-4 transition-colors duration-200 hover:text-sp-coral">
                   {faq.question}
-                </summary>
-                <p
-                  class="faq-answer text-[0.95rem] text-sp-text-muted leading-[1.7] py-0 px-6 pb-5 m-0"
-                  set:html={faq.answer}
-                />
-              </details>
+                </button>
+                <div class="faq-body grid [grid-template-rows:0fr] transition-[grid-template-rows] duration-[400ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)]">
+                  <div class="overflow-hidden">
+                    <p
+                      class="faq-answer text-[0.95rem] text-sp-text-muted leading-[1.7] px-6 pb-5 m-0 opacity-0 translate-y-[6px] transition-[opacity,transform] duration-300 delay-[80ms]"
+                      set:html={faq.answer}
+                    />
+                  </div>
+                </div>
+              </div>
             ))
           }
         </div>
@@ -95,19 +103,21 @@ const faqs = [
       <!-- CTA -->
       <section class="px-8 py-8 pb-20 text-center relative z-10">
         <div class="max-w-[500px] mx-auto">
-          <h2
-            class="font-display text-[1.5rem] font-bold mb-3 faq-cta-title opacity-0"
-            style="animation: popBounceIn 0.6s 0.1s forwards"
-          >
+          <h2 class="font-display text-[1.5rem] font-bold mb-3" data-reveal data-reveal-delay="0">
             Still have questions?
           </h2>
           <p
-            class="text-[1rem] text-sp-text-muted leading-[1.6] m-0 faq-cta-desc opacity-0"
-            style="animation: popBounceIn 0.6s 0.25s forwards"
+            class="text-[1rem] text-sp-text-muted leading-[1.6] m-0"
+            data-reveal
+            data-reveal-delay="80"
           >
             Check out the source code or just try the app — it's the best way to see how it works.
           </p>
-          <div class="flex items-center justify-center gap-3 mt-6 flex-wrap faq-cta-buttons">
+          <div
+            class="flex items-center justify-center gap-3 mt-6 flex-wrap"
+            data-reveal
+            data-reveal-delay="160"
+          >
             <a href={makeHref(ROUTES.APP)} class="cta-pop">
               Try Reshrimp
               <svg
@@ -145,31 +155,39 @@ const faqs = [
 </MarketingLayout>
 
 <style>
-  .faq-item[open] {
-    border-color: var(--sp-lavender);
-  }
-
-  .faq-question::-webkit-details-marker {
-    display: none;
-  }
-
+  /* ::after pseudo-element for the +/× icon */
   .faq-question::after {
     content: "+";
     font-size: 1.3rem;
     font-weight: 400;
     color: var(--sp-coral);
     flex-shrink: 0;
-    transition: transform 0.2s;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
 
-  .faq-item[open] .faq-question::after {
+  .faq-item.faq-open .faq-question::after {
     transform: rotate(45deg);
   }
 
-  .faq-question:hover {
-    color: var(--sp-coral);
+  /* Open state: grid row expansion */
+  .faq-item.faq-open .faq-body {
+    grid-template-rows: 1fr;
   }
 
+  /* Open state: answer fade in */
+  .faq-item.faq-open .faq-answer {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Open state: card lift with lavender border */
+  .faq-item.faq-open {
+    border-color: var(--sp-lavender);
+    box-shadow: 0 4px 24px rgba(167, 139, 250, 0.14);
+    transform: scale(1.008);
+  }
+
+  /* :global() scoped link styles inside set:html answer content */
   .faq-answer :global(a) {
     color: var(--sp-coral);
     text-decoration: underline;
@@ -187,3 +205,14 @@ const faqs = [
     transform: translateY(-2px) scale(1.02);
   }
 </style>
+
+<script>
+  function initFaq() {
+    document.querySelectorAll(".faq-item").forEach((item) => {
+      item.querySelector(".faq-question")?.addEventListener("click", () => {
+        item.classList.toggle("faq-open");
+      });
+    });
+  }
+  document.addEventListener("astro:page-load", initFaq);
+</script>
