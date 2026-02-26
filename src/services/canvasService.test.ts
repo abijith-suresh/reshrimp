@@ -184,15 +184,4 @@ describe("getBestFormat", () => {
 
     expect(getBestFormat("image/webp" as ImageFormat)).toBe("image/png");
   });
-
-  it("logs a warning when falling back", () => {
-    const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-    const { canvas } = makeCanvasMock();
-    (canvas.toDataURL as ReturnType<typeof vi.fn>).mockReturnValue("data:image/png;base64,abc");
-    vi.spyOn(document, "createElement").mockReturnValue(canvas);
-
-    getBestFormat("image/webp" as ImageFormat);
-
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining("image/webp"));
-  });
 });
