@@ -9,151 +9,183 @@ import { GITHUB_URL, ROUTES } from "../config/constants";
   title="Reshrimp — About"
   description="Learn about the Reshrimp project — a free, open source, privacy-first image processing tool built for the browser."
   currentPath="/about"
->
-  <div class="relative overflow-x-hidden min-h-screen">
-    <FloatingShapes />
 
-    <main transition:animate="fade">
-      <section class="px-8 py-20 text-center relative z-10 md:px-5 md:py-12">
-        <div class="max-w-[700px] mx-auto">
-          <span class="pop-chip pop-chip-coral">About</span>
+  <div class="relative overflow-x-hidden min-h-screen"
+    <FloatingShapes /
+
+    <main transition:animate="fade"
+      <section class="px-8 py-20 text-center relative z-10 md:px-5 md:py-12"
+        <div class="max-w-[700px] mx-auto"
+          <span class="pop-chip pop-chip-coral">About</span
           <h1
             class="font-display font-extrabold leading-[1.15] my-4 tracking-tight opacity-0"
             style="font-size: clamp(2rem, 5vw, 3rem); animation: popBounceIn 0.6s 0.1s forwards"
-          >
-            Built for people who care about their images.
-          </h1>
+          
+            Built for privacy. Built to prove something bigger.
+          </h1
           <p
             class="text-[1.05rem] text-sp-text-muted leading-[1.7] m-0 opacity-0"
             style="animation: popBounceIn 0.6s 0.25s forwards"
-          >
+          
             Reshrimp is a free, open source image processing tool that runs entirely in your
-            browser.
-          </p>
-        </div>
-      </section>
+            browser. No uploads. No tracking. Just your images, processed locally.
+          </p
+        </div
+      </section
 
-      <section class="px-8 py-8 pb-20 relative z-10">
-        <div class="max-w-[700px] mx-auto">
-          <!-- Story -->
+      <section class="px-8 py-8 pb-20 relative z-10"
+        <div class="max-w-[700px] mx-auto"
+          <!-- The Mission --
           <div
             class="bg-sp-bg-card border border-sp-border rounded-sp-xl p-8 shadow-sp mb-6 about-card"
             data-reveal
             data-reveal-delay="0"
-          >
-            <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight about-card-title">
-              The story
-            </h2>
-            <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0 about-card-p">
+          
+            <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight about-card-title"
+              Why I built this
+            </h2
+            <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0 about-card-p"
               Most online image tools require uploading your photos to someone else's server. That
               means trusting a third party with your personal images, waiting for uploads and
               downloads, and dealing with file size limits and account requirements.
-            </p>
-            <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0 about-card-p">
-              Reshrimp was built to prove that you don't need any of that. Modern browsers have
-              everything needed to resize, convert, and compress images — the Canvas API, Blob
+            </p
+            <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0 about-card-p"
+              I built Reshrimp to prove that you don't need any of that. Modern browsers have
+              everything needed to resize, convert, and compress images — Canvas API, Blob
               handling, and efficient JavaScript engines. Why send data across the internet when
               your computer can handle it locally in milliseconds?
-            </p>
-          </div>
+            </p
+            <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0 about-card-p"
+              But Reshrimp is more than a privacy tool — it's also my portfolio
+              project. I wanted to build something genuinely useful that demonstrates my ability to ship
+              real products with modern web technologies. From AI-powered background removal to smooth
+              animations, this project showcases what I can do.
+            </p
+          </div
 
-          <!-- Tech stack -->
+          <!-- Tech Stack --
           <div
             class="bg-sp-bg-card border border-sp-border rounded-sp-xl p-8 shadow-sp mb-6 about-card"
             data-reveal
             data-reveal-delay="100"
-          >
-            <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight about-card-title">
-              Tech stack
-            </h2>
-            <div class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
+          
+            <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight about-card-title"
+              The tech stack
+            </h2
+            <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0 about-card-p"
+              I chose this stack intentionally — it's modern, type-safe, and performant. Each
+              technology serves a specific purpose in building a privacy-first tool.
+            </p
+            <div class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4"
               <div
                 class="bg-sp-bg border border-sp-border-light rounded-sp p-4 flex flex-col gap-1"
-              >
-                <span class="font-display font-semibold text-[0.95rem] about-tech-name">Astro</span>
+              
+                <span class="font-display font-semibold text-[0.95rem] about-tech-name">Astro</span
                 <span class="text-[0.8rem] text-sp-text-soft about-tech-desc"
                   >Static site framework</span
-                >
-              </div>
+                
+              </div
               <div
                 class="bg-sp-bg border border-sp-border-light rounded-sp p-4 flex flex-col gap-1"
-              >
+              
+                <span class="font-display font-semibold text-[0.95rem] about-tech-name"
+                  >Solid.js</span
+                
+                <span class="text-[0.8rem] text-sp-text-soft about-tech-desc"
+                  >Reactive interactive layer</span
+                
+              </div
+              <div
+                class="bg-sp-bg border border-sp-border-light rounded-sp p-4 flex flex-col gap-1"
+              
                 <span class="font-display font-semibold text-[0.95rem] about-tech-name"
                   >TypeScript</span
-                >
+                
                 <span class="text-[0.8rem] text-sp-text-soft about-tech-desc"
                   >Type-safe processing logic</span
-                >
-              </div>
+                
+              </div
               <div
                 class="bg-sp-bg border border-sp-border-light rounded-sp p-4 flex flex-col gap-1"
-              >
-                <span class="font-display font-semibold text-[0.95rem] about-tech-name"
-                  >Canvas API</span
-                >
-                <span class="text-[0.8rem] text-sp-text-soft about-tech-desc"
-                  >Browser-native image processing</span
-                >
-              </div>
-              <div
-                class="bg-sp-bg border border-sp-border-light rounded-sp p-4 flex flex-col gap-1"
-              >
+              
                 <span class="font-display font-semibold text-[0.95rem] about-tech-name"
                   >Tailwind CSS</span
-                >
+                
                 <span class="text-[0.8rem] text-sp-text-soft about-tech-desc"
                   >Utility-first styling</span
-                >
-              </div>
+                
+              </div
               <div
                 class="bg-sp-bg border border-sp-border-light rounded-sp p-4 flex flex-col gap-1"
-              >
+              
                 <span class="font-display font-semibold text-[0.95rem] about-tech-name">Vercel</span
-                >
                 <span class="text-[0.8rem] text-sp-text-soft about-tech-desc"
                   >Edge deployment platform</span
-                >
-              </div>
+                
+              </div
               <div
                 class="bg-sp-bg border border-sp-border-light rounded-sp p-4 flex flex-col gap-1"
-              >
+              
                 <span class="font-display font-semibold text-[0.95rem] about-tech-name">Vitest</span
-                >
+                
                 <span class="text-[0.8rem] text-sp-text-soft about-tech-desc"
                   >Unit testing framework</span
-                >
-              </div>
-            </div>
-          </div>
+                
+              </div
+            </div
+          </div
 
-          <!-- Contributing -->
+          <!-- Privacy-First Architecture --
           <div
             class="bg-sp-bg-card border border-sp-border rounded-sp-xl p-8 shadow-sp mb-6 about-card"
             data-reveal
             data-reveal-delay="200"
-          >
-            <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight about-card-title">
-              Contributing
-            </h2>
-            <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0 about-card-p">
-              Reshrimp is open source under the MIT license. Contributions of all kinds are welcome
-              — bug fixes, new features, documentation improvements, or just feedback.
-            </p>
-            <div class="flex items-center gap-3 mt-5 flex-wrap about-cta-buttons">
+          
+            <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight about-card-title"
+              Privacy by default
+            </h2
+            <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0 about-card-p"
+              I believe software should respect users by default, not as an afterthought. Every
+              pixel of your image stays in your browser — it's never uploaded to a server,
+              never tracked, and never logged. The Canvas API handles everything locally, from
+              resizing to background removal.
+            </p
+            <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0 about-card-p"
+              Even, AI background removal runs client-side using WebAssembly. Your images are
+              processed by your own device's CPU and GPU, not by someone else's servers.
+              You can verify this yourself — the code is open source under the MIT license.
+            </p
+          </div
+
+          <!-- Contributing --
+          <div
+            class="bg-sp-bg-card border border-sp-border rounded-sp-xl p-8 shadow-sp mb-6 about-card"
+            data-reveal
+            data-reveal-delay="300"
+          
+            <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight about-card-title"
+              Open source
+            </h2
+            <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0 about-card-p"
+              Reshrimp is fully open source. You can read every line of code, fork it to
+              self-host it, or contribute improvements. I welcome pull requests for bug fixes,
+              new features, or documentation updates.
+            </p
+            <div class="flex items-center gap-3 mt-5 flex-wrap about-cta-buttons"
               <a
                 href={GITHUB_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 class="about-github-btn inline-flex items-center gap-2 font-body text-[0.9rem] font-semibold py-3 px-6 bg-sp-bg text-sp-text no-underline rounded-sp-full border border-sp-border transition-all duration-300 shadow-sp hover:translate-y-[-2px] hover:scale-102 hover:shadow-sp-hover hover:border-sp-lavender"
-              >
+              
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"
                   ><path
                     d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"
                   ></path></svg
-                >
+                
                 View on GitHub
-              </a>
-              <a href={makeHref(ROUTES.APP)} class="cta-pop">
+              </a
+              <a href={makeHref(ROUTES.APP)} class="cta-pop"
                 Try Reshrimp
                 <svg
                   width="18"
@@ -167,17 +199,17 @@ import { GITHUB_URL, ROUTES } from "../config/constants";
                   class="cta-pop-arrow"
                   ><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"
                   ></polyline></svg
-                >
-              </a>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
-</MarketingLayout>
+                
+              </a
+            </div
+          </div
+        </div
+      </section
+    </main
+  </div
+</MarketingLayout
 
-<style>
+<style
   /* Reveal animations */
   [data-reveal] {
     opacity: 0;
@@ -201,4 +233,4 @@ import { GITHUB_URL, ROUTES } from "../config/constants";
   .about-card-p:last-child {
     margin-bottom: 0;
   }
-</style>
+</style
