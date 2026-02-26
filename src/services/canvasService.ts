@@ -90,7 +90,5 @@ export function getBestFormat(requestedFormat: ImageFormat): ImageFormat {
     return requestedFormat;
   }
 
-  // Fallback to PNG for unsupported formats
-  console.warn(`Format ${requestedFormat} not supported, falling back to PNG`);
   return "image/png";
 }
