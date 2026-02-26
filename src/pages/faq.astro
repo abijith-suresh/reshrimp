@@ -11,7 +11,7 @@ const faqs = [
       "Yes, completely free with no limits. No accounts, no premium tiers, no hidden costs. Reshrimp is open source under the MIT license and hosted for free on GitHub Pages.",
   },
   {
-    question: "How does the privacy work?",
+    question: "How does privacy work?",
     answer:
       "All image processing happens entirely in your browser using the HTML5 Canvas API. Your images are never uploaded to any server. When you close the tab, all data is released from memory. There are no analytics, no cookies, and no tracking of any kind.",
   },
@@ -40,7 +40,7 @@ const faqs = [
       "Absolutely. There are no restrictions on how you use Reshrimp or the images you process with it. The tool itself is MIT-licensed, meaning you can even modify and redistribute it.",
   },
   {
-    question: "How do quality settings work?",
+    question: "How do the quality settings work?",
     answer:
       "The quality slider controls the compression level for JPEG and WebP output (0-100%). Higher values mean better image quality but larger file sizes. PNG output is always lossless regardless of the quality setting. The side-by-side preview lets you compare results before downloading.",
   },
@@ -49,28 +49,43 @@ const faqs = [
 
 <MarketingLayout
   title="Reshrimp — FAQ"
-  description="Frequently asked questions about Reshrimp — free, private, browser-based image processing tool."
+  description="Frequently asked questions about Reshrimp — a free, private, browser-based image processing tool."
   currentPath="/faq"
 >
-  <div class="page-pop">
+  <div class="relative overflow-x-hidden min-h-screen">
     <FloatingShapes />
 
     <main transition:animate="fade">
-      <section class="faq-hero">
-        <div class="faq-container">
+      <section class="px-8 py-20 text-center relative z-10 md:px-5 md:py-12">
+        <div class="max-w-[700px] mx-auto">
           <span class="pop-chip pop-chip-yellow">FAQ</span>
-          <h1 class="faq-title">Frequently asked questions</h1>
-          <p class="faq-subtitle">Everything you want to know about Reshrimp.</p>
+          <h1
+            class="font-display font-extrabold leading-[1.15] my-4 tracking-tight opacity-0"
+            style="font-size: clamp(2rem, 5vw, 3rem); animation: popBounceIn 0.6s 0.1s forwards"
+          >
+            Frequently asked questions
+          </h1>
+          <p
+            class="text-[1.05rem] text-sp-text-muted leading-[1.7] m-0 opacity-0"
+            style="animation: popBounceIn 0.6s 0.25s forwards"
+          >
+            Everything you want to know about Reshrimp.
+          </p>
         </div>
       </section>
 
-      <section class="faq-content">
-        <div class="faq-container">
+      <section class="px-8 py-8 pb-12 relative z-10">
+        <div class="max-w-[700px] mx-auto">
           {
             faqs.map((faq) => (
-              <details class="faq-item">
-                <summary class="faq-question">{faq.question}</summary>
-                <p class="faq-answer" set:html={faq.answer} />
+              <details class="faq-item bg-sp-bg-card border border-sp-border rounded-sp mb-3 shadow-sp overflow-hidden">
+                <summary class="faq-question font-display text-[1.05rem] font-semibold py-5 px-6 cursor-pointer list-none flex items-center justify-between gap-4 transition-colors duration-200">
+                  {faq.question}
+                </summary>
+                <p
+                  class="faq-answer text-[0.95rem] text-sp-text-muted leading-[1.7] py-0 px-6 pb-5 m-0"
+                  set:html={faq.answer}
+                />
               </details>
             ))
           }
@@ -78,13 +93,21 @@ const faqs = [
       </section>
 
       <!-- CTA -->
-      <section class="faq-cta">
-        <div class="faq-cta-container">
-          <h2 class="faq-cta-title">Still have questions?</h2>
-          <p class="faq-cta-desc">
+      <section class="px-8 py-8 pb-20 text-center relative z-10">
+        <div class="max-w-[500px] mx-auto">
+          <h2
+            class="font-display text-[1.5rem] font-bold mb-3 faq-cta-title opacity-0"
+            style="animation: popBounceIn 0.6s 0.1s forwards"
+          >
+            Still have questions?
+          </h2>
+          <p
+            class="text-[1rem] text-sp-text-muted leading-[1.6] m-0 faq-cta-desc opacity-0"
+            style="animation: popBounceIn 0.6s 0.25s forwards"
+          >
             Check out the source code or just try the app — it's the best way to see how it works.
           </p>
-          <div class="faq-cta-buttons">
+          <div class="flex items-center justify-center gap-3 mt-6 flex-wrap faq-cta-buttons">
             <a href={makeHref(ROUTES.APP)} class="cta-pop">
               Try Reshrimp
               <svg
@@ -101,7 +124,12 @@ const faqs = [
                 ></polyline></svg
               >
             </a>
-            <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" class="faq-github-btn">
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="faq-github-btn inline-flex items-center gap-2 font-body text-[1rem] font-semibold py-[0.9rem] px-8 bg-sp-bg-card text-sp-text no-underline rounded-sp-full border border-sp-border transition-all duration-300 shadow-sp hover:translate-y-[-2px] hover:scale-102 hover:shadow-sp-hover hover:border-sp-lavender"
+            >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"
                 ><path
                   d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"
@@ -117,71 +145,8 @@ const faqs = [
 </MarketingLayout>
 
 <style>
-  .page-pop {
-    position: relative;
-    overflow-x: hidden;
-    min-height: 100vh;
-  }
-
-  .faq-hero {
-    padding: 5rem 2rem 3rem;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-  }
-
-  .faq-container {
-    max-width: 700px;
-    margin: 0 auto;
-  }
-
-  .faq-title {
-    font-family: var(--sp-font-display);
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 800;
-    line-height: 1.15;
-    margin: 1rem 0 1.25rem;
-    letter-spacing: -0.03em;
-  }
-
-  .faq-subtitle {
-    font-size: 1.05rem;
-    color: var(--sp-text-muted);
-    line-height: 1.7;
-    margin: 0;
-  }
-
-  .faq-content {
-    padding: 2rem 2rem 3rem;
-    position: relative;
-    z-index: 1;
-  }
-
-  .faq-item {
-    background: var(--sp-bg-card);
-    border: 1px solid var(--sp-border);
-    border-radius: var(--sp-radius);
-    margin-bottom: 0.75rem;
-    box-shadow: var(--sp-shadow);
-    overflow: hidden;
-  }
-
   .faq-item[open] {
     border-color: var(--sp-lavender);
-  }
-
-  .faq-question {
-    font-family: var(--sp-font-display);
-    font-size: 1.05rem;
-    font-weight: 600;
-    padding: 1.25rem 1.5rem;
-    cursor: pointer;
-    list-style: none;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 1rem;
-    transition: color 0.2s;
   }
 
   .faq-question::-webkit-details-marker {
@@ -205,80 +170,20 @@ const faqs = [
     color: var(--sp-coral);
   }
 
-  .faq-answer {
-    font-size: 0.95rem;
-    color: var(--sp-text-muted);
-    line-height: 1.7;
-    padding: 0 1.5rem 1.25rem;
-    margin: 0;
-  }
-
   .faq-answer :global(a) {
     color: var(--sp-coral);
     text-decoration: underline;
     text-decoration-color: rgba(255, 107, 107, 0.3);
     text-underline-offset: 2px;
+    transition: text-decoration-color 0.2s;
   }
 
   .faq-answer :global(a:hover) {
     text-decoration-color: var(--sp-coral);
   }
 
-  .faq-cta {
-    padding: 2rem 2rem 5rem;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-  }
-
-  .faq-cta-container {
-    max-width: 500px;
-    margin: 0 auto;
-  }
-
-  .faq-cta-title {
-    font-family: var(--sp-font-display);
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin: 0 0 0.75rem;
-  }
-
-  .faq-cta-desc {
-    font-size: 1rem;
-    color: var(--sp-text-muted);
-    line-height: 1.6;
-    margin: 0;
-  }
-
-  .faq-cta-buttons {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    margin-top: 1.5rem;
-    flex-wrap: wrap;
-  }
-
-  .faq-github-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: var(--sp-font-body);
-    font-size: 1rem;
-    font-weight: 600;
-    padding: 0.9rem 2rem;
-    background: var(--sp-bg-card);
-    color: var(--sp-text);
-    text-decoration: none;
-    border-radius: var(--sp-radius-full);
-    border: 1px solid var(--sp-border);
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    box-shadow: var(--sp-shadow);
-  }
-
-  .faq-github-btn:hover {
+  /* Custom hover scale class */
+  .hover\:scale-102:hover {
     transform: translateY(-2px) scale(1.02);
-    box-shadow: var(--sp-shadow-hover);
-    border-color: var(--sp-lavender);
   }
 </style>
