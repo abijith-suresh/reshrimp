@@ -1,16 +1,6 @@
 import type { ImageFormat, ValidationResult } from "../types/image";
-
-/**
- * Maximum file size in bytes (50MB)
- * Files larger than this will trigger a warning
- */
-const MAX_FILE_SIZE = 50 * 1024 * 1024;
-
-/**
- * Maximum recommended file size (10MB)
- * Files larger than this may cause performance issues
- */
-const RECOMMENDED_MAX_SIZE = 10 * 1024 * 1024;
+import { MAX_FILE_SIZE, RECOMMENDED_MAX_SIZE } from "../config/constants";
+import { formatFileSize } from "../utils/imageUtils";
 
 /**
  * Get list of supported image formats
@@ -74,19 +64,6 @@ export function validateImageFile(file: File): ValidationResult {
   return {
     valid: true,
   };
-}
-
-/**
- * Format file size in human-readable format
- */
-function formatFileSize(bytes: number): string {
-  if (bytes < 1024) {
-    return `${bytes} B`;
-  }
-  if (bytes < 1024 * 1024) {
-    return `${(bytes / 1024).toFixed(1)} KB`;
-  }
-  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
 /**

@@ -23,3 +23,7 @@ export const ROUTES = {
   FAQ: "/faq",
   CHANGELOG: "/changelog",
 } as const;
+
+// File size limits (in bytes)
+export const MAX_FILE_SIZE = 50 * 1024 * 1024;
+export const RECOMMENDED_MAX_SIZE = 10 * 1024 * 1024;
