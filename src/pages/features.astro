@@ -11,7 +11,7 @@ const features = [
     title: "Resize with precision",
     color: "coral",
     description:
-      "Scale images to exact pixel dimensions with intelligent aspect ratio lock. Perfect for social media thumbnails, website banners, or print-ready exports. Set width, height, or both — the calculator handles the math.",
+      "Scale images to exact pixel dimensions with intelligent aspect ratio lock. Perfect for social media thumbnails, website banners, or print-ready exports. Set width, height, or both — calculator handles the math.",
   },
   {
     icon: ArrowLeftRight,
@@ -56,17 +56,27 @@ const features = [
   description="Resize, convert, compress, and process images privately in your browser. Explore all features of Reshrimp."
   currentPath="/features"
 >
-  <div class="page-pop">
+  <div class="relative overflow-x-hidden min-h-screen">
     <FloatingShapes />
     <!-- Hero -->
-    <section class="features-hero">
-      <div class="features-hero-container">
+    <section class="px-8 py-20 text-center relative z-10 md:px-5 md:py-12">
+      <div class="max-w-[650px] mx-auto">
         <span class="pop-chip pop-chip-lavender">Features</span>
-        <h1 class="features-hero-title">
+        <h1
+          class="font-display font-extrabold leading-[1.15] my-4 tracking-tight opacity-0"
+          style="font-size: clamp(2rem, 5vw, 3rem); animation: popBounceIn 0.6s 0.1s forwards"
+        >
           Everything you need.<br />
-          <span class="features-hero-highlight">Nothing you don't.</span>
+          <span
+            class="bg-gradient-to-br from-[var(--sp-coral)] to-[var(--sp-lavender-dark)] bg-clip-text text-transparent"
+          >
+            Nothing you don't.
+          </span>
         </h1>
-        <p class="features-hero-sub">
+        <p
+          class="text-[1.05rem] text-sp-text-muted leading-[1.7] m-0 opacity-0"
+          style="animation: popBounceIn 0.6s 0.25s forwards"
+        >
           Reshrimp packs powerful image processing into a clean, private, browser-based tool. No
           bloat, no accounts, no nonsense.
         </p>
@@ -74,25 +84,31 @@ const features = [
     </section>
 
     <!-- Feature sections -->
-    <section class="features-list">
-      <div class="features-list-container">
+    <section class="px-8 py-8 pb-16 relative z-10">
+      <div class="max-w-[900px] mx-auto flex flex-col gap-12">
         {
           features.map((feature, i) => (
             <div
-              class:list={["feature-row", { "feature-row-reverse": i % 2 === 1 }]}
+              class:list={["flex items-center gap-10", { "flex-row-reverse": i % 2 === 1 }]}
               data-reveal
               data-reveal-delay={i * 80}
             >
-              <div class={`feature-icon-box feature-icon-${feature.color}`}>
+              <div
+                class={`flex-shrink-0 w-[120px] h-[120px] rounded-sp-xl flex items-center justify-center shadow-sp feature-icon-box feature-icon-${feature.color}`}
+              >
                 <feature.icon
                   size={40}
                   strokeWidth={1.75}
                   class={`feature-icon feature-icon-stroke-${feature.color}`}
                 />
               </div>
-              <div class="feature-text">
-                <h2 class="feature-title">{feature.title}</h2>
-                <p class="feature-desc">{feature.description}</p>
+              <div class="flex-1 feature-text">
+                <h2 class="font-display text-[1.35rem] font-bold mb-2 tracking-tight feature-title">
+                  {feature.title}
+                </h2>
+                <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] m-0 feature-desc">
+                  {feature.description}
+                </p>
               </div>
             </div>
           ))
@@ -101,10 +117,20 @@ const features = [
     </section>
 
     <!-- CTA -->
-    <section class="features-cta">
-      <div class="features-cta-container">
-        <h2 class="features-cta-title">Ready to try it?</h2>
-        <p class="features-cta-desc">Free, open source, completely private. No sign-up required.</p>
+    <section class="px-8 py-16 pb-20 text-center relative z-10">
+      <div class="max-w-[500px] mx-auto">
+        <h2
+          class="font-display font-extrabold mb-4 tracking-tight opacity-0"
+          style="font-size: clamp(1.8rem, 4vw, 2.5rem); animation: popBounceIn 0.6s 0.1s forwards features-cta-title"
+        >
+          Ready to try it?
+        </h2>
+        <p
+          class="text-[1rem] text-sp-text-muted mb-8 leading-[1.6] m-0 opacity-0"
+          style="animation: popBounceIn 0.6s 0.25s forwards features-cta-desc"
+        >
+          Free, open source, completely private. No sign-up required.
+        </p>
         <a href={makeHref(ROUTES.APP)} class="cta-pop cta-pop-lg">
           Open Reshrimp
           <svg
@@ -128,82 +154,6 @@ const features = [
 </MarketingLayout>
 
 <style>
-  .page-pop {
-    position: relative;
-    overflow-x: hidden;
-    min-height: 100vh;
-  }
-
-  .features-hero {
-    padding: 5rem 2rem 3rem;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-  }
-
-  .features-hero-container {
-    max-width: 650px;
-    margin: 0 auto;
-  }
-
-  .features-hero-title {
-    font-family: var(--sp-font-display);
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 800;
-    line-height: 1.15;
-    margin: 1rem 0 1.25rem;
-    letter-spacing: -0.03em;
-  }
-
-  .features-hero-highlight {
-    background: linear-gradient(135deg, var(--sp-coral), var(--sp-lavender-dark));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .features-hero-sub {
-    font-size: 1.05rem;
-    color: var(--sp-text-muted);
-    line-height: 1.7;
-    margin: 0;
-  }
-
-  .features-list {
-    padding: 2rem 2rem 4rem;
-    position: relative;
-    z-index: 1;
-  }
-
-  .features-list-container {
-    max-width: 900px;
-    margin: 0 auto;
-    display: flex;
-    flex-direction: column;
-    gap: 3rem;
-  }
-
-  .feature-row {
-    display: flex;
-    align-items: center;
-    gap: 2.5rem;
-  }
-
-  .feature-row-reverse {
-    flex-direction: row-reverse;
-  }
-
-  .feature-icon-box {
-    flex-shrink: 0;
-    width: 120px;
-    height: 120px;
-    border-radius: var(--sp-radius-xl);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--sp-shadow);
-  }
-
   .feature-icon-coral {
     background: var(--sp-coral-light);
   }
@@ -236,50 +186,18 @@ const features = [
     color: #a16207;
   }
 
-  .feature-text {
-    flex: 1;
+  /* Reveal animations for feature rows */
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(28px) scale(0.98);
+    transition:
+      opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .feature-title {
-    font-family: var(--sp-font-display);
-    font-size: 1.35rem;
-    font-weight: 700;
-    margin: 0 0 0.5rem;
-    letter-spacing: -0.01em;
-  }
-
-  .feature-desc {
-    font-size: 0.95rem;
-    color: var(--sp-text-muted);
-    line-height: 1.7;
-    margin: 0;
-  }
-
-  .features-cta {
-    padding: 4rem 2rem 5rem;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-  }
-
-  .features-cta-container {
-    max-width: 500px;
-    margin: 0 auto;
-  }
-
-  .features-cta-title {
-    font-family: var(--sp-font-display);
-    font-size: clamp(1.8rem, 4vw, 2.5rem);
-    font-weight: 800;
-    margin: 0 0 1rem;
-    letter-spacing: -0.02em;
-  }
-
-  .features-cta-desc {
-    font-size: 1rem;
-    color: var(--sp-text-muted);
-    margin: 0 0 2rem;
-    line-height: 1.6;
+  [data-reveal].revealed {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 
   @media (max-width: 640px) {
