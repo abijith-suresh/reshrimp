@@ -218,7 +218,7 @@ export default function ProcessingControls(props: ProcessingControlsProps) {
         onClick={props.onProcess}
       >
         <Show when={props.isProcessing()}>
-          <span class="sp-btn-spinner" />
+          <span class="sp-btn-spinner" aria-hidden="true" />
         </Show>
         <span>{props.processBtnLabel()}</span>
       </button>

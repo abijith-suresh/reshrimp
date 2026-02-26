@@ -50,21 +50,27 @@ export default function PreviewPanel(props: PreviewPanelProps) {
       <Show when={props.currentImage()}>
         <div id="preview-container" class="preview-container flex-1 flex-col">
           {/* Tabs */}
-          <div class="flex border-b border-sp-border-light px-4 shrink-0">
+          <div class="flex border-b border-sp-border-light px-4 shrink-0" role="tablist">
             <button
               type="button"
+              id="original-tab"
               class="sbs-tab"
               classList={{ "sbs-tab-active": props.activeTab() === "original" }}
-              data-tab="original"
+              role="tab"
+              aria-selected={props.activeTab() === "original"}
+              aria-controls="original-panel"
               onClick={() => props.setActiveTab("original")}
             >
               Original
             </button>
             <button
               type="button"
+              id="processed-tab"
               class="sbs-tab"
               classList={{ "sbs-tab-active": props.activeTab() === "processed" }}
-              data-tab="processed"
+              role="tab"
+              aria-selected={props.activeTab() === "processed"}
+              aria-controls="processed-panel"
               onClick={() => props.setActiveTab("processed")}
             >
               Processed
@@ -75,9 +81,11 @@ export default function PreviewPanel(props: PreviewPanelProps) {
           <div class="flex-1 relative min-h-[380px] max-lg:min-h-[300px] max-md:min-h-[250px]">
             {/* Original Tab */}
             <div
+              id="original-panel"
               class="tab-panel"
               classList={{ "tab-panel-active": props.activeTab() === "original" }}
-              data-tabpanel="original"
+              role="tabpanel"
+              aria-labelledby="original-tab"
             >
               <div class="preview-frame">
                 <img
@@ -101,9 +109,11 @@ export default function PreviewPanel(props: PreviewPanelProps) {
 
             {/* Processed Tab */}
             <div
+              id="processed-panel"
               class="tab-panel"
               classList={{ "tab-panel-active": props.activeTab() === "processed" }}
-              data-tabpanel="processed"
+              role="tabpanel"
+              aria-labelledby="processed-tab"
             >
               <div class="preview-frame">
                 <Show when={!props.processResult()}>

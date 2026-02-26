@@ -50,6 +50,7 @@ export default function UploadArea(props: UploadAreaProps) {
         classList={{ "sp-drag-active": props.isDragOver() }}
         role="button"
         tabIndex={0}
+        aria-label="Upload image or drag and drop"
         onClick={handleUploadAreaClick}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
