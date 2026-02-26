@@ -3,7 +3,7 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
 import FloatingShapes from "../components/shared/FloatingShapes.astro";
 import { makeHref } from "../lib/utils";
 import { ROUTES } from "../config/constants";
-import { Scaling, ArrowLeftRight, Gauge, ShieldCheck, WifiOff, Code } from "lucide-astro";
+import { Scaling, ArrowLeftRight, Gauge, ShieldCheck, WifiOff, Code, Wand2 } from "lucide-astro";
 
 const features = [
   {
@@ -47,6 +47,13 @@ const features = [
     color: "mint",
     description:
       "Built with Astro and TypeScript, licensed under MIT. Read the code, fork it, improve it, self-host it. Contributions are welcome — check the GitHub repository for open issues.",
+  },
+  {
+    icon: Wand2,
+    title: "Remove background",
+    color: "lavender",
+    description:
+      "AI-powered background removal that runs entirely in your browser using WebAssembly. No server upload, complete privacy. The ML model processes your image locally and forces PNG output to preserve transparency.",
   },
 ];
 ---
