@@ -215,10 +215,10 @@ export default function ProcessingControls(props: ProcessingControlsProps) {
         class="sp-process-btn"
         classList={{ "sp-process-btn-loading": props.isProcessing() }}
         disabled={!props.controlsActive()}
-        onClick={props.onProcess}
+        onClick={() => props.onProcess()}
       >
         <Show when={props.isProcessing()}>
-          <span class="sp-btn-spinner" />
+          <span class="sp-btn-spinner" aria-hidden="true" />
         </Show>
         <span>{props.processBtnLabel()}</span>
       </button>

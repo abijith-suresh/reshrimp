@@ -28,27 +28,43 @@ const jsonLd = {
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </Fragment>
-  <div class="page-pop">
+  <div class="relative overflow-x-hidden min-h-screen">
     <FloatingShapes />
 
     <main transition:animate="fade">
       <!-- Hero -->
-      <section class="hero-pop">
-        <div class="hero-pop-container">
-          <div class="hero-pop-chips">
+      <section class="px-8 py-20 text-center relative z-10 md:px-5 md:py-16 md:px-6">
+        <div class="max-w-[700px] mx-auto">
+          <div
+            class="flex justify-center gap-2 mb-8 flex-wrap opacity-0"
+            style="animation: popBounceIn 0.6s 0.1s forwards"
+          >
             <span class="pop-chip pop-chip-mint">Free forever</span>
             <span class="pop-chip pop-chip-coral">100% private</span>
             <span class="pop-chip pop-chip-lavender">Works offline</span>
           </div>
-          <h1 class="hero-pop-title">
+          <h1
+            class="font-display font-extrabold leading-[1.15] mb-6 tracking-tight opacity-0"
+            style="font-size: clamp(2.2rem, 5.5vw, 3.5rem); animation: popBounceIn 0.6s 0.25s forwards"
+          >
             Your images deserve<br />
-            <span class="hero-pop-highlight">better than the cloud.</span>
+            <span
+              class="bg-gradient-to-br from-[var(--sp-coral)] to-[var(--sp-lavender-dark)] bg-clip-text text-transparent"
+            >
+              better than the cloud.
+            </span>
           </h1>
-          <p class="hero-pop-sub">
+          <p
+            class="text-[1.1rem] text-sp-text-muted leading-[1.7] max-w-[520px] mx-auto mb-8 opacity-0"
+            style="animation: popBounceIn 0.6s 0.4s forwards"
+          >
             Resize, convert, and compress images right in your browser. Nothing gets uploaded.
             Nothing gets tracked. It just works.
           </p>
-          <div class="hero-pop-cta-row">
+          <div
+            class="flex flex-col items-center gap-3 opacity-0"
+            style="animation: popBounceIn 0.6s 0.55s forwards"
+          >
             <a href={makeHref(ROUTES.APP)} class="cta-pop">
               Start processing
               <svg
@@ -66,53 +82,79 @@ const jsonLd = {
                 <polyline points="12 5 19 12 12 19"></polyline>
               </svg>
             </a>
-            <span class="hero-pop-hint">No sign-up &middot; No downloads</span>
+            <span class="text-[0.8rem] text-sp-text-soft">No sign-up &middot; No downloads</span>
           </div>
         </div>
       </section>
 
       <!-- Bento Features -->
-      <section class="bento-pop">
-        <div class="bento-pop-container">
+      <section class="px-8 py-16 relative z-10">
+        <div class="max-w-[1000px] mx-auto">
           <SectionHeader label="What can you do?" title="Everything you need. Nothing you don't." />
-          <div class="bento-grid">
-            <div class="bento-card bento-card-lg bento-coral" data-reveal data-reveal-delay="0">
-              <div class="bento-card-content">
-                <Scaling size={32} strokeWidth={1.75} class="bento-icon" />
-                <h3 class="bento-title">Resize with precision</h3>
-                <p class="bento-desc">
+          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div
+              class="bento-card group border border-transparent rounded-sp-xl p-8 transition-all duration-300 shadow-sp hover:translate-y-[-4px] hover:shadow-sp-hover bg-sp-coral-light border-[rgba(255,107,107,0.15)] md:col-span-2"
+              data-reveal
+              data-reveal-delay="0"
+            >
+              <div
+                class="bento-card-content opacity-0 translate-y-7 scale-[0.98] transition-[opacity,transform] duration-[550ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-[&.revealed]:opacity-100 group-[&.revealed]:translate-y-0 group-[&.revealed]:scale-100"
+              >
+                <Scaling size={32} strokeWidth={1.75} class="block mb-4 opacity-80" />
+                <h3 class="font-display text-[1.2rem] font-bold mb-2 mt-0">
+                  Resize with precision
+                </h3>
+                <p class="text-[0.9rem] text-sp-text-muted leading-[1.6] m-0">
                   Scale to exact pixel dimensions. Aspect ratio lock keeps everything balanced.
                   Works for thumbnails, social media, or high-res exports.
                 </p>
               </div>
             </div>
-            <div class="bento-card bento-mint" data-reveal data-reveal-delay="80">
-              <div class="bento-card-content">
-                <ArrowLeftRight size={32} strokeWidth={1.75} class="bento-icon" />
-                <h3 class="bento-title">Convert formats</h3>
-                <p class="bento-desc">
+            <div
+              class="bento-card group border border-transparent rounded-sp-xl p-8 transition-all duration-300 shadow-sp hover:translate-y-[-4px] hover:shadow-sp-hover bg-sp-mint-light border-[rgba(45,212,191,0.15)]"
+              data-reveal
+              data-reveal-delay="80"
+            >
+              <div
+                class="bento-card-content opacity-0 translate-y-7 scale-[0.98] transition-[opacity,transform] duration-[550ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-[&.revealed]:opacity-100 group-[&.revealed]:translate-y-0 group-[&.revealed]:scale-100"
+              >
+                <ArrowLeftRight size={32} strokeWidth={1.75} class="block mb-4 opacity-80" />
+                <h3 class="font-display text-[1.2rem] font-bold mb-2 mt-0">Convert formats</h3>
+                <p class="text-[0.9rem] text-sp-text-muted leading-[1.6] m-0">
                   Switch between JPEG, PNG, and WebP in a click. Browser-native encoding, zero
                   quality loss.
                 </p>
               </div>
             </div>
-            <div class="bento-card bento-lavender" data-reveal data-reveal-delay="160">
-              <div class="bento-card-content">
-                <Gauge size={32} strokeWidth={1.75} class="bento-icon" />
-                <h3 class="bento-title">Compress smartly</h3>
-                <p class="bento-desc">
+            <div
+              class="bento-card group border border-transparent rounded-sp-xl p-8 transition-all duration-300 shadow-sp hover:translate-y-[-4px] hover:shadow-sp-hover bg-sp-lavender-light border-[rgba(167,139,250,0.15)]"
+              data-reveal
+              data-reveal-delay="160"
+            >
+              <div
+                class="bento-card-content opacity-0 translate-y-7 scale-[0.98] transition-[opacity,transform] duration-[550ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-[&.revealed]:opacity-100 group-[&.revealed]:translate-y-0 group-[&.revealed]:scale-100"
+              >
+                <Gauge size={32} strokeWidth={1.75} class="block mb-4 opacity-80" />
+                <h3 class="font-display text-[1.2rem] font-bold mb-2 mt-0">Compress smartly</h3>
+                <p class="text-[0.9rem] text-sp-text-muted leading-[1.6] m-0">
                   Fine-tune quality from 0-100%. Watch file sizes shrink live with side-by-side
                   preview.
                 </p>
               </div>
             </div>
-            <div class="bento-card bento-card-lg bento-yellow" data-reveal data-reveal-delay="240">
-              <div class="bento-card-content">
-                <ShieldCheck size={32} strokeWidth={1.75} class="bento-icon" />
-                <h3 class="bento-title">Completely private</h3>
-                <p class="bento-desc">
-                  All processing happens locally via the Canvas API. Zero servers, zero uploads,
-                  zero tracking. Works offline after first load. Open source — verify it yourself.
+            <div
+              class="bento-card group border border-transparent rounded-sp-xl p-8 transition-all duration-300 shadow-sp hover:translate-y-[-4px] hover:shadow-sp-hover bg-sp-yellow-light border-[rgba(253,230,138,0.3)] md:col-span-2"
+              data-reveal
+              data-reveal-delay="240"
+            >
+              <div
+                class="bento-card-content opacity-0 translate-y-7 scale-[0.98] transition-[opacity,transform] duration-[550ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-[&.revealed]:opacity-100 group-[&.revealed]:translate-y-0 group-[&.revealed]:scale-100"
+              >
+                <ShieldCheck size={32} strokeWidth={1.75} class="block mb-4 opacity-80" />
+                <h3 class="font-display text-[1.2rem] font-bold mb-2 mt-0">Completely private</h3>
+                <p class="text-[0.9rem] text-sp-text-muted leading-[1.6] m-0">
+                  All processing happens locally via Canvas API. Zero servers, zero uploads, zero
+                  tracking. Works offline after first load. Open source — verify it yourself.
                 </p>
               </div>
             </div>
@@ -121,20 +163,26 @@ const jsonLd = {
       </section>
 
       <!-- How it works -->
-      <section class="how-pop">
-        <div class="how-pop-container">
+      <section class="px-8 py-16 relative z-10">
+        <div class="max-w-[900px] mx-auto">
           <SectionHeader label="Dead simple" title="Three steps. Seriously." />
-          <div class="how-pop-steps">
-            <div class="how-pop-step" data-reveal data-reveal-delay="0">
-              <div class="how-pop-num-wrap how-pop-num-coral">
-                <span class="how-pop-num">1</span>
+          <div class="flex items-start justify-center gap-4 md:flex-col md:items-center">
+            <div class="flex-1 text-center max-w-[220px]" data-reveal data-reveal-delay="0">
+              <div
+                class="w-[52px] h-[52px] rounded-full flex items-center justify-center mx-auto mb-4 bg-sp-coral text-white"
+              >
+                <span class="font-display text-[1.2rem] font-bold">1</span>
               </div>
-              <h3 class="how-pop-step-title">Drop your image</h3>
-              <p class="how-pop-step-desc">
+              <h3 class="font-display text-[1.05rem] font-bold mb-1">Drop your image</h3>
+              <p class="text-[0.85rem] text-sp-text-muted leading-[1.6] m-0">
                 Drag and drop or click to browse. Supports JPEG, PNG, WebP, and GIF.
               </p>
             </div>
-            <div class="how-pop-connector" data-reveal data-reveal-delay="100">
+            <div
+              class="text-sp-text-soft pt-4 shrink-0 md:rotate-90 md:pt-0"
+              data-reveal
+              data-reveal-delay="100"
+            >
               <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
                 <path
                   d="M0 12h36M30 6l6 6-6 6"
@@ -145,16 +193,22 @@ const jsonLd = {
                   opacity="0.3"></path>
               </svg>
             </div>
-            <div class="how-pop-step" data-reveal data-reveal-delay="200">
-              <div class="how-pop-num-wrap how-pop-num-mint">
-                <span class="how-pop-num">2</span>
+            <div class="flex-1 text-center max-w-[220px]" data-reveal data-reveal-delay="200">
+              <div
+                class="w-[52px] h-[52px] rounded-full flex items-center justify-center mx-auto mb-4 bg-sp-mint text-white"
+              >
+                <span class="font-display text-[1.2rem] font-bold">2</span>
               </div>
-              <h3 class="how-pop-step-title">Tweak the settings</h3>
-              <p class="how-pop-step-desc">
+              <h3 class="font-display text-[1.05rem] font-bold mb-1">Tweak the settings</h3>
+              <p class="text-[0.85rem] text-sp-text-muted leading-[1.6] m-0">
                 Set dimensions, pick a format, adjust quality. Preview updates live.
               </p>
             </div>
-            <div class="how-pop-connector" data-reveal data-reveal-delay="300">
+            <div
+              class="text-sp-text-soft pt-4 shrink-0 md:rotate-90 md:pt-0"
+              data-reveal
+              data-reveal-delay="300"
+            >
               <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
                 <path
                   d="M0 12h36M30 6l6 6-6 6"
@@ -165,12 +219,14 @@ const jsonLd = {
                   opacity="0.3"></path>
               </svg>
             </div>
-            <div class="how-pop-step" data-reveal data-reveal-delay="400">
-              <div class="how-pop-num-wrap how-pop-num-lavender">
-                <span class="how-pop-num">3</span>
+            <div class="flex-1 text-center max-w-[220px]" data-reveal data-reveal-delay="400">
+              <div
+                class="w-[52px] h-[52px] rounded-full flex items-center justify-center mx-auto mb-4 bg-sp-lavender text-white"
+              >
+                <span class="font-display text-[1.2rem] font-bold">3</span>
               </div>
-              <h3 class="how-pop-step-title">Download instantly</h3>
-              <p class="how-pop-step-desc">
+              <h3 class="font-display text-[1.05rem] font-bold mb-1">Download instantly</h3>
+              <p class="text-[0.85rem] text-sp-text-muted leading-[1.6] m-0">
                 One click to process, one click to download. Compare before and after.
               </p>
             </div>
@@ -179,10 +235,13 @@ const jsonLd = {
       </section>
 
       <!-- Trust banner -->
-      <section class="trust-pop">
-        <div class="trust-pop-container">
-          <div class="trust-pop-card" data-reveal>
-            <div class="trust-pop-icon">
+      <section class="px-8 py-12 relative z-10">
+        <div class="max-w-[700px] mx-auto">
+          <div
+            class="bg-sp-bg-card border border-sp-border rounded-sp-xl p-12 text-center shadow-sp"
+            data-reveal
+          >
+            <div class="text-sp-mint mb-5">
               <svg
                 width="36"
                 height="36"
@@ -197,28 +256,53 @@ const jsonLd = {
                 <path d="M9 12l2 2 4-4"></path>
               </svg>
             </div>
-            <h2 class="trust-pop-title">Your images stay on your device. Period.</h2>
-            <p class="trust-pop-desc">
+            <h2 class="font-display text-[1.5rem] font-bold mb-4 tracking-tight">
+              Your images stay on your device. Period.
+            </h2>
+            <p class="text-[0.9rem] text-sp-text-muted leading-[1.7] max-w-[500px] mx-auto mb-6">
               Reshrimp uses your browser's built-in Canvas API for all processing. There are no
               servers to upload to, no accounts to create, no data to collect. It's open source —
               check the code yourself.
             </p>
-            <div class="trust-pop-badges">
-              <span class="trust-badge">No servers</span>
-              <span class="trust-badge">No cookies</span>
-              <span class="trust-badge">No analytics</span>
-              <span class="trust-badge">No accounts</span>
-              <span class="trust-badge">Open source</span>
+            <div class="flex justify-center flex-wrap gap-2">
+              <span
+                class="inline-block text-[0.7rem] font-semibold py-[0.3rem] px-[0.8rem] rounded-sp-full bg-sp-mint-light text-sp-mint-dark tracking-[0.01em]"
+                >No servers</span
+              >
+              <span
+                class="inline-block text-[0.7rem] font-semibold py-[0.3rem] px-[0.8rem] rounded-sp-full bg-sp-mint-light text-sp-mint-dark tracking-[0.01em]"
+                >No cookies</span
+              >
+              <span
+                class="inline-block text-[0.7rem] font-semibold py-[0.3rem] px-[0.8rem] rounded-sp-full bg-sp-mint-light text-sp-mint-dark tracking-[0.01em]"
+                >No analytics</span
+              >
+              <span
+                class="inline-block text-[0.7rem] font-semibold py-[0.3rem] px-[0.8rem] rounded-sp-full bg-sp-mint-light text-sp-mint-dark tracking-[0.01em]"
+                >No accounts</span
+              >
+              <span
+                class="inline-block text-[0.7rem] font-semibold py-[0.3rem] px-[0.8rem] rounded-sp-full bg-sp-mint-light text-sp-mint-dark tracking-[0.01em]"
+                >Open source</span
+              >
             </div>
           </div>
         </div>
       </section>
 
       <!-- Final CTA -->
-      <section class="final-pop">
-        <div class="final-pop-container">
-          <h2 class="final-pop-title">Ready to give it a go?</h2>
-          <p class="final-pop-desc">
+      <section class="px-8 py-20 text-center relative z-10">
+        <div class="max-w-[500px] mx-auto">
+          <h2
+            class="font-display font-extrabold mb-4 tracking-tight opacity-0"
+            style="font-size: clamp(1.8rem, 4vw, 2.5rem); animation: popBounceIn 0.6s 0.1s forwards"
+          >
+            Ready to give it a go?
+          </h2>
+          <p
+            class="text-[1rem] text-sp-text-muted mb-8 leading-[1.6] opacity-0"
+            style="animation: popBounceIn 0.6s 0.25s forwards"
+          >
             Free, open source, completely private. Just open the app and start processing.
           </p>
           <a href={makeHref(ROUTES.APP)} class="cta-pop cta-pop-lg">
@@ -243,333 +327,3 @@ const jsonLd = {
     </main>
   </div>
 </MarketingLayout>
-
-<style>
-  .page-pop {
-    position: relative;
-    overflow-x: hidden;
-    min-height: 100vh;
-  }
-
-  /* Hero */
-  .hero-pop {
-    padding: 5rem 2rem 4rem;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-  }
-
-  .hero-pop-container {
-    max-width: 700px;
-    margin: 0 auto;
-  }
-
-  .hero-pop-chips {
-    display: flex;
-    justify-content: center;
-    gap: 0.5rem;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-    opacity: 0;
-    animation: popBounceIn 0.6s 0.1s forwards;
-  }
-
-  .hero-pop-title {
-    font-family: var(--sp-font-display);
-    font-size: clamp(2.2rem, 5.5vw, 3.5rem);
-    font-weight: 800;
-    line-height: 1.15;
-    margin: 0 0 1.5rem;
-    letter-spacing: -0.03em;
-    opacity: 0;
-    animation: popBounceIn 0.6s 0.25s forwards;
-  }
-
-  .hero-pop-highlight {
-    background: linear-gradient(135deg, var(--sp-coral), var(--sp-lavender-dark));
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-  }
-
-  .hero-pop-sub {
-    font-size: 1.1rem;
-    color: var(--sp-text-muted);
-    line-height: 1.7;
-    max-width: 520px;
-    margin: 0 auto 2rem;
-    opacity: 0;
-    animation: popBounceIn 0.6s 0.4s forwards;
-  }
-
-  .hero-pop-cta-row {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.75rem;
-    opacity: 0;
-    animation: popBounceIn 0.6s 0.55s forwards;
-  }
-
-  .hero-pop-hint {
-    font-size: 0.8rem;
-    color: var(--sp-text-soft);
-  }
-
-  /* Bento Grid */
-  .bento-pop {
-    padding: 4rem 2rem;
-    position: relative;
-    z-index: 1;
-  }
-
-  .bento-pop-container {
-    max-width: 1000px;
-    margin: 0 auto;
-  }
-
-  .bento-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-  }
-
-  .bento-card {
-    border-radius: var(--sp-radius-xl);
-    padding: 2rem;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    box-shadow: var(--sp-shadow);
-    border: 1px solid transparent;
-  }
-
-  .bento-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--sp-shadow-hover);
-  }
-
-  .bento-coral {
-    background: var(--sp-coral-light);
-    border-color: rgba(255, 107, 107, 0.15);
-  }
-
-  .bento-mint {
-    background: var(--sp-mint-light);
-    border-color: rgba(45, 212, 191, 0.15);
-  }
-
-  .bento-lavender {
-    background: var(--sp-lavender-light);
-    border-color: rgba(167, 139, 250, 0.15);
-  }
-
-  .bento-yellow {
-    background: var(--sp-yellow-light);
-    border-color: rgba(253, 230, 138, 0.3);
-  }
-
-  .bento-icon {
-    display: block;
-    margin-bottom: 1rem;
-    color: currentColor;
-    opacity: 0.8;
-  }
-
-  .bento-title {
-    font-family: var(--sp-font-display);
-    font-size: 1.2rem;
-    font-weight: 700;
-    margin: 0 0 0.5rem;
-  }
-
-  .bento-desc {
-    font-size: 0.9rem;
-    color: var(--sp-text-muted);
-    line-height: 1.6;
-    margin: 0;
-  }
-
-  /* How it works */
-  .how-pop {
-    padding: 4rem 2rem;
-    position: relative;
-    z-index: 1;
-  }
-
-  .how-pop-container {
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
-  .how-pop-steps {
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    gap: 1rem;
-  }
-
-  .how-pop-step {
-    flex: 1;
-    text-align: center;
-    max-width: 220px;
-  }
-
-  .how-pop-num-wrap {
-    width: 52px;
-    height: 52px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 1rem;
-  }
-
-  .how-pop-num-coral {
-    background: var(--sp-coral);
-    color: #fff;
-  }
-
-  .how-pop-num-mint {
-    background: var(--sp-mint);
-    color: #fff;
-  }
-
-  .how-pop-num-lavender {
-    background: var(--sp-lavender);
-    color: #fff;
-  }
-
-  .how-pop-num {
-    font-family: var(--sp-font-display);
-    font-size: 1.2rem;
-    font-weight: 700;
-  }
-
-  .how-pop-connector {
-    color: var(--sp-text-soft);
-    padding-top: 1rem;
-    flex-shrink: 0;
-  }
-
-  .how-pop-step-title {
-    font-family: var(--sp-font-display);
-    font-size: 1.05rem;
-    font-weight: 700;
-    margin: 0 0 0.4rem;
-  }
-
-  .how-pop-step-desc {
-    font-size: 0.85rem;
-    color: var(--sp-text-muted);
-    line-height: 1.6;
-    margin: 0;
-  }
-
-  /* Trust */
-  .trust-pop {
-    padding: 3rem 2rem;
-    position: relative;
-    z-index: 1;
-  }
-
-  .trust-pop-container {
-    max-width: 700px;
-    margin: 0 auto;
-  }
-
-  .trust-pop-card {
-    background: var(--sp-bg-card);
-    border: 1px solid var(--sp-border);
-    border-radius: var(--sp-radius-xl);
-    padding: 3rem;
-    text-align: center;
-    box-shadow: var(--sp-shadow);
-  }
-
-  .trust-pop-icon {
-    color: var(--sp-mint);
-    margin-bottom: 1.25rem;
-  }
-
-  .trust-pop-title {
-    font-family: var(--sp-font-display);
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin: 0 0 1rem;
-    letter-spacing: -0.01em;
-  }
-
-  .trust-pop-desc {
-    font-size: 0.9rem;
-    color: var(--sp-text-muted);
-    line-height: 1.7;
-    max-width: 500px;
-    margin: 0 auto 1.5rem;
-  }
-
-  .trust-pop-badges {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .trust-badge {
-    display: inline-block;
-    font-size: 0.7rem;
-    font-weight: 600;
-    padding: 0.3rem 0.8rem;
-    border-radius: var(--sp-radius-full);
-    background: var(--sp-mint-light);
-    color: var(--sp-mint-dark);
-    letter-spacing: 0.01em;
-  }
-
-  /* Final CTA */
-  .final-pop {
-    padding: 5rem 2rem;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-  }
-
-  .final-pop-container {
-    max-width: 500px;
-    margin: 0 auto;
-  }
-
-  .final-pop-title {
-    font-family: var(--sp-font-display);
-    font-size: clamp(1.8rem, 4vw, 2.5rem);
-    font-weight: 800;
-    margin: 0 0 1rem;
-    letter-spacing: -0.02em;
-  }
-
-  .final-pop-desc {
-    font-size: 1rem;
-    color: var(--sp-text-muted);
-    margin: 0 0 2rem;
-    line-height: 1.6;
-  }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .bento-grid {
-      grid-template-columns: 1fr;
-    }
-
-    .how-pop-steps {
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .how-pop-connector {
-      transform: rotate(90deg);
-      padding: 0;
-    }
-
-    .hero-pop {
-      padding: 3rem 1.5rem 2rem;
-    }
-  }
-</style>

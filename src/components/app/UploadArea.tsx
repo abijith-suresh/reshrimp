@@ -1,6 +1,7 @@
 import { Show, type Accessor } from "solid-js";
 import type { ProcessedImage, ValidationResult } from "@/types/image";
 import { formatFileSize } from "@/utils/imageUtils";
+import { MAX_FILE_SIZE } from "@/config/constants";
 
 interface UploadAreaProps {
   isDragOver: Accessor<boolean>;
@@ -49,6 +50,7 @@ export default function UploadArea(props: UploadAreaProps) {
         classList={{ "sp-drag-active": props.isDragOver() }}
         role="button"
         tabIndex={0}
+        aria-label="Upload image or drag and drop"
         onClick={handleUploadAreaClick}
         onKeyDown={(e) => {
           if (e.key === "Enter" || e.key === " ") {
@@ -57,7 +59,7 @@ export default function UploadArea(props: UploadAreaProps) {
           }
         }}
         onDragOver={handleDragOver}
-        onDragLeave={props.onDragLeave}
+        onDragLeave={() => props.onDragLeave()}
         onDrop={handleDrop}
       >
         <input
@@ -93,7 +95,9 @@ export default function UploadArea(props: UploadAreaProps) {
             </span>
             <span class="text-[0.8rem] text-sp-text-muted">or drag and drop</span>
           </div>
-          <p class="text-[0.8rem] text-sp-text-soft m-0">JPEG, PNG, WebP, or GIF (max 50MB)</p>
+          <p class="text-[0.8rem] text-sp-text-soft m-0">
+            JPEG, PNG, WebP, or GIF (max {formatFileSize(MAX_FILE_SIZE)})
+          </p>
         </div>
 
         <Show when={props.currentImage()}>

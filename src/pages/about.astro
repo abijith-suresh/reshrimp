@@ -7,35 +7,49 @@ import { GITHUB_URL, ROUTES } from "../config/constants";
 
 <MarketingLayout
   title="Reshrimp — About"
-  description="Learn about Reshrimp project — a free, open source, privacy-first image processing tool built for browser."
+  description="Learn about the Reshrimp project — a free, open source, privacy-first image processing tool built for the browser."
   currentPath="/about"
 >
-  <div class="page-pop">
+  <div class="relative overflow-x-hidden min-h-screen">
     <FloatingShapes />
 
     <main transition:animate="fade">
-      <section class="about-hero">
-        <div class="about-container">
+      <section class="px-8 py-20 text-center relative z-10 md:px-5 md:py-12">
+        <div class="max-w-[700px] mx-auto">
           <span class="pop-chip pop-chip-coral">About</span>
-          <h1 class="about-title">Built for people who care about their images.</h1>
-          <p class="about-subtitle">
+          <h1
+            class="font-display font-extrabold leading-[1.15] my-4 tracking-tight opacity-0"
+            style="font-size: clamp(2rem, 5vw, 3rem); animation: popBounceIn 0.6s 0.1s forwards"
+          >
+            Built for people who care about their images.
+          </h1>
+          <p
+            class="text-[1.05rem] text-sp-text-muted leading-[1.7] m-0 opacity-0"
+            style="animation: popBounceIn 0.6s 0.25s forwards"
+          >
             Reshrimp is a free, open source image processing tool that runs entirely in your
             browser.
           </p>
         </div>
       </section>
 
-      <section class="about-content">
-        <div class="about-container">
+      <section class="px-8 py-8 pb-20 relative z-10">
+        <div class="max-w-[700px] mx-auto">
           <!-- Story -->
-          <div class="about-card" data-reveal data-reveal-delay="0">
-            <h2 class="about-card-title">The story</h2>
-            <p>
+          <div
+            class="bg-sp-bg-card border border-sp-border rounded-sp-xl p-8 shadow-sp mb-6 about-card"
+            data-reveal
+            data-reveal-delay="0"
+          >
+            <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight about-card-title">
+              The story
+            </h2>
+            <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0 about-card-p">
               Most online image tools require uploading your photos to someone else's server. That
               means trusting a third party with your personal images, waiting for uploads and
               downloads, and dealing with file size limits and account requirements.
             </p>
-            <p>
+            <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0 about-card-p">
               Reshrimp was built to prove that you don't need any of that. Modern browsers have
               everything needed to resize, convert, and compress images — the Canvas API, Blob
               handling, and efficient JavaScript engines. Why send data across the internet when
@@ -44,49 +58,94 @@ import { GITHUB_URL, ROUTES } from "../config/constants";
           </div>
 
           <!-- Tech stack -->
-          <div class="about-card" data-reveal data-reveal-delay="100">
-            <h2 class="about-card-title">Tech stack</h2>
-            <div class="about-tech-grid">
-              <div class="about-tech-item">
-                <span class="about-tech-name">Astro</span>
-                <span class="about-tech-desc">Static site framework</span>
+          <div
+            class="bg-sp-bg-card border border-sp-border rounded-sp-xl p-8 shadow-sp mb-6 about-card"
+            data-reveal
+            data-reveal-delay="100"
+          >
+            <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight about-card-title">
+              Tech stack
+            </h2>
+            <div class="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-4">
+              <div
+                class="bg-sp-bg border border-sp-border-light rounded-sp p-4 flex flex-col gap-1"
+              >
+                <span class="font-display font-semibold text-[0.95rem] about-tech-name">Astro</span>
+                <span class="text-[0.8rem] text-sp-text-soft about-tech-desc"
+                  >Static site framework</span
+                >
               </div>
-              <div class="about-tech-item">
-                <span class="about-tech-name">TypeScript</span>
-                <span class="about-tech-desc">Type-safe processing logic</span>
+              <div
+                class="bg-sp-bg border border-sp-border-light rounded-sp p-4 flex flex-col gap-1"
+              >
+                <span class="font-display font-semibold text-[0.95rem] about-tech-name"
+                  >TypeScript</span
+                >
+                <span class="text-[0.8rem] text-sp-text-soft about-tech-desc"
+                  >Type-safe processing logic</span
+                >
               </div>
-              <div class="about-tech-item">
-                <span class="about-tech-name">Canvas API</span>
-                <span class="about-tech-desc">Browser-native image processing</span>
+              <div
+                class="bg-sp-bg border border-sp-border-light rounded-sp p-4 flex flex-col gap-1"
+              >
+                <span class="font-display font-semibold text-[0.95rem] about-tech-name"
+                  >Canvas API</span
+                >
+                <span class="text-[0.8rem] text-sp-text-soft about-tech-desc"
+                  >Browser-native image processing</span
+                >
               </div>
-              <div class="about-tech-item">
-                <span class="about-tech-name">Tailwind CSS</span>
-                <span class="about-tech-desc">Utility-first styling</span>
+              <div
+                class="bg-sp-bg border border-sp-border-light rounded-sp p-4 flex flex-col gap-1"
+              >
+                <span class="font-display font-semibold text-[0.95rem] about-tech-name"
+                  >Tailwind CSS</span
+                >
+                <span class="text-[0.8rem] text-sp-text-soft about-tech-desc"
+                  >Utility-first styling</span
+                >
               </div>
-              <div class="about-tech-item">
-                <span class="about-tech-name">GitHub Pages</span>
-                <span class="about-tech-desc">Free static hosting</span>
+              <div
+                class="bg-sp-bg border border-sp-border-light rounded-sp p-4 flex flex-col gap-1"
+              >
+                <span class="font-display font-semibold text-[0.95rem] about-tech-name"
+                  >GitHub Pages</span
+                >
+                <span class="text-[0.8rem] text-sp-text-soft about-tech-desc"
+                  >Free static hosting</span
+                >
               </div>
-              <div class="about-tech-item">
-                <span class="about-tech-name">Vitest</span>
-                <span class="about-tech-desc">Unit testing framework</span>
+              <div
+                class="bg-sp-bg border border-sp-border-light rounded-sp p-4 flex flex-col gap-1"
+              >
+                <span class="font-display font-semibold text-[0.95rem] about-tech-name">Vitest</span
+                >
+                <span class="text-[0.8rem] text-sp-text-soft about-tech-desc"
+                  >Unit testing framework</span
+                >
               </div>
             </div>
           </div>
 
           <!-- Contributing -->
-          <div class="about-card" data-reveal data-reveal-delay="200">
-            <h2 class="about-card-title">Contributing</h2>
-            <p>
+          <div
+            class="bg-sp-bg-card border border-sp-border rounded-sp-xl p-8 shadow-sp mb-6 about-card"
+            data-reveal
+            data-reveal-delay="200"
+          >
+            <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight about-card-title">
+              Contributing
+            </h2>
+            <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0 about-card-p">
               Reshrimp is open source under the MIT license. Contributions of all kinds are welcome
               — bug fixes, new features, documentation improvements, or just feedback.
             </p>
-            <div class="about-cta-buttons">
+            <div class="flex items-center gap-3 mt-5 flex-wrap about-cta-buttons">
               <a
                 href={GITHUB_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                class="about-github-btn"
+                class="about-github-btn inline-flex items-center gap-2 font-body text-[0.9rem] font-semibold py-3 px-6 bg-sp-bg text-sp-text no-underline rounded-sp-full border border-sp-border transition-all duration-300 shadow-sp hover:translate-y-[-2px] hover:scale-102 hover:shadow-sp-hover hover:border-sp-lavender"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"
                   ><path
@@ -120,129 +179,27 @@ import { GITHUB_URL, ROUTES } from "../config/constants";
 </MarketingLayout>
 
 <style>
-  .page-pop {
-    position: relative;
-    overflow-x: hidden;
-    min-height: 100vh;
+  /* Reveal animations */
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(28px) scale(0.98);
+    transition:
+      opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .about-hero {
-    padding: 5rem 2rem 3rem;
-    text-align: center;
-    position: relative;
-    z-index: 1;
+  [data-reveal].revealed {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 
-  .about-container {
-    max-width: 700px;
-    margin: 0 auto;
-  }
-
-  .about-title {
-    font-family: var(--sp-font-display);
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 800;
-    line-height: 1.15;
-    margin: 1rem 0 1.25rem;
-    letter-spacing: -0.03em;
-  }
-
-  .about-subtitle {
-    font-size: 1.05rem;
-    color: var(--sp-text-muted);
-    line-height: 1.7;
-    margin: 0;
-  }
-
-  .about-content {
-    padding: 2rem 2rem 5rem;
-    position: relative;
-    z-index: 1;
-  }
-
-  .about-card {
-    background: var(--sp-bg-card);
-    border: 1px solid var(--sp-border);
-    border-radius: var(--sp-radius-xl);
-    padding: 2rem;
-    box-shadow: var(--sp-shadow);
-    margin-bottom: 1.5rem;
-  }
-
-  .about-card-title {
-    font-family: var(--sp-font-display);
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin: 0 0 1rem;
-    letter-spacing: -0.01em;
-  }
-
-  .about-card p {
-    font-size: 0.95rem;
-    color: var(--sp-text-muted);
-    line-height: 1.7;
-    margin: 0 0 1rem;
-  }
-
-  .about-card p:last-child {
-    margin-bottom: 0;
-  }
-
-  .about-cta-buttons {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-top: 1.25rem;
-    flex-wrap: wrap;
-  }
-
-  .about-github-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-family: var(--sp-font-body);
-    font-size: 0.9rem;
-    font-weight: 600;
-    padding: 0.75rem 1.5rem;
-    background: var(--sp-bg);
-    color: var(--sp-text);
-    text-decoration: none;
-    border-radius: var(--sp-radius-full);
-    border: 1px solid var(--sp-border);
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    box-shadow: var(--sp-shadow);
-  }
-
-  .about-github-btn:hover {
+  /* Custom hover scale class */
+  .hover\:scale-102:hover {
     transform: translateY(-2px) scale(1.02);
-    box-shadow: var(--sp-shadow-hover);
-    border-color: var(--sp-lavender);
   }
 
-  .about-tech-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    gap: 1rem;
-  }
-
-  .about-tech-item {
-    background: var(--sp-bg);
-    border: 1px solid var(--sp-border-light);
-    border-radius: var(--sp-radius);
-    padding: 1rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.25rem;
-  }
-
-  .about-tech-name {
-    font-family: var(--sp-font-display);
-    font-weight: 600;
-    font-size: 0.95rem;
-  }
-
-  .about-tech-desc {
-    font-size: 0.8rem;
-    color: var(--sp-text-soft);
+  /* Last child margin utility */
+  .about-card-p:last-child {
+    margin-bottom: 0;
   }
 </style>
