@@ -59,7 +59,7 @@ export default function UploadArea(props: UploadAreaProps) {
           }
         }}
         onDragOver={handleDragOver}
-        onDragLeave={props.onDragLeave}
+        onDragLeave={() => props.onDragLeave()}
         onDrop={handleDrop}
       >
         <input

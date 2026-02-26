@@ -206,7 +206,7 @@ export default function PreviewPanel(props: PreviewPanelProps) {
               id="download-button"
               class="download-btn"
               disabled={!props.downloadActive()}
-              onClick={props.onDownload}
+              onClick={() => props.onDownload()}
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
