@@ -15,40 +15,53 @@ const posts = (await getCollection("blog"))
   description="Guides, tips, and insights about image processing, web privacy, and browser-based tools."
   currentPath="/blog"
 >
-  <div class="page-pop">
+  <div class="relative overflow-x-hidden min-h-screen">
     <FloatingShapes />
-    <section class="blog-hero">
-      <div class="blog-container">
+    <section class="px-8 py-20 text-center relative z-10 md:px-5 md:py-12">
+      <div class="max-w-[900px] mx-auto">
         <span class="pop-chip pop-chip-lavender">Blog</span>
-        <h1 class="blog-title">Guides & insights</h1>
-        <p class="blog-subtitle">
+        <h1
+          class="font-display font-extrabold leading-[1.15] my-4 tracking-tight opacity-0"
+          style="font-size: clamp(2rem, 5vw, 3rem); animation: popBounceIn 0.6s 0.1s forwards"
+        >
+          Guides & insights
+        </h1>
+        <p
+          class="text-[1.05rem] text-sp-text-muted leading-[1.7] m-0 opacity-0"
+          style="animation: popBounceIn 0.6s 0.25s forwards"
+        >
           Tips on image processing, format comparisons, and the tech behind Reshrimp.
         </p>
       </div>
     </section>
 
-    <section class="blog-grid-section">
-      <div class="blog-container">
-        <div class="blog-grid">
+    <section class="px-8 py-8 pb-20 relative z-10">
+      <div class="max-w-[900px] mx-auto">
+        <div class="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-6">
           {
             posts.map((post, i) => (
               <a
                 href={makeHref(`${ROUTES.BLOG}/${post.id}`)}
-                class="blog-card"
+                class="blog-card bg-sp-bg-card border border-sp-border rounded-sp-xl no-underline text-inherit transition-all duration-300 shadow-sp block hover:translate-y-[-4px] hover:shadow-sp-hover hover:border-sp-lavender"
                 data-reveal
                 data-reveal-delay={i * 80}
               >
-                <div class="blog-card-inner">
-                  <div class="blog-card-tags">
+                <div class="p-7 flex flex-col gap-3">
+                  <div class="flex flex-wrap gap-[0.35rem]">
                     {post.data.tags.map((tag) => (
                       <span class="pop-chip pop-chip-lavender">{tag}</span>
                     ))}
                   </div>
-                  <h2 class="blog-card-title" transition:name={`blog-title-${post.id}`}>
+                  <h2
+                    class="font-display text-[1.15rem] font-bold m-0 leading-[1.3] tracking-tight blog-card-title"
+                    transition:name={`blog-title-${post.id}`}
+                  >
                     {post.data.title}
                   </h2>
-                  <p class="blog-card-desc">{post.data.description}</p>
-                  <div class="blog-card-meta">
+                  <p class="text-[0.9rem] text-sp-text-muted leading-[1.6] m-0 blog-card-desc">
+                    {post.data.description}
+                  </p>
+                  <div class="flex justify-between items-center text-[0.8rem] text-sp-text-soft mt-2 blog-card-meta">
                     <time datetime={post.data.publishDate.toISOString()}>
                       {post.data.publishDate.toLocaleDateString("en-US", {
                         year: "numeric",
@@ -56,7 +69,7 @@ const posts = (await getCollection("blog"))
                         day: "numeric",
                       })}
                     </time>
-                    <span class="blog-card-read">Read more &rarr;</span>
+                    <span class="text-sp-coral font-medium blog-card-read">Read more &rarr;</span>
                   </div>
                 </div>
               </a>
@@ -69,109 +82,17 @@ const posts = (await getCollection("blog"))
 </MarketingLayout>
 
 <style>
-  .page-pop {
-    position: relative;
-    overflow-x: hidden;
-    min-height: 100vh;
+  /* Reveal animations for blog cards */
+  [data-reveal] {
+    opacity: 0;
+    transform: translateY(28px) scale(0.98);
+    transition:
+      opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  .blog-hero {
-    padding: 5rem 2rem 3rem;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-  }
-
-  .blog-container {
-    max-width: 900px;
-    margin: 0 auto;
-  }
-
-  .blog-title {
-    font-family: var(--sp-font-display);
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 800;
-    line-height: 1.15;
-    margin: 1rem 0 1.25rem;
-    letter-spacing: -0.03em;
-  }
-
-  .blog-subtitle {
-    font-size: 1.05rem;
-    color: var(--sp-text-muted);
-    line-height: 1.7;
-    margin: 0;
-  }
-
-  .blog-grid-section {
-    padding: 2rem 2rem 5rem;
-    position: relative;
-    z-index: 1;
-  }
-
-  .blog-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .blog-card {
-    background: var(--sp-bg-card);
-    border: 1px solid var(--sp-border);
-    border-radius: var(--sp-radius-xl);
-    text-decoration: none;
-    color: inherit;
-    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    box-shadow: var(--sp-shadow);
-    display: block;
-  }
-
-  .blog-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--sp-shadow-hover);
-    border-color: var(--sp-lavender);
-  }
-
-  .blog-card-inner {
-    padding: 1.75rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-
-  .blog-card-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.35rem;
-  }
-
-  .blog-card-title {
-    font-family: var(--sp-font-display);
-    font-size: 1.15rem;
-    font-weight: 700;
-    margin: 0;
-    line-height: 1.3;
-    letter-spacing: -0.01em;
-  }
-
-  .blog-card-desc {
-    font-size: 0.9rem;
-    color: var(--sp-text-muted);
-    line-height: 1.6;
-    margin: 0;
-  }
-
-  .blog-card-meta {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.8rem;
-    color: var(--sp-text-soft);
-    margin-top: 0.5rem;
-  }
-
-  .blog-card-read {
-    color: var(--sp-coral);
-    font-weight: 500;
+  [data-reveal].revealed {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 </style>
