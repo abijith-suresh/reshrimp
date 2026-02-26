@@ -68,14 +68,5 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Marketing landing page with feature highlights
 - AGENTS.md documentation for AI contributors
 
-## [0.1.0] - 2025-02-08
-
-### Added
-
-- MVP release with core image processing capabilities
-- Responsive UI with Tailwind CSS
-- Client-side image compression and format conversion
-- Batch processing support (architecture prepared)
-
 [unreleased]: https://github.com/abijith-suresh/reshrimp/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/abijith-suresh/reshrimp/releases/tag/v0.1.0
