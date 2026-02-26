@@ -18,7 +18,6 @@ export const ROUTES = {
   APP: "/app",
   FEATURES: "/features",
   PRIVACY: "/privacy",
-  BLOG: "/blog",
   ABOUT: "/about",
   FAQ: "/faq",
   CHANGELOG: "/changelog",
