@@ -29,7 +29,11 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
     <meta name="viewport" content="width=device-width" />
     <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
     <link rel="apple-touch-icon" href={`${base}/apple-touch-icon.png`} />
+    <link rel="manifest" href={`${base}/manifest.webmanifest`} />
     <meta name="generator" content={Astro.generator} />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content={SITE_NAME} />
+    <meta name="mobile-web-app-capable" content="yes" />
 
     <!-- SEO -->
     <title>{title}</title>
@@ -55,14 +59,6 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
     <!-- Per-page head content -->
     <slot name="head" />
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300;12..96,400;12..96,500;12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap"
-      rel="stylesheet"
-    />
-
     <!-- SPA Navigation -->
     <ClientRouter />
   </head>
@@ -80,6 +76,8 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
 </html>
 
 <script>
+  import "../pwa";
+
   // ── Scroll reveal via Intersection Observer ──────────────────────────
   function initReveal() {
     const els = document.querySelectorAll<HTMLElement>("[data-reveal]");

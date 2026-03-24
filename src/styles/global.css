@@ -1,5 +1,29 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: "Reshrimp Display";
+  src: url("../assets/fonts/BricolageGrotesque-Bold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Reshrimp Sans";
+  src: url("../assets/fonts/PlusJakartaSans-Regular.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Reshrimp Sans";
+  src: url("../assets/fonts/PlusJakartaSans-SemiBold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
 /* ===== SOFT POP Design System — CSS Custom Properties ===== */
 :root {
   --sp-bg: #f8f7ff;
@@ -23,8 +47,8 @@
   --sp-border-light: #eeedff;
   --sp-shadow: 0 2px 16px rgba(30, 27, 75, 0.06);
   --sp-shadow-hover: 0 8px 30px rgba(30, 27, 75, 0.1);
-  --sp-font-display: "Bricolage Grotesque", sans-serif;
-  --sp-font-body: "Plus Jakarta Sans", sans-serif;
+  --sp-font-display: "Reshrimp Display", "Trebuchet MS", sans-serif;
+  --sp-font-body: "Reshrimp Sans", "Trebuchet MS", sans-serif;
   --sp-radius: 12px;
   --sp-radius-lg: 20px;
   --sp-radius-xl: 28px;
@@ -53,8 +77,8 @@
   --color-sp-border: #e0deff;
   --color-sp-border-light: #eeedff;
 
-  --font-family-display: "Bricolage Grotesque", sans-serif;
-  --font-family-body: "Plus Jakarta Sans", sans-serif;
+  --font-family-display: "Reshrimp Display", "Trebuchet MS", sans-serif;
+  --font-family-body: "Reshrimp Sans", "Trebuchet MS", sans-serif;
 
   --radius-sp: 12px;
   --radius-sp-lg: 20px;
