@@ -15,8 +15,10 @@ const { title, description, ogImagePath } = Astro.props;
   <Fragment slot="head">
     <slot name="head" />
   </Fragment>
-  <AppHeader />
-  <main>
-    <slot />
-  </main>
+  <div class="flex min-h-[100dvh] flex-col">
+    <AppHeader />
+    <div class="flex-1 min-h-0">
+      <slot />
+    </div>
+  </div>
 </Layout>

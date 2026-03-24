@@ -18,8 +18,7 @@ import { GITHUB_URL } from "../config/constants";
           <span class="pop-chip pop-chip-mint">Privacy</span>
           <h1 class="privacy-title">Your images never leave your device.</h1>
           <p class="privacy-subtitle">
-            Reshrimp is built with privacy as a core principle, not an afterthought. Here's exactly
-            how it works.
+            Reshrimp is built around local processing, minimal network use, and no image uploads.
           </p>
         </div>
       </section>
@@ -31,13 +30,14 @@ import { GITHUB_URL } from "../config/constants";
             <h2 class="privacy-card-title">How it works technically</h2>
             <p>
               When you select an image, it stays entirely in your browser's memory. Reshrimp uses
-              the HTML5 Canvas API to read, manipulate, and re-encode your image — all within a
-              single browser tab. No data is sent to any server at any point during processing.
+              browser APIs to read, manipulate, and re-encode your image inside a single browser
+              tab. No image data is sent to any server during processing.
             </p>
             <p>
               The processed image is generated as a Blob URL, which exists only in your browser's
-              memory. When you download it, the file is saved directly from your browser to your
-              disk. When you close the tab, all data is released.
+              memory. After the first online visit, the app shell and core tools can also load
+              offline. Background removal downloads its model assets the first time you use it, then
+              can run offline too.
             </p>
           </div>
 
@@ -49,7 +49,7 @@ import { GITHUB_URL } from "../config/constants";
               <li>We don't use cookies or local storage for tracking</li>
               <li>We don't run analytics scripts (no Google Analytics, no Plausible, nothing)</li>
               <li>We don't require accounts or collect personal information</li>
-              <li>We don't make any network requests after the initial page load</li>
+              <li>We don't upload your image data for processing</li>
               <li>We don't fingerprint your browser or device</li>
             </ul>
           </div>
@@ -62,8 +62,8 @@ import { GITHUB_URL } from "../config/constants";
               the MIT license. Every line of code is available for inspection.
             </p>
             <p>
-              The entire image processing pipeline lives in a single TypeScript file. You can audit
-              it in minutes. Check the
+              The image processing logic lives in a small set of TypeScript services that you can
+              inspect directly. Check the
               <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub repository</a>
               to verify our claims.
             </p>
@@ -73,13 +73,13 @@ import { GITHUB_URL } from "../config/constants";
           <div class="privacy-card">
             <h2 class="privacy-card-title">Third-party services</h2>
             <p>
-              Reshrimp is deployed to Vercel as a static site. The only third-party service involved
-              is the initial page delivery. After the page loads, everything runs locally.
+              Reshrimp is deployed as a static site. The first visit needs a network connection to
+              load the app shell.
             </p>
             <p>
-              We load Google Fonts (Bricolage Grotesque and Plus Jakarta Sans) for typography. This
-              is the only external request made after page load. No user data is sent with these
-              requests.
+              After that, the app shell and core tools work offline. Background removal may download
+              model files once before it can work offline. Those requests are for app or model
+              assets, not for uploading your images.
             </p>
           </div>
         </div>

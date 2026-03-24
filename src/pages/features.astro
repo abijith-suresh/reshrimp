@@ -18,28 +18,28 @@ const features = [
     title: "Convert between formats",
     color: "mint",
     description:
-      "Switch between JPEG, PNG, and WebP with a single click. Browser-native encoding means zero quality loss during conversion. Choose the right format for your use case — WebP for web, PNG for transparency, JPEG for photos.",
+      "Switch between JPEG, PNG, and WebP with a single click. Browser-native conversion gives you format-specific tradeoffs, so you can pick WebP for the web, PNG for transparency, or JPEG for photos.",
   },
   {
     icon: Gauge,
     title: "Smart compression",
     color: "lavender",
     description:
-      "Fine-tune quality from 0 to 100% with a live slider. Watch file sizes shrink in real-time with side-by-side before/after preview. Find the sweet spot between quality and file size for your needs.",
+      "Fine-tune quality from 0 to 100% with a live slider. Switch between original and processed previews before downloading. Find the sweet spot between quality and file size for your needs.",
   },
   {
     icon: ShieldCheck,
     title: "Complete privacy",
     color: "yellow",
     description:
-      "Every pixel is processed locally using the Canvas API. No servers, no uploads, no tracking, no cookies, no accounts. Your images never leave your device. Verify it yourself — the source code is open.",
+      "Every pixel is processed locally in your browser. No servers, no uploads, no tracking, no cookies, no accounts. Your images never leave your device. Verify it yourself — the source code is open.",
   },
   {
     icon: WifiOff,
-    title: "Works offline",
+    title: "Runs locally",
     color: "coral",
     description:
-      "After the first load, Reshrimp works entirely without an internet connection. Process sensitive images on an air-gapped machine if you need to. No network requests, ever.",
+      "After the first online visit, the app shell and core tools work offline. Image processing still runs locally in your browser.",
   },
   {
     icon: Code,
@@ -53,7 +53,7 @@ const features = [
     title: "Remove background",
     color: "lavender",
     description:
-      "AI-powered background removal that runs entirely in your browser using WebAssembly. No server upload, complete privacy. The ML model processes your image locally and forces PNG output to preserve transparency.",
+      "AI-powered background removal that runs in your browser using WebAssembly. It downloads model assets once, then works offline and exports PNG to preserve transparency.",
   },
 ];
 ---
@@ -84,8 +84,8 @@ const features = [
           class="text-[1.05rem] text-sp-text-muted leading-[1.7] m-0 opacity-0"
           style="animation: popBounceIn 0.6s 0.25s forwards"
         >
-          Reshrimp packs powerful image processing into a clean, private, browser-based tool. No
-          bloat, no accounts, no nonsense.
+          Reshrimp packs private image processing into a clean browser-based tool. After the first
+          online visit, the app shell and core tools work offline.
         </p>
       </div>
     </section>
@@ -140,7 +140,7 @@ const features = [
             data-reveal
             data-reveal-delay="80"
           >
-            Free, open source, completely private. No sign-up required.
+            Free, open source, private, and offline-ready after the first visit.
           </p>
           <div data-reveal data-reveal-delay="160">
             <a href={makeHref(ROUTES.APP)} class="cta-pop cta-pop-lg">

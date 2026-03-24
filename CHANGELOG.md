@@ -7,54 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-03-24
+
 ### Added
 
-- Build-time dynamic OG image generation via satori + @resvg/resvg-js
-- Per-page OG images with Soft Pop design (decorative blobs, branded typography)
-- OG images for all static pages and blog posts at `/og/{route}.png`
-- Branded coral dot favicon replacing default Astro logo
-- Build-time apple-touch-icon generation via @resvg/resvg-js endpoint
-- `ogImagePath` prop on Layout for explicit OG image overrides
-- robots.txt with sitemap reference (#11)
-- Sitemap generation via @astrojs/sitemap integration (#11)
-- Open Graph and Twitter Card meta tags in Layout (#11)
-- Named `<slot name="head" />` in Layout for per-page head content (#11)
-- JSON-LD WebApplication structured data on home page (#11)
-- `SITE_DESCRIPTION` constant in config/constants.ts (#11)
-- Background removal feature using @imgly/background-removal (#16)
-  - Client-side background removal with WebAssembly/ONNX
-  - Automatic PNG output to preserve transparency
-  - Progress indicator during model loading
-  - Checkbox control in processing panel
-- Info tooltip on background removal checkbox (Lucide icon, hover + click)
-- Soft Pop design system with custom CSS variables for tokens
-- Smooth fade and slide animations with dedicated keyframes
-- Cross-fade transitions between Original/Processed image tabs
-
-### Fixed
-
-- Progress indicator showing "NaN%" on repeated background removal runs
-- Format selector not visually reflecting PNG override when background removal is enabled
-- Stale processed results persisting in UI when uploading a new image
-- File selector opening twice on second image upload
-- Layout shift when toggling background removal checkbox
+- Browser-based image processing for JPEG, PNG, WebP, and GIF uploads, with export to JPEG, PNG, or WebP
+- Resize controls with optional aspect ratio lock, format conversion, and adjustable compression quality
+- Offline-ready app shell and core tools after the first online visit
+- Optional background removal that runs locally in the browser, exports PNG to preserve transparency, and works offline after its model assets are downloaded once
+- Original and processed preview tabs with dimensions, file size, size-change feedback, and one-click download
+- Dedicated marketing and support pages for features, privacy, FAQ, about, and changelog, plus sitemap and social preview metadata
 
 ### Changed
 
-- Format selector now locks to PNG and disables when background removal is checked
-- Background removal info displayed via tooltip instead of inline notes
-- Processed state and controls reset to defaults on new image upload
-- Consolidated app UI components into single page file for better animation control
-- Removed preview 'popup' animation (unwanted translateY effect)
-- Tab switching now uses visibility/opacity for smooth transitions instead of display toggle
-- Page transitions updated to use consistent fade animations
-
-### Removed
-
-- Static `og-image.png` and `apple-touch-icon.png` (replaced by build-time generation)
-- Default Astro rocket favicon
-- TODO.md (moving to integrated task management)
-- Separated component files (DownloadButton, ImagePreview, ImageUploadArea, ProcessingControls)
+- The app now uses a dedicated `/app` workflow separate from the marketing site
+- Enabling background removal fixes output to PNG and disables manual format selection
+- Uploading a new image resets prior results and processing controls before the next run
 
 ## [0.1.0] - 2025-02-08
 
@@ -68,5 +36,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Marketing landing page with feature highlights
 - AGENTS.md documentation for AI contributors
 
-[unreleased]: https://github.com/abijith-suresh/reshrimp/compare/v0.1.0...HEAD
+[unreleased]: https://github.com/abijith-suresh/reshrimp/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/abijith-suresh/reshrimp/compare/v0.1.0...v1.0.0
 [0.1.0]: https://github.com/abijith-suresh/reshrimp/releases/tag/v0.1.0

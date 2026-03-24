@@ -59,6 +59,7 @@ export async function canvasToBlob(
   quality: number = 0.92
 ): Promise<Blob> {
   return new Promise((resolve, reject) => {
+    // Canvas re-encodes pixel data into a fresh file, so EXIF metadata is not preserved.
     canvas.toBlob(
       (blob) => {
         if (blob) {

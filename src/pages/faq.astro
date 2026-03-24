@@ -13,7 +13,7 @@ const faqs = [
   {
     question: "How does privacy work?",
     answer:
-      "All image processing happens entirely in your browser using the HTML5 Canvas API. Your images are never uploaded to any server. When you close the tab, all data is released from memory. There are no analytics, no cookies, and no tracking of any kind.",
+      "All image processing happens in your browser. Your images are never uploaded to any server. Core tools can keep working offline after the first online visit, and background removal can work offline after its model assets download once. There are no analytics, no cookies, and no tracking.",
   },
   {
     question: "What image formats are supported?",
@@ -28,11 +28,11 @@ const faqs = [
   {
     question: "Does it work offline?",
     answer:
-      "Yes. After the initial page load, Reshrimp works entirely without an internet connection. All processing code runs locally in your browser. You can even use it on an air-gapped machine for maximum security.",
+      "Yes, after the first online visit the app shell and core tools work offline. Background removal works offline too after its model assets have been downloaded once.",
   },
   {
     question: "Where's the source code?",
-    answer: `The entire project is open source on <a href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer">GitHub</a>. You can read, fork, or contribute to the code. The image processing logic lives in a single TypeScript file that you can audit in minutes.`,
+    answer: `The entire project is open source on <a href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer">GitHub</a>. You can read, fork, or contribute to the code. The processing logic lives in a small set of TypeScript services that you can inspect directly.`,
   },
   {
     question: "Can I use it for commercial purposes?",
@@ -42,7 +42,7 @@ const faqs = [
   {
     question: "How do the quality settings work?",
     answer:
-      "The quality slider controls the compression level for JPEG and WebP output (0-100%). Higher values mean better image quality but larger file sizes. PNG output is always lossless regardless of the quality setting. The side-by-side preview lets you compare results before downloading.",
+      "The quality slider controls the compression level for JPEG and WebP output (0-100%). Higher values mean better image quality but larger file sizes. PNG output is always lossless regardless of the quality setting. You can switch between Original and Processed tabs before downloading.",
   },
 ];
 ---
@@ -69,7 +69,7 @@ const faqs = [
             class="text-[1.05rem] text-sp-text-muted leading-[1.7] m-0 opacity-0"
             style="animation: popBounceIn 0.6s 0.25s forwards"
           >
-            Everything you want to know about Reshrimp.
+            Quick answers about privacy, formats, and offline use.
           </p>
         </div>
       </section>

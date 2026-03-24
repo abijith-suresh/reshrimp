@@ -1,6 +1,8 @@
 import { removeBackground as imglyRemoveBackground } from "@imgly/background-removal";
 import type { BackgroundRemovalProgressCallback } from "../types/processing";
 
+const IMGLY_CDN_BASE = "https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/";
+
 /**
  * Removes the background from an image using imgly's client-side ML model
  * Output will always be PNG to preserve transparency
@@ -16,6 +18,7 @@ export async function removeBackground(
   const config: {
     progress?: (key: string, current: number, total: number) => void;
     model?: "isnet" | "isnet_fp16" | "isnet_quint8";
+    publicPath?: string;
   } = {};
 
   if (onProgress) {
@@ -27,6 +30,7 @@ export async function removeBackground(
   }
 
   config.model = "isnet_fp16";
+  config.publicPath = IMGLY_CDN_BASE;
 
   const blob = await imglyRemoveBackground(imageFile, config);
 

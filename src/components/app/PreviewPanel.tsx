@@ -152,6 +152,7 @@ export default function PreviewPanel(props: PreviewPanelProps) {
                       Dimensions: {result().metadata.width} &times; {result().metadata.height}px
                     </p>
                     <p id="processed-size">Size: {formatFileSize(result().metadata.fileSize)}</p>
+                    <p id="processed-metadata">EXIF metadata removed</p>
                     <Show when={props.sizeDifference()}>
                       {(diff) => (
                         <p id="size-difference" class={diff().className}>
