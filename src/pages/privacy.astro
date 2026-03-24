@@ -49,7 +49,7 @@ import { GITHUB_URL } from "../config/constants";
               <li>We don't use cookies or local storage for tracking</li>
               <li>We don't run analytics scripts (no Google Analytics, no Plausible, nothing)</li>
               <li>We don't require accounts or collect personal information</li>
-              <li>We don't make any network requests after the initial page load</li>
+              <li>We don't upload your image data for processing</li>
               <li>We don't fingerprint your browser or device</li>
             </ul>
           </div>
@@ -62,8 +62,8 @@ import { GITHUB_URL } from "../config/constants";
               the MIT license. Every line of code is available for inspection.
             </p>
             <p>
-              The entire image processing pipeline lives in a single TypeScript file. You can audit
-              it in minutes. Check the
+              The image processing logic lives in a small set of TypeScript services that you can
+              inspect directly. Check the
               <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub repository</a>
               to verify our claims.
             </p>
@@ -73,13 +73,13 @@ import { GITHUB_URL } from "../config/constants";
           <div class="privacy-card">
             <h2 class="privacy-card-title">Third-party services</h2>
             <p>
-              Reshrimp is deployed to Vercel as a static site. The only third-party service involved
-              is the initial page delivery. After the page loads, everything runs locally.
+              Reshrimp is deployed to Vercel as a static site. Core image editing runs locally in
+              your browser after the app loads.
             </p>
             <p>
-              We load Google Fonts (Bricolage Grotesque and Plus Jakarta Sans) for typography. This
-              is the only external request made after page load. No user data is sent with these
-              requests.
+              The site may still request assets such as Google Fonts, and background removal may
+              download model files the first time you use it. Those requests support the app shell
+              or model loading, not image uploads for processing.
             </p>
           </div>
         </div>

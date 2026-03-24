@@ -14,7 +14,7 @@ Visit: https://reshrimp.vercel.app
 - **Image resizing** - Adjust dimensions with various options
 - **Format conversion** - Convert between JPEG, PNG, WebP, and more
 - **Compression** - Optimize file sizes while maintaining quality
-- **Batch processing** - Process multiple images at once
+- **Single-image processing** - Process one image at a time with resize, format, and quality controls
 - **Privacy first** - No server uploads, everything happens locally
 
 ## 🛠️ Tech Stack
@@ -39,7 +39,7 @@ Visit: https://reshrimp.vercel.app
 │   ├── pages/          # Astro pages
 │   ├── styles/         # Global styles
 │   └── test/           # Test files
-├── astro.config.mjs    # Astro configuration
+├── astro.config.ts     # Astro configuration
 ├── eslint.config.mjs   # ESLint configuration
 ├── vitest.config.ts    # Vitest configuration
 └── package.json

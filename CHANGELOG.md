@@ -7,11 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-03-24
+
 ### Added
 
 - Build-time dynamic OG image generation via satori + @resvg/resvg-js
 - Per-page OG images with Soft Pop design (decorative blobs, branded typography)
-- OG images for all static pages and blog posts at `/og/{route}.png`
+- OG images for static pages at `/og/{route}.png`
 - Branded coral dot favicon replacing default Astro logo
 - Build-time apple-touch-icon generation via @resvg/resvg-js endpoint
 - `ogImagePath` prop on Layout for explicit OG image overrides
@@ -68,5 +70,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Marketing landing page with feature highlights
 - AGENTS.md documentation for AI contributors
 
-[unreleased]: https://github.com/abijith-suresh/reshrimp/compare/v0.1.0...HEAD
+[unreleased]: https://github.com/abijith-suresh/reshrimp/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/abijith-suresh/reshrimp/compare/v0.1.0...v1.0.0
 [0.1.0]: https://github.com/abijith-suresh/reshrimp/releases/tag/v0.1.0

@@ -28,11 +28,11 @@ const faqs = [
   {
     question: "Does it work offline?",
     answer:
-      "Yes. After the initial page load, Reshrimp works entirely without an internet connection. All processing code runs locally in your browser. You can even use it on an air-gapped machine for maximum security.",
+      "Not as a guaranteed offline app today. Core image processing runs locally in your browser, but loading the site and some features may still require a network connection.",
   },
   {
     question: "Where's the source code?",
-    answer: `The entire project is open source on <a href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer">GitHub</a>. You can read, fork, or contribute to the code. The image processing logic lives in a single TypeScript file that you can audit in minutes.`,
+    answer: `The entire project is open source on <a href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer">GitHub</a>. You can read, fork, or contribute to the code. The processing logic lives in a small set of TypeScript services that you can inspect directly.`,
   },
   {
     question: "Can I use it for commercial purposes?",
@@ -42,7 +42,7 @@ const faqs = [
   {
     question: "How do the quality settings work?",
     answer:
-      "The quality slider controls the compression level for JPEG and WebP output (0-100%). Higher values mean better image quality but larger file sizes. PNG output is always lossless regardless of the quality setting. The side-by-side preview lets you compare results before downloading.",
+      "The quality slider controls the compression level for JPEG and WebP output (0-100%). Higher values mean better image quality but larger file sizes. PNG output is always lossless regardless of the quality setting. You can switch between Original and Processed tabs before downloading.",
   },
 ];
 ---
