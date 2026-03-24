@@ -32,14 +32,14 @@ const features = [
     title: "Complete privacy",
     color: "yellow",
     description:
-      "Every pixel is processed locally using the Canvas API. No servers, no uploads, no tracking, no cookies, no accounts. Your images never leave your device. Verify it yourself — the source code is open.",
+      "Every pixel is processed locally in your browser. No servers, no uploads, no tracking, no cookies, no accounts. Your images never leave your device. Verify it yourself — the source code is open.",
   },
   {
     icon: WifiOff,
     title: "Runs locally",
     color: "coral",
     description:
-      "Image processing runs in your browser after the app loads. You may still need a connection for the site shell and for first-use downloads such as model assets.",
+      "After the first online visit, the app shell and core tools work offline. Image processing still runs locally in your browser.",
   },
   {
     icon: Code,
@@ -53,7 +53,7 @@ const features = [
     title: "Remove background",
     color: "lavender",
     description:
-      "AI-powered background removal that runs entirely in your browser using WebAssembly. No server upload, complete privacy. The ML model processes your image locally and forces PNG output to preserve transparency.",
+      "AI-powered background removal that runs in your browser using WebAssembly. It downloads model assets once, then works offline and exports PNG to preserve transparency.",
   },
 ];
 ---
@@ -84,8 +84,8 @@ const features = [
           class="text-[1.05rem] text-sp-text-muted leading-[1.7] m-0 opacity-0"
           style="animation: popBounceIn 0.6s 0.25s forwards"
         >
-          Reshrimp packs powerful image processing into a clean, private, browser-based tool. No
-          bloat, no accounts, no nonsense.
+          Reshrimp packs private image processing into a clean browser-based tool. After the first
+          online visit, the app shell and core tools work offline.
         </p>
       </div>
     </section>
@@ -140,7 +140,7 @@ const features = [
             data-reveal
             data-reveal-delay="80"
           >
-            Free, open source, completely private. No sign-up required.
+            Free, open source, private, and offline-ready after the first visit.
           </p>
           <div data-reveal data-reveal-delay="160">
             <a href={makeHref(ROUTES.APP)} class="cta-pop cta-pop-lg">

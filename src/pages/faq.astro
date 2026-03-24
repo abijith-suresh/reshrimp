@@ -13,7 +13,7 @@ const faqs = [
   {
     question: "How does privacy work?",
     answer:
-      "All image processing happens entirely in your browser using the HTML5 Canvas API. Your images are never uploaded to any server. When you close the tab, all data is released from memory. There are no analytics, no cookies, and no tracking of any kind.",
+      "All image processing happens in your browser. Your images are never uploaded to any server. Core tools can keep working offline after the first online visit, and background removal can work offline after its model assets download once. There are no analytics, no cookies, and no tracking.",
   },
   {
     question: "What image formats are supported?",
@@ -28,7 +28,7 @@ const faqs = [
   {
     question: "Does it work offline?",
     answer:
-      "Not as a guaranteed offline app today. Core image processing runs locally in your browser, but loading the site and some features may still require a network connection.",
+      "Yes, after the first online visit the app shell and core tools work offline. Background removal works offline too after its model assets have been downloaded once.",
   },
   {
     question: "Where's the source code?",
@@ -69,7 +69,7 @@ const faqs = [
             class="text-[1.05rem] text-sp-text-muted leading-[1.7] m-0 opacity-0"
             style="animation: popBounceIn 0.6s 0.25s forwards"
           >
-            Everything you want to know about Reshrimp.
+            Quick answers about privacy, formats, and offline use.
           </p>
         </div>
       </section>

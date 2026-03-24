@@ -1,6 +1,6 @@
 # Reshrimp
 
-A client-side image manipulation tool built with Astro and TypeScript. Resize, compress, convert formats, and more - all in your browser without uploading to any server.
+A client-side image tool built with Astro and TypeScript. Resize, compress, convert, and remove backgrounds in your browser without uploading images. After one online visit, the app shell and core tools work offline. Background removal works offline after its model assets are downloaded once.
 
 ## 🚀 Live Demo
 
@@ -11,9 +11,11 @@ Visit: https://reshrimp.vercel.app
 ## ✨ Features
 
 - **Client-side processing** - Your images never leave your device
+- **Offline-ready core tools** - The app shell, resize, convert, and compress flows work offline after the first online visit
 - **Image resizing** - Adjust dimensions with various options
 - **Format conversion** - Convert between JPEG, PNG, WebP, and more
 - **Compression** - Optimize file sizes while maintaining quality
+- **Background removal** - Runs locally and works offline after its model assets download once
 - **Single-image processing** - Process one image at a time with resize, format, and quality controls
 - **Privacy first** - No server uploads, everything happens locally
 
