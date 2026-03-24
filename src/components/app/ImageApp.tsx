@@ -266,7 +266,7 @@ export default function ImageApp() {
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <>
-      <div class="flex flex-col gap-4 sticky top-[70px] self-start min-h-[calc(100vh-86px)] max-md:static max-md:min-h-0">
+      <div class="sticky top-[68px] flex flex-col gap-4 self-start max-md:static">
         <UploadArea
           isDragOver={isDragOver}
           onDragOver={() => setIsDragOver(true)}
