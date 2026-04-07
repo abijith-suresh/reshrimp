@@ -7,7 +7,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "type-check": "tsc --noEmit",
+    "type-check": "astro sync && tsc --noEmit",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
@@ -16,6 +16,7 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "analyze": "ANALYZE=true bun run build",
+    "verify": "bun run type-check && bun run lint && bun run format:check && bun run test && bun run build",
     "prepare": "husky"
   },
   "dependencies": {
