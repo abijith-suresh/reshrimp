@@ -4,35 +4,30 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 jobs:
-  lint-and-test:
+  quality:
+    name: quality
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v6
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
         with:
-          bun-version: latest
+          bun-version-file: ".bun-version"
+          cache: true
 
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
-      - name: Generate Astro types
-        run: bun run astro sync
+      - name: Run quality gate
+        run: bun run verify
 
-      - name: Type check
-        run: bun run type-check
-
-      - name: Run linter
-        run: bun run lint
-
-      - name: Check formatting
-        run: bun run format:check
-
-      - name: Run tests
-        run: bun run test
-
-      - name: Build project
-        run: bun run build
+      - name: Dependency review
+        uses: actions/dependency-review-action@v4

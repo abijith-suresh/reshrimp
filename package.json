@@ -16,6 +16,7 @@
     "test:watch": "vitest",
     "test:ui": "vitest --ui",
     "analyze": "ANALYZE=true bun run build",
+    "verify": "bun run type-check && bun run lint && bun run format:check && bun run test && bun run build",
     "prepare": "husky"
   },
   "dependencies": {
