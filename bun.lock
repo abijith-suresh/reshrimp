@@ -6,7 +6,7 @@
       "name": "reshrimp",
       "dependencies": {
         "@astrojs/sitemap": "^3.7.0",
-        "@astrojs/solid-js": "^5.1.3",
+        "@astrojs/solid-js": "^6.0.1",
         "@imgly/background-removal": "^1.7.0",
         "@resvg/resvg-js": "^2.6.2",
         "astro": "^5.17.3",
@@ -72,7 +72,7 @@
 
     "@astrojs/sitemap": ["@astrojs/sitemap@3.7.0", "", { "dependencies": { "sitemap": "^8.0.2", "stream-replace-string": "^2.0.0", "zod": "^3.25.76" } }, "sha512-+qxjUrz6Jcgh+D5VE1gKUJTA3pSthuPHe6Ao5JCxok794Lewx8hBFaWHtOnN0ntb2lfOf7gvOi9TefUswQ/ZVA=="],
 
-    "@astrojs/solid-js": ["@astrojs/solid-js@5.1.3", "", { "dependencies": { "vite": "^6.4.1", "vite-plugin-solid": "^2.11.8" }, "peerDependencies": { "solid-devtools": "^0.30.1", "solid-js": "^1.8.5" }, "optionalPeers": ["solid-devtools"] }, "sha512-KxfYt4y1d7BuSw6EsN1EaPoGYsIES7bEI6AtTbncuabRUUMZs+mOWOeOdmgnwVLj+jbNbhBjUZsqr77eUviZdw=="],
+    "@astrojs/solid-js": ["@astrojs/solid-js@6.0.1", "", { "dependencies": { "vite": "^7.3.1", "vite-plugin-solid": "^2.11.10" }, "peerDependencies": { "solid-devtools": "^0.30.1", "solid-js": "^1.8.5" }, "optionalPeers": ["solid-devtools"] }, "sha512-6g2DEtznW2ithiaDY3qyCSdnyNBjpXfKR2qCnvxxdmZZlO+8AC85KkEX4BpnJrzVfy7ptx0/WYKuBRCFdheo8Q=="],
 
     "@astrojs/telemetry": ["@astrojs/telemetry@3.3.0", "", { "dependencies": { "ci-info": "^4.2.0", "debug": "^4.4.0", "dlv": "^1.1.3", "dset": "^3.1.4", "is-docker": "^3.0.0", "is-wsl": "^3.1.0", "which-pm-runs": "^1.1.0" } }, "sha512-UFBgfeldP06qu6khs/yY+q1cDAaArM2/7AEIqQ9Cuvf7B1hNLq0xDrZkct+QoIGyjq56y8IaE2I3CTvG99mlhQ=="],
 
@@ -2095,6 +2095,8 @@
     "@apideck/better-ajv-errors/ajv": ["ajv@8.17.1", "", { "dependencies": { "fast-deep-equal": "^3.1.3", "fast-uri": "^3.0.1", "json-schema-traverse": "^1.0.0", "require-from-string": "^2.0.2" } }, "sha512-B/gBuNg5SiMTrPkC+A2+cW0RszwxYmn6VYxB/inlBStS5nx6xHIt/ehKRhIMhqusl7a8LjQoZnjCs5vhwxOQ1g=="],
 
     "@asamuzakjp/css-color/lru-cache": ["lru-cache@11.2.5", "", {}, "sha512-vFrFJkWtJvJnD5hg+hJvVE8Lh/TcMzKnTgCWmtBipwI5yLX/iX+5UB2tfuyODF5E7k9xEzMdYgGqaSb1c0c5Yw=="],
+
+    "@astrojs/solid-js/vite": ["vite@7.3.2", "", { "dependencies": { "esbuild": "^0.27.0", "fdir": "^6.5.0", "picomatch": "^4.0.3", "postcss": "^8.5.6", "rollup": "^4.43.0", "tinyglobby": "^0.2.15" }, "optionalDependencies": { "fsevents": "~2.3.3" }, "peerDependencies": { "@types/node": "^20.19.0 || >=22.12.0", "jiti": ">=1.21.0", "less": "^4.0.0", "lightningcss": "^1.21.0", "sass": "^1.70.0", "sass-embedded": "^1.70.0", "stylus": ">=0.54.8", "sugarss": "^5.0.0", "terser": "^5.16.0", "tsx": "^4.8.1", "yaml": "^2.4.2" }, "optionalPeers": ["@types/node", "jiti", "less", "lightningcss", "sass", "sass-embedded", "stylus", "sugarss", "terser", "tsx", "yaml"], "bin": { "vite": "bin/vite.js" } }, "sha512-Bby3NOsna2jsjfLVOHKes8sGwgl4TT0E6vvpYgnAYDIF/tie7MRaFthmKuHx1NSXjiTueXH3do80FMQgvEktRg=="],
 
     "@babel/core/semver": ["semver@6.3.1", "", { "bin": { "semver": "bin/semver.js" } }, "sha512-BR7VvDCVHO+q2xBEWskxS6DJE1qRnb7DxzUrogb71CWoSficBxYsiAGd+Kl0mmq/MprG9yArRkyrQxTO6XjMzA=="],
 
