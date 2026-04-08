@@ -1,24 +1,60 @@
 ---
-import { getCollection, render } from "astro:content";
+import changelogSource from "../../../CHANGELOG.md?raw";
 import MarketingLayout from "../../layouts/MarketingLayout.astro";
 import FloatingShapes from "../../components/shared/FloatingShapes.astro";
 
-const entries = (await getCollection("changelog")).sort(
-  (a, b) => b.data.date.valueOf() - a.data.date.valueOf()
-);
+type ReleaseSection = { title: string; items: string[] };
+type Release = { version: string; date: string; sections: ReleaseSection[] };
 
-const rendered = await Promise.all(
-  entries.map(async (entry) => {
-    const { Content } = await render(entry);
-    return { entry, Content };
-  })
-);
+function parseChangelog(source: string): Release[] {
+  const releases: Release[] = [];
+  const releaseMatches = [
+    ...source.matchAll(/^## \[(?!Unreleased)([^\]]+)\] - (\d{4}-\d{2}-\d{2})$/gm),
+  ];
 
-const typeConfig = {
-  major: { label: "Major", class: "badge-major" },
-  minor: { label: "Minor", class: "badge-minor" },
-  patch: { label: "Patch", class: "badge-patch" },
-};
+  for (const [index, match] of releaseMatches.entries()) {
+    const [, version, date] = match;
+    const start = (match.index ?? 0) + match[0].length + 1;
+    const end =
+      index + 1 < releaseMatches.length
+        ? (releaseMatches[index + 1].index ?? source.length)
+        : source.length;
+    const body = source.slice(start, end).trim();
+    const sections: ReleaseSection[] = [];
+    const sectionMatches = [...body.matchAll(/^### ([^\n]+)$/gm)];
+
+    for (const [sectionIndex, sectionMatch] of sectionMatches.entries()) {
+      const [, title] = sectionMatch;
+      const sectionStart = (sectionMatch.index ?? 0) + sectionMatch[0].length + 1;
+      const sectionEnd =
+        sectionIndex + 1 < sectionMatches.length
+          ? (sectionMatches[sectionIndex + 1].index ?? body.length)
+          : body.length;
+      const sectionBody = body.slice(sectionStart, sectionEnd).trim();
+      const items = sectionBody
+        .split("\n")
+        .filter((line) => line.startsWith("- "))
+        .map((line) => line.slice(2));
+
+      if (items.length > 0) sections.push({ title, items });
+    }
+
+    releases.push({ version, date, sections });
+  }
+
+  return releases;
+}
+
+const releases = parseChangelog(changelogSource);
+
+function formatDate(date: string) {
+  return new Date(`${date}T00:00:00Z`).toLocaleDateString("en-US", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+    timeZone: "UTC",
+  });
+}
 ---
 
 <MarketingLayout
@@ -43,166 +79,54 @@ const typeConfig = {
             class="text-[1.05rem] text-sp-text-muted leading-[1.7] m-0 opacity-0"
             style="animation: popBounceIn 0.6s 0.25s forwards"
           >
-            Every update, improvement, and fix — documented as it ships.
+            Every update, improvement, and fix — derived from the canonical changelog.
           </p>
         </div>
       </section>
 
       <section class="px-8 py-8 pb-24 relative z-10">
-        <div class="max-w-[900px] mx-auto">
-          <div class="flex flex-col gap-0">
-            {
-              rendered.map(({ entry, Content }, i) => {
-                const badge = typeConfig[entry.data.type];
-                return (
-                  <div
-                    class="cl-entry grid grid-cols-[200px_32px_1fr] gap-0 gap-x-6 relative"
-                    data-reveal
-                    data-reveal-delay={i * 80}
-                  >
-                    <div class="cl-entry-aside flex flex-col items-end pt-1 gap-[0.35rem] pb-12">
-                      <div class="flex items-center gap-4 cl-version-badge">
-                        <span class="cl-version font-display text-[1.1rem] font-bold tracking-tight text-sp-text">
-                          v{entry.data.version}
-                        </span>
-                        <span
-                          class:list={[
-                            "cl-type-badge font-bold text-[0.65rem] py-[0.2rem] px-[0.55rem] rounded-sp-full tracking-[0.04em] uppercase",
-                            badge.class,
-                          ]}
-                        >
-                          {badge.label}
-                        </span>
-                      </div>
-                      <time
-                        class="cl-date text-[0.78rem] text-sp-text-soft"
-                        datetime={entry.data.date.toISOString()}
-                      >
-                        {entry.data.date.toLocaleDateString("en-US", {
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </time>
-                    </div>
-
-                    <div class="cl-entry-connector flex flex-col items-center shrink-0">
-                      <div class="cl-dot w-3 h-3 rounded-full bg-sp-coral border-2 border-sp-bg outline outline-2 outline-sp-coral mt-[0.35rem] shrink-0 z-10" />
-                      {i < rendered.length - 1 && (
-                        <div class="cl-line w-0.5 flex-1 bg-sp-border mt-1" />
-                      )}
-                    </div>
-
-                    <div class="cl-entry-body pb-12">
-                      <div class="cl-entry-header mb-5">
-                        <h2 class="cl-entry-title font-display text-[1.25rem] font-bold mb-1 tracking-tight leading-[1.3]">
-                          {entry.data.title}
-                        </h2>
-                        <p class="cl-entry-summary text-[0.9rem] text-sp-text-muted leading-[1.6] m-0">
-                          {entry.data.summary}
-                        </p>
-                      </div>
-                      <div class="cl-prose prose-sp text-[0.9rem] leading-[1.7] bg-sp-bg-card border border-sp-border rounded-sp-lg p-6 shadow-sp">
-                        <Content />
-                      </div>
-                    </div>
+        <div class="max-w-[900px] mx-auto flex flex-col gap-10">
+          {
+            releases.map((release, i) => (
+              <article
+                class="bg-sp-bg-card border border-sp-border rounded-sp-lg p-6 shadow-sp"
+                data-reveal
+                data-reveal-delay={i * 80}
+              >
+                <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <p class="font-display text-[1.25rem] font-bold tracking-tight text-sp-text">
+                      v{release.version}
+                    </p>
+                    <time
+                      class="text-[0.85rem] text-sp-text-soft"
+                      datetime={`${release.date}T00:00:00Z`}
+                    >
+                      {formatDate(release.date)}
+                    </time>
                   </div>
-                );
-              })
-            }
-          </div>
+                  {i === 0 && <span class="pop-chip pop-chip-coral">Latest</span>}
+                </div>
+
+                <div class="mt-5 space-y-5">
+                  {release.sections.map((section) => (
+                    <section>
+                      <h2 class="text-[0.78rem] font-bold uppercase tracking-[0.08em] text-sp-text-muted mb-3">
+                        {section.title}
+                      </h2>
+                      <ul class="space-y-2 pl-5">
+                        {section.items.map((item) => (
+                          <li class="text-[0.92rem] leading-[1.7] text-sp-text">{item}</li>
+                        ))}
+                      </ul>
+                    </section>
+                  ))}
+                </div>
+              </article>
+            ))
+          }
         </div>
       </section>
     </main>
   </div>
 </MarketingLayout>
-
-<style>
-  .cl-type-badge {
-    font-weight: 700;
-  }
-
-  .badge-major {
-    background: var(--sp-coral-light);
-    color: var(--sp-coral-dark);
-  }
-
-  .badge-minor {
-    background: var(--sp-mint-light);
-    color: var(--sp-mint-dark);
-  }
-
-  .badge-patch {
-    background: var(--sp-lavender-light);
-    color: var(--sp-lavender-dark);
-  }
-
-  /* Scoped prose overrides for changelog */
-  .cl-prose :global(h2) {
-    font-size: 0.75rem !important;
-    font-weight: 700 !important;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--sp-text-muted);
-    margin-top: 1.25rem !important;
-    margin-bottom: 0.5rem !important;
-  }
-
-  .cl-prose :global(h2:first-child) {
-    margin-top: 0 !important;
-  }
-
-  .cl-prose :global(ul) {
-    padding-left: 1.25rem;
-    margin-bottom: 0.75rem;
-  }
-
-  .cl-prose :global(li) {
-    margin-bottom: 0.3rem;
-    font-size: 0.88rem;
-    color: var(--sp-text);
-  }
-
-  .cl-prose :global(strong) {
-    color: var(--sp-text);
-    font-weight: 600;
-  }
-
-  /* Reveal animations */
-  [data-reveal] {
-    opacity: 0;
-    transform: translateY(28px) scale(0.98);
-    transition:
-      opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
-      transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  [data-reveal].revealed {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-
-  /* Responsive */
-  @media (max-width: 640px) {
-    .cl-entry {
-      grid-template-columns: 1fr;
-      grid-template-rows: auto auto auto;
-    }
-
-    .cl-entry-aside {
-      flex-direction: row;
-      align-items: center;
-      padding-bottom: 0.75rem;
-      grid-row: 1;
-    }
-
-    .cl-entry-connector {
-      display: none;
-    }
-
-    .cl-entry-body {
-      grid-row: 2;
-      padding-bottom: 2.5rem;
-    }
-  }
-</style>
