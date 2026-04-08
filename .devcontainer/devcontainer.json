@@ -11,8 +11,11 @@
         "esbenp.prettier-vscode",
         "bradlc.vscode-tailwindcss",
         "editorconfig.editorconfig",
-        "vitest.explorer",
-        "christian-kohler.path-intellisense"
+        "unifiedjs.vscode-mdx",
+        "christian-kohler.path-intellisense",
+        "formulahendry.auto-rename-tag",
+        "streetsidesoftware.code-spell-checker",
+        "vitest.explorer"
       ],
       "settings": {
         "editor.formatOnSave": true,
