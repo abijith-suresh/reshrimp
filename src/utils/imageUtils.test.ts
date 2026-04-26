@@ -8,6 +8,8 @@ import {
   calculateWidthFromHeight,
   clamp,
   generateId,
+  convertToPx,
+  convertFromPx,
 } from "./imageUtils";
 import { setupBrowserMocks, restoreMocks } from "../test/mocks";
 
@@ -175,5 +177,76 @@ describe("generateId", () => {
   it("returns unique values across calls", () => {
     const ids = new Set(Array.from({ length: 20 }, () => generateId()));
     expect(ids.size).toBe(20);
+  });
+});
+
+describe("convertToPx", () => {
+  const originalPx = 1920;
+  const dpi = 96;
+
+  it("px: returns the value rounded", () => {
+    expect(convertToPx(1080, "px", originalPx, dpi)).toBe(1080);
+    expect(convertToPx(1080.6, "px", originalPx, dpi)).toBe(1081);
+  });
+
+  it("%: converts percentage of original dimension", () => {
+    expect(convertToPx(50, "%", 1920, dpi)).toBe(960);
+    expect(convertToPx(100, "%", 1920, dpi)).toBe(1920);
+    expect(convertToPx(25, "%", 1000, dpi)).toBe(250);
+  });
+
+  it("%: ignores dpi", () => {
+    expect(convertToPx(50, "%", 1920, 72)).toBe(convertToPx(50, "%", 1920, 300));
+  });
+
+  it("in: converts inches to pixels using dpi", () => {
+    expect(convertToPx(10, "in", originalPx, 96)).toBe(960);
+    expect(convertToPx(1, "in", originalPx, 300)).toBe(300);
+  });
+
+  it("cm: converts centimetres to pixels using dpi", () => {
+    expect(convertToPx(2.54, "cm", originalPx, 96)).toBe(96);
+    expect(convertToPx(25.4, "cm", originalPx, 96)).toBe(960);
+  });
+});
+
+describe("convertFromPx", () => {
+  const originalPx = 1920;
+  const dpi = 96;
+
+  it("px: returns the value unchanged", () => {
+    expect(convertFromPx(1080, "px", originalPx, dpi)).toBe(1080);
+  });
+
+  it("%: converts px back to percentage of original", () => {
+    expect(convertFromPx(960, "%", 1920, dpi)).toBe(50);
+    expect(convertFromPx(1920, "%", 1920, dpi)).toBe(100);
+  });
+
+  it("%: returns 0 when originalPx is 0", () => {
+    expect(convertFromPx(100, "%", 0, dpi)).toBe(0);
+  });
+
+  it("in: converts px back to inches", () => {
+    expect(convertFromPx(960, "in", originalPx, 96)).toBeCloseTo(10);
+    expect(convertFromPx(300, "in", originalPx, 300)).toBeCloseTo(1);
+  });
+
+  it("cm: converts px back to centimetres", () => {
+    expect(convertFromPx(96, "cm", originalPx, 96)).toBeCloseTo(2.54);
+    expect(convertFromPx(960, "cm", originalPx, 96)).toBeCloseTo(25.4);
+  });
+
+  it("in: returns 0 when dpi is 0", () => {
+    expect(convertFromPx(100, "in", originalPx, 0)).toBe(0);
+  });
+
+  it("round-trip px → unit → px stays within 1px", () => {
+    const px = 1280;
+    for (const unit of ["px", "%", "in", "cm"] as const) {
+      const display = convertFromPx(px, unit, originalPx, dpi);
+      const backToPx = convertToPx(display, unit, originalPx, dpi);
+      expect(Math.abs(backToPx - px)).toBeLessThanOrEqual(1);
+    }
   });
 });

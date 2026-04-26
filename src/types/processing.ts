@@ -1,6 +1,11 @@
 import type { ImageFormat } from "./image";
 
 /**
+ * Supported resize units
+ */
+export type ResizeUnit = "px" | "%" | "in" | "cm";
+
+/**
  * Options for resizing images
  */
 export interface ResizeOptions {

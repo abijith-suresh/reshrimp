@@ -1,4 +1,8 @@
 import { Show, onMount, onCleanup, type Accessor, type Setter } from "solid-js";
+import type { ResizeUnit } from "@/types/processing";
+import { DPI_OPTIONS } from "@/config/constants";
+import { SOCIAL_MEDIA_PRESETS } from "@/config/presets";
+import AppSelect, { type AppSelectOption } from "@/components/shared/AppSelect";
 
 interface ProcessingControlsProps {
   controlsActive: Accessor<boolean>;
@@ -22,15 +26,59 @@ interface ProcessingControlsProps {
   onProcess: () => void;
   widthPlaceholder: Accessor<string>;
   heightPlaceholder: Accessor<string>;
+  // Resize unit
+  resizeUnit: Accessor<ResizeUnit>;
+  onUnitChange: (unit: ResizeUnit) => void;
+  // DPI (only relevant when unit is 'in' or 'cm')
+  dpiValue: Accessor<number>;
+  onDpiChange: (dpi: number) => void;
+  dpiTooltipOpen: Accessor<boolean>;
+  setDpiTooltipOpen: Setter<boolean>;
+  // Preset
+  presetValue: Accessor<string>;
+  onPresetChange: (label: string) => void;
 }
 
+const FORMAT_OPTIONS: AppSelectOption[] = [
+  { value: "", label: "Keep original" },
+  { value: "image/jpeg", label: "JPEG" },
+  { value: "image/png", label: "PNG" },
+  { value: "image/webp", label: "WebP" },
+];
+
+const PRESET_OPTIONS: AppSelectOption[] = [
+  { value: "", label: "Custom" },
+  ...SOCIAL_MEDIA_PRESETS.map((p) => ({ value: p.label, label: p.label })),
+];
+
+const UNIT_OPTIONS: AppSelectOption[] = [
+  { value: "px", label: "px" },
+  { value: "%", label: "%" },
+  { value: "in", label: "in" },
+  { value: "cm", label: "cm" },
+];
+
+const DPI_SELECT_OPTIONS: AppSelectOption[] = DPI_OPTIONS.map((d) => ({
+  value: String(d),
+  label: `${d} DPI`,
+}));
+
 export default function ProcessingControls(props: ProcessingControlsProps) {
-  // Close tooltip when clicking outside
+  // Close background-removal tooltip when clicking outside
   onMount(() => {
     const handler = () => props.setTooltipOpen(false);
     document.addEventListener("click", handler);
     onCleanup(() => document.removeEventListener("click", handler));
   });
+
+  // Close DPI tooltip when clicking outside
+  onMount(() => {
+    const handler = () => props.setDpiTooltipOpen(false);
+    document.addEventListener("click", handler);
+    onCleanup(() => document.removeEventListener("click", handler));
+  });
+
+  const showDpi = () => props.resizeUnit() === "in" || props.resizeUnit() === "cm";
 
   return (
     <div
@@ -43,6 +91,21 @@ export default function ProcessingControls(props: ProcessingControlsProps) {
         <h4 class="text-[0.8rem] font-semibold text-sp-text m-0 uppercase tracking-wider">
           Resize
         </h4>
+
+        {/* Presets */}
+        <div>
+          <span class="block text-[0.8rem] text-sp-text-muted mb-1">Preset</span>
+          <AppSelect
+            id="preset-select"
+            options={PRESET_OPTIONS}
+            value={props.presetValue()}
+            onChange={props.onPresetChange}
+            disabled={!props.controlsActive()}
+            placeholder="Custom"
+          />
+        </div>
+
+        {/* Width / Height inputs */}
         <div class="grid grid-cols-2 gap-3">
           <label class="block">
             <span class="block text-[0.8rem] text-sp-text-muted mb-1">Width</span>
@@ -50,8 +113,9 @@ export default function ProcessingControls(props: ProcessingControlsProps) {
               type="number"
               id="width-input"
               class="w-full px-3 py-2 border border-sp-border rounded-sp font-body text-[0.85rem] text-sp-text bg-sp-bg transition-[border-color,box-shadow] duration-200 focus:outline-none focus:border-sp-lavender focus:shadow-[0_0_0_3px_rgba(167,139,250,0.15)]"
-              min="1"
-              max="10000"
+              min="0.001"
+              max="100000"
+              step="any"
               placeholder={props.widthPlaceholder()}
               disabled={!props.controlsActive()}
               value={props.widthValue()}
@@ -64,8 +128,9 @@ export default function ProcessingControls(props: ProcessingControlsProps) {
               type="number"
               id="height-input"
               class="w-full px-3 py-2 border border-sp-border rounded-sp font-body text-[0.85rem] text-sp-text bg-sp-bg transition-[border-color,box-shadow] duration-200 focus:outline-none focus:border-sp-lavender focus:shadow-[0_0_0_3px_rgba(167,139,250,0.15)]"
-              min="1"
-              max="10000"
+              min="0.001"
+              max="100000"
+              step="any"
               placeholder={props.heightPlaceholder()}
               disabled={!props.controlsActive()}
               value={props.heightValue()}
@@ -73,6 +138,73 @@ export default function ProcessingControls(props: ProcessingControlsProps) {
             />
           </label>
         </div>
+
+        {/* Unit selector */}
+        <div>
+          <span class="block text-[0.8rem] text-sp-text-muted mb-1">Unit</span>
+          <AppSelect
+            id="unit-select"
+            options={UNIT_OPTIONS}
+            value={props.resizeUnit()}
+            onChange={(v) => props.onUnitChange(v as ResizeUnit)}
+            disabled={!props.controlsActive()}
+          />
+        </div>
+
+        {/* DPI selector — only shown for physical units */}
+        <Show when={showDpi()}>
+          <div>
+            <div class="flex items-center gap-1.5 mb-1">
+              <span class="text-[0.8rem] text-sp-text-muted">Resolution</span>
+              <span id="dpi-info-tip" class="relative">
+                <button
+                  type="button"
+                  id="dpi-info-icon"
+                  class="info-icon"
+                  aria-label="DPI info"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    props.setDpiTooltipOpen((v) => !v);
+                  }}
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="12" y1="16" x2="12" y2="12" />
+                    <line x1="12" y1="8" x2="12.01" y2="8" />
+                  </svg>
+                </button>
+                <span
+                  id="dpi-tooltip"
+                  class="info-tooltip"
+                  classList={{ active: props.dpiTooltipOpen() }}
+                  role="tooltip"
+                >
+                  DPI (dots per inch) sets how many pixels map to one inch. Use <strong>96</strong>{" "}
+                  for screen or digital exports, <strong>300</strong> for print-quality output.
+                </span>
+              </span>
+            </div>
+            <AppSelect
+              id="dpi-select"
+              options={DPI_SELECT_OPTIONS}
+              value={String(props.dpiValue())}
+              onChange={(v) => props.onDpiChange(Number(v))}
+              disabled={!props.controlsActive()}
+            />
+          </div>
+        </Show>
+
+        {/* Aspect ratio lock */}
         <label class="flex items-center gap-2 text-[0.8rem] text-sp-text-muted cursor-pointer">
           <input
             type="checkbox"
@@ -117,7 +249,6 @@ export default function ProcessingControls(props: ProcessingControlsProps) {
                   props.setTooltipOpen((v) => !v);
                 }}
               >
-                {/* Info icon — inlined SVG (lucide "info") */}
                 <svg
                   width="14"
                   height="14"
@@ -153,37 +284,14 @@ export default function ProcessingControls(props: ProcessingControlsProps) {
         <h4 class="text-[0.8rem] font-semibold text-sp-text m-0 uppercase tracking-wider">
           Format
         </h4>
-        <div class="relative">
-          <select
-            id="format-select"
-            class="w-full py-2 pl-3 pr-9 border border-sp-border rounded-sp font-body text-[0.85rem] text-sp-text bg-sp-bg appearance-none transition-[border-color,box-shadow] duration-200 cursor-pointer focus:outline-none focus:border-sp-lavender focus:shadow-[0_0_0_3px_rgba(167,139,250,0.15)]"
-            classList={{ "sp-select-disabled": props.formatSelectDisabled() }}
-            disabled={!props.controlsActive() || props.formatSelectDisabled()}
-            value={props.formatValue()}
-            onChange={(e) => props.setFormatValue((e.target as HTMLSelectElement).value)}
-          >
-            <option value="">Keep original</option>
-            <option value="image/jpeg">JPEG</option>
-            <option value="image/png">PNG</option>
-            <option value="image/webp">WebP</option>
-          </select>
-          <svg
-            class="absolute right-3 top-1/2 -translate-y-1/2 text-sp-lavender pointer-events-none transition-transform duration-200"
-            width="12"
-            height="12"
-            viewBox="0 0 12 12"
-            fill="none"
-            stroke="currentColor"
-            aria-hidden="true"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M3 4.5l3 3 3-3"
-            />
-          </svg>
-        </div>
+        <AppSelect
+          id="format-select"
+          options={FORMAT_OPTIONS}
+          value={props.formatValue()}
+          onChange={(v) => props.setFormatValue(v)}
+          disabled={!props.controlsActive() || props.formatSelectDisabled()}
+          placeholder="Keep original"
+        />
       </div>
 
       {/* Quality */}

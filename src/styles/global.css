@@ -420,6 +420,138 @@ body {
   cursor: not-allowed;
 }
 
+/* ===== AppSelect — custom accessible select ===== */
+.sp-select-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--sp-border);
+  border-radius: var(--sp-radius);
+  font-family: var(--sp-font-body);
+  font-size: 0.85rem;
+  color: var(--sp-text);
+  background: var(--sp-bg);
+  cursor: pointer;
+  text-align: left;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
+  /* Match the existing input height/style */
+  line-height: 1.4;
+}
+
+.sp-select-trigger:focus-visible {
+  outline: none;
+  border-color: var(--sp-lavender);
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15);
+}
+
+.sp-select-trigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sp-select-trigger-open {
+  border-color: var(--sp-lavender);
+  box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15);
+}
+
+.sp-select-value {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--sp-text);
+}
+
+.sp-select-chevron {
+  flex-shrink: 0;
+  color: var(--sp-lavender);
+  transition: transform 0.2s ease;
+}
+
+.sp-select-chevron-open {
+  transform: rotate(180deg);
+}
+
+.sp-select-listbox {
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem;
+  background: var(--sp-bg-card);
+  border: 1px solid var(--sp-border);
+  border-radius: var(--sp-radius);
+  box-shadow: var(--sp-shadow-hover);
+  max-height: 240px;
+  overflow-y: auto;
+  /* Smooth appear */
+  animation: sp-select-in 0.12s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes sp-select-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.sp-select-listbox-upward {
+  animation: sp-select-in-up 0.12s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes sp-select-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(4px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.sp-select-option {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.45rem 0.65rem;
+  border-radius: calc(var(--sp-radius) - 4px);
+  font-family: var(--sp-font-body);
+  font-size: 0.85rem;
+  color: var(--sp-text);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.1s;
+}
+
+.sp-select-option-focused {
+  background: var(--sp-lavender-light);
+  color: var(--sp-lavender-dark);
+}
+
+.sp-select-option-selected {
+  font-weight: 600;
+  color: var(--sp-lavender-dark);
+}
+
+.sp-select-option-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.sp-select-check {
+  flex-shrink: 0;
+  color: var(--sp-lavender-dark);
+}
+
 .info-icon {
   display: inline-flex;
   align-items: center;
