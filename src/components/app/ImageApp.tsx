@@ -1,6 +1,6 @@
 import { createSignal, createMemo, createEffect, onCleanup, type Setter } from "solid-js";
 import type { ProcessedImage, ValidationResult, ImageFormat } from "@/types/image";
-import type { ProcessResult } from "@/types/processing";
+import type { ProcessResult, ResizeUnit } from "@/types/processing";
 import { processImage, getImageMetadata } from "@/services/imageService";
 import { validateImageFile, generateDownloadFilename } from "@/services/validationService";
 import {
@@ -9,7 +9,11 @@ import {
   generateId,
   calculateHeightFromWidth,
   calculateWidthFromHeight,
+  convertToPx,
+  convertFromPx,
 } from "@/utils/imageUtils";
+import { DEFAULT_DPI } from "@/config/constants";
+import { SOCIAL_MEDIA_PRESETS } from "@/config/presets";
 import UploadArea from "./UploadArea";
 import ProcessingControls from "./ProcessingControls";
 import PreviewPanel from "./PreviewPanel";
@@ -17,6 +21,13 @@ import PreviewPanel from "./PreviewPanel";
 export interface SizeDiff {
   text: string;
   className: string;
+}
+
+/** Format a display-unit value to a readable string (no trailing zeros). */
+function formatUnitValue(value: number, unit: ResizeUnit): string {
+  if (unit === "px") return String(Math.round(value));
+  // For non-px units show up to 2 decimal places, stripping trailing zeros
+  return parseFloat(value.toFixed(2)).toString();
 }
 
 export default function ImageApp() {
@@ -34,6 +45,7 @@ export default function ImageApp() {
   const [validation, setValidation] = createSignal<ValidationResult | null>(null);
   const [isDragOver, setIsDragOver] = createSignal(false);
   const [tooltipOpen, setTooltipOpen] = createSignal(false);
+  const [dpiTooltipOpen, setDpiTooltipOpen] = createSignal(false);
 
   // ── Form controls ─────────────────────────────────────────────────────────
   const [widthValue, setWidthValue] = createSignal("");
@@ -43,6 +55,11 @@ export default function ImageApp() {
   const [formatValue, setFormatValue] = createSignal("");
   const [previousFormatValue, setPreviousFormatValue] = createSignal("");
   const [qualityValue, setQualityValue] = createSignal(92);
+
+  // ── Resize unit controls ──────────────────────────────────────────────────
+  const [resizeUnit, setResizeUnit] = createSignal<ResizeUnit>("px");
+  const [dpiValue, setDpiValue] = createSignal(DEFAULT_DPI);
+  const [presetValue, setPresetValue] = createSignal("");
 
   // ── Object URL tracking for cleanup ──────────────────────────────────────
   const [objectUrls, setObjectUrls] = createSignal<string[]>([]);
@@ -68,12 +85,18 @@ export default function ImageApp() {
 
   const widthPlaceholder = createMemo(() => {
     const img = currentImage();
-    return img ? String(img.metadata.width) : "Original";
+    if (!img) return "Original";
+    const px = img.metadata.width;
+    const display = convertFromPx(px, resizeUnit(), px, dpiValue());
+    return formatUnitValue(display, resizeUnit());
   });
 
   const heightPlaceholder = createMemo(() => {
     const img = currentImage();
-    return img ? String(img.metadata.height) : "Original";
+    if (!img) return "Original";
+    const px = img.metadata.height;
+    const display = convertFromPx(px, resizeUnit(), px, dpiValue());
+    return formatUnitValue(display, resizeUnit());
   });
 
   const sizeDifference = createMemo<SizeDiff | null>(() => {
@@ -132,26 +155,42 @@ export default function ImageApp() {
       setPreviousFormatValue("");
       setQualityValue(92);
       setTooltipOpen(false);
+
+      // Reset unit controls
+      setResizeUnit("px");
+      setDpiValue(DEFAULT_DPI);
+      setPresetValue("");
+      setDpiTooltipOpen(false);
     } catch (err) {
       setError("Failed to load image. Please try another file.");
       console.error("Error loading image:", err);
     }
   }
 
+  /**
+   * Convert the current width/height display values to pixels,
+   * then trigger processImage with those px dimensions.
+   */
   async function handleProcess(): Promise<void> {
     const img = currentImage();
     if (!img || isProcessing()) return;
 
-    const widthNum = widthValue() ? parseInt(widthValue(), 10) : undefined;
-    const heightNum = heightValue() ? parseInt(heightValue(), 10) : undefined;
+    const unit = resizeUnit();
+    const dpi = dpiValue();
+
+    const wRaw = widthValue() ? parseFloat(widthValue()) : NaN;
+    const hRaw = heightValue() ? parseFloat(heightValue()) : NaN;
+
+    const widthPx = isNaN(wRaw) ? undefined : convertToPx(wRaw, unit, img.metadata.width, dpi);
+    const heightPx = isNaN(hRaw) ? undefined : convertToPx(hRaw, unit, img.metadata.height, dpi);
 
     const options = {
       removeBackground: removeBackground(),
-      ...(widthNum || heightNum
+      ...(widthPx || heightPx
         ? {
             resize: {
-              width: widthNum,
-              height: heightNum,
+              width: widthPx,
+              height: heightPx,
               maintainAspectRatio: maintainAspectRatio(),
             },
           }
@@ -181,7 +220,6 @@ export default function ImageApp() {
 
       const processedUrl = trackUrl(URL.createObjectURL(result.blob));
 
-      // Update the current image's processedUrl in place
       setCurrentImage((prev) => (prev ? { ...prev, processedUrl } : null));
       setProcessResult(result);
     } catch (err) {
@@ -222,33 +260,128 @@ export default function ImageApp() {
     setRemoveBackground(checked);
   }
 
-  function handleWidthInput(val: string): void {
-    setWidthValue(val);
-    if (maintainAspectRatio() && val) {
-      const img = currentImage();
-      if (img) {
-        const w = parseInt(val, 10);
+  /**
+   * Convert an existing display value between units.
+   * Returns the new display string, or "" if the input is empty/invalid.
+   */
+  function rebaseValue(
+    displayStr: string,
+    oldUnit: ResizeUnit,
+    newUnit: ResizeUnit,
+    originalPx: number,
+    dpi: number
+  ): string {
+    if (!displayStr) return "";
+    const num = parseFloat(displayStr);
+    if (isNaN(num)) return "";
+    const px = convertToPx(num, oldUnit, originalPx, dpi);
+    const newDisplay = convertFromPx(px, newUnit, originalPx, dpi);
+    return formatUnitValue(newDisplay, newUnit);
+  }
+
+  function handleUnitChange(newUnit: ResizeUnit): void {
+    const img = currentImage();
+    const oldUnit = resizeUnit();
+    const dpi = dpiValue();
+
+    if (img) {
+      setWidthValue(rebaseValue(widthValue(), oldUnit, newUnit, img.metadata.width, dpi));
+      setHeightValue(rebaseValue(heightValue(), oldUnit, newUnit, img.metadata.height, dpi));
+    }
+
+    setResizeUnit(newUnit);
+  }
+
+  function handleDpiChange(newDpi: number): void {
+    const img = currentImage();
+    const unit = resizeUnit();
+    const oldDpi = dpiValue();
+
+    // Only physical units are affected by DPI changes; % and px are invariant
+    if (img && (unit === "in" || unit === "cm")) {
+      // Convert display → px (old DPI) → display (new DPI)
+      if (widthValue()) {
+        const w = parseFloat(widthValue());
         if (!isNaN(w)) {
+          const px = convertToPx(w, unit, img.metadata.width, oldDpi);
+          setWidthValue(formatUnitValue(convertFromPx(px, unit, img.metadata.width, newDpi), unit));
+        }
+      }
+      if (heightValue()) {
+        const h = parseFloat(heightValue());
+        if (!isNaN(h)) {
+          const px = convertToPx(h, unit, img.metadata.height, oldDpi);
           setHeightValue(
-            String(calculateHeightFromWidth(img.metadata.width, img.metadata.height, w))
+            formatUnitValue(convertFromPx(px, unit, img.metadata.height, newDpi), unit)
           );
         }
       }
     }
+
+    setDpiValue(newDpi);
   }
 
-  function handleHeightInput(val: string): void {
-    setHeightValue(val);
+  function handlePresetChange(label: string): void {
+    setPresetValue(label);
+    if (!label) return; // "Custom" — don't touch W/H
+
+    const preset = SOCIAL_MEDIA_PRESETS.find((p) => p.label === label);
+    if (!preset) return;
+
+    // Presets are always in px — switch unit first, then set values atomically
+    // bypassing aspect-ratio linkage by setting both fields directly
+    setResizeUnit("px");
+    setWidthValue(String(preset.width));
+    setHeightValue(String(preset.height));
+  }
+
+  /**
+   * Aspect-ratio-aware width handler.
+   * Operates entirely in display units.
+   */
+  function handleWidthInput(val: string): void {
+    setWidthValue(val);
+    setPresetValue(""); // user edited manually → reset preset
+
     if (maintainAspectRatio() && val) {
       const img = currentImage();
-      if (img) {
-        const h = parseInt(val, 10);
-        if (!isNaN(h)) {
-          setWidthValue(
-            String(calculateWidthFromHeight(img.metadata.width, img.metadata.height, h))
-          );
-        }
-      }
+      if (!img) return;
+
+      const num = parseFloat(val);
+      if (isNaN(num)) return;
+
+      const unit = resizeUnit();
+      const dpi = dpiValue();
+
+      // Convert entered width to px, compute linked height in px, convert back
+      const wPx = convertToPx(num, unit, img.metadata.width, dpi);
+      const hPx = calculateHeightFromWidth(img.metadata.width, img.metadata.height, wPx);
+      setHeightValue(formatUnitValue(convertFromPx(hPx, unit, img.metadata.height, dpi), unit));
+    }
+  }
+
+  /**
+   * Aspect-ratio-aware height handler.
+   * Operates entirely in display units.
+   */
+  function handleHeightInput(val: string): void {
+    setHeightValue(val);
+    setPresetValue(""); // user edited manually → reset preset
+
+    if (maintainAspectRatio() && val) {
+      const img = currentImage();
+      if (!img) return;
+
+      const num = parseFloat(val);
+      if (isNaN(num)) return;
+
+      const unit = resizeUnit();
+      const dpi = dpiValue();
+
+      // Convert entered height to px, compute linked width in px, convert back
+      const hPx = convertToPx(num, unit, img.metadata.height, dpi);
+      const wPx = calculateWidthFromHeight(img.metadata.width, img.metadata.height, hPx);
+      setWidthValue(formatUnitValue(convertFromPx(wPx, unit, img.metadata.width, dpi), unit));
     }
   }
 
@@ -298,6 +431,14 @@ export default function ImageApp() {
           onProcess={handleProcess}
           widthPlaceholder={widthPlaceholder}
           heightPlaceholder={heightPlaceholder}
+          resizeUnit={resizeUnit}
+          onUnitChange={handleUnitChange}
+          dpiValue={dpiValue}
+          onDpiChange={handleDpiChange}
+          dpiTooltipOpen={dpiTooltipOpen}
+          setDpiTooltipOpen={setDpiTooltipOpen}
+          presetValue={presetValue}
+          onPresetChange={handlePresetChange}
         />
       </div>
       <PreviewPanel
