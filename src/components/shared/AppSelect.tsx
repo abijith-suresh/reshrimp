@@ -26,7 +26,10 @@ export interface AppSelectProps {
 }
 
 interface DropdownPos {
-  top: number;
+  /** Set for downward-opening dropdowns (viewport px from top). */
+  top?: number;
+  /** Set for upward-opening dropdowns (viewport px from bottom). */
+  bottom?: number;
   left: number;
   width: number;
   openUpward: boolean;
@@ -43,7 +46,6 @@ export default function AppSelect(props: AppSelectProps) {
   const [open, setOpen] = createSignal(false);
   const [focusedIndex, setFocusedIndex] = createSignal(-1);
   const [pos, setPos] = createSignal<DropdownPos>({
-    top: 0,
     left: 0,
     width: 0,
     openUpward: false,
@@ -58,17 +60,17 @@ export default function AppSelect(props: AppSelectProps) {
 
   // ── Position calculation ────────────────────────────────────────────────
   function calcPos(): DropdownPos {
-    if (!triggerRef) return { top: 0, left: 0, width: 0, openUpward: false };
+    if (!triggerRef) return { left: 0, width: 0, openUpward: false };
     const r = triggerRef.getBoundingClientRect();
     const dropdownMaxH = 240;
     const spaceBelow = window.innerHeight - r.bottom;
     const openUpward = spaceBelow < dropdownMaxH && r.top > dropdownMaxH;
-    return {
-      top: openUpward ? r.top + window.scrollY - dropdownMaxH - 4 : r.bottom + window.scrollY + 4,
-      left: r.left + window.scrollX,
-      width: r.width,
-      openUpward,
-    };
+    // Use position:fixed viewport coordinates — no scrollY/scrollX needed.
+    // For upward openings anchor via `bottom` so the dropdown bottom always
+    // sits flush with the trigger top regardless of actual dropdown height.
+    return openUpward
+      ? { bottom: window.innerHeight - r.top + 4, left: r.left, width: r.width, openUpward: true }
+      : { top: r.bottom + 4, left: r.left, width: r.width, openUpward: false };
   }
 
   // ── Open / close ─────────────────────────────────────────────────────────
@@ -236,8 +238,9 @@ export default function AppSelect(props: AppSelectProps) {
             class="sp-select-listbox"
             classList={{ "sp-select-listbox-upward": pos().openUpward }}
             style={{
-              position: "absolute",
-              top: `${pos().top}px`,
+              position: "fixed",
+              top: pos().top !== undefined ? `${pos().top}px` : "auto",
+              bottom: pos().bottom !== undefined ? `${pos().bottom}px` : "auto",
               left: `${pos().left}px`,
               width: `${pos().width}px`,
               "z-index": "9999",
