@@ -1,8 +1,9 @@
 import { Show, onMount, onCleanup, type Accessor, type Setter } from "solid-js";
 import type { ResizeUnit } from "@/types/processing";
-import { DPI_OPTIONS } from "@/config/constants";
-import { SOCIAL_MEDIA_PRESETS } from "@/config/presets";
 import AppSelect, { type AppSelectOption } from "@/components/shared/AppSelect";
+import { DPI_OPTIONS } from "@/config/constants";
+import { CONVERTIBLE_IMAGE_FORMATS, getImageFormatLabel } from "@/config/imageFormats";
+import { SOCIAL_MEDIA_PRESETS } from "@/config/presets";
 
 interface ProcessingControlsProps {
   controlsActive: Accessor<boolean>;
@@ -41,9 +42,10 @@ interface ProcessingControlsProps {
 
 const FORMAT_OPTIONS: AppSelectOption[] = [
   { value: "", label: "Keep original" },
-  { value: "image/jpeg", label: "JPEG" },
-  { value: "image/png", label: "PNG" },
-  { value: "image/webp", label: "WebP" },
+  ...CONVERTIBLE_IMAGE_FORMATS.map((format) => ({
+    value: format,
+    label: getImageFormatLabel(format),
+  })),
 ];
 
 const PRESET_OPTIONS: AppSelectOption[] = [

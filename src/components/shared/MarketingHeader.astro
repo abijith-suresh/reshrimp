@@ -11,7 +11,7 @@ const { currentPath = "/" } = Astro.props;
 const { header } = navigation;
 ---
 
-<header class="sp-header" id="sp-header" transition:animate="fade">
+<header class="sp-header" id="sp-header" transition:animate="none">
   <nav class="sp-header-inner">
     <Logo />
 
@@ -241,30 +241,62 @@ const { header } = navigation;
 </style>
 
 <script>
+  import { registerPageInitializer } from "../../lib/pageInitializer";
+
   function initMobileMenu() {
     const btn = document.getElementById("mobile-menu-btn");
     const panel = document.getElementById("mobile-menu-panel");
     if (!btn || !panel) return;
 
-    btn.addEventListener("click", () => {
+    const closeMenu = () => {
+      panel.classList.remove("sp-mobile-open");
+      btn.setAttribute("aria-expanded", "false");
+    };
+
+    const toggleMenu = () => {
       const open = panel.classList.toggle("sp-mobile-open");
       btn.setAttribute("aria-expanded", String(open));
-    });
+    };
+
+    closeMenu();
+    btn.addEventListener("click", toggleMenu);
+
+    return () => {
+      btn.removeEventListener("click", toggleMenu);
+      closeMenu();
+    };
   }
 
-  function initHeaderScroll() {
+  function initHeaderScroll(isSpaNavigation: boolean) {
     const header = document.getElementById("sp-header");
     if (!header) return;
 
     const update = () => {
       header.classList.toggle("scrolled", window.scrollY > 8);
     };
-    update();
+
+    // Only set initial state on first page load.
+    // On SPA navigation Astro resets scroll to 0, so the scrolled class
+    // should already be removed by the cleanup below.
+    if (!isSpaNavigation) {
+      update();
+    }
+
     window.addEventListener("scroll", update, { passive: true });
+
+    return () => {
+      window.removeEventListener("scroll", update);
+      header.classList.remove("scrolled");
+    };
   }
 
-  document.addEventListener("astro:page-load", () => {
-    initMobileMenu();
-    initHeaderScroll();
+  registerPageInitializer("marketing-header:interactions", (isSpaNavigation) => {
+    const cleanups = [initMobileMenu(), initHeaderScroll(isSpaNavigation)].filter(
+      (cleanup): cleanup is () => void => typeof cleanup === "function"
+    );
+
+    return () => {
+      cleanups.forEach((cleanup) => cleanup());
+    };
   });
 </script>

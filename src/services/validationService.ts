@@ -1,19 +1,20 @@
-import type { ImageFormat, ValidationResult } from "../types/image";
+import { getSupportedImageFormatSummary, SUPPORTED_IMAGE_FORMATS } from "../config/imageFormats";
 import { MAX_FILE_SIZE, RECOMMENDED_MAX_SIZE } from "../config/constants";
+import type { ImageFormat, ValidationResult } from "../types/image";
 import { formatFileSize } from "../utils/imageUtils";
 
 /**
  * Get list of supported image formats
  */
 export function getSupportedFormats(): ImageFormat[] {
-  return ["image/jpeg", "image/png", "image/webp", "image/gif"];
+  return [...SUPPORTED_IMAGE_FORMATS];
 }
 
 /**
  * Check if a MIME type is a supported image format
  */
 export function isSupportedFormat(mimeType: string): boolean {
-  return getSupportedFormats().includes(mimeType as ImageFormat);
+  return SUPPORTED_IMAGE_FORMATS.includes(mimeType as ImageFormat);
 }
 
 /**
@@ -41,7 +42,7 @@ export function validateImageFile(file: File): ValidationResult {
   if (!isSupportedFormat(file.type)) {
     return {
       valid: false,
-      error: `Unsupported image format: ${file.type}. Supported formats: JPEG, PNG, WebP, GIF`,
+      error: `Unsupported image format: ${file.type}. Supported formats: ${getSupportedImageFormatSummary()}`,
     };
   }
 

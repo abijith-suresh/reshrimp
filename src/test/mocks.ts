@@ -28,13 +28,6 @@ export function makeCanvasMock(format = "image/png") {
   return { canvas, ctx };
 }
 
-// Track the latest canvas mock for assertions
-let _latestCanvasMock: ReturnType<typeof makeCanvasMock> | null = null;
-
-export function getLatestCanvasMock() {
-  return _latestCanvasMock;
-}
-
 /**
  * Set up all browser API mocks.
  * Call in beforeEach.
@@ -50,15 +43,14 @@ export function setupBrowserMocks() {
   const realCreateElement = document.createElement.bind(document);
   vi.spyOn(document, "createElement").mockImplementation((tag: string) => {
     if (tag === "canvas") {
-      const mock = makeCanvasMock();
-      _latestCanvasMock = mock;
-      return mock.canvas;
+      return makeCanvasMock().canvas;
     }
     return realCreateElement(tag);
   });
 
   vi.spyOn(document.body, "appendChild").mockImplementation((node) => node);
   vi.spyOn(document.body, "removeChild").mockImplementation((node) => node);
+  vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
 
   // Image mock — fires onload after a microtask; sentinel URL triggers onerror
   const ERROR_URL = "blob:error-url";
@@ -94,5 +86,4 @@ export function setupBrowserMocks() {
 export function restoreMocks() {
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
-  _latestCanvasMock = null;
 }

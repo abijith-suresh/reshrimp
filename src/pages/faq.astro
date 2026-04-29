@@ -207,12 +207,27 @@ const faqs = [
 </style>
 
 <script>
+  import { registerPageInitializer } from "../lib/pageInitializer";
+
   function initFaq() {
+    const cleanups: Array<() => void> = [];
+
     document.querySelectorAll(".faq-item").forEach((item) => {
-      item.querySelector(".faq-question")?.addEventListener("click", () => {
+      const question = item.querySelector(".faq-question");
+      if (!question) return;
+
+      const toggleItem = () => {
         item.classList.toggle("faq-open");
-      });
+      };
+
+      question.addEventListener("click", toggleItem);
+      cleanups.push(() => question.removeEventListener("click", toggleItem));
     });
+
+    return () => {
+      cleanups.forEach((cleanup) => cleanup());
+    };
   }
-  document.addEventListener("astro:page-load", initFaq);
+
+  registerPageInitializer("faq:accordion", () => initFaq());
 </script>

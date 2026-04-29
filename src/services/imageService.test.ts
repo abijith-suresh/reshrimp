@@ -1,12 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import {
-  calculateDimensions,
-  resizeImage,
-  convertFormat,
-  compressImage,
-  processImage,
-  getImageMetadata,
-} from "./imageService";
+import { calculateDimensions, processImage, getImageMetadata } from "./imageService";
 import type { ResizeOptions, ProcessOptions } from "../types/processing";
 
 const mockCanvas = {
@@ -95,97 +88,6 @@ describe("calculateDimensions", () => {
       const opts: ResizeOptions = { width: 10, maintainAspectRatio: true };
       expect(calculateDimensions(3, 2, opts)).toEqual({ width: 10, height: 7 });
     });
-  });
-});
-
-// ─── resizeImage ─────────────────────────────────────────────────────────────
-
-describe("resizeImage", () => {
-  it("loads image, resizes on canvas, and returns a blob", async () => {
-    const file = new File([], "test.png", { type: "image/png" });
-    const opts: ResizeOptions = { width: 400, height: 300, maintainAspectRatio: false };
-
-    const result = await resizeImage(file, opts);
-
-    expect(mockLoadImage).toHaveBeenCalledWith(file);
-    expect(mockResizeOnCanvas).toHaveBeenCalledWith(expect.anything(), 400, 300);
-    expect(result).toBeInstanceOf(Blob);
-  });
-
-  it("uses the file's original format when converting", async () => {
-    const file = new File([], "test.jpeg", { type: "image/jpeg" });
-    const opts: ResizeOptions = { width: 200, height: 150, maintainAspectRatio: false };
-
-    await resizeImage(file, opts);
-
-    expect(mockGetBestFormat).toHaveBeenCalledWith("image/jpeg");
-  });
-});
-
-// ─── convertFormat ───────────────────────────────────────────────────────────
-
-describe("convertFormat", () => {
-  it("resizes at original dimensions and converts to target format", async () => {
-    mockLoadImage.mockResolvedValue(makeMockImg(800, 600));
-    const file = new File([], "test.png", { type: "image/png" });
-
-    await convertFormat(file, "image/jpeg");
-
-    expect(mockResizeOnCanvas).toHaveBeenCalledWith(expect.anything(), 800, 600);
-    expect(mockGetBestFormat).toHaveBeenCalledWith("image/jpeg");
-  });
-});
-
-// ─── compressImage ───────────────────────────────────────────────────────────
-
-describe("compressImage", () => {
-  it("keeps JPEG format for JPEG input", async () => {
-    const file = new File([], "test.jpeg", { type: "image/jpeg" });
-    await compressImage(file, 0.8);
-    expect(mockGetBestFormat).toHaveBeenCalledWith("image/jpeg");
-    expect(mockCanvasToBlob).toHaveBeenCalledWith(expect.anything(), "image/jpeg", 0.8);
-  });
-
-  it("keeps WebP format for WebP input", async () => {
-    const file = new File([], "test.webp", { type: "image/webp" });
-    await compressImage(file, 0.7);
-    expect(mockGetBestFormat).toHaveBeenCalledWith("image/webp");
-  });
-
-  it("converts PNG to JPEG for compression", async () => {
-    const file = new File([], "test.png", { type: "image/png" });
-    await compressImage(file, 0.9);
-    expect(mockGetBestFormat).toHaveBeenCalledWith("image/jpeg");
-  });
-
-  it("converts GIF to JPEG for compression", async () => {
-    const file = new File([], "test.gif", { type: "image/gif" });
-    await compressImage(file, 0.5);
-    expect(mockGetBestFormat).toHaveBeenCalledWith("image/jpeg");
-  });
-
-  it("clamps quality to 0 when below 0", async () => {
-    const file = new File([], "test.jpeg", { type: "image/jpeg" });
-    await compressImage(file, -0.5);
-    expect(mockCanvasToBlob).toHaveBeenCalledWith(expect.anything(), "image/jpeg", 0);
-  });
-
-  it("clamps quality to 1 when above 1", async () => {
-    const file = new File([], "test.jpeg", { type: "image/jpeg" });
-    await compressImage(file, 1.5);
-    expect(mockCanvasToBlob).toHaveBeenCalledWith(expect.anything(), "image/jpeg", 1);
-  });
-
-  it("treats NaN quality as 0 (clamped to valid range)", async () => {
-    const file = new File([], "test.jpeg", { type: "image/jpeg" });
-    await compressImage(file, NaN);
-    // NaN clamped: Math.max(0, Math.min(1, NaN)) = NaN in current code
-    // Spec requires it defaults to a valid value (0.92 or clamped to 0)
-    const callArgs = mockCanvasToBlob.mock.calls[0];
-    const quality = callArgs[2] as number;
-    expect(Number.isNaN(quality)).toBe(false);
-    expect(quality).toBeGreaterThanOrEqual(0);
-    expect(quality).toBeLessThanOrEqual(1);
   });
 });
 

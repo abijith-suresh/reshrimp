@@ -1,7 +1,9 @@
 import { removeBackground as imglyRemoveBackground } from "@imgly/background-removal";
+import {
+  BACKGROUND_REMOVAL_MODEL,
+  BACKGROUND_REMOVAL_PUBLIC_PATH,
+} from "../config/backgroundRemoval";
 import type { BackgroundRemovalProgressCallback } from "../types/processing";
-
-const IMGLY_CDN_BASE = "https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/";
 
 /**
  * Removes the background from an image using imgly's client-side ML model
@@ -29,20 +31,10 @@ export async function removeBackground(
     };
   }
 
-  config.model = "isnet_fp16";
-  config.publicPath = IMGLY_CDN_BASE;
+  config.model = BACKGROUND_REMOVAL_MODEL;
+  config.publicPath = BACKGROUND_REMOVAL_PUBLIC_PATH;
 
   const blob = await imglyRemoveBackground(imageFile, config);
 
   return blob;
-}
-
-/**
- * Checks if the background removal library is supported in the current environment
- * This is always true in modern browsers, but useful for feature detection
- *
- * @returns boolean indicating support
- */
-export function isBackgroundRemovalSupported(): boolean {
-  return typeof window !== "undefined" && "WebAssembly" in window;
 }
