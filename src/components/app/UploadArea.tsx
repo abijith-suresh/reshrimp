@@ -1,7 +1,8 @@
 import { Show, type Accessor } from "solid-js";
 import type { ProcessedImage, ValidationResult } from "@/types/image";
-import { formatFileSize } from "@/utils/imageUtils";
 import { MAX_FILE_SIZE } from "@/config/constants";
+import { UPLOAD_ACCEPT_ATTRIBUTE } from "@/config/imageFormats";
+import { formatFileSize } from "@/utils/imageUtils";
 
 interface UploadAreaProps {
   isDragOver: Accessor<boolean>;
@@ -68,7 +69,7 @@ export default function UploadArea(props: UploadAreaProps) {
           }}
           type="file"
           id="file-input"
-          accept="image/jpeg,image/png,image/webp,image/gif"
+          accept={UPLOAD_ACCEPT_ATTRIBUTE}
           class="hidden"
           onClick={(e) => e.stopPropagation()}
           onChange={handleFileChange}
