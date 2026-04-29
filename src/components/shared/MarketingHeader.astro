@@ -241,15 +241,21 @@ const { header } = navigation;
 </style>
 
 <script>
+  import { registerPageInitializer } from "../../lib/pageInitializer";
+
   function initMobileMenu() {
     const btn = document.getElementById("mobile-menu-btn");
     const panel = document.getElementById("mobile-menu-panel");
     if (!btn || !panel) return;
 
-    btn.addEventListener("click", () => {
+    const toggleMenu = () => {
       const open = panel.classList.toggle("sp-mobile-open");
       btn.setAttribute("aria-expanded", String(open));
-    });
+    };
+
+    btn.addEventListener("click", toggleMenu);
+
+    return () => btn.removeEventListener("click", toggleMenu);
   }
 
   function initHeaderScroll() {
@@ -259,12 +265,20 @@ const { header } = navigation;
     const update = () => {
       header.classList.toggle("scrolled", window.scrollY > 8);
     };
+
     update();
     window.addEventListener("scroll", update, { passive: true });
+
+    return () => window.removeEventListener("scroll", update);
   }
 
-  document.addEventListener("astro:page-load", () => {
-    initMobileMenu();
-    initHeaderScroll();
+  registerPageInitializer("marketing-header:interactions", () => {
+    const cleanups = [initMobileMenu(), initHeaderScroll()].filter(
+      (cleanup): cleanup is () => void => typeof cleanup === "function"
+    );
+
+    return () => {
+      cleanups.forEach((cleanup) => cleanup());
+    };
   });
 </script>
