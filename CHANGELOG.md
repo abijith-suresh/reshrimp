@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.1] - 2026-04-29
+
+### Fixed
+
+- Prevented duplicate page listeners from accumulating across Astro SPA navigations.
+
+### Changed
+
+- Centralized background-removal asset configuration and supported image format metadata to reduce maintenance drift.
+- Removed unused processing helpers and tightened download-link cleanup coverage in the automated test suite.
+
 ## [0.6.0] - 2026-03-24
 
 ### Added
@@ -59,7 +70,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Initial MVP with private browser-based image processing, drag-and-drop uploads, and the first landing/app flow.
 
-[unreleased]: https://github.com/abijith-suresh/reshrimp/compare/v0.6.0...HEAD
+[unreleased]: https://github.com/abijith-suresh/reshrimp/compare/v0.6.1...HEAD
+[0.6.1]: https://github.com/abijith-suresh/reshrimp/compare/v0.6.0...v0.6.1
 [0.6.0]: https://github.com/abijith-suresh/reshrimp/compare/v0.5.0...v0.6.0
 [0.5.0]: https://github.com/abijith-suresh/reshrimp/compare/v0.4.0...v0.5.0
 [0.4.0]: https://github.com/abijith-suresh/reshrimp/compare/v0.3.0...v0.4.0
