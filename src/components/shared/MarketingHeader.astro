@@ -11,7 +11,7 @@ const { currentPath = "/" } = Astro.props;
 const { header } = navigation;
 ---
 
-<header class="sp-header" id="sp-header">
+<header class="sp-header" id="sp-header" transition:persist>
   <nav class="sp-header-inner">
     <Logo />
 
@@ -243,19 +243,52 @@ const { header } = navigation;
 <script>
   import { registerPageInitializer } from "../../lib/pageInitializer";
 
+  function normalizePath(pathname: string) {
+    return pathname !== "/" ? pathname.replace(/\/$/, "") : pathname;
+  }
+
+  function syncActiveLinks() {
+    const currentPath = normalizePath(window.location.pathname);
+
+    document
+      .querySelectorAll<HTMLAnchorElement>(".sp-nav-link[href], .sp-mobile-link[href]")
+      .forEach((link) => {
+        const isInternal = link.origin === window.location.origin;
+        const isActive = isInternal && normalizePath(link.pathname) === currentPath;
+
+        link.classList.toggle(
+          "sp-nav-link-active",
+          isActive && link.classList.contains("sp-nav-link")
+        );
+        link.classList.toggle(
+          "sp-mobile-link-active",
+          isActive && link.classList.contains("sp-mobile-link")
+        );
+      });
+  }
+
   function initMobileMenu() {
     const btn = document.getElementById("mobile-menu-btn");
     const panel = document.getElementById("mobile-menu-panel");
     if (!btn || !panel) return;
+
+    const closeMenu = () => {
+      panel.classList.remove("sp-mobile-open");
+      btn.setAttribute("aria-expanded", "false");
+    };
 
     const toggleMenu = () => {
       const open = panel.classList.toggle("sp-mobile-open");
       btn.setAttribute("aria-expanded", String(open));
     };
 
+    closeMenu();
     btn.addEventListener("click", toggleMenu);
 
-    return () => btn.removeEventListener("click", toggleMenu);
+    return () => {
+      btn.removeEventListener("click", toggleMenu);
+      closeMenu();
+    };
   }
 
   function initHeaderScroll(isSpaNavigation: boolean) {
@@ -282,6 +315,8 @@ const { header } = navigation;
   }
 
   registerPageInitializer("marketing-header:interactions", (isSpaNavigation) => {
+    syncActiveLinks();
+
     const cleanups = [initMobileMenu(), initHeaderScroll(isSpaNavigation)].filter(
       (cleanup): cleanup is () => void => typeof cleanup === "function"
     );

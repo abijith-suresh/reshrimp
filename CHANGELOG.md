@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Prevented duplicate page listeners from accumulating across Astro SPA navigations.
+- Kept the marketing header stable across sibling page transitions instead of re-slotting it during navigation.
 
 ### Changed
 
