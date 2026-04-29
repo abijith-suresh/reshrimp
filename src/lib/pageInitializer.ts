@@ -13,7 +13,10 @@ declare global {
  * `astro:page-load` event. If it returns a cleanup function, that cleanup runs
  * before the initializer is invoked again.
  */
-export function registerPageInitializer(key: string, init: () => PageInitializerCleanup): void {
+export function registerPageInitializer(
+  key: string,
+  init: (isSpaNavigation: boolean) => PageInitializerCleanup
+): void {
   if (typeof window === "undefined" || typeof document === "undefined") {
     return;
   }
@@ -27,13 +30,15 @@ export function registerPageInitializer(key: string, init: () => PageInitializer
 
   let cleanup: (() => void) | undefined;
 
-  const run = () => {
+  const run = (isSpaNavigation: boolean) => {
     cleanup?.();
 
-    const nextCleanup = init();
+    const nextCleanup = init(isSpaNavigation);
     cleanup = typeof nextCleanup === "function" ? nextCleanup : undefined;
   };
 
-  document.addEventListener("astro:page-load", run);
-  run();
+  // Run on every SPA navigation — cleanup runs before each re-init
+  document.addEventListener("astro:page-load", () => run(true));
+  // Also run immediately for the initial page load
+  run(false);
 }

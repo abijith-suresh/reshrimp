@@ -17,7 +17,10 @@ describe("registerPageInitializer", () => {
     registerPageInitializer("layout", init);
     document.dispatchEvent(new Event("astro:page-load"));
 
-    expect(init).toHaveBeenCalledTimes(2);
+    // First call is the immediate run (isSpaNavigation=false)
+    expect(init).toHaveBeenNthCalledWith(1, false);
+    // Second call is from the astro:page-load event (isSpaNavigation=true)
+    expect(init).toHaveBeenNthCalledWith(2, true);
   });
 
   it("registers a given key only once even if called repeatedly", () => {

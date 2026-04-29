@@ -258,7 +258,7 @@ const { header } = navigation;
     return () => btn.removeEventListener("click", toggleMenu);
   }
 
-  function initHeaderScroll() {
+  function initHeaderScroll(isSpaNavigation: boolean) {
     const header = document.getElementById("sp-header");
     if (!header) return;
 
@@ -266,14 +266,23 @@ const { header } = navigation;
       header.classList.toggle("scrolled", window.scrollY > 8);
     };
 
-    update();
+    // Only set initial state on first page load.
+    // On SPA navigation Astro resets scroll to 0, so the scrolled class
+    // should already be removed by the cleanup below.
+    if (!isSpaNavigation) {
+      update();
+    }
+
     window.addEventListener("scroll", update, { passive: true });
 
-    return () => window.removeEventListener("scroll", update);
+    return () => {
+      window.removeEventListener("scroll", update);
+      header.classList.remove("scrolled");
+    };
   }
 
-  registerPageInitializer("marketing-header:interactions", () => {
-    const cleanups = [initMobileMenu(), initHeaderScroll()].filter(
+  registerPageInitializer("marketing-header:interactions", (isSpaNavigation) => {
+    const cleanups = [initMobileMenu(), initHeaderScroll(isSpaNavigation)].filter(
       (cleanup): cleanup is () => void => typeof cleanup === "function"
     );
 
