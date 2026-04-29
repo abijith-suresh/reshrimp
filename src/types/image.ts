@@ -29,15 +29,6 @@ export interface ProcessedImage {
 }
 
 /**
- * Application state for image processing
- * Array-based design enables easy extension to batch processing
- */
-export interface ImageState {
-  images: ProcessedImage[];
-  selectedIndex: number;
-}
-
-/**
  * Result of file validation
  */
 export interface ValidationResult {

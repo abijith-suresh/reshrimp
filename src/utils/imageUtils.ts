@@ -9,31 +9,6 @@ export function calculateAspectRatio(width: number, height: number): number {
 }
 
 /**
- * Get image dimensions from a file
- */
-export async function getImageDimensions(file: File): Promise<{ width: number; height: number }> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    const url = URL.createObjectURL(file);
-
-    img.onload = () => {
-      URL.revokeObjectURL(url);
-      resolve({
-        width: img.width,
-        height: img.height,
-      });
-    };
-
-    img.onerror = () => {
-      URL.revokeObjectURL(url);
-      reject(new Error("Failed to load image dimensions"));
-    };
-
-    img.src = url;
-  });
-}
-
-/**
  * Create a download link and trigger download
  */
 export function createDownloadLink(blob: Blob, filename: string): void {
@@ -136,13 +111,6 @@ export function convertFromPx(
     case "cm":
       return dpi === 0 ? 0 : (px * 2.54) / dpi;
   }
-}
-
-/**
- * Clamp a number between min and max values
- */
-export function clamp(value: number, min: number, max: number): number {
-  return Math.max(min, Math.min(max, value));
 }
 
 /**

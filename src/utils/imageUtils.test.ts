@@ -1,12 +1,10 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import {
   calculateAspectRatio,
-  getImageDimensions,
   createDownloadLink,
   formatFileSize,
   calculateHeightFromWidth,
   calculateWidthFromHeight,
-  clamp,
   generateId,
   convertToPx,
   convertFromPx,
@@ -31,32 +29,6 @@ describe("calculateAspectRatio", () => {
   it("handles negative values by dividing", () => {
     expect(calculateAspectRatio(-200, 100)).toBe(-2);
     expect(calculateAspectRatio(200, -100)).toBe(-2);
-  });
-});
-
-describe("getImageDimensions", () => {
-  beforeEach(() => {
-    setupBrowserMocks();
-  });
-
-  afterEach(() => {
-    restoreMocks();
-  });
-
-  it("resolves with width and height", async () => {
-    const file = new File([], "test.png", { type: "image/png" });
-    const dims = await getImageDimensions(file);
-    expect(dims).toEqual({ width: 100, height: 80 });
-  });
-
-  it("rejects with an error message when image fails to load", async () => {
-    // Override URL.createObjectURL to return the sentinel error URL
-    vi.stubGlobal("URL", {
-      createObjectURL: vi.fn(() => "blob:error-url"),
-      revokeObjectURL: vi.fn(),
-    });
-    const file = new File([], "bad.png", { type: "image/png" });
-    await expect(getImageDimensions(file)).rejects.toThrow("Failed to load image dimensions");
   });
 });
 
@@ -140,30 +112,6 @@ describe("calculateWidthFromHeight", () => {
   it("rounds non-integer results", () => {
     // 3:2 aspect → height 10 → width = 10 * 1.5 = 15
     expect(calculateWidthFromHeight(3, 2, 10)).toBe(15);
-  });
-});
-
-describe("clamp", () => {
-  it("returns value when within range", () => {
-    expect(clamp(5, 0, 10)).toBe(5);
-  });
-
-  it("clamps to min when below range", () => {
-    expect(clamp(-5, 0, 10)).toBe(0);
-  });
-
-  it("clamps to max when above range", () => {
-    expect(clamp(15, 0, 10)).toBe(10);
-  });
-
-  it("returns min when min equals max", () => {
-    expect(clamp(5, 3, 3)).toBe(3);
-  });
-
-  it("handles min > max by returning min (Math.max wins)", () => {
-    // Math.max(5, Math.min(1, value)) — min=5, max=1
-    // clamp(0, 5, 1) → Math.max(5, Math.min(1, 0)) = Math.max(5, 0) = 5
-    expect(clamp(0, 5, 1)).toBe(5);
   });
 });
 

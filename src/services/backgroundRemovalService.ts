@@ -38,13 +38,3 @@ export async function removeBackground(
 
   return blob;
 }
-
-/**
- * Checks if the background removal library is supported in the current environment
- * This is always true in modern browsers, but useful for feature detection
- *
- * @returns boolean indicating support
- */
-export function isBackgroundRemovalSupported(): boolean {
-  return typeof window !== "undefined" && "WebAssembly" in window;
-}

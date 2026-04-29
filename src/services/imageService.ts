@@ -52,49 +52,6 @@ export function calculateDimensions(
 }
 
 /**
- * Resize an image file with optional aspect ratio preservation
- */
-export async function resizeImage(file: File, options: ResizeOptions): Promise<Blob> {
-  const img = await loadImage(file);
-  const dimensions = calculateDimensions(img.width, img.height, options);
-  const canvas = resizeOnCanvas(img, dimensions.width, dimensions.height);
-
-  // Use original format for resize-only operation
-  const format = file.type as ImageFormat;
-  return canvasToBlob(canvas, getBestFormat(format));
-}
-
-/**
- * Convert image file to a different format
- */
-export async function convertFormat(file: File, targetFormat: ImageFormat): Promise<Blob> {
-  const img = await loadImage(file);
-  const canvas = resizeOnCanvas(img, img.width, img.height);
-  return canvasToBlob(canvas, getBestFormat(targetFormat));
-}
-
-/**
- * Compress an image with specified quality level
- * Quality range: 0.0 (lowest) to 1.0 (highest)
- */
-export async function compressImage(file: File, quality: number): Promise<Blob> {
-  const img = await loadImage(file);
-  const canvas = resizeOnCanvas(img, img.width, img.height);
-
-  // Clamp quality between 0 and 1; treat NaN as the default quality
-  const clampedQuality = isNaN(quality) ? 0.92 : Math.max(0, Math.min(1, quality));
-
-  // Use original format or default to JPEG for compression
-  let format = file.type as ImageFormat;
-  if (format === "image/gif" || format === "image/png") {
-    // PNG and GIF don't support quality parameter well, convert to JPEG
-    format = "image/jpeg";
-  }
-
-  return canvasToBlob(canvas, getBestFormat(format), clampedQuality);
-}
-
-/**
  * Process an image with combined operations (resize, format conversion, compression)
  * Operations are applied in order: background removal -> resize -> format conversion -> compression
  *
