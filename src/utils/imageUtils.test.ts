@@ -34,34 +34,42 @@ describe("calculateAspectRatio", () => {
 
 describe("createDownloadLink", () => {
   beforeEach(() => {
+    vi.useFakeTimers();
     setupBrowserMocks();
   });
 
   afterEach(() => {
     restoreMocks();
+    vi.useRealTimers();
   });
 
   it("creates an anchor with correct href and download attributes", () => {
     const blob = new Blob(["data"], { type: "image/png" });
     createDownloadLink(blob, "output.png");
 
-    // Verify the link was appended with correct properties
     expect(document.body.appendChild).toHaveBeenCalledOnce();
+    expect(HTMLAnchorElement.prototype.click).toHaveBeenCalledOnce();
+
     const link = (document.body.appendChild as ReturnType<typeof vi.fn>).mock
       .calls[0][0] as HTMLAnchorElement;
     expect(link.href).toBe("blob:mock-url");
     expect(link.download).toBe("output.png");
   });
 
-  it("appends and later removes the link from document.body", async () => {
+  it("removes the temporary link and revokes the object URL after cleanup", () => {
     const blob = new Blob([]);
     createDownloadLink(blob, "file.png");
 
     expect(document.body.appendChild).toHaveBeenCalledOnce();
-    // Wait for the 100ms cleanup timeout
-    await vi.runAllTimersAsync?.().catch(() => {
-      // runAllTimersAsync may not exist in all versions; use fake timers manually if needed
-    });
+    expect(document.body.removeChild).not.toHaveBeenCalled();
+    expect(URL.revokeObjectURL).not.toHaveBeenCalled();
+
+    vi.runAllTimers();
+
+    const link = (document.body.appendChild as ReturnType<typeof vi.fn>).mock
+      .calls[0][0] as HTMLAnchorElement;
+    expect(document.body.removeChild).toHaveBeenCalledWith(link);
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url");
   });
 });
 

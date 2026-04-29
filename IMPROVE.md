@@ -21,7 +21,7 @@ The codebase is in decent shape overall: `bun run test`, `bun run type-check`, `
 ### Low
 
 - [ ] `src/components/app/ProcessingControls.tsx` — Tooltip-dismiss behavior is implemented twice with nearly identical `onMount`/document-click wiring. A small shared click-outside helper would simplify the component.
-- [ ] `src/utils/imageUtils.test.ts`, `src/test/mocks.ts` — The download-link tests emit jsdom navigation noise and do not fully assert timed cleanup, which lowers test-signal quality even though the suite passes.
+- [x] `src/utils/imageUtils.test.ts`, `src/test/mocks.ts` — The download-link tests emitted jsdom navigation noise and did not fully assert timed cleanup. Stubbing anchor clicks and asserting timer-driven cleanup improved test signal without touching UI behavior.
 
 ## Recommended Order
 

@@ -50,6 +50,7 @@ export function setupBrowserMocks() {
 
   vi.spyOn(document.body, "appendChild").mockImplementation((node) => node);
   vi.spyOn(document.body, "removeChild").mockImplementation((node) => node);
+  vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
 
   // Image mock — fires onload after a microtask; sentinel URL triggers onerror
   const ERROR_URL = "blob:error-url";
