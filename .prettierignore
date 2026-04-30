@@ -16,3 +16,6 @@ yarn.lock
 
 # Cache
 .cache/
+
+# Release Please output
+CHANGELOG.md
