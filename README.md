@@ -1,6 +1,6 @@
 # Reshrimp
 
-A client-side image tool built with Astro and TypeScript. Resize, compress, convert, and remove backgrounds in your browser without uploading images. After one online visit, the app shell and core tools work offline. Background removal works offline after its model assets are downloaded once.
+A client-side image tool built with Astro 6, SolidJS, and TypeScript. Resize, compress, convert, and remove backgrounds in your browser without uploading images. After one online visit, the app shell and core tools work offline. Background removal works offline after its model assets are downloaded once.
 
 ## 🚀 Live Demo
 
@@ -13,17 +13,19 @@ Visit: https://reshrimp.vercel.app
 - **Client-side processing** - Your images never leave your device
 - **Offline-ready core tools** - The app shell, resize, convert, and compress flows work offline after the first online visit
 - **Image resizing** - Adjust dimensions with various options
-- **Format conversion** - Convert between JPEG, PNG, WebP, and more
+- **Format conversion** - Convert between JPEG, PNG, and WebP
 - **Compression** - Optimize file sizes while maintaining quality
 - **Background removal** - Runs locally and works offline after its model assets download once
-- **Single-image processing** - Process one image at a time with resize, format, and quality controls
+- **Single-image processing** - Upload once, adjust settings, click Process Image, then download the result
 - **Privacy first** - No server uploads, everything happens locally
 
 ## 🛠️ Tech Stack
 
-- [Astro](https://astro.build) - Static site generator
+- [Astro 6](https://astro.build) - App and site framework
+- [SolidJS](https://www.solidjs.com/) - Interactive app UI
 - [TypeScript](https://www.typescriptlang.org/) - Type safety
 - [Tailwind CSS v4](https://tailwindcss.com) - Styling
+- [Bun](https://bun.sh/) - Package manager and task runner
 - [Vitest](https://vitest.dev/) - Testing framework
 
 ## 📦 Project Structure
@@ -37,10 +39,12 @@ Visit: https://reshrimp.vercel.app
 ├── .vscode/            # VS Code settings
 ├── public/             # Static assets
 ├── src/
+│   ├── components/     # App and marketing UI
 │   ├── layouts/        # Astro layouts
 │   ├── pages/          # Astro pages
+│   ├── services/       # Image processing and workflow helpers
 │   ├── styles/         # Global styles
-│   └── test/           # Test files
+│   └── test/           # Test setup and shared mocks
 ├── astro.config.ts     # Astro configuration
 ├── eslint.config.mjs   # ESLint configuration
 ├── vitest.config.ts    # Vitest configuration
@@ -57,12 +61,14 @@ All commands are run from the root of the project:
 | `bun dev`              | Start dev server at `localhost:4321` |
 | `bun run build`        | Build for production                 |
 | `bun preview`          | Preview production build locally     |
+| `bun run type-check`   | Run Astro sync and TypeScript checks |
 | `bun run lint`         | Run ESLint                           |
 | `bun run lint:fix`     | Fix ESLint issues                    |
 | `bun run format`       | Format code with Prettier            |
 | `bun run format:check` | Check code formatting                |
 | `bun run test`         | Run tests once                       |
 | `bun run test:watch`   | Run tests in watch mode              |
+| `bun run verify`       | Run the full quality gate            |
 | `bun run analyze`      | Analyze bundle size                  |
 
 ## 🤝 Contributing

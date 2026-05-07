@@ -7,7 +7,7 @@
 
 ## Stack
 
-- Astro 5
+- Astro 6
 - SolidJS
 - Tailwind CSS v4
 - TypeScript

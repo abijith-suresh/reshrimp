@@ -15,8 +15,7 @@ export interface ImageMetadata {
 }
 
 /**
- * Represents a processed image with original and processed states
- * Uses array structure for future batch processing support
+ * Represents the active image session with original and processed states.
  */
 export interface ProcessedImage {
   id: string;
