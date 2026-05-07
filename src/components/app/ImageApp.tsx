@@ -7,15 +7,16 @@ import {
   replaceObjectUrl,
   revokeImageUrls,
 } from "@/services/imageSessionService";
-import { validateImageFile, generateDownloadFilename } from "@/services/validationService";
 import {
-  formatFileSize,
-  generateId,
-  calculateHeightFromWidth,
-  calculateWidthFromHeight,
-  convertToPx,
-  convertFromPx,
-} from "@/utils/imageUtils";
+  buildProcessOptions,
+  getDimensionValuesForDpiChange,
+  getFormatStateForBackgroundRemoval,
+  getLinkedDimensionValues,
+  getPresetResizeValues,
+  rebaseDimensionValues,
+} from "@/services/imageWorkflowService";
+import { validateImageFile, generateDownloadFilename } from "@/services/validationService";
+import { formatFileSize, generateId, convertFromPx } from "@/utils/imageUtils";
 import { DEFAULT_DPI } from "@/config/constants";
 import { SOCIAL_MEDIA_PRESETS } from "@/config/presets";
 import UploadArea from "./UploadArea";
@@ -174,29 +175,18 @@ export default function ImageApp() {
     const img = currentImage();
     if (!img || isProcessing()) return;
 
-    const unit = resizeUnit();
-    const dpi = dpiValue();
-
-    const wRaw = widthValue() ? parseFloat(widthValue()) : NaN;
-    const hRaw = heightValue() ? parseFloat(heightValue()) : NaN;
-
-    const widthPx = isNaN(wRaw) ? undefined : convertToPx(wRaw, unit, img.metadata.width, dpi);
-    const heightPx = isNaN(hRaw) ? undefined : convertToPx(hRaw, unit, img.metadata.height, dpi);
-
-    const options = {
+    const options = buildProcessOptions({
+      originalWidth: img.metadata.width,
+      originalHeight: img.metadata.height,
+      widthValue: widthValue(),
+      heightValue: heightValue(),
+      maintainAspectRatio: maintainAspectRatio(),
       removeBackground: removeBackground(),
-      ...(widthPx || heightPx
-        ? {
-            resize: {
-              width: widthPx,
-              height: heightPx,
-              maintainAspectRatio: maintainAspectRatio(),
-            },
-          }
-        : {}),
-      ...(formatValue() ? { format: formatValue() as ImageFormat } : {}),
-      quality: qualityValue() / 100,
-    };
+      formatValue: formatValue(),
+      qualityValue: qualityValue(),
+      resizeUnit: resizeUnit(),
+      dpi: dpiValue(),
+    });
 
     setIsProcessing(true);
     setError(null);
@@ -250,42 +240,33 @@ export default function ImageApp() {
   }
 
   function handleRemoveBackgroundChange(checked: boolean): void {
-    if (checked) {
-      setPreviousFormatValue(formatValue());
-      setFormatValue("image/png");
-    } else {
-      setFormatValue(previousFormatValue());
-    }
-    setRemoveBackground(checked);
-  }
+    const nextFormatState = getFormatStateForBackgroundRemoval({
+      checked,
+      formatValue: formatValue(),
+      previousFormatValue: previousFormatValue(),
+    });
 
-  /**
-   * Convert an existing display value between units.
-   * Returns the new display string, or "" if the input is empty/invalid.
-   */
-  function rebaseValue(
-    displayStr: string,
-    oldUnit: ResizeUnit,
-    newUnit: ResizeUnit,
-    originalPx: number,
-    dpi: number
-  ): string {
-    if (!displayStr) return "";
-    const num = parseFloat(displayStr);
-    if (isNaN(num)) return "";
-    const px = convertToPx(num, oldUnit, originalPx, dpi);
-    const newDisplay = convertFromPx(px, newUnit, originalPx, dpi);
-    return formatUnitValue(newDisplay, newUnit);
+    setPreviousFormatValue(nextFormatState.previousFormatValue);
+    setFormatValue(nextFormatState.formatValue);
+    setRemoveBackground(checked);
   }
 
   function handleUnitChange(newUnit: ResizeUnit): void {
     const img = currentImage();
-    const oldUnit = resizeUnit();
-    const dpi = dpiValue();
 
     if (img) {
-      setWidthValue(rebaseValue(widthValue(), oldUnit, newUnit, img.metadata.width, dpi));
-      setHeightValue(rebaseValue(heightValue(), oldUnit, newUnit, img.metadata.height, dpi));
+      const nextDimensions = rebaseDimensionValues({
+        widthValue: widthValue(),
+        heightValue: heightValue(),
+        oldUnit: resizeUnit(),
+        newUnit,
+        originalWidth: img.metadata.width,
+        originalHeight: img.metadata.height,
+        dpi: dpiValue(),
+      });
+
+      setWidthValue(nextDimensions.widthValue);
+      setHeightValue(nextDimensions.heightValue);
     }
 
     setResizeUnit(newUnit);
@@ -293,28 +274,20 @@ export default function ImageApp() {
 
   function handleDpiChange(newDpi: number): void {
     const img = currentImage();
-    const unit = resizeUnit();
-    const oldDpi = dpiValue();
 
-    // Only physical units are affected by DPI changes; % and px are invariant
-    if (img && (unit === "in" || unit === "cm")) {
-      // Convert display → px (old DPI) → display (new DPI)
-      if (widthValue()) {
-        const w = parseFloat(widthValue());
-        if (!isNaN(w)) {
-          const px = convertToPx(w, unit, img.metadata.width, oldDpi);
-          setWidthValue(formatUnitValue(convertFromPx(px, unit, img.metadata.width, newDpi), unit));
-        }
-      }
-      if (heightValue()) {
-        const h = parseFloat(heightValue());
-        if (!isNaN(h)) {
-          const px = convertToPx(h, unit, img.metadata.height, oldDpi);
-          setHeightValue(
-            formatUnitValue(convertFromPx(px, unit, img.metadata.height, newDpi), unit)
-          );
-        }
-      }
+    if (img) {
+      const nextDimensions = getDimensionValuesForDpiChange({
+        widthValue: widthValue(),
+        heightValue: heightValue(),
+        resizeUnit: resizeUnit(),
+        originalWidth: img.metadata.width,
+        originalHeight: img.metadata.height,
+        previousDpi: dpiValue(),
+        nextDpi: newDpi,
+      });
+
+      setWidthValue(nextDimensions.widthValue);
+      setHeightValue(nextDimensions.heightValue);
     }
 
     setDpiValue(newDpi);
@@ -322,66 +295,78 @@ export default function ImageApp() {
 
   function handlePresetChange(label: string): void {
     setPresetValue(label);
-    if (!label) return; // "Custom" — don't touch W/H
+    if (!label) return;
 
-    const preset = SOCIAL_MEDIA_PRESETS.find((p) => p.label === label);
-    if (!preset) return;
+    const presetValues = getPresetResizeValues(label, SOCIAL_MEDIA_PRESETS);
+    if (!presetValues) return;
 
-    // Presets are always in px — switch unit first, then set values atomically
-    // bypassing aspect-ratio linkage by setting both fields directly
-    setResizeUnit("px");
-    setWidthValue(String(preset.width));
-    setHeightValue(String(preset.height));
+    setResizeUnit(presetValues.resizeUnit);
+    setWidthValue(presetValues.widthValue);
+    setHeightValue(presetValues.heightValue);
   }
 
-  /**
-   * Aspect-ratio-aware width handler.
-   * Operates entirely in display units.
-   */
   function handleWidthInput(val: string): void {
-    setWidthValue(val);
-    setPresetValue(""); // user edited manually → reset preset
+    setPresetValue("");
 
-    if (maintainAspectRatio() && val) {
-      const img = currentImage();
-      if (!img) return;
-
-      const num = parseFloat(val);
-      if (isNaN(num)) return;
-
-      const unit = resizeUnit();
-      const dpi = dpiValue();
-
-      // Convert entered width to px, compute linked height in px, convert back
-      const wPx = convertToPx(num, unit, img.metadata.width, dpi);
-      const hPx = calculateHeightFromWidth(img.metadata.width, img.metadata.height, wPx);
-      setHeightValue(formatUnitValue(convertFromPx(hPx, unit, img.metadata.height, dpi), unit));
+    if (!maintainAspectRatio()) {
+      setWidthValue(val);
+      return;
     }
+
+    const img = currentImage();
+    if (!img) {
+      setWidthValue(val);
+      return;
+    }
+
+    const linkedDimensions = getLinkedDimensionValues({
+      changedDimension: "width",
+      value: val,
+      resizeUnit: resizeUnit(),
+      dpi: dpiValue(),
+      originalWidth: img.metadata.width,
+      originalHeight: img.metadata.height,
+    });
+
+    if (!linkedDimensions) {
+      setWidthValue(val);
+      return;
+    }
+
+    setWidthValue(linkedDimensions.widthValue);
+    setHeightValue(linkedDimensions.heightValue);
   }
 
-  /**
-   * Aspect-ratio-aware height handler.
-   * Operates entirely in display units.
-   */
   function handleHeightInput(val: string): void {
-    setHeightValue(val);
-    setPresetValue(""); // user edited manually → reset preset
+    setPresetValue("");
 
-    if (maintainAspectRatio() && val) {
-      const img = currentImage();
-      if (!img) return;
-
-      const num = parseFloat(val);
-      if (isNaN(num)) return;
-
-      const unit = resizeUnit();
-      const dpi = dpiValue();
-
-      // Convert entered height to px, compute linked width in px, convert back
-      const hPx = convertToPx(num, unit, img.metadata.height, dpi);
-      const wPx = calculateWidthFromHeight(img.metadata.width, img.metadata.height, hPx);
-      setWidthValue(formatUnitValue(convertFromPx(wPx, unit, img.metadata.width, dpi), unit));
+    if (!maintainAspectRatio()) {
+      setHeightValue(val);
+      return;
     }
+
+    const img = currentImage();
+    if (!img) {
+      setHeightValue(val);
+      return;
+    }
+
+    const linkedDimensions = getLinkedDimensionValues({
+      changedDimension: "height",
+      value: val,
+      resizeUnit: resizeUnit(),
+      dpi: dpiValue(),
+      originalWidth: img.metadata.width,
+      originalHeight: img.metadata.height,
+    });
+
+    if (!linkedDimensions) {
+      setHeightValue(val);
+      return;
+    }
+
+    setWidthValue(linkedDimensions.widthValue);
+    setHeightValue(linkedDimensions.heightValue);
   }
 
   function handleAspectRatioChange(checked: boolean): void {
