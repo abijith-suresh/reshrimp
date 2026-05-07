@@ -2,9 +2,13 @@ import { createSignal, createMemo, createEffect, onCleanup, type Setter } from "
 import type { ProcessedImage, ValidationResult, ImageFormat } from "@/types/image";
 import type { ProcessResult, ResizeUnit } from "@/types/processing";
 import { processImage, getImageMetadata } from "@/services/imageService";
+import {
+  downloadProcessedBlob,
+  replaceObjectUrl,
+  revokeImageUrls,
+} from "@/services/imageSessionService";
 import { validateImageFile, generateDownloadFilename } from "@/services/validationService";
 import {
-  createDownloadLink,
   formatFileSize,
   generateId,
   calculateHeightFromWidth,
@@ -61,16 +65,8 @@ export default function ImageApp() {
   const [dpiValue, setDpiValue] = createSignal(DEFAULT_DPI);
   const [presetValue, setPresetValue] = createSignal("");
 
-  // ── Object URL tracking for cleanup ──────────────────────────────────────
-  const [objectUrls, setObjectUrls] = createSignal<string[]>([]);
-
-  function trackUrl(url: string): string {
-    setObjectUrls((prev) => [...prev, url]);
-    return url;
-  }
-
   onCleanup(() => {
-    objectUrls().forEach((url) => URL.revokeObjectURL(url));
+    revokeImageUrls(currentImage());
   });
 
   // ── Derived signals ───────────────────────────────────────────────────────
@@ -128,12 +124,12 @@ export default function ImageApp() {
 
     try {
       const metadata = await getImageMetadata(file);
-      const url = trackUrl(URL.createObjectURL(file));
+      const originalUrl = URL.createObjectURL(file);
 
       const processedImage: ProcessedImage = {
         id: generateId(),
         file,
-        originalUrl: url,
+        originalUrl,
         processedUrl: null,
         metadata,
         processing: false,
@@ -141,7 +137,10 @@ export default function ImageApp() {
       };
 
       // Reset stale state when a new file is loaded
-      setCurrentImage(processedImage);
+      setCurrentImage((previousImage) => {
+        revokeImageUrls(previousImage);
+        return processedImage;
+      });
       setProcessResult(null);
       setActiveTab("original");
       setError(null);
@@ -218,7 +217,7 @@ export default function ImageApp() {
           : undefined
       );
 
-      const processedUrl = trackUrl(URL.createObjectURL(result.blob));
+      const processedUrl = replaceObjectUrl(img.processedUrl, result.blob);
 
       setCurrentImage((prev) => (prev ? { ...prev, processedUrl } : null));
       setProcessResult(result);
@@ -233,7 +232,8 @@ export default function ImageApp() {
 
   function handleDownload(): void {
     const img = currentImage();
-    if (!img?.processedUrl) return;
+    const result = processResult();
+    if (!img?.processedUrl || !result) return;
 
     const targetFormat: ImageFormat = removeBackground()
       ? "image/png"
@@ -241,13 +241,12 @@ export default function ImageApp() {
 
     const filename = generateDownloadFilename(img.metadata.fileName, targetFormat);
 
-    fetch(img.processedUrl)
-      .then((r) => r.blob())
-      .then((blob) => createDownloadLink(blob, filename))
-      .catch((err) => {
-        setError("Failed to download image");
-        console.error("Download error:", err);
-      });
+    try {
+      downloadProcessedBlob(result.blob, filename);
+    } catch (err) {
+      setError("Failed to download image");
+      console.error("Download error:", err);
+    }
   }
 
   function handleRemoveBackgroundChange(checked: boolean): void {
