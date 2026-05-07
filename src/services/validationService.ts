@@ -54,17 +54,25 @@ export function validateImageFile(file: File): ValidationResult {
     };
   }
 
+  const warnings: string[] = [];
+
   // Warn if file is large but still processable
   if (file.size > RECOMMENDED_MAX_SIZE) {
-    return {
-      valid: true,
-      warning: `Large file detected (${formatFileSize(file.size)}). Processing may be slow.`,
-    };
+    warnings.push(`Large file detected (${formatFileSize(file.size)}). Processing may be slow.`);
   }
 
-  return {
-    valid: true,
-  };
+  if (file.type === "image/gif") {
+    warnings.push("GIF uploads are processed as a still frame. Animation is not preserved.");
+  }
+
+  return warnings.length > 0
+    ? {
+        valid: true,
+        warning: warnings.join(" "),
+      }
+    : {
+        valid: true,
+      };
 }
 
 /**

@@ -119,6 +119,15 @@ describe("validateImageFile", () => {
     expect(result.warning).toBeDefined();
   });
 
+  it("warns that GIF uploads are processed as a still frame", () => {
+    const file = makeFile("animation.gif", "image/gif", 1000);
+    const result = validateImageFile(file);
+
+    expect(result.valid).toBe(true);
+    expect(result.warning).toMatch(/still frame/i);
+    expect(result.warning).toMatch(/animation/i);
+  });
+
   it("returns error at exactly 50 MB + 1 byte", () => {
     const file = makeFile("over50.png", "image/png", 50 * MB + 1);
     const result = validateImageFile(file);

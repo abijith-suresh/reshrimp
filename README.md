@@ -13,10 +13,11 @@ Visit: https://reshrimp.vercel.app
 - **Client-side processing** - Your images never leave your device
 - **Offline-ready core tools** - The app shell, resize, convert, and compress flows work offline after the first online visit
 - **Image resizing** - Adjust dimensions with various options
-- **Format conversion** - Convert between JPEG, PNG, WebP, and more
+- **Format conversion** - Convert between JPEG, PNG, and WebP; GIF uploads are processed as still frames
 - **Compression** - Optimize file sizes while maintaining quality
 - **Background removal** - Runs locally and works offline after its model assets download once
 - **Single-image processing** - Process one image at a time with resize, format, and quality controls
+- **Honest GIF handling** - GIF uploads are accepted, but processing preserves only a single still frame today
 - **Privacy first** - No server uploads, everything happens locally
 
 ## 🛠️ Tech Stack

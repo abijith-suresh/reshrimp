@@ -99,6 +99,9 @@ export default function UploadArea(props: UploadAreaProps) {
           <p class="text-[0.8rem] text-sp-text-soft m-0">
             JPEG, PNG, WebP, or GIF (max {formatFileSize(MAX_FILE_SIZE)})
           </p>
+          <p class="text-[0.75rem] text-sp-text-soft m-0 opacity-80">
+            GIF uploads are processed as a still frame; animation is not preserved.
+          </p>
         </div>
 
         <Show when={props.currentImage()}>
