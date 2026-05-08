@@ -15,7 +15,7 @@ Visit: https://reshrimp.vercel.app
 - **Image resizing** - Adjust dimensions with various options
 - **Format conversion** - Convert between JPEG, PNG, WebP, and more
 - **Compression** - Optimize file sizes while maintaining quality
-- **Background removal** - Runs locally and works offline after its model assets download once
+- **Background removal** - Runs locally and works offline after its mirrored model assets download once
 - **Single-image processing** - Process one image at a time with resize, format, and quality controls
 - **Privacy first** - No server uploads, everything happens locally
 
@@ -51,19 +51,28 @@ Visit: https://reshrimp.vercel.app
 
 All commands are run from the root of the project:
 
-| Command                | Action                               |
-| :--------------------- | :----------------------------------- |
-| `bun install`          | Install dependencies                 |
-| `bun dev`              | Start dev server at `localhost:4321` |
-| `bun run build`        | Build for production                 |
-| `bun preview`          | Preview production build locally     |
-| `bun run lint`         | Run ESLint                           |
-| `bun run lint:fix`     | Fix ESLint issues                    |
-| `bun run format`       | Format code with Prettier            |
-| `bun run format:check` | Check code formatting                |
-| `bun run test`         | Run tests once                       |
-| `bun run test:watch`   | Run tests in watch mode              |
-| `bun run analyze`      | Analyze bundle size                  |
+| Command                             | Action                                                |
+| :---------------------------------- | :---------------------------------------------------- |
+| `bun install`                       | Install dependencies                                  |
+| `bun run assets:background-removal` | Mirror the required background-removal assets locally |
+| `bun dev`                           | Start dev server at `localhost:4321`                  |
+| `bun run build`                     | Build for production                                  |
+| `bun preview`                       | Preview production build locally                      |
+| `bun run lint`                      | Run ESLint                                            |
+| `bun run lint:fix`                  | Fix ESLint issues                                     |
+| `bun run format`                    | Format code with Prettier                             |
+| `bun run format:check`              | Check code formatting                                 |
+| `bun run test`                      | Run tests once                                        |
+| `bun run test:watch`                | Run tests in watch mode                               |
+| `bun run analyze`                   | Analyze bundle size                                   |
+
+## Background-removal asset delivery
+
+Reshrimp mirrors the minimum background-removal asset set into `public/background-removal/<version>/dist/` before `dev` and `build`.
+
+- runtime requests stay on the app origin instead of depending on a third-party CDN
+- only the CPU ONNX runtime plus the `isnet_fp16` model are mirrored, which keeps the asset footprint around 96 MB instead of shipping the full upstream package
+- the mirror step still needs network access when assets are missing locally, but the deployed app serves and caches those assets itself once built
 
 ## 🤝 Contributing
 

@@ -1,7 +1,7 @@
 import { removeBackground as imglyRemoveBackground } from "@imgly/background-removal";
 import {
   BACKGROUND_REMOVAL_MODEL,
-  BACKGROUND_REMOVAL_PUBLIC_PATH,
+  getBackgroundRemovalPublicPath,
 } from "../config/backgroundRemoval";
 import type { BackgroundRemovalProgressCallback } from "../types/processing";
 
@@ -32,7 +32,7 @@ export async function removeBackground(
   }
 
   config.model = BACKGROUND_REMOVAL_MODEL;
-  config.publicPath = BACKGROUND_REMOVAL_PUBLIC_PATH;
+  config.publicPath = getBackgroundRemovalPublicPath(window.location.origin);
 
   const blob = await imglyRemoveBackground(imageFile, config);
 

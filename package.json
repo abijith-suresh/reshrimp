@@ -4,7 +4,10 @@
   "packageManager": "bun@1.3.5",
   "version": "0.6.1",
   "scripts": {
+    "assets:background-removal": "node scripts/sync-background-removal-assets.mjs",
+    "predev": "bun run assets:background-removal",
     "dev": "astro dev",
+    "prebuild": "bun run assets:background-removal",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
