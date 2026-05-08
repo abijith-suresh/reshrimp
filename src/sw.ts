@@ -1,11 +1,10 @@
 /// <reference lib="webworker" />
 
 import {
-  BACKGROUND_REMOVAL_CDN_CACHE_NAME,
-  BACKGROUND_REMOVAL_CDN_ORIGIN,
-  BACKGROUND_REMOVAL_CDN_PATH_PREFIX,
+  BACKGROUND_REMOVAL_ASSET_PATH_PREFIX,
   BACKGROUND_REMOVAL_RUNTIME_ASSET_PATTERN,
   BACKGROUND_REMOVAL_RUNTIME_CACHE_NAME,
+  BACKGROUND_REMOVAL_SELF_HOSTED_CACHE_NAME,
 } from "./config/backgroundRemoval";
 import { clientsClaim, setCacheNameDetails } from "workbox-core";
 import { precacheAndRoute, cleanupOutdatedCaches } from "workbox-precaching";
@@ -36,10 +35,10 @@ self.addEventListener("message", (event) => {
 registerRoute(
   ({ request, url }) =>
     request.method === "GET" &&
-    url.origin === BACKGROUND_REMOVAL_CDN_ORIGIN &&
-    url.pathname.startsWith(BACKGROUND_REMOVAL_CDN_PATH_PREFIX),
+    url.origin === self.location.origin &&
+    url.pathname.startsWith(BACKGROUND_REMOVAL_ASSET_PATH_PREFIX),
   new CacheFirst({
-    cacheName: BACKGROUND_REMOVAL_CDN_CACHE_NAME,
+    cacheName: BACKGROUND_REMOVAL_SELF_HOSTED_CACHE_NAME,
     plugins: [new CacheableResponsePlugin({ statuses: [0, 200] })],
   })
 );
