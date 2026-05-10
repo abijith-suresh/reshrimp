@@ -1,4 +1,4 @@
-import { Show, type Accessor } from "solid-js";
+import { Show, createSignal, type Accessor } from "solid-js";
 import type { ProcessedImage, ValidationResult } from "@/types/image";
 import { MAX_FILE_SIZE } from "@/config/constants";
 import { UPLOAD_ACCEPT_ATTRIBUTE } from "@/config/imageFormats";
@@ -16,6 +16,7 @@ interface UploadAreaProps {
 
 export default function UploadArea(props: UploadAreaProps) {
   let fileInputRef: HTMLInputElement | undefined;
+  const [gifDropError, setGifDropError] = createSignal<string | null>(null);
 
   function handleDragOver(e: DragEvent) {
     e.preventDefault();
@@ -26,7 +27,14 @@ export default function UploadArea(props: UploadAreaProps) {
     e.preventDefault();
     props.onDragLeave();
     const file = e.dataTransfer?.files[0];
-    if (file) props.onDrop(file);
+    if (!file) return;
+    // Reject GIF files dropped via drag-and-drop
+    if (file.type === "image/gif") {
+      setGifDropError("GIF files are not supported.");
+      return;
+    }
+    setGifDropError(null);
+    props.onDrop(file);
   }
 
   function handleFileChange(e: Event) {
@@ -97,7 +105,7 @@ export default function UploadArea(props: UploadAreaProps) {
             <span class="text-[0.8rem] text-sp-text-muted">or drag and drop</span>
           </div>
           <p class="text-[0.8rem] text-sp-text-soft m-0">
-            JPEG, PNG, WebP, or GIF (max {formatFileSize(MAX_FILE_SIZE)})
+            JPEG, PNG, or WebP (max {formatFileSize(MAX_FILE_SIZE)})
           </p>
         </div>
 
@@ -109,6 +117,9 @@ export default function UploadArea(props: UploadAreaProps) {
           )}
         </Show>
 
+        <Show when={gifDropError()}>
+          {(msg) => <div class="sp-validation-error mt-2">{msg()}</div>}
+        </Show>
         <Show when={props.validation()?.error}>
           {(msg) => <div class="sp-validation-error mt-2">{msg()}</div>}
         </Show>

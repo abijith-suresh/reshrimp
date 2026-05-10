@@ -22,7 +22,7 @@ describe("formatDetectionService", () => {
       { mime: "image/jpeg", expected: true },
       { mime: "image/png", expected: true },
       { mime: "image/webp", expected: true },
-      { mime: "image/gif", expected: true },
+      { mime: "image/gif", expected: false },
       { mime: "image/avif", expected: true },
       { mime: "image/heic", expected: true },
       { mime: "image/heif", expected: true },
@@ -39,7 +39,6 @@ describe("formatDetectionService", () => {
       { format: "image/png", expected: true },
       { format: "image/webp", expected: true },
       { format: "image/avif", expected: true },
-      { format: "image/gif", expected: false },
     ])("returns $expected for $format", ({ format, expected }) => {
       expect(isConvertibleOutputFormat(format)).toBe(expected);
     });

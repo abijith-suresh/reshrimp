@@ -55,17 +55,21 @@ export function validateImageFile(file: File): ValidationResult {
     };
   }
 
+  const warnings: string[] = [];
+
   // Warn if file is large but still processable
   if (file.size > RECOMMENDED_MAX_SIZE) {
-    return {
-      valid: true,
-      warning: `Large file detected (${formatFileSize(file.size)}). Processing may be slow.`,
-    };
+    warnings.push(`Large file detected (${formatFileSize(file.size)}). Processing may be slow.`);
   }
 
-  return {
-    valid: true,
-  };
+  return warnings.length > 0
+    ? {
+        valid: true,
+        warning: warnings.join(" "),
+      }
+    : {
+        valid: true,
+      };
 }
 
 /**
@@ -76,7 +80,6 @@ export function getFileExtension(format: ImageFormat): string {
     "image/jpeg": "jpg",
     "image/png": "png",
     "image/webp": "webp",
-    "image/gif": "gif",
     "image/avif": "avif",
     "image/heic": "heic",
     "image/heif": "heif",
