@@ -7,6 +7,7 @@ import type {
 } from "../types/processing";
 import { loadImage, resizeOnCanvas, canvasToBlob, getBestFormat } from "./canvasService";
 import { removeBackground } from "./backgroundRemovalService";
+import { rotateImage, flipImage } from "./transformService";
 
 /**
  * Calculate dimensions maintaining aspect ratio
@@ -71,7 +72,20 @@ export async function processImage(
   }
 
   // Step 2: Load image (either original or background-removed)
-  const img = await loadImage(currentFile);
+  let img = await loadImage(currentFile);
+
+  // Step 2.5: Apply transforms (rotate / flip) before resize
+  if (options.transform) {
+    const { rotation, flip } = options.transform;
+    if (rotation) {
+      const rotCanvas = rotateImage(img, rotation);
+      img = await canvasToImageElement(rotCanvas);
+    }
+    if (flip) {
+      const flipCanvas = flipImage(img, flip);
+      img = await canvasToImageElement(flipCanvas);
+    }
+  }
 
   // Step 3: Determine dimensions (resize or original)
   let width = img.width;
@@ -115,6 +129,18 @@ export async function processImage(
       fileSize: blob.size,
     },
   };
+}
+
+/**
+ * Convert a canvas back to an HTMLImageElement so it can be fed into the next step.
+ */
+function canvasToImageElement(canvas: HTMLCanvasElement): Promise<HTMLImageElement> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("Failed to convert canvas to image element"));
+    img.src = canvas.toDataURL();
+  });
 }
 
 /**
