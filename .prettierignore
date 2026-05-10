@@ -19,3 +19,12 @@ yarn.lock
 
 # Release Please output
 CHANGELOG.md
+
+# Agent-generated files
+PLAN.md
+IMPROVE.md
+REVIEW.md
+INVESTIGATION.md
+
+# Test artifacts
+test-results/

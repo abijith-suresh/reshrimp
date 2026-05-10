@@ -32,6 +32,7 @@
     "heic2any": "^0.0.4",
     "jszip": "^3.10.1",
     "lucide-astro": "^0.556.0",
+    "lucide-solid": "^1.14.0",
     "satori": "^0.19.2",
     "solid-js": "^1.9.12"
   },
@@ -39,6 +40,7 @@
     "@commitlint/cli": "^20.5.3",
     "@commitlint/config-conventional": "^20.5.3",
     "@eslint/js": "^10.0.1",
+    "@playwright/test": "^1.59.1",
     "@solidjs/testing-library": "^0.8.10",
     "@tailwindcss/vite": "^4.2.4",
     "@testing-library/jest-dom": "^6.9.1",

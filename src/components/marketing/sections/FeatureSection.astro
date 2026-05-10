@@ -1,0 +1,46 @@
+---
+interface Props {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  icon: any;
+  title: string;
+  description: string;
+  color: "coral" | "mint" | "lavender" | "yellow";
+  index: number;
+}
+
+const { icon: Icon, title, description, color, index } = Astro.props;
+const colorBg: Record<string, string> = {
+  coral: "bg-sp-coral-light",
+  mint: "bg-sp-mint-light",
+  lavender: "bg-sp-lavender-light",
+  yellow: "bg-sp-yellow-light",
+};
+const colorStroke: Record<string, string> = {
+  coral: "text-sp-coral-dark",
+  mint: "text-sp-mint-dark",
+  lavender: "text-sp-lavender-dark",
+  yellow: "text-[#a16207]",
+};
+---
+
+<div
+  class:list={[
+    "flex items-center gap-10 max-sm:flex-col max-sm:text-center",
+    { "flex-row-reverse max-sm:flex-col": index % 2 === 1 },
+  ]}
+  data-reveal
+  data-reveal-delay={String(index * 80)}
+>
+  <div
+    class:list={[
+      "flex-shrink-0 w-[120px] h-[120px] rounded-sp-xl flex items-center justify-center shadow-sp max-sm:w-[100px] max-sm:h-[100px]",
+      colorBg[color],
+    ]}
+  >
+    <Icon size={40} strokeWidth={1.75} class={colorStroke[color]} />
+  </div>
+  <div class="flex-1">
+    <h2 class="font-display text-[1.35rem] font-bold mb-2 tracking-tight">{title}</h2>
+    <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] m-0">{description}</p>
+  </div>
+</div>

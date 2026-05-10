@@ -1,0 +1,16 @@
+---
+import { ArrowRight } from "lucide-astro";
+
+interface Props {
+  delay?: number;
+}
+const { delay = 0 } = Astro.props;
+---
+
+<div
+  class="text-sp-text-soft pt-4 shrink-0 md:rotate-90 md:pt-0"
+  data-reveal
+  data-reveal-delay={String(delay)}
+>
+  <ArrowRight size={24} strokeWidth={1.5} class="opacity-30" />
+</div>
