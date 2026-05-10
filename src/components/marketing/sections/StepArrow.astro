@@ -1,0 +1,22 @@
+---
+interface Props {
+  delay?: number;
+}
+const { delay = 0 } = Astro.props;
+---
+
+<div
+  class="text-sp-text-soft pt-4 shrink-0 md:rotate-90 md:pt-0"
+  data-reveal
+  data-reveal-delay={String(delay)}
+>
+  <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
+    <path
+      d="M0 12h36M30 6l6 6-6 6"
+      stroke="currentColor"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+      opacity="0.3"></path>
+  </svg>
+</div>
