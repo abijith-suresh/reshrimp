@@ -1,0 +1,29 @@
+---
+interface Props {
+  number: number;
+  title: string;
+  description: string;
+  color: "coral" | "mint" | "lavender";
+  delay?: number;
+}
+
+const { number, title, description, color, delay = 0 } = Astro.props;
+const colorBg: Record<string, string> = {
+  coral: "bg-sp-coral text-white",
+  mint: "bg-sp-mint text-white",
+  lavender: "bg-sp-lavender text-white",
+};
+---
+
+<div class="flex-1 text-center max-w-[220px]" data-reveal data-reveal-delay={String(delay)}>
+  <div
+    class:list={[
+      "w-[52px] h-[52px] rounded-full flex items-center justify-center mx-auto mb-4",
+      colorBg[color],
+    ]}
+  >
+    <span class="font-display text-[1.2rem] font-bold">{number}</span>
+  </div>
+  <h3 class="font-display text-[1.05rem] font-bold mb-1">{title}</h3>
+  <p class="text-[0.85rem] text-sp-text-muted leading-[1.6] m-0">{description}</p>
+</div>

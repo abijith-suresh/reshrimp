@@ -1,6 +1,9 @@
 ---
 import MarketingLayout from "../layouts/MarketingLayout.astro";
-import FloatingShapes from "../components/shared/FloatingShapes.astro";
+import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
+import PageContainer from "../components/marketing/layout/PageContainer.astro";
+import HeroSection from "../components/marketing/hero/HeroSection.astro";
+import PrivacyCard from "../components/marketing/cards/PrivacyCard.astro";
 import { GITHUB_URL } from "../config/constants";
 ---
 
@@ -9,190 +12,111 @@ import { GITHUB_URL } from "../config/constants";
   description="Reshrimp processes all images locally in your browser. No servers, no uploads, no tracking. Learn how it works."
   currentPath="/privacy"
 >
-  <div class="page-pop">
-    <FloatingShapes />
+  <MarketingPageWrapper>
+    <HeroSection
+      chip={{ label: "Privacy", variant: "mint" }}
+      title="Your images never leave your device."
+      subtitle="Reshrimp is built around local processing, minimal network use, and no image uploads."
+    />
 
-    <div transition:animate="fade">
-      <section class="privacy-hero">
-        <div class="privacy-container">
-          <span class="pop-chip pop-chip-mint">Privacy</span>
-          <h1 class="privacy-title">Your images never leave your device.</h1>
-          <p class="privacy-subtitle">
-            Reshrimp is built around local processing, minimal network use, and no image uploads.
+    <section class="px-8 py-8 pb-20 relative z-10">
+      <PageContainer>
+        <!-- How it works -->
+        <PrivacyCard>
+          <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">
+            How it works technically
+          </h2>
+          <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
+            When you select an image, it stays entirely in your browser's memory. Reshrimp uses
+            browser APIs to read, manipulate, and re-encode your image inside a single browser tab.
+            No image data is sent to any server during processing.
           </p>
-        </div>
-      </section>
+          <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
+            The processed image is generated as a Blob URL, which exists only in your browser's
+            memory. After the first online visit, the app shell and core tools can also load
+            offline. Background removal downloads its model assets the first time you use it, then
+            can run offline too.
+          </p>
+        </PrivacyCard>
 
-      <section class="privacy-content">
-        <div class="privacy-container">
-          <!-- How it works -->
-          <div class="privacy-card">
-            <h2 class="privacy-card-title">How it works technically</h2>
-            <p>
-              When you select an image, it stays entirely in your browser's memory. Reshrimp uses
-              browser APIs to read, manipulate, and re-encode your image inside a single browser
-              tab. No image data is sent to any server during processing.
-            </p>
-            <p>
-              The processed image is generated as a Blob URL, which exists only in your browser's
-              memory. After the first online visit, the app shell and core tools can also load
-              offline. Background removal downloads its model assets the first time you use it, then
-              can run offline too.
-            </p>
-          </div>
+        <!-- What we don't do -->
+        <PrivacyCard>
+          <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">
+            What we don't do
+          </h2>
+          <ul class="list-none p-0 m-0 flex flex-col gap-[0.6rem]">
+            <li
+              class="text-[0.95rem] text-sp-text-muted leading-[1.6] pl-6 relative before:content-[''] before:absolute before:left-0 before:top-[0.55rem] before:w-2 before:h-2 before:rounded-full before:bg-sp-mint"
+            >
+              We don't upload your images anywhere
+            </li>
+            <li
+              class="text-[0.95rem] text-sp-text-muted leading-[1.6] pl-6 relative before:content-[''] before:absolute before:left-0 before:top-[0.55rem] before:w-2 before:h-2 before:rounded-full before:bg-sp-mint"
+            >
+              We don't use cookies or local storage for tracking
+            </li>
+            <li
+              class="text-[0.95rem] text-sp-text-muted leading-[1.6] pl-6 relative before:content-[''] before:absolute before:left-0 before:top-[0.55rem] before:w-2 before:h-2 before:rounded-full before:bg-sp-mint"
+            >
+              We don't run analytics scripts (no Google Analytics, no Plausible, nothing)
+            </li>
+            <li
+              class="text-[0.95rem] text-sp-text-muted leading-[1.6] pl-6 relative before:content-[''] before:absolute before:left-0 before:top-[0.55rem] before:w-2 before:h-2 before:rounded-full before:bg-sp-mint"
+            >
+              We don't require accounts or collect personal information
+            </li>
+            <li
+              class="text-[0.95rem] text-sp-text-muted leading-[1.6] pl-6 relative before:content-[''] before:absolute before:left-0 before:top-[0.55rem] before:w-2 before:h-2 before:rounded-full before:bg-sp-mint"
+            >
+              We don't upload your image data for processing
+            </li>
+            <li
+              class="text-[0.95rem] text-sp-text-muted leading-[1.6] pl-6 relative before:content-[''] before:absolute before:left-0 before:top-[0.55rem] before:w-2 before:h-2 before:rounded-full before:bg-sp-mint"
+            >
+              We don't fingerprint your browser or device
+            </li>
+          </ul>
+        </PrivacyCard>
 
-          <!-- What we don't do -->
-          <div class="privacy-card">
-            <h2 class="privacy-card-title">What we don't do</h2>
-            <ul class="privacy-list">
-              <li>We don't upload your images anywhere</li>
-              <li>We don't use cookies or local storage for tracking</li>
-              <li>We don't run analytics scripts (no Google Analytics, no Plausible, nothing)</li>
-              <li>We don't require accounts or collect personal information</li>
-              <li>We don't upload your image data for processing</li>
-              <li>We don't fingerprint your browser or device</li>
-            </ul>
-          </div>
+        <!-- Open source -->
+        <PrivacyCard>
+          <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">
+            Open source verification
+          </h2>
+          <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
+            Don't take our word for it — read the source code. Reshrimp is fully open source under
+            the MIT license. Every line of code is available for inspection.
+          </p>
+          <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
+            The image processing and workflow logic lives in TypeScript services that you can
+            inspect directly. Check the
+            <a
+              href={GITHUB_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-sp-coral underline underline-offset-2 decoration-[rgba(255,107,107,0.3)] hover:decoration-sp-coral transition-[text-decoration-color]"
+              >GitHub repository</a
+            >
+            to verify our claims.
+          </p>
+        </PrivacyCard>
 
-          <!-- Open source -->
-          <div class="privacy-card">
-            <h2 class="privacy-card-title">Open source verification</h2>
-            <p>
-              Don't take our word for it — read the source code. Reshrimp is fully open source under
-              the MIT license. Every line of code is available for inspection.
-            </p>
-            <p>
-              The image processing and workflow logic lives in TypeScript services that you can
-              inspect directly. Check the
-              <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer">GitHub repository</a>
-              to verify our claims.
-            </p>
-          </div>
-
-          <!-- Third-party services -->
-          <div class="privacy-card">
-            <h2 class="privacy-card-title">Third-party services</h2>
-            <p>
-              Reshrimp is deployed as a static site. The first visit needs a network connection to
-              load the app shell.
-            </p>
-            <p>
-              After that, the app shell and core tools work offline. Background removal may download
-              model files once before it can work offline. Those requests are for app or model
-              assets, not for uploading your images.
-            </p>
-          </div>
-        </div>
-      </section>
-    </div>
-  </div>
+        <!-- Third-party services -->
+        <PrivacyCard>
+          <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">
+            Third-party services
+          </h2>
+          <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
+            Reshrimp is deployed as a static site. The first visit needs a network connection to
+            load the app shell.
+          </p>
+          <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
+            After that, the app shell and core tools work offline. Background removal may download
+            model files once before it can work offline. Those requests are for app or model assets,
+            not for uploading your images.
+          </p>
+        </PrivacyCard>
+      </PageContainer>
+    </section>
+  </MarketingPageWrapper>
 </MarketingLayout>
-
-<style>
-  .page-pop {
-    position: relative;
-    overflow-x: hidden;
-    min-height: 100vh;
-  }
-
-  .privacy-hero {
-    padding: 5rem 2rem 3rem;
-    text-align: center;
-    position: relative;
-    z-index: 1;
-  }
-
-  .privacy-container {
-    max-width: 700px;
-    margin: 0 auto;
-  }
-
-  .privacy-title {
-    font-family: var(--sp-font-display);
-    font-size: clamp(2rem, 5vw, 3rem);
-    font-weight: 800;
-    line-height: 1.15;
-    margin: 1rem 0 1.25rem;
-    letter-spacing: -0.03em;
-  }
-
-  .privacy-subtitle {
-    font-size: 1.05rem;
-    color: var(--sp-text-muted);
-    line-height: 1.7;
-    margin: 0;
-  }
-
-  .privacy-content {
-    padding: 2rem 2rem 5rem;
-    position: relative;
-    z-index: 1;
-  }
-
-  .privacy-card {
-    background: var(--sp-bg-card);
-    border: 1px solid var(--sp-border);
-    border-radius: var(--sp-radius-xl);
-    padding: 2rem;
-    box-shadow: var(--sp-shadow);
-    margin-bottom: 1.5rem;
-  }
-
-  .privacy-card-title {
-    font-family: var(--sp-font-display);
-    font-size: 1.25rem;
-    font-weight: 700;
-    margin: 0 0 1rem;
-    letter-spacing: -0.01em;
-  }
-
-  .privacy-card p {
-    font-size: 0.95rem;
-    color: var(--sp-text-muted);
-    line-height: 1.7;
-    margin: 0 0 1rem;
-  }
-
-  .privacy-card p:last-child {
-    margin-bottom: 0;
-  }
-
-  .privacy-card a {
-    color: var(--sp-coral);
-    text-decoration: underline;
-    text-decoration-color: rgba(255, 107, 107, 0.3);
-    text-underline-offset: 2px;
-  }
-
-  .privacy-card a:hover {
-    text-decoration-color: var(--sp-coral);
-  }
-
-  .privacy-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-  }
-
-  .privacy-list li {
-    font-size: 0.95rem;
-    color: var(--sp-text-muted);
-    line-height: 1.6;
-    padding-left: 1.5rem;
-    position: relative;
-  }
-
-  .privacy-list li::before {
-    content: "";
-    position: absolute;
-    left: 0;
-    top: 0.55rem;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--sp-mint);
-  }
-</style>

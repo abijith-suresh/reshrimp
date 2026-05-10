@@ -1,0 +1,37 @@
+---
+interface Props {
+  color: "coral" | "mint" | "lavender" | "yellow";
+  colSpan?: boolean;
+  delay?: number;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  icon: any;
+  title: string;
+  description: string;
+}
+
+const { color, colSpan = false, delay = 0, icon: Icon, title, description } = Astro.props;
+const colorBg: Record<string, string> = {
+  coral: "bg-sp-coral-light border-[rgba(255,107,107,0.15)]",
+  mint: "bg-sp-mint-light border-[rgba(45,212,191,0.15)]",
+  lavender: "bg-sp-lavender-light border-[rgba(167,139,250,0.15)]",
+  yellow: "bg-sp-yellow-light border-[rgba(253,230,138,0.3)]",
+};
+---
+
+<div
+  class:list={[
+    "bento-card group border border-transparent rounded-sp-xl p-8 transition-all duration-300 shadow-sp hover:translate-y-[-4px] hover:shadow-sp-hover",
+    colorBg[color],
+    { "md:col-span-2": colSpan },
+  ]}
+  data-reveal
+  data-reveal-delay={String(delay)}
+>
+  <div
+    class="bento-card-content opacity-0 translate-y-7 scale-[0.98] transition-[opacity,transform] duration-[550ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-[&.revealed]:opacity-100 group-[&.revealed]:translate-y-0 group-[&.revealed]:scale-100"
+  >
+    <Icon size={32} strokeWidth={1.75} class="block mb-4 opacity-80" />
+    <h3 class="font-display text-[1.2rem] font-bold mb-2 mt-0">{title}</h3>
+    <p class="text-[0.9rem] text-sp-text-muted leading-[1.6] m-0">{description}</p>
+  </div>
+</div>

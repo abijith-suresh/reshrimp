@@ -1,10 +1,18 @@
 ---
 import MarketingLayout from "../layouts/MarketingLayout.astro";
-import FloatingShapes from "../components/shared/FloatingShapes.astro";
 import SectionHeader from "../components/shared/SectionHeader.astro";
-import { makeHref } from "../lib/utils";
-import { ROUTES, SITE_NAME, SITE_DESCRIPTION } from "../config/constants";
+import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
+import HeroSection from "../components/marketing/hero/HeroSection.astro";
+import HeroCTA from "../components/marketing/hero/HeroCTA.astro";
+import BentoGrid from "../components/marketing/sections/BentoGrid.astro";
+import BentoCard from "../components/marketing/sections/BentoCard.astro";
+import StepSection from "../components/marketing/sections/StepSection.astro";
+import StepItem from "../components/marketing/sections/StepItem.astro";
+import StepArrow from "../components/marketing/sections/StepArrow.astro";
+import TrustBanner from "../components/marketing/sections/TrustBanner.astro";
+import CTACard from "../components/marketing/sections/CTACard.astro";
 import { Scaling, ArrowLeftRight, Gauge, ShieldCheck } from "lucide-astro";
+import { SITE_NAME, SITE_DESCRIPTION } from "../config/constants";
 
 const siteUrl = new URL(Astro.url.pathname, Astro.site).href;
 const jsonLd = {
@@ -28,302 +36,91 @@ const jsonLd = {
   <Fragment slot="head">
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </Fragment>
-  <div class="relative overflow-x-hidden min-h-screen">
-    <FloatingShapes />
+  <MarketingPageWrapper>
+    <!-- Hero -->
+    <HeroSection
+      chips={[
+        { label: "Free forever", variant: "mint" },
+        { label: "100% private", variant: "coral" },
+        { label: "Offline-ready", variant: "lavender" },
+      ]}
+      title="Your images deserve"
+      gradientTitle="better than the cloud."
+      subtitle="Resize, convert, and compress images right in your browser. Nothing gets uploaded. Nothing gets tracked. After one online visit, the app shell and core tools work offline."
+    >
+      <HeroCTA secondaryText="No sign-up · Offline-ready" />
+    </HeroSection>
 
-    <div transition:animate="fade">
-      <!-- Hero -->
-      <section class="px-8 py-20 text-center relative z-10 md:px-5 md:py-16 md:px-6">
-        <div class="max-w-[700px] mx-auto">
-          <div
-            class="flex justify-center gap-2 mb-8 flex-wrap opacity-0"
-            style="animation: popBounceIn 0.6s 0.1s forwards"
-          >
-            <span class="pop-chip pop-chip-mint">Free forever</span>
-            <span class="pop-chip pop-chip-coral">100% private</span>
-            <span class="pop-chip pop-chip-lavender">Offline-ready</span>
-          </div>
-          <h1
-            class="font-display font-extrabold leading-[1.15] mb-6 tracking-tight opacity-0"
-            style="font-size: clamp(2.2rem, 5.5vw, 3.5rem); animation: popBounceIn 0.6s 0.25s forwards"
-          >
-            Your images deserve<br />
-            <span
-              class="bg-gradient-to-br from-[var(--sp-coral)] to-[var(--sp-lavender-dark)] bg-clip-text text-transparent"
-            >
-              better than the cloud.
-            </span>
-          </h1>
-          <p
-            class="text-[1.1rem] text-sp-text-muted leading-[1.7] max-w-[520px] mx-auto mb-8 opacity-0"
-            style="animation: popBounceIn 0.6s 0.4s forwards"
-          >
-            Resize, convert, and compress images right in your browser. Nothing gets uploaded.
-            Nothing gets tracked. After one online visit, the app shell and core tools work offline.
-          </p>
-          <div
-            class="flex flex-col items-center gap-3 opacity-0"
-            style="animation: popBounceIn 0.6s 0.55s forwards"
-          >
-            <a href={makeHref(ROUTES.APP)} class="cta-pop">
-              Start processing
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                class="cta-pop-arrow"
-              >
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-              </svg>
-            </a>
-            <span class="text-[0.8rem] text-sp-text-soft">No sign-up &middot; Offline-ready</span>
-          </div>
-        </div>
-      </section>
+    <!-- Bento Features -->
+    <section class="px-8 py-16 relative z-10">
+      <div class="max-w-[1000px] mx-auto">
+        <SectionHeader label="What can you do?" title="Everything you need. Nothing you don't." />
+        <BentoGrid>
+          <BentoCard
+            color="coral"
+            colSpan={true}
+            icon={Scaling}
+            title="Resize with precision"
+            description="Scale to exact pixel dimensions. Aspect ratio lock keeps everything balanced. Works for thumbnails, social media, or high-res exports."
+          />
+          <BentoCard
+            color="mint"
+            icon={ArrowLeftRight}
+            title="Convert formats"
+            description="Switch between JPEG, PNG, and WebP in a click. Browser-native conversion with format-specific quality tradeoffs."
+          />
+          <BentoCard
+            color="lavender"
+            icon={Gauge}
+            title="Compress smartly"
+            description="Fine-tune quality from 0-100%. Check original and processed results in a tabbed preview."
+          />
+          <BentoCard
+            color="yellow"
+            colSpan={true}
+            icon={ShieldCheck}
+            title="Completely private"
+            description="All processing happens locally via browser APIs. After the first online visit, the app shell and core tools work offline. Open source — verify it yourself."
+          />
+        </BentoGrid>
+      </div>
+    </section>
 
-      <!-- Bento Features -->
-      <section class="px-8 py-16 relative z-10">
-        <div class="max-w-[1000px] mx-auto">
-          <SectionHeader label="What can you do?" title="Everything you need. Nothing you don't." />
-          <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div
-              class="bento-card group border border-transparent rounded-sp-xl p-8 transition-all duration-300 shadow-sp hover:translate-y-[-4px] hover:shadow-sp-hover bg-sp-coral-light border-[rgba(255,107,107,0.15)] md:col-span-2"
-              data-reveal
-              data-reveal-delay="0"
-            >
-              <div
-                class="bento-card-content opacity-0 translate-y-7 scale-[0.98] transition-[opacity,transform] duration-[550ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-[&.revealed]:opacity-100 group-[&.revealed]:translate-y-0 group-[&.revealed]:scale-100"
-              >
-                <Scaling size={32} strokeWidth={1.75} class="block mb-4 opacity-80" />
-                <h3 class="font-display text-[1.2rem] font-bold mb-2 mt-0">
-                  Resize with precision
-                </h3>
-                <p class="text-[0.9rem] text-sp-text-muted leading-[1.6] m-0">
-                  Scale to exact pixel dimensions. Aspect ratio lock keeps everything balanced.
-                  Works for thumbnails, social media, or high-res exports.
-                </p>
-              </div>
-            </div>
-            <div
-              class="bento-card group border border-transparent rounded-sp-xl p-8 transition-all duration-300 shadow-sp hover:translate-y-[-4px] hover:shadow-sp-hover bg-sp-mint-light border-[rgba(45,212,191,0.15)]"
-              data-reveal
-              data-reveal-delay="80"
-            >
-              <div
-                class="bento-card-content opacity-0 translate-y-7 scale-[0.98] transition-[opacity,transform] duration-[550ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-[&.revealed]:opacity-100 group-[&.revealed]:translate-y-0 group-[&.revealed]:scale-100"
-              >
-                <ArrowLeftRight size={32} strokeWidth={1.75} class="block mb-4 opacity-80" />
-                <h3 class="font-display text-[1.2rem] font-bold mb-2 mt-0">Convert formats</h3>
-                <p class="text-[0.9rem] text-sp-text-muted leading-[1.6] m-0">
-                  Switch between JPEG, PNG, and WebP in a click. Browser-native conversion with
-                  format-specific quality tradeoffs.
-                </p>
-              </div>
-            </div>
-            <div
-              class="bento-card group border border-transparent rounded-sp-xl p-8 transition-all duration-300 shadow-sp hover:translate-y-[-4px] hover:shadow-sp-hover bg-sp-lavender-light border-[rgba(167,139,250,0.15)]"
-              data-reveal
-              data-reveal-delay="160"
-            >
-              <div
-                class="bento-card-content opacity-0 translate-y-7 scale-[0.98] transition-[opacity,transform] duration-[550ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-[&.revealed]:opacity-100 group-[&.revealed]:translate-y-0 group-[&.revealed]:scale-100"
-              >
-                <Gauge size={32} strokeWidth={1.75} class="block mb-4 opacity-80" />
-                <h3 class="font-display text-[1.2rem] font-bold mb-2 mt-0">Compress smartly</h3>
-                <p class="text-[0.9rem] text-sp-text-muted leading-[1.6] m-0">
-                  Fine-tune quality from 0-100%. Check original and processed results in a tabbed
-                  preview.
-                </p>
-              </div>
-            </div>
-            <div
-              class="bento-card group border border-transparent rounded-sp-xl p-8 transition-all duration-300 shadow-sp hover:translate-y-[-4px] hover:shadow-sp-hover bg-sp-yellow-light border-[rgba(253,230,138,0.3)] md:col-span-2"
-              data-reveal
-              data-reveal-delay="240"
-            >
-              <div
-                class="bento-card-content opacity-0 translate-y-7 scale-[0.98] transition-[opacity,transform] duration-[550ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-[&.revealed]:opacity-100 group-[&.revealed]:translate-y-0 group-[&.revealed]:scale-100"
-              >
-                <ShieldCheck size={32} strokeWidth={1.75} class="block mb-4 opacity-80" />
-                <h3 class="font-display text-[1.2rem] font-bold mb-2 mt-0">Completely private</h3>
-                <p class="text-[0.9rem] text-sp-text-muted leading-[1.6] m-0">
-                  All processing happens locally via browser APIs. After the first online visit, the
-                  app shell and core tools work offline. Open source — verify it yourself.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+    <!-- How it works -->
+    <section class="px-8 py-16 relative z-10">
+      <div class="max-w-[900px] mx-auto">
+        <SectionHeader label="Dead simple" title="Three steps. Seriously." />
+        <StepSection>
+          <StepItem
+            number={1}
+            color="coral"
+            title="Drop your image"
+            description="Drag and drop or click to browse. Supports JPEG, PNG, and WebP."
+          />
+          <StepArrow delay={100} />
+          <StepItem
+            number={2}
+            color="mint"
+            title="Tweak the settings"
+            description="Set dimensions, pick a format, adjust quality, then process to review the result."
+            delay={200}
+          />
+          <StepArrow delay={300} />
+          <StepItem
+            number={3}
+            color="lavender"
+            title="Download instantly"
+            description="One click to process, one click to download. Compare before and after."
+            delay={400}
+          />
+        </StepSection>
+      </div>
+    </section>
 
-      <!-- How it works -->
-      <section class="px-8 py-16 relative z-10">
-        <div class="max-w-[900px] mx-auto">
-          <SectionHeader label="Dead simple" title="Three steps. Seriously." />
-          <div class="flex items-start justify-center gap-4 md:flex-col md:items-center">
-            <div class="flex-1 text-center max-w-[220px]" data-reveal data-reveal-delay="0">
-              <div
-                class="w-[52px] h-[52px] rounded-full flex items-center justify-center mx-auto mb-4 bg-sp-coral text-white"
-              >
-                <span class="font-display text-[1.2rem] font-bold">1</span>
-              </div>
-              <h3 class="font-display text-[1.05rem] font-bold mb-1">Drop your image</h3>
-              <p class="text-[0.85rem] text-sp-text-muted leading-[1.6] m-0">
-                Drag and drop or click to browse. Supports JPEG, PNG, and WebP.
-              </p>
-            </div>
-            <div
-              class="text-sp-text-soft pt-4 shrink-0 md:rotate-90 md:pt-0"
-              data-reveal
-              data-reveal-delay="100"
-            >
-              <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
-                <path
-                  d="M0 12h36M30 6l6 6-6 6"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  opacity="0.3"></path>
-              </svg>
-            </div>
-            <div class="flex-1 text-center max-w-[220px]" data-reveal data-reveal-delay="200">
-              <div
-                class="w-[52px] h-[52px] rounded-full flex items-center justify-center mx-auto mb-4 bg-sp-mint text-white"
-              >
-                <span class="font-display text-[1.2rem] font-bold">2</span>
-              </div>
-              <h3 class="font-display text-[1.05rem] font-bold mb-1">Tweak the settings</h3>
-              <p class="text-[0.85rem] text-sp-text-muted leading-[1.6] m-0">
-                Set dimensions, pick a format, adjust quality, then process to review the result.
-              </p>
-            </div>
-            <div
-              class="text-sp-text-soft pt-4 shrink-0 md:rotate-90 md:pt-0"
-              data-reveal
-              data-reveal-delay="300"
-            >
-              <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
-                <path
-                  d="M0 12h36M30 6l6 6-6 6"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  opacity="0.3"></path>
-              </svg>
-            </div>
-            <div class="flex-1 text-center max-w-[220px]" data-reveal data-reveal-delay="400">
-              <div
-                class="w-[52px] h-[52px] rounded-full flex items-center justify-center mx-auto mb-4 bg-sp-lavender text-white"
-              >
-                <span class="font-display text-[1.2rem] font-bold">3</span>
-              </div>
-              <h3 class="font-display text-[1.05rem] font-bold mb-1">Download instantly</h3>
-              <p class="text-[0.85rem] text-sp-text-muted leading-[1.6] m-0">
-                One click to process, one click to download. Compare before and after.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+    <!-- Trust banner -->
+    <TrustBanner />
 
-      <!-- Trust banner -->
-      <section class="px-8 py-12 relative z-10">
-        <div class="max-w-[700px] mx-auto">
-          <div
-            class="bg-sp-bg-card border border-sp-border rounded-sp-xl p-12 text-center shadow-sp"
-            data-reveal
-          >
-            <div class="text-sp-mint mb-5">
-              <svg
-                width="36"
-                height="36"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.5"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              >
-                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                <path d="M9 12l2 2 4-4"></path>
-              </svg>
-            </div>
-            <h2 class="font-display text-[1.5rem] font-bold mb-4 tracking-tight">
-              Your images stay on your device. Period.
-            </h2>
-            <p class="text-[0.9rem] text-sp-text-muted leading-[1.7] max-w-[500px] mx-auto mb-6">
-              Reshrimp uses your browser's built-in APIs for all processing. After the first online
-              visit, the app shell and core tools work offline. Background removal also works
-              offline after its model assets are downloaded once. No uploads, accounts, or tracking.
-            </p>
-            <div class="flex justify-center flex-wrap gap-2">
-              <span
-                class="inline-block text-[0.7rem] font-semibold py-[0.3rem] px-[0.8rem] rounded-sp-full bg-sp-mint-light text-sp-mint-dark tracking-[0.01em]"
-                >No servers</span
-              >
-              <span
-                class="inline-block text-[0.7rem] font-semibold py-[0.3rem] px-[0.8rem] rounded-sp-full bg-sp-mint-light text-sp-mint-dark tracking-[0.01em]"
-                >No cookies</span
-              >
-              <span
-                class="inline-block text-[0.7rem] font-semibold py-[0.3rem] px-[0.8rem] rounded-sp-full bg-sp-mint-light text-sp-mint-dark tracking-[0.01em]"
-                >No analytics</span
-              >
-              <span
-                class="inline-block text-[0.7rem] font-semibold py-[0.3rem] px-[0.8rem] rounded-sp-full bg-sp-mint-light text-sp-mint-dark tracking-[0.01em]"
-                >No accounts</span
-              >
-              <span
-                class="inline-block text-[0.7rem] font-semibold py-[0.3rem] px-[0.8rem] rounded-sp-full bg-sp-mint-light text-sp-mint-dark tracking-[0.01em]"
-                >Open source</span
-              >
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Final CTA -->
-      <section class="px-8 py-20 text-center relative z-10">
-        <div class="max-w-[500px] mx-auto">
-          <h2
-            class="font-display font-extrabold mb-4 tracking-tight opacity-0"
-            style="font-size: clamp(1.8rem, 4vw, 2.5rem); animation: popBounceIn 0.6s 0.1s forwards"
-          >
-            Ready to give it a go?
-          </h2>
-          <p
-            class="text-[1rem] text-sp-text-muted mb-8 leading-[1.6] opacity-0"
-            style="animation: popBounceIn 0.6s 0.25s forwards"
-          >
-            Free, open source, private, and offline-ready after the first visit.
-          </p>
-          <a href={makeHref(ROUTES.APP)} class="cta-pop cta-pop-lg">
-            Open Reshrimp
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              class="cta-pop-arrow"
-            >
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-              <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
-          </a>
-        </div>
-      </section>
-    </div>
-  </div>
+    <!-- Final CTA -->
+    <CTACard />
+  </MarketingPageWrapper>
 </MarketingLayout>
