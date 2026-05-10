@@ -33,15 +33,15 @@ const { question, answer, delay = 0 } = Astro.props;
 </div>
 
 <script>
-  const item = document.currentScript?.closest(".faq-item");
-  if (item) {
-    const question = item.querySelector(".faq-question");
-    if (question) {
-      const toggleItem = () => {
-        const isOpen = item.classList.toggle("faq-open");
-        question.setAttribute("aria-expanded", String(isOpen));
-      };
-      question.addEventListener("click", toggleItem);
-    }
+  // Use event delegation so all FAQ items work regardless of how many component instances exist
+  function handleFaqClick(e: Event) {
+    const question = (e.target as HTMLElement).closest(".faq-question");
+    if (!question) return;
+    const item = question.closest(".faq-item");
+    if (!item) return;
+    const isOpen = item.classList.toggle("faq-open");
+    question.setAttribute("aria-expanded", String(isOpen));
   }
+
+  document.addEventListener("click", handleFaqClick);
 </script>
