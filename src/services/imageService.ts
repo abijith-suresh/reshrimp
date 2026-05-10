@@ -8,6 +8,7 @@ import type {
 import { loadImage, resizeOnCanvas, canvasToBlob, getBestFormat } from "./canvasService";
 import { removeBackground } from "./backgroundRemovalService";
 import { rotateImage, flipImage } from "./transformService";
+import { decodeHeicBlob, isHeicInput } from "./formatDetectionService";
 
 /**
  * Calculate dimensions maintaining aspect ratio
@@ -64,6 +65,14 @@ export async function processImage(
   onBackgroundRemovalProgress?: BackgroundRemovalProgressCallback
 ): Promise<ProcessResult> {
   let currentFile = file;
+
+  // Step 0.5: Decode HEIC/HEIF input to PNG before processing
+  if (isHeicInput(file.type)) {
+    const decodedBlob = await decodeHeicBlob(file);
+    currentFile = new File([decodedBlob], file.name.replace(/\.heic?$/i, ".png"), {
+      type: "image/png",
+    });
+  }
 
   // Step 1: Remove background if requested
   if (options.removeBackground) {

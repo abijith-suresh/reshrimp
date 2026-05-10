@@ -21,8 +21,8 @@ function makeFile(name: string, type: string, sizeBytes: number): File {
 const MB = 1024 * 1024;
 
 describe("getSupportedFormats", () => {
-  it("returns exactly 4 formats", () => {
-    expect(getSupportedFormats()).toHaveLength(4);
+  it("returns all accepted input formats", () => {
+    expect(getSupportedFormats()).toHaveLength(7);
   });
 
   it("contains the expected formats", () => {
