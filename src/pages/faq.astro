@@ -18,7 +18,7 @@ const faqs = [
   {
     question: "What image formats are supported?",
     answer:
-      "Reshrimp can read JPEG, PNG, WebP, and GIF images. It can output to JPEG, PNG, and WebP formats. Format conversion is handled natively by your browser's built-in encoding capabilities.",
+      "Reshrimp can read JPEG, PNG, WebP, and AVIF images. Output formats are JPEG, PNG, and WebP, using your browser's built-in encoding capabilities.",
   },
   {
     question: "What's the maximum file size?",
@@ -55,7 +55,7 @@ const faqs = [
   <div class="relative overflow-x-hidden min-h-screen">
     <FloatingShapes />
 
-    <main transition:animate="fade">
+    <div transition:animate="fade">
       <section class="px-8 py-20 text-center relative z-10 md:px-5 md:py-12">
         <div class="max-w-[700px] mx-auto">
           <span class="pop-chip pop-chip-yellow">FAQ</span>
@@ -83,10 +83,16 @@ const faqs = [
                 data-reveal
                 data-reveal-delay={i * 60}
               >
-                <button class="faq-question w-full text-left font-display text-[1.05rem] font-semibold py-5 px-6 flex items-center justify-between gap-4 transition-colors duration-200 hover:text-sp-coral">
+                <button
+                  class="faq-question w-full text-left font-display text-[1.05rem] font-semibold py-5 px-6 flex items-center justify-between gap-4 transition-colors duration-200 hover:text-sp-coral"
+                  aria-expanded="false"
+                >
                   {faq.question}
                 </button>
-                <div class="faq-body grid [grid-template-rows:0fr] transition-[grid-template-rows] duration-[400ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)]">
+                <div
+                  class="faq-body grid [grid-template-rows:0fr] transition-[grid-template-rows] duration-[400ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)]"
+                  role="region"
+                >
                   <div class="overflow-hidden">
                     <p
                       class="faq-answer text-[0.95rem] text-sp-text-muted leading-[1.7] px-6 pb-5 m-0 opacity-0 translate-y-[6px] transition-[opacity,transform] duration-300 delay-[80ms]"
@@ -150,7 +156,7 @@ const faqs = [
           </div>
         </div>
       </section>
-    </main>
+    </div>
   </div>
 </MarketingLayout>
 
@@ -217,7 +223,8 @@ const faqs = [
       if (!question) return;
 
       const toggleItem = () => {
-        item.classList.toggle("faq-open");
+        const isOpen = item.classList.toggle("faq-open");
+        question.setAttribute("aria-expanded", String(isOpen));
       };
 
       question.addEventListener("click", toggleItem);

@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
+  BACKGROUND_REMOVAL_ASSET_PATH_PREFIX,
   BACKGROUND_REMOVAL_MODEL,
-  BACKGROUND_REMOVAL_PUBLIC_PATH,
+  getBackgroundRemovalPublicPath,
 } from "../config/backgroundRemoval";
 
 vi.mock("@imgly/background-removal", () => ({
@@ -18,6 +19,12 @@ describe("removeBackground", () => {
     vi.clearAllMocks();
   });
 
+  it("builds a same-origin public path for mirrored model assets", () => {
+    expect(getBackgroundRemovalPublicPath("https://reshrimp.test")).toBe(
+      `https://reshrimp.test${BACKGROUND_REMOVAL_ASSET_PATH_PREFIX}`
+    );
+  });
+
   it("forwards the shared model and public path configuration", async () => {
     const file = new File([], "photo.jpg", { type: "image/jpeg" });
 
@@ -27,7 +34,7 @@ describe("removeBackground", () => {
       file,
       expect.objectContaining({
         model: BACKGROUND_REMOVAL_MODEL,
-        publicPath: BACKGROUND_REMOVAL_PUBLIC_PATH,
+        publicPath: getBackgroundRemovalPublicPath(window.location.origin),
       })
     );
   });

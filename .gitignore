@@ -1,6 +1,7 @@
 # Build output
 dist/
 .output/
+public/background-removal/
 
 # Astro
 .astro/
