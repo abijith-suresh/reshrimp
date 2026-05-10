@@ -1,4 +1,6 @@
 ---
+import { ArrowRight } from "lucide-astro";
+
 interface Props {
   delay?: number;
 }
@@ -10,13 +12,5 @@ const { delay = 0 } = Astro.props;
   data-reveal
   data-reveal-delay={String(delay)}
 >
-  <svg width="40" height="24" viewBox="0 0 40 24" fill="none">
-    <path
-      d="M0 12h36M30 6l6 6-6 6"
-      stroke="currentColor"
-      stroke-width="2"
-      stroke-linecap="round"
-      stroke-linejoin="round"
-      opacity="0.3"></path>
-  </svg>
+  <ArrowRight size={24} strokeWidth={1.5} class="opacity-30" />
 </div>
