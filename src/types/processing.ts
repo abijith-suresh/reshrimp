@@ -15,6 +15,24 @@ export interface ResizeOptions {
 }
 
 /**
+ * Rotation angle in degrees (clockwise).
+ */
+export type RotationDeg = 90 | 180 | 270;
+
+/**
+ * Axis along which to mirror the image.
+ */
+export type FlipAxis = "horizontal" | "vertical";
+
+/**
+ * Transform options applied before resize/format operations.
+ */
+export interface TransformOptions {
+  rotation?: RotationDeg;
+  flip?: FlipAxis;
+}
+
+/**
  * Complete options for processing an image
  * Combines resize, format conversion, and compression
  */
@@ -23,6 +41,7 @@ export interface ProcessOptions {
   format?: ImageFormat;
   quality?: number; // 0-1 range for compression quality
   removeBackground?: boolean;
+  transform?: TransformOptions;
 }
 
 /**
