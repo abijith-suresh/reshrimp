@@ -17,9 +17,7 @@ const { title, description, ogImagePath, currentPath = "/" } = Astro.props;
   <Fragment slot="head">
     <slot name="head" />
   </Fragment>
-  <MarketingHeader currentPath={currentPath} />
-  <main>
-    <slot />
-  </main>
-  <MarketingFooter />
+  <MarketingHeader slot="before-main" currentPath={currentPath} />
+  <slot />
+  <MarketingFooter slot="after-main" />
 </Layout>
