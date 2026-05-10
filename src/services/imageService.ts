@@ -9,6 +9,7 @@ import { loadImage, resizeOnCanvas, canvasToBlob, getBestFormat } from "./canvas
 import { removeBackground } from "./backgroundRemovalService";
 import { rotateImage, flipImage } from "./transformService";
 import { decodeHeicBlob, isHeicInput } from "./formatDetectionService";
+import { compressToTargetSize, formatSupportsQuality } from "./targetSizeService";
 
 /**
  * Calculate dimensions maintaining aspect ratio
@@ -127,7 +128,17 @@ export async function processImage(
   }
 
   // Step 7: Convert to blob
-  const blob = await canvasToBlob(canvas, format, quality);
+  let blob: Blob;
+
+  if (options.targetFileSize && formatSupportsQuality(format)) {
+    const sizeResult = await compressToTargetSize(
+      { canvas, format, targetBytes: options.targetFileSize },
+      canvasToBlob
+    );
+    blob = sizeResult.blob;
+  } else {
+    blob = await canvasToBlob(canvas, format, quality);
+  }
 
   return {
     blob,

@@ -42,6 +42,7 @@ export interface ProcessOptions {
   quality?: number; // 0-1 range for compression quality
   removeBackground?: boolean;
   transform?: TransformOptions;
+  targetFileSize?: number; // target output size in bytes
 }
 
 /**
