@@ -62,10 +62,6 @@ export function validateImageFile(file: File): ValidationResult {
     warnings.push(`Large file detected (${formatFileSize(file.size)}). Processing may be slow.`);
   }
 
-  if (file.type === "image/gif") {
-    warnings.push("GIF uploads are processed as a still frame. Animation is not preserved.");
-  }
-
   return warnings.length > 0
     ? {
         valid: true,
@@ -84,7 +80,6 @@ export function getFileExtension(format: ImageFormat): string {
     "image/jpeg": "jpg",
     "image/png": "png",
     "image/webp": "webp",
-    "image/gif": "gif",
     "image/avif": "avif",
     "image/heic": "heic",
     "image/heif": "heif",

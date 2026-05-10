@@ -5,16 +5,12 @@ import type { ImageFormat } from "../types/image";
  * New code should use formatDetectionService for runtime-gated checks.
  */
 
-export type ConvertibleImageFormat = Exclude<
-  ImageFormat,
-  "image/gif" | "image/heic" | "image/heif"
->;
+export type ConvertibleImageFormat = Exclude<ImageFormat, "image/heic" | "image/heif">;
 
 export const SUPPORTED_IMAGE_FORMATS: ReadonlyArray<ImageFormat> = [
   "image/jpeg",
   "image/png",
   "image/webp",
-  "image/gif",
   "image/avif",
   "image/heic",
   "image/heif",
@@ -31,7 +27,6 @@ export const IMAGE_FORMAT_LABELS: Record<ImageFormat, string> = {
   "image/jpeg": "JPEG",
   "image/png": "PNG",
   "image/webp": "WebP",
-  "image/gif": "GIF",
   "image/avif": "AVIF",
   "image/heic": "HEIC",
   "image/heif": "HEIF",

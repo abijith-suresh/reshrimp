@@ -22,12 +22,12 @@ const MB = 1024 * 1024;
 
 describe("getSupportedFormats", () => {
   it("returns all accepted input formats", () => {
-    expect(getSupportedFormats()).toHaveLength(7);
+    expect(getSupportedFormats()).toHaveLength(6);
   });
 
   it("contains the expected formats", () => {
     expect(getSupportedFormats()).toEqual(
-      expect.arrayContaining(["image/jpeg", "image/png", "image/webp", "image/gif"])
+      expect.arrayContaining(["image/jpeg", "image/png", "image/webp"])
     );
   });
 
@@ -43,7 +43,7 @@ describe("isSupportedFormat", () => {
     expect(isSupportedFormat("image/jpeg")).toBe(true);
     expect(isSupportedFormat("image/png")).toBe(true);
     expect(isSupportedFormat("image/webp")).toBe(true);
-    expect(isSupportedFormat("image/gif")).toBe(true);
+    expect(isSupportedFormat("image/gif")).toBe(false);
   });
 
   it("returns false for unsupported formats", () => {
@@ -119,15 +119,6 @@ describe("validateImageFile", () => {
     expect(result.warning).toBeDefined();
   });
 
-  it("warns that GIF uploads are processed as a still frame", () => {
-    const file = makeFile("animation.gif", "image/gif", 1000);
-    const result = validateImageFile(file);
-
-    expect(result.valid).toBe(true);
-    expect(result.warning).toMatch(/still frame/i);
-    expect(result.warning).toMatch(/animation/i);
-  });
-
   it("returns error at exactly 50 MB + 1 byte", () => {
     const file = makeFile("over50.png", "image/png", 50 * MB + 1);
     const result = validateImageFile(file);
@@ -146,7 +137,6 @@ describe("getFileExtension", () => {
     ["image/jpeg", "jpg"],
     ["image/png", "png"],
     ["image/webp", "webp"],
-    ["image/gif", "gif"],
   ];
 
   it.each(cases)("maps %s to .%s", (format, ext) => {
@@ -171,6 +161,5 @@ describe("generateDownloadFilename", () => {
 
   it("uses the correct extension for the target format", () => {
     expect(generateDownloadFilename("image.png", "image/jpeg")).toBe("image-processed.jpg");
-    expect(generateDownloadFilename("image.jpeg", "image/gif")).toBe("image-processed.gif");
   });
 });

@@ -75,7 +75,6 @@ function extensionForBlob(blob: Blob): string {
     "image/png": "png",
     "image/webp": "webp",
     "image/avif": "avif",
-    "image/gif": "gif",
   };
   return map[type] ?? "png";
 }
