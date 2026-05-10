@@ -1,4 +1,4 @@
-import { Show, type JSX } from "solid-js";
+import { Show, createEffect, onCleanup, type JSX } from "solid-js";
 import { Info } from "lucide-solid";
 
 interface InfoTooltipProps {
@@ -10,8 +10,21 @@ interface InfoTooltipProps {
 }
 
 export default function InfoTooltip(props: InfoTooltipProps) {
+  let containerRef: HTMLSpanElement | undefined = undefined;
+
+  createEffect(() => {
+    if (!props.open) return;
+    const handler = (e: MouseEvent) => {
+      if (containerRef && !containerRef.contains(e.target as Node)) {
+        props.onToggle(false);
+      }
+    };
+    document.addEventListener("click", handler);
+    onCleanup(() => document.removeEventListener("click", handler));
+  });
+
   return (
-    <span id={props.id} class="relative inline-flex">
+    <span ref={(el) => (containerRef = el)} id={props.id} class="relative inline-flex">
       <button
         id={props.id ? `${props.id}-icon` : undefined}
         type="button"
