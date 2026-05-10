@@ -10,6 +10,7 @@ import { removeBackground } from "./backgroundRemovalService";
 import { rotateImage, flipImage } from "./transformService";
 import { decodeHeicBlob, isHeicInput } from "./formatDetectionService";
 import { compressToTargetSize, formatSupportsQuality } from "./targetSizeService";
+import { buildFilterString, isNoOpAdjustments } from "./adjustmentService";
 
 /**
  * Calculate dimensions maintaining aspect ratio
@@ -109,6 +110,17 @@ export async function processImage(
 
   // Step 4: Create canvas with final dimensions
   const canvas = resizeOnCanvas(img, width, height);
+
+  // Step 4.5: Apply image adjustments (brightness, contrast, saturation)
+  if (options.adjustments && !isNoOpAdjustments(options.adjustments)) {
+    const filterStr = buildFilterString(options.adjustments);
+    const adjCtx = canvas.getContext("2d");
+    if (adjCtx && filterStr) {
+      adjCtx.filter = filterStr;
+      adjCtx.drawImage(canvas, 0, 0);
+      adjCtx.filter = "none";
+    }
+  }
 
   // Step 5: Determine format (convert or original)
   // If background removal is enabled, force PNG to preserve transparency
