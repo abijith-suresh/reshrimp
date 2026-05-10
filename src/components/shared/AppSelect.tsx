@@ -80,6 +80,7 @@ export default function AppSelect(props: AppSelectProps) {
     const idx = props.options.findIndex((o) => o.value === props.value);
     setFocusedIndex(idx >= 0 ? idx : (enabledIndices()[0] ?? -1));
     setOpen(true);
+    queueMicrotask(() => listboxRef?.focus());
   }
 
   function closeDropdown() {
@@ -195,7 +196,6 @@ export default function AppSelect(props: AppSelectProps) {
         ref={(el) => (triggerRef = el)}
         type="button"
         id={props.id ?? triggerId}
-        role="combobox"
         aria-haspopup="listbox"
         aria-expanded={open()}
         aria-controls={open() ? listboxId : undefined}
