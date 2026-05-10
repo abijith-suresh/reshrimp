@@ -2,6 +2,7 @@ import { getSupportedImageFormatSummary, SUPPORTED_IMAGE_FORMATS } from "../conf
 import { MAX_FILE_SIZE, RECOMMENDED_MAX_SIZE } from "../config/constants";
 import type { ImageFormat, ValidationResult } from "../types/image";
 import { formatFileSize } from "../utils/imageUtils";
+import { isAcceptedInputFormat } from "./formatDetectionService";
 
 /**
  * Get list of supported image formats
@@ -38,8 +39,8 @@ export function validateImageFile(file: File): ValidationResult {
     };
   }
 
-  // Check if format is supported
-  if (!isSupportedFormat(file.type)) {
+  // Check if format is supported (including HEIC/HEIF/AVIF)
+  if (!isAcceptedInputFormat(file.type)) {
     return {
       valid: false,
       error: `Unsupported image format: ${file.type}. Supported formats: ${getSupportedImageFormatSummary()}`,
@@ -84,6 +85,9 @@ export function getFileExtension(format: ImageFormat): string {
     "image/png": "png",
     "image/webp": "webp",
     "image/gif": "gif",
+    "image/avif": "avif",
+    "image/heic": "heic",
+    "image/heif": "heif",
   };
 
   return extensionMap[format] || "png";
