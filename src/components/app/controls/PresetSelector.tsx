@@ -1,14 +1,14 @@
 import { useImageApp } from "@/components/app/state/ImageAppContext";
-import ControlField from "@/components/app/ui/ControlField";
-import AppSelect from "@/components/shared/AppSelect";
+import Field from "@/components/ui/Field";
+import Select from "@/components/ui/Select";
 import { PRESET_OPTIONS } from "@/config/selectOptions";
 
 export default function PresetSelector() {
   const { state, actions } = useImageApp();
 
   return (
-    <ControlField label="Preset">
-      <AppSelect
+    <Field label="Preset">
+      <Select
         id="preset-select"
         options={PRESET_OPTIONS}
         value={state.presetValue()}
@@ -16,6 +16,6 @@ export default function PresetSelector() {
         disabled={!state.controlsActive()}
         placeholder="Custom"
       />
-    </ControlField>
+    </Field>
   );
 }

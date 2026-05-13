@@ -171,9 +171,7 @@ describe("ImageApp", () => {
 
     await vi.waitFor(() => {
       expect(view.container.querySelector("#quality-slider")).toBeDisabled();
-      expect(view.container).toHaveTextContent(
-        "PNG export is lossless in this app, so the quality slider does not apply."
-      );
+      expect(view.container).not.toHaveTextContent("Fixed");
     });
   });
 

@@ -1,11 +1,11 @@
 ---
 import MarketingLayout from "../layouts/MarketingLayout.astro";
 import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
-import MarketingSection from "../components/marketing/layout/MarketingSection.astro";
 import PageContainer from "../components/marketing/layout/PageContainer.astro";
 import HeroSection from "../components/marketing/hero/HeroSection.astro";
 import FAQAccordion from "../components/marketing/sections/FAQAccordion.astro";
-import MarketingButton from "../components/marketing/ui/MarketingButton.astro";
+import ButtonLink from "../components/ui/ButtonLink.astro";
+import PageSection from "../components/ui/PageSection.astro";
 import { ArrowRight, Github } from "lucide-astro";
 import { makeHref } from "../lib/utils";
 import { GITHUB_URL, ROUTES } from "../config/constants";
@@ -65,7 +65,7 @@ const faqs = [
       subtitle="Quick answers about privacy, formats, and offline use."
     />
 
-    <MarketingSection sectionClass="px-8 py-8 pb-12 relative z-10">
+    <PageSection sectionClass="px-8 py-8 pb-12 relative z-10">
       <PageContainer>
         {
           faqs.map((faq, i) => (
@@ -73,10 +73,9 @@ const faqs = [
           ))
         }
       </PageContainer>
-    </MarketingSection>
+    </PageSection>
 
-    <!-- CTA -->
-    <MarketingSection
+    <PageSection
       sectionClass="px-8 py-8 pb-20 text-center relative z-10"
       containerClass="max-w-[500px] mx-auto"
     >
@@ -95,15 +94,15 @@ const faqs = [
         data-reveal
         data-reveal-delay="160"
       >
-        <MarketingButton href={makeHref(ROUTES.APP)}>
+        <ButtonLink href={makeHref(ROUTES.APP)}>
           Try Reshrimp
           <ArrowRight size={18} strokeWidth={2} class="cta-pop-arrow" />
-        </MarketingButton>
-        <MarketingButton href={GITHUB_URL} variant="secondary" size="lg" external={true}>
+        </ButtonLink>
+        <ButtonLink href={GITHUB_URL} variant="secondary" size="lg" external={true}>
           <Github size={18} />
           GitHub
-        </MarketingButton>
+        </ButtonLink>
       </div>
-    </MarketingSection>
+    </PageSection>
   </MarketingPageWrapper>
 </MarketingLayout>

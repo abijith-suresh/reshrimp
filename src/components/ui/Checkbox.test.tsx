@@ -1,12 +1,12 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, fireEvent } from "@solidjs/testing-library";
-import AppCheckbox from "./AppCheckbox";
+import Checkbox from "./Checkbox";
 
-describe("AppCheckbox", () => {
+describe("Checkbox", () => {
   it("fires onChange with checked state", () => {
     const onChange = vi.fn();
     const { getByRole } = render(() => (
-      <AppCheckbox label="Lock aspect ratio" checked={false} onChange={onChange} />
+      <Checkbox label="Lock aspect ratio" checked={false} onChange={onChange} />
     ));
     const checkbox = getByRole("checkbox") as HTMLInputElement;
     fireEvent.click(checkbox);
@@ -15,14 +15,14 @@ describe("AppCheckbox", () => {
 
   it("respects disabled state", () => {
     const { getByRole } = render(() => (
-      <AppCheckbox label="Lock aspect ratio" checked={false} onChange={() => {}} disabled />
+      <Checkbox label="Lock aspect ratio" checked={false} onChange={() => {}} disabled />
     ));
     expect(getByRole("checkbox")).toBeDisabled();
   });
 
   it("renders the label text", () => {
     const { getByText } = render(() => (
-      <AppCheckbox label="Lock aspect ratio" checked={true} onChange={() => {}} />
+      <Checkbox label="Lock aspect ratio" checked={true} onChange={() => {}} />
     ));
     expect(getByText("Lock aspect ratio")).toBeInTheDocument();
   });

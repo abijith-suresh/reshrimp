@@ -7,7 +7,6 @@ import {
   UPLOAD_ACCEPT_ATTRIBUTE,
   getImageFormatLabel,
   getInitialOutputFormat,
-  getQualityControlNotice,
   getSupportedImageFormatSummary,
   isAcceptedInputFormat,
   isConvertibleOutputFormat,
@@ -46,8 +45,6 @@ describe("imageFormats", () => {
     expect(isConvertibleOutputFormat("image/heic")).toBe(false);
     expect(supportsBrowserQualityControl("image/webp")).toBe(true);
     expect(supportsBrowserQualityControl("image/png")).toBe(false);
-    expect(getQualityControlNotice("image/png")).toContain("lossless");
-    expect(getQualityControlNotice("image/avif")).toContain("built-in AVIF encoder");
     expect(isHeicInput("image/heif")).toBe(true);
     expect(isHeicInput("image/png")).toBe(false);
   });

@@ -68,17 +68,3 @@ export function getInitialOutputFormat(uploadFormat: string): ConvertibleImageFo
     ? (uploadFormat as ConvertibleImageFormat)
     : "image/jpeg";
 }
-
-export function getQualityControlNotice(format: ImageFormat): string | null {
-  if (supportsBrowserQualityControl(format)) return null;
-
-  if (format === "image/png") {
-    return "PNG export is lossless in this app, so the quality slider does not apply.";
-  }
-
-  if (format === "image/avif") {
-    return "This app uses the browser's built-in AVIF encoder, which does not expose adjustable quality controls here.";
-  }
-
-  return null;
-}

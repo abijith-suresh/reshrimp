@@ -1,14 +1,14 @@
 import { Show } from "solid-js";
-import AppCheckbox from "@/components/app/ui/AppCheckbox";
-import InfoTooltip from "@/components/app/ui/InfoTooltip";
 import { useImageApp } from "@/components/app/state/ImageAppContext";
+import Checkbox from "@/components/ui/Checkbox";
+import InfoTooltip from "@/components/ui/InfoTooltip";
 
 export default function InlineToggles() {
   const { state, actions } = useImageApp();
 
   return (
     <div class="flex items-center gap-5 pt-1">
-      <AppCheckbox
+      <Checkbox
         id="maintain-aspect-ratio"
         label="Lock ratio"
         checked={state.maintainAspectRatio()}
@@ -16,7 +16,7 @@ export default function InlineToggles() {
         disabled={!state.controlsActive()}
       />
       <div class="flex items-center gap-1.5">
-        <AppCheckbox
+        <Checkbox
           id="remove-background-checkbox"
           label="Remove bg"
           checked={state.removeBackground()}

@@ -32,11 +32,7 @@ import {
 import { validateImageFile, generateDownloadFilename } from "@/services/validationService";
 import { formatFileSize, generateId, convertFromPx } from "@/utils/imageUtils";
 import { DEFAULT_DPI } from "@/config/constants";
-import {
-  getInitialOutputFormat,
-  getQualityControlNotice,
-  supportsBrowserQualityControl,
-} from "@/config/imageFormats";
+import { getInitialOutputFormat, supportsBrowserQualityControl } from "@/config/imageFormats";
 import { SOCIAL_MEDIA_PRESETS } from "@/config/presets";
 
 export interface SizeDiff {
@@ -101,7 +97,6 @@ interface AppState {
   presetValue: Accessor<string>;
   currentOutputFormat: Accessor<ImageFormat | null>;
   qualityControlSupported: Accessor<boolean>;
-  qualityControlNotice: Accessor<string | null>;
   controlsActive: Accessor<boolean>;
   formatSelectDisabled: Accessor<boolean>;
   downloadActive: Accessor<boolean>;
@@ -196,11 +191,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   const qualityControlSupported = createMemo(() => {
     const format = currentOutputFormat();
     return format !== null && supportsBrowserQualityControl(format);
-  });
-
-  const qualityControlNotice = createMemo(() => {
-    const format = currentOutputFormat();
-    return format ? getQualityControlNotice(format) : null;
   });
 
   const widthPlaceholder = createMemo(() => {
@@ -551,7 +541,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     presetValue,
     currentOutputFormat,
     qualityControlSupported,
-    qualityControlNotice,
     controlsActive,
     formatSelectDisabled,
     downloadActive,

@@ -1,4 +1,4 @@
-interface AppCheckboxProps {
+interface CheckboxProps {
   id?: string;
   label: string;
   checked: boolean;
@@ -6,7 +6,7 @@ interface AppCheckboxProps {
   disabled?: boolean;
 }
 
-export default function AppCheckbox(props: AppCheckboxProps) {
+export default function Checkbox(props: CheckboxProps) {
   return (
     <label class="flex items-center gap-2 text-[0.85rem] text-sp-text cursor-pointer select-none">
       <button

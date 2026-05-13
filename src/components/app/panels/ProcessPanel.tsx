@@ -1,5 +1,5 @@
 import { Show } from "solid-js";
-import SectionHeader from "@/components/app/ui/SectionHeader";
+import SectionHeader from "@/components/ui/SectionHeader";
 import UploadArea from "@/components/app/UploadArea";
 import PresetSelector from "@/components/app/controls/PresetSelector";
 import DimensionInputs from "@/components/app/controls/DimensionInputs";

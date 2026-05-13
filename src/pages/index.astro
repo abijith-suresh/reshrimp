@@ -2,7 +2,6 @@
 import MarketingLayout from "../layouts/MarketingLayout.astro";
 import SectionHeader from "../components/shared/SectionHeader.astro";
 import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
-import MarketingSection from "../components/marketing/layout/MarketingSection.astro";
 import HeroSection from "../components/marketing/hero/HeroSection.astro";
 import HeroCTA from "../components/marketing/hero/HeroCTA.astro";
 import BentoGrid from "../components/marketing/sections/BentoGrid.astro";
@@ -12,6 +11,7 @@ import StepItem from "../components/marketing/sections/StepItem.astro";
 import StepArrow from "../components/marketing/sections/StepArrow.astro";
 import TrustBanner from "../components/marketing/sections/TrustBanner.astro";
 import CTACard from "../components/marketing/sections/CTACard.astro";
+import PageSection from "../components/ui/PageSection.astro";
 import { Scaling, ArrowLeftRight, Gauge, ShieldCheck } from "lucide-astro";
 import { SITE_NAME, SITE_DESCRIPTION } from "../config/constants";
 
@@ -38,7 +38,6 @@ const jsonLd = {
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </Fragment>
   <MarketingPageWrapper>
-    <!-- Hero -->
     <HeroSection
       chips={[
         { label: "Free forever", variant: "mint" },
@@ -52,11 +51,7 @@ const jsonLd = {
       <HeroCTA secondaryText="No sign-up · Offline-ready" />
     </HeroSection>
 
-    <!-- Bento Features -->
-    <MarketingSection
-      sectionClass="px-8 py-16 relative z-10"
-      containerClass="max-w-[1000px] mx-auto"
-    >
+    <PageSection sectionClass="px-8 py-16 relative z-10" containerClass="max-w-[1000px] mx-auto">
       <SectionHeader label="What can you do?" title="Everything you need. Nothing you don't." />
       <BentoGrid>
         <BentoCard
@@ -86,13 +81,9 @@ const jsonLd = {
           description="All processing happens locally via browser APIs. After the first online visit, the app shell and core tools work offline. Open source — verify it yourself."
         />
       </BentoGrid>
-    </MarketingSection>
+    </PageSection>
 
-    <!-- How it works -->
-    <MarketingSection
-      sectionClass="px-8 py-16 relative z-10"
-      containerClass="max-w-[900px] mx-auto"
-    >
+    <PageSection sectionClass="px-8 py-16 relative z-10" containerClass="max-w-[900px] mx-auto">
       <SectionHeader label="Dead simple" title="Three steps. Seriously." />
       <StepSection>
         <StepItem
@@ -118,12 +109,10 @@ const jsonLd = {
           delay={400}
         />
       </StepSection>
-    </MarketingSection>
+    </PageSection>
 
-    <!-- Trust banner -->
     <TrustBanner />
 
-    <!-- Final CTA -->
     <CTACard />
   </MarketingPageWrapper>
 </MarketingLayout>

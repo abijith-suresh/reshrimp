@@ -1,6 +1,6 @@
 ---
 import { ArrowRight } from "lucide-astro";
-import MarketingButton from "../ui/MarketingButton.astro";
+import ButtonLink from "../../ui/ButtonLink.astro";
 import { makeHref } from "../../../lib/utils";
 import { ROUTES } from "../../../config/constants";
 
@@ -44,10 +44,10 @@ const {
             {subtitle}
           </p>
           <div data-reveal data-reveal-delay="160">
-            <MarketingButton href={ctaHref} size={size}>
+            <ButtonLink href={ctaHref} size={size}>
               {ctaLabel}
               <ArrowRight size={18} strokeWidth={2} class="cta-pop-arrow" />
-            </MarketingButton>
+            </ButtonLink>
           </div>
         </div>
       ) : (
@@ -64,10 +64,10 @@ const {
           >
             {subtitle}
           </p>
-          <MarketingButton href={ctaHref} size={size}>
+          <ButtonLink href={ctaHref} size={size}>
             {ctaLabel}
             <ArrowRight size={18} strokeWidth={2} class="cta-pop-arrow" />
-          </MarketingButton>
+          </ButtonLink>
         </>
       )
     }

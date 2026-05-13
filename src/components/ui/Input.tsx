@@ -1,4 +1,4 @@
-interface AppInputProps {
+interface InputProps {
   id?: string;
   label: string;
   type?: "number" | "text";
@@ -11,7 +11,7 @@ interface AppInputProps {
   step?: number | string;
 }
 
-export default function AppInput(props: AppInputProps) {
+export default function Input(props: InputProps) {
   return (
     <label class="block">
       <span class="block text-[0.75rem] text-sp-text-muted mb-1 font-medium">{props.label}</span>

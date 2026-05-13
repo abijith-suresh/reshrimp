@@ -1,14 +1,14 @@
 import { useImageApp } from "@/components/app/state/ImageAppContext";
-import ControlField from "@/components/app/ui/ControlField";
-import InfoTooltip from "@/components/app/ui/InfoTooltip";
-import AppSelect from "@/components/shared/AppSelect";
+import Field from "@/components/ui/Field";
+import InfoTooltip from "@/components/ui/InfoTooltip";
+import Select from "@/components/ui/Select";
 import { DPI_SELECT_OPTIONS } from "@/config/selectOptions";
 
 export default function DpiSelector() {
   const { state, actions } = useImageApp();
 
   return (
-    <ControlField
+    <Field
       label="Resolution"
       labelAccessory={
         <InfoTooltip
@@ -25,13 +25,13 @@ export default function DpiSelector() {
         />
       }
     >
-      <AppSelect
+      <Select
         id="dpi-select"
         options={DPI_SELECT_OPTIONS}
         value={String(state.dpiValue())}
         onChange={(v) => actions.handleDpiChange(Number(v))}
         disabled={!state.controlsActive()}
       />
-    </ControlField>
+    </Field>
   );
 }

@@ -1,7 +1,7 @@
 ---
 import MarketingLayout from "../layouts/MarketingLayout.astro";
 import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
-import MarketingSection from "../components/marketing/layout/MarketingSection.astro";
+import PageSection from "../components/ui/PageSection.astro";
 import HeroSection from "../components/marketing/hero/HeroSection.astro";
 import FeatureSection from "../components/marketing/sections/FeatureSection.astro";
 import CTACard from "../components/marketing/sections/CTACard.astro";
@@ -75,7 +75,7 @@ const features = [
     />
 
     <!-- Feature sections -->
-    <MarketingSection
+    <PageSection
       sectionClass="px-8 py-8 pb-16 relative z-10"
       containerClass="max-w-[900px] mx-auto flex flex-col gap-12"
     >
@@ -90,7 +90,7 @@ const features = [
           />
         ))
       }
-    </MarketingSection>
+    </PageSection>
 
     <!-- CTA -->
     <CTACard

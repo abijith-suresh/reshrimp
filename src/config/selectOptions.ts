@@ -1,9 +1,9 @@
-import type { AppSelectOption } from "@/components/shared/AppSelect";
+import type { SelectOption } from "@/components/ui/Select";
 import { DPI_OPTIONS } from "./constants";
 import { CONVERTIBLE_OUTPUT_FORMATS, getImageFormatLabel } from "./imageFormats";
 import { SOCIAL_MEDIA_PRESETS } from "./presets";
 
-export const FORMAT_OPTIONS: AppSelectOption[] = [
+export const FORMAT_OPTIONS: SelectOption[] = [
   { value: "", label: "Keep original" },
   ...CONVERTIBLE_OUTPUT_FORMATS.map((f) => ({
     value: f,
@@ -11,19 +11,19 @@ export const FORMAT_OPTIONS: AppSelectOption[] = [
   })),
 ];
 
-export const PRESET_OPTIONS: AppSelectOption[] = [
+export const PRESET_OPTIONS: SelectOption[] = [
   { value: "", label: "Custom" },
   ...SOCIAL_MEDIA_PRESETS.map((p) => ({ value: p.label, label: p.label })),
 ];
 
-export const UNIT_OPTIONS: AppSelectOption[] = [
+export const UNIT_OPTIONS: SelectOption[] = [
   { value: "px", label: "px" },
   { value: "%", label: "%" },
   { value: "in", label: "in" },
   { value: "cm", label: "cm" },
 ];
 
-export const DPI_SELECT_OPTIONS: AppSelectOption[] = DPI_OPTIONS.map((d) => ({
+export const DPI_SELECT_OPTIONS: SelectOption[] = DPI_OPTIONS.map((d) => ({
   value: String(d),
   label: `${d} DPI`,
 }));
