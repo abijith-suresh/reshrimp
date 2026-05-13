@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.3](https://github.com/abijith-suresh/reshrimp/compare/v0.6.2...v0.6.3) (2026-05-10)
+
+
+### Features
+
+* remove all GIF support ([#87](https://github.com/abijith-suresh/reshrimp/issues/87)) ([f8be39b](https://github.com/abijith-suresh/reshrimp/commit/f8be39ba5648e5db8605c5f1378d1c7953d40ca3))
+
 ## [0.6.2](https://github.com/abijith-suresh/reshrimp/compare/v0.6.1...v0.6.2) (2026-05-10)
 
 
