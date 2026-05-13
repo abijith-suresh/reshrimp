@@ -1,10 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
-// Mock heic2any since it requires Web Workers unavailable in jsdom
-vi.mock("heic2any", () => ({
-  default: vi.fn().mockResolvedValue(new Blob(["converted-png"], { type: "image/png" })),
-}));
-
 import {
   ACCEPTED_INPUT_FORMATS,
   CONVERTIBLE_OUTPUT_FORMATS,
@@ -15,6 +10,11 @@ import {
 import { decodeHeicBlob, detectAvifSupport } from "./formatDetectionService";
 
 describe("formatDetectionService", () => {
+  afterEach(() => {
+    delete window.heic2any;
+    document.head.querySelectorAll("script[data-heic2any-loader]").forEach((node) => node.remove());
+  });
+
   describe("isAcceptedInputFormat", () => {
     it.each<{ mime: string; expected: boolean }>([
       { mime: "image/jpeg", expected: true },
@@ -91,16 +91,20 @@ describe("formatDetectionService", () => {
   });
 
   describe("decodeHeicBlob", () => {
-    it("converts a HEIC blob to PNG using heic2any", async () => {
+    it("converts a HEIC blob to PNG using the browser-loaded decoder", async () => {
+      const convertedBlob = new Blob(["converted-png"], { type: "image/png" });
       const heicBlob = new Blob(["fake-heic"], { type: "image/heic" });
+      window.heic2any = vi.fn().mockResolvedValue(convertedBlob);
+
       const result = await decodeHeicBlob(heicBlob);
 
+      expect(window.heic2any).toHaveBeenCalledWith({ blob: heicBlob, toType: "image/png" });
       expect(result.type).toBe("image/png");
     });
   });
 
   describe("ACCEPTED_INPUT_FORMATS", () => {
-    it("includes HEIC and AVIF alongside the legacy formats", () => {
+    it("includes HEIC and AVIF alongside the core browser formats", () => {
       const mimes = ACCEPTED_INPUT_FORMATS as string[];
 
       expect(mimes).toContain("image/heic");
