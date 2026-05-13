@@ -1,4 +1,5 @@
 import type { JSX } from "solid-js";
+import { Show } from "solid-js";
 
 interface ImagePreviewProps {
   id?: string;
@@ -6,8 +7,6 @@ interface ImagePreviewProps {
   alt: string;
   placeholder?: JSX.Element;
 }
-
-import { Show } from "solid-js";
 
 export default function ImagePreview(props: ImagePreviewProps) {
   return (

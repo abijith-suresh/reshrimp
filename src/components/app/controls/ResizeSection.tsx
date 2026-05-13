@@ -12,8 +12,8 @@ export default function ResizeSection() {
   const showDpi = () => state.resizeUnit() === "in" || state.resizeUnit() === "cm";
 
   return (
-    <div class="flex flex-col gap-2.5">
-      <SectionHeader>Resize</SectionHeader>
+    <div class="flex flex-col gap-3">
+      <SectionHeader>Geometry</SectionHeader>
       <PresetSelector />
       <DimensionInputs />
       <UnitSelector />

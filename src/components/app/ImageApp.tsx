@@ -1,19 +1,80 @@
+import { createSignal, Show } from "solid-js";
 import { ImageAppProvider } from "@/components/app/state/ImageAppContext";
-import UploadArea from "./UploadArea";
-import ProcessingControls from "./ProcessingControls";
-import PreviewPanel from "./PreviewPanel";
+import AppSidebar, { type AppMode } from "@/components/app/AppSidebar";
+import ControlPanel from "@/components/app/ControlPanel";
+import PreviewPanel from "@/components/app/PreviewPanel";
 
 export default function ImageApp() {
+  const [activeMode, setActiveMode] = createSignal<AppMode>("image");
+  const [drawerOpen, setDrawerOpen] = createSignal(false);
+
+  function handleToggleDrawer() {
+    setDrawerOpen((prev) => !prev);
+  }
+
+  function handleModeChange(mode: AppMode) {
+    setActiveMode(mode);
+  }
+
   return (
     <ImageAppProvider>
-      <div class="sticky top-[68px] flex flex-col gap-4 self-start max-md:static">
-        <UploadArea />
-        <ProcessingControls />
+      {/* ── Root: h-dvh keeps the whole shell locked to viewport ── */}
+      <div class="h-dvh overflow-hidden flex flex-row bg-sp-bg">
+        {/* Left nav dock — desktop only (hidden on mobile) */}
+        <AppSidebar
+          activeMode={activeMode()}
+          drawerOpen={drawerOpen()}
+          onModeChange={handleModeChange}
+          onToggleDrawer={handleToggleDrawer}
+        />
+
+        {/* Control panel — desktop: second column, hidden on mobile */}
+        <div class="hidden md:flex flex-col w-[320px] border-r border-sp-border bg-sp-bg-card overflow-hidden shrink-0">
+          <ControlPanel mode={activeMode()} />
+        </div>
+
+        {/* Preview area — fills remaining space on all screen sizes */}
+        {/* pb-14 on mobile keeps content above the fixed bottom bar */}
+        <div class="flex-1 overflow-hidden flex flex-col pb-14 md:pb-0">
+          <PreviewPanel />
+        </div>
       </div>
-      <PreviewPanel />
+
+      {/* ── Mobile: bottom drawer ──────────────────────────────── */}
+      {/* Backdrop */}
+      <Show when={drawerOpen()}>
+        <div
+          class="md:hidden fixed inset-0 z-30 bg-black/25 transition-opacity duration-200"
+          onClick={() => setDrawerOpen(false)}
+          aria-hidden="true"
+        />
+      </Show>
+
+      {/* Drawer panel */}
+      <div
+        class="md:hidden fixed left-0 right-0 z-40 bg-sp-bg-card rounded-t-[20px] shadow-[0_-4px_24px_rgba(30,27,75,0.12)] overflow-hidden flex flex-col transition-transform duration-300 ease-out"
+        style={{
+          bottom: "56px",
+          "max-height": "72dvh",
+          transform: drawerOpen() ? "translateY(0)" : "translateY(110%)",
+        }}
+        aria-hidden={!drawerOpen()}
+      >
+        {/* Drag handle — tap to close */}
+        <button
+          type="button"
+          class="flex justify-center pt-3 pb-1 w-full shrink-0 cursor-pointer"
+          aria-label="Close controls"
+          onClick={() => setDrawerOpen(false)}
+        >
+          <div class="w-10 h-1 bg-sp-border rounded-full" />
+        </button>
+        <div class="overflow-y-auto flex-1 min-h-0">
+          <ControlPanel mode={activeMode()} />
+        </div>
+      </div>
     </ImageAppProvider>
   );
 }
 
-// Re-export SizeDiff for backwards compatibility if any consumers import it
 export type { SizeDiff } from "@/components/app/state/ImageAppContext";

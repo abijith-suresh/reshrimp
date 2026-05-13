@@ -499,6 +499,11 @@ body {
   line-height: 1.4;
 }
 
+.sp-select-trigger:hover:not(:disabled) {
+  border-color: var(--sp-lavender);
+  background: var(--sp-lavender-light);
+}
+
 .sp-select-trigger:focus-visible {
   outline: none;
   border-color: var(--sp-lavender);
@@ -713,6 +718,17 @@ body {
   }
 }
 
+@keyframes preview-reveal {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .sbs-tab {
   padding: 0.85rem 1.25rem;
   font-family: var(--sp-font-body);
@@ -746,8 +762,8 @@ body {
   opacity: 0;
   visibility: hidden;
   transition:
-    opacity 0.25s ease,
-    visibility 0.25s ease;
+    opacity 0.3s cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0.3s;
 }
 
 .tab-panel-active {
@@ -800,6 +816,36 @@ body {
 .info-bar.hidden {
   display: none;
 }
+
+/* ===== App: Info Strip (single progressive view) ===== */
+.info-strip {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.15rem 0.5rem;
+  font-size: 0.78rem;
+  color: var(--sp-text-muted);
+  background: var(--sp-lavender-light);
+  border-top: 1px solid var(--sp-border-light);
+  border-radius: var(--sp-radius);
+  padding: 0.5rem 0.85rem;
+  flex-shrink: 0;
+}
+
+.info-strip-filename {
+  font-weight: 600;
+  color: var(--sp-text);
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.info-strip-dot {
+  color: var(--sp-border);
+}
+
+/* ===== App: Preview crossfade ===== */
 
 .error-container {
   background: var(--sp-coral-light);

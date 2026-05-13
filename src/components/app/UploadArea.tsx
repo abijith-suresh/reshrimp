@@ -1,6 +1,4 @@
-import { Show } from "solid-js";
 import UploadDropzone from "@/components/app/upload/UploadDropzone";
-import FileInfoBadge from "@/components/app/upload/FileInfoBadge";
 import ValidationMessages from "@/components/app/upload/ValidationMessages";
 import { useImageApp } from "@/components/app/state/ImageAppContext";
 import { MAX_FILE_SIZE } from "@/config/constants";
@@ -53,12 +51,9 @@ export default function UploadArea() {
           onClick={(e) => e.stopPropagation()}
           onChange={handleFileInput}
         />
-        <p class="text-[0.8rem] text-sp-text-soft m-0">
-          JPEG, PNG, or WebP (max {formatFileSize(MAX_FILE_SIZE)})
+        <p class="text-[0.7rem] text-sp-text-soft m-0 mt-1">
+          JPEG, PNG, WebP · max {formatFileSize(MAX_FILE_SIZE)}
         </p>
-        <Show when={state.currentImage()}>
-          {(img) => <FileInfoBadge fileName={img().file.name} fileSize={img().file.size} />}
-        </Show>
         <ValidationMessages validation={state.validation()} />
       </UploadDropzone>
     </div>

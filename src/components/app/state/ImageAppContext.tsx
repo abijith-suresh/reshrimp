@@ -5,12 +5,14 @@ import {
   onCleanup,
   createContext,
   useContext,
+  batch,
   type Accessor,
   type JSX,
 } from "solid-js";
 import type { ProcessedImage, ValidationResult, ImageFormat } from "@/types/image";
 import type { ProcessResult, ResizeUnit } from "@/types/processing";
 import { processImage, getImageMetadata } from "@/services/imageService";
+import { preloadBackgroundRemoval } from "@/services/backgroundRemovalService";
 import {
   downloadProcessedBlob,
   replaceObjectUrl,
@@ -28,6 +30,7 @@ import { validateImageFile, generateDownloadFilename } from "@/services/validati
 import { formatFileSize, generateId, convertFromPx } from "@/utils/imageUtils";
 import { DEFAULT_DPI } from "@/config/constants";
 import { SOCIAL_MEDIA_PRESETS } from "@/config/presets";
+import { CONVERTIBLE_IMAGE_FORMATS } from "@/config/imageFormats";
 
 export interface SizeDiff {
   text: string;
@@ -40,12 +43,20 @@ function formatUnitValue(value: number, unit: ResizeUnit): string {
   return parseFloat(value.toFixed(2)).toString();
 }
 
+/** Debounce helper — returns a function that delays `fn` by `ms` and cancels prior pending calls. */
+function debounce(fn: () => void, ms: number): () => void {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  return () => {
+    if (timer !== undefined) clearTimeout(timer);
+    timer = setTimeout(fn, ms);
+  };
+}
+
 interface AppState {
   currentImage: Accessor<ProcessedImage | null>;
   processResult: Accessor<ProcessResult | null>;
   isProcessing: Accessor<boolean>;
   progressLabel: Accessor<string | null>;
-  activeTab: Accessor<"original" | "processed">;
   error: Accessor<string | null>;
   validation: Accessor<ValidationResult | null>;
   isDragOver: Accessor<boolean>;
@@ -64,7 +75,6 @@ interface AppState {
   controlsActive: Accessor<boolean>;
   formatSelectDisabled: Accessor<boolean>;
   downloadActive: Accessor<boolean>;
-  processBtnLabel: Accessor<string>;
   widthPlaceholder: Accessor<string>;
   heightPlaceholder: Accessor<string>;
   sizeDifference: Accessor<SizeDiff | null>;
@@ -72,7 +82,6 @@ interface AppState {
 
 interface AppActions {
   handleFileUpload(file: File): Promise<void>;
-  handleProcess(): Promise<void>;
   handleDownload(): void;
   handleRemoveBackgroundChange(checked: boolean): void;
   handleUnitChange(unit: ResizeUnit): void;
@@ -81,7 +90,6 @@ interface AppActions {
   handleWidthInput(val: string): void;
   handleHeightInput(val: string): void;
   handleAspectRatioChange(checked: boolean): void;
-  setActiveTab(tab: "original" | "processed"): void;
   setIsDragOver(v: boolean): void;
   setTooltipOpen(v: boolean): void;
   setDpiTooltipOpen(v: boolean): void;
@@ -101,7 +109,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   const [progressLabel, setProgressLabel] = createSignal<string | null>(null);
 
   // ── UI state ──────────────────────────────────────────────────────────────
-  const [activeTab, setActiveTab] = createSignal<"original" | "processed">("original");
   const [error, setError] = createSignal<string | null>(null);
   const [validation, setValidation] = createSignal<ValidationResult | null>(null);
   const [isDragOver, setIsDragOver] = createSignal(false);
@@ -126,15 +133,17 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     revokeImageUrls(currentImage());
   });
 
+  // ── Preload background removal WASM + model on mount ──────────────────────
+  createEffect(() => {
+    preloadBackgroundRemoval().catch(() => {
+      // Silently ignore preload failures — will retry on actual use
+    });
+  });
+
   // ── Derived signals ───────────────────────────────────────────────────────
-  const controlsActive = createMemo(() => currentImage() !== null && !isProcessing());
+  const controlsActive = createMemo(() => currentImage() !== null);
   const formatSelectDisabled = createMemo(() => removeBackground());
   const downloadActive = createMemo(() => processResult() !== null);
-
-  const processBtnLabel = createMemo(() => {
-    if (!isProcessing()) return "Process Image";
-    return progressLabel() ?? "Processing\u2026";
-  });
 
   const widthPlaceholder = createMemo(() => {
     const img = currentImage();
@@ -165,11 +174,89 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     };
   });
 
-  // ── Auto-switch to processed tab when download becomes ready ──────────────
-  createEffect(() => {
-    if (downloadActive()) {
-      setActiveTab("processed");
+  // ── Core processing (internal) ────────────────────────────────────────────
+  async function handleProcess(): Promise<void> {
+    const img = currentImage();
+    if (!img || isProcessing()) return;
+
+    const options = buildProcessOptions({
+      originalWidth: img.metadata.width,
+      originalHeight: img.metadata.height,
+      widthValue: widthValue(),
+      heightValue: heightValue(),
+      maintainAspectRatio: maintainAspectRatio(),
+      removeBackground: removeBackground(),
+      formatValue: formatValue(),
+      qualityValue: qualityValue(),
+      resizeUnit: resizeUnit(),
+      dpi: dpiValue(),
+    });
+
+    setIsProcessing(true);
+    setError(null);
+
+    if (options.removeBackground) {
+      setProgressLabel("Removing background\u2026");
     }
+
+    try {
+      const result = await processImage(
+        img.file,
+        options,
+        options.removeBackground
+          ? (progress: number) => {
+              const pct = Math.round(progress * 100);
+              setProgressLabel(`Removing background ${pct}%\u2026`);
+            }
+          : undefined
+      );
+
+      const processedUrl = replaceObjectUrl(img.processedUrl, result.blob);
+
+      // Batch result updates into a single DOM update
+      batch(() => {
+        setCurrentImage((prev) => (prev ? { ...prev, processedUrl } : null));
+        setProcessResult(result);
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Processing failed");
+      console.error("Error processing image:", err);
+    } finally {
+      batch(() => {
+        setIsProcessing(false);
+        setProgressLabel(null);
+      });
+    }
+  }
+
+  // ── Auto-process: debounce fast operations, immediate for bg removal ──────
+  const debouncedProcess = debounce(() => handleProcess(), 400);
+
+  createEffect(() => {
+    // Access all reactive settings to track them — the auto-process triggers
+    // whenever any of these change. Void expressions satisfy the unused-var lint.
+    void widthValue();
+    void heightValue();
+    void formatValue();
+    void qualityValue();
+    void resizeUnit();
+    void dpiValue();
+    void presetValue();
+    void maintainAspectRatio();
+    const bg = removeBackground();
+
+    // Only auto-process if an image is loaded
+    if (!currentImage()) return;
+
+    // Background removal is heavy — process immediately (no debounce)
+    // The WASM preload on mount should have already cached the model
+    if (bg) {
+      handleProcess();
+      return;
+    }
+
+    // Fast operations (resize, format, quality) — debounced
+    debouncedProcess();
   });
 
   // ── Handlers ──────────────────────────────────────────────────────────────
@@ -193,82 +280,39 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         error: null,
       };
 
-      // Reset stale state when a new file is loaded
-      setCurrentImage((previousImage) => {
-        revokeImageUrls(previousImage);
-        return processedImage;
+      // Batch all state resets into a single DOM update to prevent flickering.
+      // Without batch(), each set* after an await triggers a separate re-render.
+      batch(() => {
+        // Reset stale state when a new file is loaded
+        setCurrentImage((previousImage) => {
+          revokeImageUrls(previousImage);
+          return processedImage;
+        });
+        setProcessResult(null);
+        setError(null);
+
+        // Reset form controls to defaults
+        setWidthValue("");
+        setHeightValue("");
+        setMaintainAspectRatio(true);
+        setRemoveBackground(false);
+        // Auto-select the uploaded format; fall back to JPEG for HEIC/HEIF
+        const convertible = CONVERTIBLE_IMAGE_FORMATS as readonly string[];
+        const autoFormat = convertible.includes(metadata.format) ? metadata.format : "image/jpeg";
+        setFormatValue(autoFormat);
+        setPreviousFormatValue("");
+        setQualityValue(92);
+        setTooltipOpen(false);
+
+        // Reset unit controls
+        setResizeUnit("px");
+        setDpiValue(DEFAULT_DPI);
+        setPresetValue("");
+        setDpiTooltipOpen(false);
       });
-      setProcessResult(null);
-      setActiveTab("original");
-      setError(null);
-
-      // Reset form controls to defaults
-      setWidthValue("");
-      setHeightValue("");
-      setMaintainAspectRatio(true);
-      setRemoveBackground(false);
-      setFormatValue("");
-      setPreviousFormatValue("");
-      setQualityValue(92);
-      setTooltipOpen(false);
-
-      // Reset unit controls
-      setResizeUnit("px");
-      setDpiValue(DEFAULT_DPI);
-      setPresetValue("");
-      setDpiTooltipOpen(false);
     } catch (err) {
       setError("Failed to load image. Please try another file.");
       console.error("Error loading image:", err);
-    }
-  }
-
-  async function handleProcess(): Promise<void> {
-    const img = currentImage();
-    if (!img || isProcessing()) return;
-
-    const options = buildProcessOptions({
-      originalWidth: img.metadata.width,
-      originalHeight: img.metadata.height,
-      widthValue: widthValue(),
-      heightValue: heightValue(),
-      maintainAspectRatio: maintainAspectRatio(),
-      removeBackground: removeBackground(),
-      formatValue: formatValue(),
-      qualityValue: qualityValue(),
-      resizeUnit: resizeUnit(),
-      dpi: dpiValue(),
-    });
-
-    setIsProcessing(true);
-    setError(null);
-
-    if (options.removeBackground) {
-      setProgressLabel("Loading model\u2026");
-    }
-
-    try {
-      const result = await processImage(
-        img.file,
-        options,
-        options.removeBackground
-          ? (progress: number) => {
-              const pct = Math.round(progress * 100);
-              setProgressLabel(`Loading model ${pct}%\u2026`);
-            }
-          : undefined
-      );
-
-      const processedUrl = replaceObjectUrl(img.processedUrl, result.blob);
-
-      setCurrentImage((prev) => (prev ? { ...prev, processedUrl } : null));
-      setProcessResult(result);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Processing failed");
-      console.error("Error processing image:", err);
-    } finally {
-      setIsProcessing(false);
-      setProgressLabel(null);
     }
   }
 
@@ -437,7 +481,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     processResult,
     isProcessing,
     progressLabel,
-    activeTab,
     error,
     validation,
     isDragOver,
@@ -456,7 +499,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     controlsActive,
     formatSelectDisabled,
     downloadActive,
-    processBtnLabel,
     widthPlaceholder,
     heightPlaceholder,
     sizeDifference,
@@ -464,7 +506,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
   const actions: AppActions = {
     handleFileUpload,
-    handleProcess,
     handleDownload,
     handleRemoveBackgroundChange,
     handleUnitChange,
@@ -473,7 +514,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     handleWidthInput,
     handleHeightInput,
     handleAspectRatioChange,
-    setActiveTab,
     setIsDragOver,
     setTooltipOpen,
     setDpiTooltipOpen,
