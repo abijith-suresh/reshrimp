@@ -18,42 +18,24 @@ export default function PreviewPanel() {
 
       <Show when={state.currentImage()}>
         {(img) => {
-          // Use processed metadata if available, otherwise original
           const displayWidth = () => state.processResult()?.metadata.width ?? img().metadata.width;
           const displayHeight = () =>
             state.processResult()?.metadata.height ?? img().metadata.height;
           const displayFileSize = () =>
             state.processResult()?.metadata.fileSize ?? img().metadata.fileSize;
+          const previewUrl = () => img().processedUrl ?? img().originalUrl;
 
           return (
             <div class="flex-1 flex flex-col min-h-0">
-              {/* Image viewport — absolute positioning guarantees viewport constraint */}
               <div class="flex-1 relative min-h-0 m-3 mb-0">
                 <div class="absolute inset-0 preview-frame">
-                  {/*
-                    Two-image stacking approach: the original image always stays
-                    rendered underneath, so there's never a frame with no visible
-                    content when the processed result arrives. The processed image
-                    is layered on top using absolute positioning.
-                  */}
                   <img
-                    src={img().originalUrl}
-                    alt=""
+                    id="preview-image"
+                    src={previewUrl()}
+                    alt="Preview"
                     class="max-w-full max-h-full object-contain"
-                    aria-hidden="true"
                   />
-                  <Show when={img().processedUrl}>
-                    {(processedUrl) => (
-                      <img
-                        id="preview-image"
-                        src={processedUrl()}
-                        alt="Preview"
-                        class="absolute inset-0 max-w-full max-h-full object-contain m-auto"
-                      />
-                    )}
-                  </Show>
 
-                  {/* Heavy processing overlay (background removal) */}
                   <Show when={state.isProcessing() && state.progressLabel()}>
                     {(label) => (
                       <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-sp-bg/80 rounded-sp">

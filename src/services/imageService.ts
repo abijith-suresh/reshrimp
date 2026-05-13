@@ -45,10 +45,13 @@ export function calculateDimensions(
   }
 
   if (options.width && options.height) {
-    // Both specified, use width and calculate height to maintain aspect ratio
+    const widthScale = options.width / originalWidth;
+    const heightScale = options.height / originalHeight;
+    const scale = Math.min(widthScale, heightScale);
+
     return {
-      width: options.width,
-      height: Math.round(options.width / aspectRatio),
+      width: Math.max(1, Math.round(originalWidth * scale)),
+      height: Math.max(1, Math.round(originalHeight * scale)),
     };
   }
 
@@ -134,7 +137,7 @@ export async function processImage(
   format = getBestFormat(format);
 
   // Step 6: Determine quality (compress or default)
-  // PNG doesn't benefit from quality setting, so we only apply it for other formats
+  // Browser-native quality control only applies to the formats we explicitly support.
   let quality: number | undefined;
   if (format === "image/jpeg" || format === "image/webp") {
     quality = options.quality !== undefined ? options.quality : 0.92;

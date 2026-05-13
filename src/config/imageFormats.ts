@@ -1,6 +1,7 @@
 import type { ImageFormat } from "../types/image";
 
 export type ConvertibleImageFormat = Exclude<ImageFormat, "image/heic" | "image/heif">;
+export type QualityControlledImageFormat = Extract<ImageFormat, "image/jpeg" | "image/webp">;
 
 export const ACCEPTED_INPUT_FORMATS: readonly ImageFormat[] = [
   "image/jpeg",
@@ -18,12 +19,10 @@ export const CONVERTIBLE_OUTPUT_FORMATS: readonly ConvertibleImageFormat[] = [
   "image/avif",
 ];
 
-/**
- * Legacy aliases kept for existing callers while the codebase converges on
- * input/output terminology.
- */
-export const SUPPORTED_IMAGE_FORMATS = ACCEPTED_INPUT_FORMATS;
-export const CONVERTIBLE_IMAGE_FORMATS = CONVERTIBLE_OUTPUT_FORMATS;
+export const QUALITY_CONTROLLED_OUTPUT_FORMATS: readonly QualityControlledImageFormat[] = [
+  "image/jpeg",
+  "image/webp",
+];
 
 export const IMAGE_FORMAT_LABELS: Record<ImageFormat, string> = {
   "image/jpeg": "JPEG",
@@ -54,6 +53,12 @@ export function isConvertibleOutputFormat(format: ImageFormat): format is Conver
   return CONVERTIBLE_OUTPUT_FORMATS.includes(format as ConvertibleImageFormat);
 }
 
+export function supportsBrowserQualityControl(
+  format: ImageFormat
+): format is QualityControlledImageFormat {
+  return QUALITY_CONTROLLED_OUTPUT_FORMATS.includes(format as QualityControlledImageFormat);
+}
+
 export function isHeicInput(mimeType: string): boolean {
   return mimeType === "image/heic" || mimeType === "image/heif";
 }
@@ -62,4 +67,18 @@ export function getInitialOutputFormat(uploadFormat: string): ConvertibleImageFo
   return isConvertibleOutputFormat(uploadFormat as ImageFormat)
     ? (uploadFormat as ConvertibleImageFormat)
     : "image/jpeg";
+}
+
+export function getQualityControlNotice(format: ImageFormat): string | null {
+  if (supportsBrowserQualityControl(format)) return null;
+
+  if (format === "image/png") {
+    return "PNG export is lossless in this app, so the quality slider does not apply.";
+  }
+
+  if (format === "image/avif") {
+    return "This app uses the browser's built-in AVIF encoder, which does not expose adjustable quality controls here.";
+  }
+
+  return null;
 }

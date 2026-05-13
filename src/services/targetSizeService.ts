@@ -8,6 +8,10 @@
  * PNG is always lossless — the function reports hitTarget=false when the
  * natural PNG output exceeds the target.
  */
+import {
+  supportsBrowserQualityControl,
+  type QualityControlledImageFormat,
+} from "../config/imageFormats";
 import type { ImageFormat } from "../types/image";
 
 export interface TargetFileSizeResult {
@@ -36,13 +40,11 @@ export type CanvasEncoder = (
   quality?: number
 ) => Promise<Blob>;
 
-const FORMATS_WITH_QUALITY: ReadonlySet<ImageFormat> = new Set(["image/jpeg", "image/webp"]);
-
 /**
  * Check whether the given format supports quality-based compression.
  */
-export function formatSupportsQuality(format: ImageFormat): boolean {
-  return FORMATS_WITH_QUALITY.has(format);
+export function formatSupportsQuality(format: ImageFormat): format is QualityControlledImageFormat {
+  return supportsBrowserQualityControl(format);
 }
 
 /**

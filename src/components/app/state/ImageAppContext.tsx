@@ -32,7 +32,11 @@ import {
 import { validateImageFile, generateDownloadFilename } from "@/services/validationService";
 import { formatFileSize, generateId, convertFromPx } from "@/utils/imageUtils";
 import { DEFAULT_DPI } from "@/config/constants";
-import { getInitialOutputFormat, isHeicInput } from "@/config/imageFormats";
+import {
+  getInitialOutputFormat,
+  getQualityControlNotice,
+  supportsBrowserQualityControl,
+} from "@/config/imageFormats";
 import { SOCIAL_MEDIA_PRESETS } from "@/config/presets";
 
 export interface SizeDiff {
@@ -95,6 +99,9 @@ interface AppState {
   resizeUnit: Accessor<ResizeUnit>;
   dpiValue: Accessor<number>;
   presetValue: Accessor<string>;
+  currentOutputFormat: Accessor<ImageFormat | null>;
+  qualityControlSupported: Accessor<boolean>;
+  qualityControlNotice: Accessor<string | null>;
   controlsActive: Accessor<boolean>;
   formatSelectDisabled: Accessor<boolean>;
   downloadActive: Accessor<boolean>;
@@ -176,6 +183,25 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   const controlsActive = createMemo(() => currentImage() !== null);
   const formatSelectDisabled = createMemo(() => removeBackground());
   const downloadActive = createMemo(() => processResult() !== null);
+
+  const currentOutputFormat = createMemo<ImageFormat | null>(() => {
+    const image = currentImage();
+    if (!image) return null;
+    if (removeBackground()) return "image/png";
+    return formatValue()
+      ? (formatValue() as ImageFormat)
+      : getInitialOutputFormat(image.metadata.format);
+  });
+
+  const qualityControlSupported = createMemo(() => {
+    const format = currentOutputFormat();
+    return format !== null && supportsBrowserQualityControl(format);
+  });
+
+  const qualityControlNotice = createMemo(() => {
+    const format = currentOutputFormat();
+    return format ? getQualityControlNotice(format) : null;
+  });
 
   const widthPlaceholder = createMemo(() => {
     const img = currentImage();
@@ -269,7 +295,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         widthValue,
         heightValue,
         formatValue,
-        qualityValue,
+        () => (qualityControlSupported() ? qualityValue() : null),
         resizeUnit,
         dpiValue,
         presetValue,
@@ -349,10 +375,8 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     const result = processResult();
     if (!img?.processedUrl || !result) return;
 
-    const fallbackFormat = isHeicInput(img.metadata.format) ? "image/png" : img.metadata.format;
-    const targetFormat: ImageFormat = removeBackground()
-      ? "image/png"
-      : ((formatValue() || fallbackFormat) as ImageFormat);
+    const targetFormat = currentOutputFormat();
+    if (!targetFormat) return;
 
     const filename = generateDownloadFilename(img.metadata.fileName, targetFormat);
 
@@ -525,6 +549,9 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     resizeUnit,
     dpiValue,
     presetValue,
+    currentOutputFormat,
+    qualityControlSupported,
+    qualityControlNotice,
     controlsActive,
     formatSelectDisabled,
     downloadActive,

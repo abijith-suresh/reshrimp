@@ -101,10 +101,10 @@ describe("ImageApp", () => {
     // Wait for upload to complete — original image should be shown
     await vi.waitFor(() => {
       expect(mockGetImageMetadata).toHaveBeenCalledWith(sourceFile);
-      // Original image is always rendered (no id, src from originalUrl)
-      const images = view.container.querySelectorAll(".preview-frame img");
-      expect(images.length).toBeGreaterThanOrEqual(1);
-      expect(images[0]).toHaveAttribute("src", "blob:original");
+      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+        "src",
+        "blob:original"
+      );
     });
 
     // Info strip should show filename and original metadata
@@ -122,6 +122,7 @@ describe("ImageApp", () => {
         "src",
         "blob:processed"
       );
+      expect(view.container.querySelectorAll(".preview-frame img")).toHaveLength(1);
       expect(view.container.querySelector("#download-button")).toBeEnabled();
     });
 
@@ -130,6 +131,50 @@ describe("ImageApp", () => {
     triggerDelegatedClick(downloadBtn);
 
     expect(mockDownloadProcessedBlob).toHaveBeenCalledWith(processedBlob, "photo-processed.png");
+  });
+
+  it("disables the quality slider for png output", async () => {
+    const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
+    const processedBlob = new Blob(["processed"], { type: "image/png" });
+
+    mockGetImageMetadata.mockResolvedValue({
+      width: 1200,
+      height: 800,
+      format: sourceFile.type,
+      fileSize: sourceFile.size,
+      fileName: sourceFile.name,
+    });
+    mockProcessImage.mockResolvedValue({
+      blob: processedBlob,
+      metadata: {
+        width: 1200,
+        height: 800,
+        format: sourceFile.type,
+        fileSize: processedBlob.size,
+      },
+    });
+
+    vi.mocked(URL.createObjectURL)
+      .mockReturnValueOnce("blob:original")
+      .mockReturnValueOnce("blob:processed");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", {
+      configurable: true,
+      value: [sourceFile],
+    });
+
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#quality-slider")).toBeDisabled();
+      expect(view.container).toHaveTextContent(
+        "PNG export is lossless in this app, so the quality slider does not apply."
+      );
+    });
   });
 
   it("shows a user-facing error when processing fails", async () => {

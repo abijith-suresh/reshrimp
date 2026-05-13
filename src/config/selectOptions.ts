@@ -1,11 +1,11 @@
 import type { AppSelectOption } from "@/components/shared/AppSelect";
 import { DPI_OPTIONS } from "./constants";
-import { CONVERTIBLE_IMAGE_FORMATS, getImageFormatLabel } from "./imageFormats";
+import { CONVERTIBLE_OUTPUT_FORMATS, getImageFormatLabel } from "./imageFormats";
 import { SOCIAL_MEDIA_PRESETS } from "./presets";
 
 export const FORMAT_OPTIONS: AppSelectOption[] = [
   { value: "", label: "Keep original" },
-  ...CONVERTIBLE_IMAGE_FORMATS.map((f) => ({
+  ...CONVERTIBLE_OUTPUT_FORMATS.map((f) => ({
     value: f,
     label: getImageFormatLabel(f),
   })),

@@ -1,6 +1,6 @@
 import {
+  ACCEPTED_INPUT_FORMATS,
   getSupportedImageFormatSummary,
-  SUPPORTED_IMAGE_FORMATS,
   isAcceptedInputFormat,
 } from "../config/imageFormats";
 import { MAX_FILE_SIZE, RECOMMENDED_MAX_SIZE } from "../config/constants";
@@ -11,14 +11,14 @@ import { formatFileSize } from "../utils/imageUtils";
  * Get list of supported image formats
  */
 export function getSupportedFormats(): ImageFormat[] {
-  return [...SUPPORTED_IMAGE_FORMATS];
+  return [...ACCEPTED_INPUT_FORMATS];
 }
 
 /**
  * Check if a MIME type is a supported image format
  */
 export function isSupportedFormat(mimeType: string): boolean {
-  return SUPPORTED_IMAGE_FORMATS.includes(mimeType as ImageFormat);
+  return ACCEPTED_INPUT_FORMATS.includes(mimeType as ImageFormat);
 }
 
 /**

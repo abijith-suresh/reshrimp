@@ -3,13 +3,16 @@ import {
   ACCEPTED_INPUT_FORMATS,
   CONVERTIBLE_OUTPUT_FORMATS,
   IMAGE_FORMAT_LABELS,
+  QUALITY_CONTROLLED_OUTPUT_FORMATS,
   UPLOAD_ACCEPT_ATTRIBUTE,
   getImageFormatLabel,
   getInitialOutputFormat,
+  getQualityControlNotice,
   getSupportedImageFormatSummary,
   isAcceptedInputFormat,
   isConvertibleOutputFormat,
   isHeicInput,
+  supportsBrowserQualityControl,
 } from "./imageFormats";
 
 describe("imageFormats", () => {
@@ -41,6 +44,10 @@ describe("imageFormats", () => {
     expect(isAcceptedInputFormat("image/tiff")).toBe(false);
     expect(isConvertibleOutputFormat("image/avif")).toBe(true);
     expect(isConvertibleOutputFormat("image/heic")).toBe(false);
+    expect(supportsBrowserQualityControl("image/webp")).toBe(true);
+    expect(supportsBrowserQualityControl("image/png")).toBe(false);
+    expect(getQualityControlNotice("image/png")).toContain("lossless");
+    expect(getQualityControlNotice("image/avif")).toContain("built-in AVIF encoder");
     expect(isHeicInput("image/heif")).toBe(true);
     expect(isHeicInput("image/png")).toBe(false);
   });
@@ -64,5 +71,6 @@ describe("imageFormats", () => {
       "image/webp",
       "image/avif",
     ]);
+    expect(QUALITY_CONTROLLED_OUTPUT_FORMATS).toEqual(["image/jpeg", "image/webp"]);
   });
 });

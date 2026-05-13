@@ -23,7 +23,6 @@ vi.mock("./backgroundRemovalService", () => ({
 
 vi.mock("./formatDetectionService", () => ({
   decodeHeicBlob: vi.fn(async () => new Blob([], { type: "image/png" })),
-  isHeicInput: vi.fn((mimeType: string) => mimeType === "image/heic" || mimeType === "image/heif"),
 }));
 
 import { loadImage, resizeOnCanvas, canvasToBlob, getBestFormat } from "./canvasService";
@@ -78,12 +77,10 @@ describe("calculateDimensions", () => {
       expect(calculateDimensions(800, 600, opts)).toEqual({ width: 400, height: 300 });
     });
 
-    it("uses width and ignores height when both provided (width takes precedence)", () => {
-      // 800x600 → aspect 4:3 → width 400 → computed height 300 (not 200)
+    it("fits within the requested box when both width and height are provided", () => {
+      // 800x600 → fit within 400x200 => 267x200
       const opts: ResizeOptions = { width: 400, height: 200, maintainAspectRatio: true };
-      const result = calculateDimensions(800, 600, opts);
-      expect(result.width).toBe(400);
-      expect(result.height).toBe(300);
+      expect(calculateDimensions(800, 600, opts)).toEqual({ width: 267, height: 200 });
     });
 
     it("returns original dimensions when neither provided", () => {

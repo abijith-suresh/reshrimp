@@ -6,9 +6,17 @@ export default function QualitySection() {
 
   return (
     <div class="flex flex-col gap-3">
-      <div class="flex items-center justify-between">
+      <div class="flex items-center justify-between gap-3">
         <SectionHeader>Quality</SectionHeader>
-        <span class="text-[0.85rem] font-semibold text-sp-coral">{state.qualityValue()}%</span>
+        <span
+          class="text-[0.85rem] font-semibold"
+          classList={{
+            "text-sp-coral": state.qualityControlSupported(),
+            "text-sp-text-soft": !state.qualityControlSupported(),
+          }}
+        >
+          {state.qualityControlSupported() ? `${state.qualityValue()}%` : "Fixed"}
+        </span>
       </div>
       <input
         id="quality-slider"
@@ -17,9 +25,12 @@ export default function QualitySection() {
         max={100}
         value={state.qualityValue()}
         class="sp-slider w-full"
-        disabled={!state.controlsActive()}
+        disabled={!state.controlsActive() || !state.qualityControlSupported()}
         onInput={(e) => actions.setQualityValue(parseInt((e.target as HTMLInputElement).value, 10))}
       />
+      {state.qualityControlNotice() ? (
+        <p class="m-0 text-[0.75rem] leading-5 text-sp-text-soft">{state.qualityControlNotice()}</p>
+      ) : null}
     </div>
   );
 }
