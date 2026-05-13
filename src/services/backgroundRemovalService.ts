@@ -1,9 +1,21 @@
-import { removeBackground as imglyRemoveBackground } from "@imgly/background-removal";
+import {
+  removeBackground as imglyRemoveBackground,
+  preload as imglyPreload,
+} from "@imgly/background-removal";
 import {
   BACKGROUND_REMOVAL_MODEL,
   getBackgroundRemovalPublicPath,
 } from "../config/backgroundRemoval";
 import type { BackgroundRemovalProgressCallback } from "../types/processing";
+
+/**
+ * Preloads the WASM runtime and ML model in the background.
+ * Call this on app mount so background removal is faster when the user first toggles it.
+ */
+export async function preloadBackgroundRemoval(): Promise<void> {
+  const publicPath = getBackgroundRemovalPublicPath(window.location.origin);
+  await imglyPreload({ publicPath });
+}
 
 /**
  * Removes the background from an image using imgly's client-side ML model

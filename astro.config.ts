@@ -49,6 +49,9 @@ export default defineConfig({
     }),
   ],
   vite: {
+    build: {
+      chunkSizeWarningLimit: 800,
+    },
     plugins: [
       tailwindcss(),
       process.env.ANALYZE === "true" &&

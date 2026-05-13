@@ -7,6 +7,7 @@ import {
 
 vi.mock("@imgly/background-removal", () => ({
   removeBackground: vi.fn(async () => new Blob([], { type: "image/png" })),
+  preload: vi.fn(async () => undefined),
 }));
 
 import { removeBackground as imglyRemoveBackground } from "@imgly/background-removal";
