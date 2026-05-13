@@ -21,14 +21,21 @@ vi.mock("./backgroundRemovalService", () => ({
   removeBackground: vi.fn(async () => new Blob([], { type: "image/png" })),
 }));
 
+vi.mock("./formatDetectionService", () => ({
+  decodeHeicBlob: vi.fn(async () => new Blob([], { type: "image/png" })),
+  isHeicInput: vi.fn((mimeType: string) => mimeType === "image/heic" || mimeType === "image/heif"),
+}));
+
 import { loadImage, resizeOnCanvas, canvasToBlob, getBestFormat } from "./canvasService";
 import { removeBackground } from "./backgroundRemovalService";
+import { decodeHeicBlob } from "./formatDetectionService";
 
 const mockLoadImage = loadImage as ReturnType<typeof vi.fn>;
 const mockResizeOnCanvas = resizeOnCanvas as ReturnType<typeof vi.fn>;
 const mockCanvasToBlob = canvasToBlob as ReturnType<typeof vi.fn>;
 const mockGetBestFormat = getBestFormat as ReturnType<typeof vi.fn>;
 const mockRemoveBackground = removeBackground as ReturnType<typeof vi.fn>;
+const mockDecodeHeicBlob = decodeHeicBlob as ReturnType<typeof vi.fn>;
 
 function makeMockImg(width = 800, height = 600) {
   return { width, height } as HTMLImageElement;
@@ -40,6 +47,7 @@ beforeEach(() => {
   mockResizeOnCanvas.mockReturnValue(mockCanvas);
   mockCanvasToBlob.mockResolvedValue(new Blob([], { type: "image/png" }));
   mockGetBestFormat.mockImplementation((f: string) => f);
+  mockDecodeHeicBlob.mockResolvedValue(new Blob([], { type: "image/png" }));
 });
 
 // ─── calculateDimensions ─────────────────────────────────────────────────────
@@ -112,6 +120,23 @@ describe("processImage", () => {
     await processImage(file, opts, onProgress);
 
     expect(mockRemoveBackground).toHaveBeenCalledWith(file, onProgress);
+  });
+
+  it("runs background removal against the decoded png for heic uploads", async () => {
+    const file = new File(["heic"], "test.heic", { type: "image/heic" });
+    const decodedBlob = new Blob(["decoded"], { type: "image/png" });
+    mockDecodeHeicBlob.mockResolvedValue(decodedBlob);
+
+    await processImage(file, { removeBackground: true });
+
+    expect(mockDecodeHeicBlob).toHaveBeenCalledWith(file);
+    expect(mockRemoveBackground).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "test.png",
+        type: "image/png",
+      }),
+      undefined
+    );
   });
 
   it("applies resize when resize option provided", async () => {

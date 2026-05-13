@@ -1,5 +1,4 @@
-import { beforeEach, describe, expect, it, vi, afterEach } from "vitest";
-import type { ImageFormat } from "../types/image";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock heic2any since it requires Web Workers unavailable in jsdom
 vi.mock("heic2any", () => ({
@@ -9,12 +8,11 @@ vi.mock("heic2any", () => ({
 import {
   ACCEPTED_INPUT_FORMATS,
   CONVERTIBLE_OUTPUT_FORMATS,
-  detectAvifSupport,
   isAcceptedInputFormat,
   isConvertibleOutputFormat,
   isHeicInput,
-  decodeHeicBlob,
-} from "./formatDetectionService";
+} from "../config/imageFormats";
+import { decodeHeicBlob, detectAvifSupport } from "./formatDetectionService";
 
 describe("formatDetectionService", () => {
   describe("isAcceptedInputFormat", () => {
@@ -34,13 +32,16 @@ describe("formatDetectionService", () => {
   });
 
   describe("isConvertibleOutputFormat", () => {
-    it.each<{ format: ImageFormat; expected: boolean }>([
-      { format: "image/jpeg", expected: true },
-      { format: "image/png", expected: true },
-      { format: "image/webp", expected: true },
-      { format: "image/avif", expected: true },
-    ])("returns $expected for $format", ({ format, expected }) => {
-      expect(isConvertibleOutputFormat(format)).toBe(expected);
+    it.each([
+      ["image/jpeg", true],
+      ["image/png", true],
+      ["image/webp", true],
+      ["image/avif", true],
+      ["image/heic", false],
+    ])("returns %s => %s", (format, expected) => {
+      expect(
+        isConvertibleOutputFormat(format as Parameters<typeof isConvertibleOutputFormat>[0])
+      ).toBe(expected);
     });
   });
 

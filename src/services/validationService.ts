@@ -1,8 +1,11 @@
-import { getSupportedImageFormatSummary, SUPPORTED_IMAGE_FORMATS } from "../config/imageFormats";
+import {
+  getSupportedImageFormatSummary,
+  SUPPORTED_IMAGE_FORMATS,
+  isAcceptedInputFormat,
+} from "../config/imageFormats";
 import { MAX_FILE_SIZE, RECOMMENDED_MAX_SIZE } from "../config/constants";
 import type { ImageFormat, ValidationResult } from "../types/image";
 import { formatFileSize } from "../utils/imageUtils";
-import { isAcceptedInputFormat } from "./formatDetectionService";
 
 /**
  * Get list of supported image formats

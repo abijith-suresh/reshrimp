@@ -21,7 +21,7 @@ interface BuildProcessOptionsInput {
   dpi: number;
 }
 
-function formatUnitValue(value: number, unit: ResizeUnit): string {
+export function formatResizeValue(value: number, unit: ResizeUnit): string {
   if (unit === "px") {
     return String(Math.round(value));
   }
@@ -47,7 +47,7 @@ function rebaseDimensionValue(input: {
 
   const px = convertToPx(numericValue, input.oldUnit, input.originalPx, input.dpi);
   const rebasedValue = convertFromPx(px, input.newUnit, input.originalPx, input.dpi);
-  return formatUnitValue(rebasedValue, input.newUnit);
+  return formatResizeValue(rebasedValue, input.newUnit);
 }
 
 export function buildProcessOptions(input: BuildProcessOptionsInput): ProcessOptions {
@@ -113,7 +113,7 @@ function updateDimensionForDpi(
   }
 
   const px = convertToPx(numericValue, unit, originalPx, previousDpi);
-  return formatUnitValue(convertFromPx(px, unit, originalPx, nextDpi), unit);
+  return formatResizeValue(convertFromPx(px, unit, originalPx, nextDpi), unit);
 }
 
 export function getLinkedDimensionValues(input: {
@@ -142,7 +142,7 @@ export function getLinkedDimensionValues(input: {
 
     return {
       widthValue: input.value,
-      heightValue: formatUnitValue(
+      heightValue: formatResizeValue(
         convertFromPx(heightPx, input.resizeUnit, input.originalHeight, input.dpi),
         input.resizeUnit
       ),
@@ -153,7 +153,7 @@ export function getLinkedDimensionValues(input: {
   const widthPx = calculateWidthFromHeight(input.originalWidth, input.originalHeight, heightPx);
 
   return {
-    widthValue: formatUnitValue(
+    widthValue: formatResizeValue(
       convertFromPx(widthPx, input.resizeUnit, input.originalWidth, input.dpi),
       input.resizeUnit
     ),

@@ -1,11 +1,13 @@
 import {
-  createSignal,
-  createMemo,
-  createEffect,
-  onCleanup,
-  createContext,
-  useContext,
   batch,
+  createContext,
+  createEffect,
+  createMemo,
+  createSignal,
+  on,
+  onCleanup,
+  onMount,
+  useContext,
   type Accessor,
   type JSX,
 } from "solid-js";
@@ -20,6 +22,7 @@ import {
 } from "@/services/imageSessionService";
 import {
   buildProcessOptions,
+  formatResizeValue,
   getDimensionValuesForDpiChange,
   getFormatStateForBackgroundRemoval,
   getLinkedDimensionValues,
@@ -29,27 +32,47 @@ import {
 import { validateImageFile, generateDownloadFilename } from "@/services/validationService";
 import { formatFileSize, generateId, convertFromPx } from "@/utils/imageUtils";
 import { DEFAULT_DPI } from "@/config/constants";
+import { getInitialOutputFormat, isHeicInput } from "@/config/imageFormats";
 import { SOCIAL_MEDIA_PRESETS } from "@/config/presets";
-import { CONVERTIBLE_IMAGE_FORMATS } from "@/config/imageFormats";
 
 export interface SizeDiff {
   text: string;
   className: string;
 }
 
-/** Format a display-unit value to a readable string (no trailing zeros). */
-function formatUnitValue(value: number, unit: ResizeUnit): string {
-  if (unit === "px") return String(Math.round(value));
-  return parseFloat(value.toFixed(2)).toString();
+function createDebouncedTask(fn: () => void, ms: number) {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+
+  return {
+    run() {
+      if (timer !== undefined) clearTimeout(timer);
+      timer = setTimeout(fn, ms);
+    },
+    cancel() {
+      if (timer !== undefined) clearTimeout(timer);
+      timer = undefined;
+    },
+  };
 }
 
-/** Debounce helper — returns a function that delays `fn` by `ms` and cancels prior pending calls. */
-function debounce(fn: () => void, ms: number): () => void {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  return () => {
-    if (timer !== undefined) clearTimeout(timer);
-    timer = setTimeout(fn, ms);
+function scheduleIdleTask(callback: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+
+  const idleWindow = window as Window & {
+    requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
+    cancelIdleCallback?: (handle: number) => void;
   };
+
+  if (
+    typeof idleWindow.requestIdleCallback === "function" &&
+    typeof idleWindow.cancelIdleCallback === "function"
+  ) {
+    const id = idleWindow.requestIdleCallback(() => callback(), { timeout: 1500 });
+    return () => idleWindow.cancelIdleCallback?.(id);
+  }
+
+  const id = globalThis.setTimeout(callback, 300);
+  return () => globalThis.clearTimeout(id);
 }
 
 interface AppState {
@@ -129,15 +152,24 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   const [dpiValue, setDpiValue] = createSignal(DEFAULT_DPI);
   const [presetValue, setPresetValue] = createSignal("");
 
+  const debouncedProcess = createDebouncedTask(() => {
+    void handleProcess();
+  }, 400);
+
   onCleanup(() => {
+    debouncedProcess.cancel();
     revokeImageUrls(currentImage());
   });
 
-  // ── Preload background removal WASM + model on mount ──────────────────────
-  createEffect(() => {
-    preloadBackgroundRemoval().catch(() => {
-      // Silently ignore preload failures — will retry on actual use
+  // ── Preload background removal WASM + model once the app is idle ─────────
+  onMount(() => {
+    const cancelIdleTask = scheduleIdleTask(() => {
+      void preloadBackgroundRemoval().catch(() => {
+        // Silently ignore preload failures — will retry on actual use.
+      });
     });
+
+    onCleanup(cancelIdleTask);
   });
 
   // ── Derived signals ───────────────────────────────────────────────────────
@@ -150,7 +182,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     if (!img) return "Original";
     const px = img.metadata.width;
     const display = convertFromPx(px, resizeUnit(), px, dpiValue());
-    return formatUnitValue(display, resizeUnit());
+    return formatResizeValue(display, resizeUnit());
   });
 
   const heightPlaceholder = createMemo(() => {
@@ -158,7 +190,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     if (!img) return "Original";
     const px = img.metadata.height;
     const display = convertFromPx(px, resizeUnit(), px, dpiValue());
-    return formatUnitValue(display, resizeUnit());
+    return formatResizeValue(display, resizeUnit());
   });
 
   const sizeDifference = createMemo<SizeDiff | null>(() => {
@@ -230,34 +262,33 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   }
 
   // ── Auto-process: debounce fast operations, immediate for bg removal ──────
-  const debouncedProcess = debounce(() => handleProcess(), 400);
+  createEffect(
+    on(
+      [
+        currentImage,
+        widthValue,
+        heightValue,
+        formatValue,
+        qualityValue,
+        resizeUnit,
+        dpiValue,
+        presetValue,
+        maintainAspectRatio,
+        removeBackground,
+      ],
+      ([image, , , , , , , , , shouldRemoveBackground]) => {
+        if (!image) return;
 
-  createEffect(() => {
-    // Access all reactive settings to track them — the auto-process triggers
-    // whenever any of these change. Void expressions satisfy the unused-var lint.
-    void widthValue();
-    void heightValue();
-    void formatValue();
-    void qualityValue();
-    void resizeUnit();
-    void dpiValue();
-    void presetValue();
-    void maintainAspectRatio();
-    const bg = removeBackground();
+        if (shouldRemoveBackground) {
+          void handleProcess();
+          return;
+        }
 
-    // Only auto-process if an image is loaded
-    if (!currentImage()) return;
-
-    // Background removal is heavy — process immediately (no debounce)
-    // The WASM preload on mount should have already cached the model
-    if (bg) {
-      handleProcess();
-      return;
-    }
-
-    // Fast operations (resize, format, quality) — debounced
-    debouncedProcess();
-  });
+        debouncedProcess.run();
+      },
+      { defer: true }
+    )
+  );
 
   // ── Handlers ──────────────────────────────────────────────────────────────
   async function handleFileUpload(file: File): Promise<void> {
@@ -296,10 +327,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         setHeightValue("");
         setMaintainAspectRatio(true);
         setRemoveBackground(false);
-        // Auto-select the uploaded format; fall back to JPEG for HEIC/HEIF
-        const convertible = CONVERTIBLE_IMAGE_FORMATS as readonly string[];
-        const autoFormat = convertible.includes(metadata.format) ? metadata.format : "image/jpeg";
-        setFormatValue(autoFormat);
+        setFormatValue(getInitialOutputFormat(metadata.format));
         setPreviousFormatValue("");
         setQualityValue(92);
         setTooltipOpen(false);
@@ -321,9 +349,10 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     const result = processResult();
     if (!img?.processedUrl || !result) return;
 
+    const fallbackFormat = isHeicInput(img.metadata.format) ? "image/png" : img.metadata.format;
     const targetFormat: ImageFormat = removeBackground()
       ? "image/png"
-      : ((formatValue() || img.metadata.format) as ImageFormat);
+      : ((formatValue() || fallbackFormat) as ImageFormat);
 
     const filename = generateDownloadFilename(img.metadata.fileName, targetFormat);
 

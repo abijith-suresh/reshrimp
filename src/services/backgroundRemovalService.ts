@@ -1,12 +1,15 @@
 import {
-  removeBackground as imglyRemoveBackground,
-  preload as imglyPreload,
-} from "@imgly/background-removal";
-import {
   BACKGROUND_REMOVAL_MODEL,
   getBackgroundRemovalPublicPath,
 } from "../config/backgroundRemoval";
 import type { BackgroundRemovalProgressCallback } from "../types/processing";
+
+let backgroundRemovalModulePromise: Promise<typeof import("@imgly/background-removal")> | undefined;
+
+function loadBackgroundRemovalModule() {
+  backgroundRemovalModulePromise ??= import("@imgly/background-removal");
+  return backgroundRemovalModulePromise;
+}
 
 /**
  * Preloads the WASM runtime and ML model in the background.
@@ -14,7 +17,8 @@ import type { BackgroundRemovalProgressCallback } from "../types/processing";
  */
 export async function preloadBackgroundRemoval(): Promise<void> {
   const publicPath = getBackgroundRemovalPublicPath(window.location.origin);
-  await imglyPreload({ publicPath });
+  const { preload } = await loadBackgroundRemovalModule();
+  await preload({ publicPath });
 }
 
 /**
@@ -46,6 +50,7 @@ export async function removeBackground(
   config.model = BACKGROUND_REMOVAL_MODEL;
   config.publicPath = getBackgroundRemovalPublicPath(window.location.origin);
 
+  const { removeBackground: imglyRemoveBackground } = await loadBackgroundRemovalModule();
   const blob = await imglyRemoveBackground(imageFile, config);
 
   return blob;

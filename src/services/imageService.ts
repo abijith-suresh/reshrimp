@@ -8,8 +8,9 @@ import type {
 import { loadImage, resizeOnCanvas, canvasToBlob, getBestFormat } from "./canvasService";
 import { removeBackground } from "./backgroundRemovalService";
 import { rotateImage, flipImage } from "./transformService";
-import { decodeHeicBlob, isHeicInput } from "./formatDetectionService";
+import { decodeHeicBlob } from "./formatDetectionService";
 import { compressToTargetSize, formatSupportsQuality } from "./targetSizeService";
+import { isHeicInput } from "../config/imageFormats";
 import { buildFilterString, isNoOpAdjustments } from "./adjustmentService";
 
 /**
@@ -71,15 +72,15 @@ export async function processImage(
   // Step 0.5: Decode HEIC/HEIF input to PNG before processing
   if (isHeicInput(file.type)) {
     const decodedBlob = await decodeHeicBlob(file);
-    currentFile = new File([decodedBlob], file.name.replace(/\.heic?$/i, ".png"), {
+    currentFile = new File([decodedBlob], file.name.replace(/\.(?:heic|heif)$/i, ".png"), {
       type: "image/png",
     });
   }
 
   // Step 1: Remove background if requested
   if (options.removeBackground) {
-    const transparentBlob = await removeBackground(file, onBackgroundRemovalProgress);
-    currentFile = new File([transparentBlob], file.name, { type: "image/png" });
+    const transparentBlob = await removeBackground(currentFile, onBackgroundRemovalProgress);
+    currentFile = new File([transparentBlob], currentFile.name, { type: "image/png" });
   }
 
   // Step 2: Load image (either original or background-removed)
