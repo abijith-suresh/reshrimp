@@ -6,6 +6,8 @@ import HeroSection from "../components/marketing/hero/HeroSection.astro";
 import AboutCard from "../components/marketing/cards/AboutCard.astro";
 import TechStackGrid from "../components/marketing/cards/TechStackGrid.astro";
 import TechStackItem from "../components/marketing/cards/TechStackItem.astro";
+import ButtonLink from "../components/ui/ButtonLink.astro";
+import PageSection from "../components/ui/PageSection.astro";
 import { Github, ArrowRight } from "lucide-astro";
 import { makeHref } from "../lib/utils";
 import { GITHUB_URL, ROUTES } from "../config/constants";
@@ -23,9 +25,8 @@ import { GITHUB_URL, ROUTES } from "../config/constants";
       subtitle="Reshrimp is a free, open source image processing tool that runs entirely in your browser. No uploads. No tracking. Just your images, processed locally."
     />
 
-    <section class="px-8 py-8 pb-20 relative z-10">
+    <PageSection>
       <PageContainer>
-        <!-- The Mission -->
         <AboutCard delay={0}>
           <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">
             Why I built this
@@ -49,7 +50,6 @@ import { GITHUB_URL, ROUTES } from "../config/constants";
           </p>
         </AboutCard>
 
-        <!-- Tech Stack -->
         <AboutCard delay={100}>
           <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">The tech stack</h2>
           <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
@@ -66,7 +66,6 @@ import { GITHUB_URL, ROUTES } from "../config/constants";
           </TechStackGrid>
         </AboutCard>
 
-        <!-- Privacy-First Architecture -->
         <AboutCard delay={200}>
           <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">
             Privacy by default
@@ -84,7 +83,6 @@ import { GITHUB_URL, ROUTES } from "../config/constants";
           </p>
         </AboutCard>
 
-        <!-- Contributing -->
         <AboutCard delay={300}>
           <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">Open source</h2>
           <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
@@ -93,22 +91,17 @@ import { GITHUB_URL, ROUTES } from "../config/constants";
             documentation updates.
           </p>
           <div class="flex items-center gap-3 mt-5 flex-wrap">
-            <a
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center gap-2 font-body text-[0.9rem] font-semibold py-3 px-6 bg-sp-bg text-sp-text no-underline rounded-sp-full border border-sp-border transition-all duration-300 shadow-sp hover:translate-y-[-2px] hover:shadow-sp-hover hover:border-sp-lavender"
-            >
+            <ButtonLink href={GITHUB_URL} variant="secondary" external={true}>
               <Github size={18} />
               View on GitHub
-            </a>
-            <a href={makeHref(ROUTES.APP)} class="cta-pop">
+            </ButtonLink>
+            <ButtonLink href={makeHref(ROUTES.APP)}>
               Try Reshrimp
               <ArrowRight size={18} strokeWidth={2} class="cta-pop-arrow" />
-            </a>
+            </ButtonLink>
           </div>
         </AboutCard>
       </PageContainer>
-    </section>
+    </PageSection>
   </MarketingPageWrapper>
 </MarketingLayout>

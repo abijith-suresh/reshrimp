@@ -20,7 +20,6 @@ export const ROUTES = {
   PRIVACY: "/privacy",
   ABOUT: "/about",
   FAQ: "/faq",
-  CHANGELOG: "/changelog",
 } as const;
 
 // Resize unit DPI options (used when unit is 'in' or 'cm')

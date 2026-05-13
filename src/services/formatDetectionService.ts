@@ -1,66 +1,65 @@
-import type { ImageFormat } from "../types/image";
+import heic2anyScriptUrl from "heic2any/dist/heic2any.min.js?url";
 
-/**
- * MIME types accepted for upload, including HEIC/HEIF input and AVIF input.
- */
-export const ACCEPTED_INPUT_FORMATS: readonly string[] = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/avif",
-  "image/heic",
-  "image/heif",
-];
+type Heic2AnyResult = Blob | Blob[];
 
-/**
- * Image formats available for output conversion.
- * AVIF is included here; runtime gating (detectAvifSupport) determines
- * whether it's offered to the user.
- */
-export const CONVERTIBLE_OUTPUT_FORMATS: readonly ImageFormat[] = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "image/avif",
-];
+type Heic2AnyConverter = (options: {
+  blob: Blob;
+  toType: string;
+  quality?: number;
+  gifInterval?: number;
+  multiple?: boolean;
+}) => Promise<Heic2AnyResult>;
 
-/**
- * Format labels for UI display.
- */
-export const IMAGE_FORMAT_LABELS: Record<ImageFormat, string> = {
-  "image/jpeg": "JPEG",
-  "image/png": "PNG",
-  "image/webp": "WebP",
-  "image/avif": "AVIF",
-  "image/heic": "HEIC",
-  "image/heif": "HEIF",
-};
-
-/**
- * Check whether a MIME type is an accepted input format.
- */
-export function isAcceptedInputFormat(mimeType: string): boolean {
-  return ACCEPTED_INPUT_FORMATS.includes(mimeType);
+declare global {
+  interface Window {
+    heic2any?: Heic2AnyConverter;
+  }
 }
 
-/**
- * Check whether a format is available for output conversion.
- */
-export function isConvertibleOutputFormat(format: ImageFormat): boolean {
-  return CONVERTIBLE_OUTPUT_FORMATS.includes(format);
-}
+let heic2anyLoaderPromise: Promise<Heic2AnyConverter> | undefined;
 
-/**
- * Check whether a MIME type represents HEIC/HEIF input that needs decoding.
- */
-export function isHeicInput(mimeType: string): boolean {
-  return mimeType === "image/heic" || mimeType === "image/heif";
+function loadHeic2AnyConverter(): Promise<Heic2AnyConverter> {
+  if (typeof window === "undefined") {
+    return Promise.reject(new Error("HEIC decoding is only available in the browser"));
+  }
+
+  if (window.heic2any) {
+    return Promise.resolve(window.heic2any);
+  }
+
+  heic2anyLoaderPromise ??= new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = heic2anyScriptUrl;
+    script.async = true;
+    script.dataset.heic2anyLoader = "true";
+
+    script.onload = () => {
+      if (window.heic2any) {
+        resolve(window.heic2any);
+        return;
+      }
+
+      heic2anyLoaderPromise = undefined;
+      script.remove();
+      reject(new Error("heic2any loaded without exposing a browser decoder"));
+    };
+
+    script.onerror = () => {
+      heic2anyLoaderPromise = undefined;
+      script.remove();
+      reject(new Error("Failed to load the HEIC decoder"));
+    };
+
+    document.head.appendChild(script);
+  });
+
+  return heic2anyLoaderPromise;
 }
 
 /**
  * Detect whether the browser can encode AVIF output.
  *
- * Uses a small canvas + toBlob probe.  Result should be cached by the caller.
+ * Uses a small canvas + toBlob probe. Result should be cached by the caller.
  */
 export function detectAvifSupport(): Promise<boolean> {
   return new Promise((resolve) => {
@@ -87,7 +86,7 @@ export function detectAvifSupport(): Promise<boolean> {
  * The conversion happens entirely in-browser; no data leaves the device.
  */
 export async function decodeHeicBlob(blob: Blob): Promise<Blob> {
-  const { default: heic2any } = await import("heic2any");
+  const heic2any = await loadHeic2AnyConverter();
   const result = await heic2any({ blob, toType: "image/png" });
   return Array.isArray(result) ? result[0]! : result;
 }

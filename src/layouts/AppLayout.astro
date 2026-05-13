@@ -1,6 +1,5 @@
 ---
 import Layout from "./Layout.astro";
-import AppHeader from "../components/app/AppHeader.astro";
 
 interface Props {
   title: string;
@@ -15,10 +14,5 @@ const { title, description, ogImagePath } = Astro.props;
   <Fragment slot="head">
     <slot name="head" />
   </Fragment>
-  <AppHeader slot="before-main" />
-  <div class="flex min-h-[100dvh] flex-col">
-    <div class="flex-1 min-h-0">
-      <slot />
-    </div>
-  </div>
+  <slot />
 </Layout>

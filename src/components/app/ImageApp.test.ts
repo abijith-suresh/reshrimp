@@ -18,6 +18,16 @@ vi.mock("@/services/imageSessionService", async () => {
   };
 });
 
+vi.mock("@/services/backgroundRemovalService", async () => {
+  const actual = await vi.importActual<typeof import("@/services/backgroundRemovalService")>(
+    "@/services/backgroundRemovalService"
+  );
+  return {
+    ...actual,
+    preloadBackgroundRemoval: vi.fn().mockResolvedValue(undefined),
+  };
+});
+
 import ImageApp from "./ImageApp";
 import { getImageMetadata, processImage } from "@/services/imageService";
 import { downloadProcessedBlob } from "@/services/imageSessionService";
@@ -52,7 +62,78 @@ describe("ImageApp", () => {
     restoreMocks();
   });
 
-  it("covers upload, process, and download readiness in the app flow", async () => {
+  it("auto-processes after upload and allows download", async () => {
+    const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
+    const processedBlob = new Blob(["processed"], { type: "image/png" });
+
+    mockGetImageMetadata.mockResolvedValue({
+      width: 1200,
+      height: 800,
+      format: sourceFile.type,
+      fileSize: sourceFile.size,
+      fileName: sourceFile.name,
+    });
+    mockProcessImage.mockResolvedValue({
+      blob: processedBlob,
+      metadata: {
+        width: 1200,
+        height: 800,
+        format: sourceFile.type,
+        fileSize: processedBlob.size,
+      },
+    });
+
+    vi.mocked(URL.createObjectURL)
+      .mockReturnValueOnce("blob:original")
+      .mockReturnValueOnce("blob:processed");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", {
+      configurable: true,
+      value: [sourceFile],
+    });
+
+    fireEvent.change(fileInput);
+
+    // Wait for upload to complete — original image should be shown
+    await vi.waitFor(() => {
+      expect(mockGetImageMetadata).toHaveBeenCalledWith(sourceFile);
+      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+        "src",
+        "blob:original"
+      );
+    });
+
+    // Info strip should show filename and original metadata
+    expect(view.container.querySelector(".info-strip")).toHaveTextContent("photo.png");
+    expect(view.container.querySelector(".info-strip")).toHaveTextContent("1200 × 800px");
+
+    // Auto-process should fire after debounce
+    await vi.waitFor(() => {
+      expect(mockProcessImage).toHaveBeenCalled();
+    });
+
+    // After processing, the preview should update to processed URL
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+        "src",
+        "blob:processed"
+      );
+      expect(view.container.querySelectorAll(".preview-frame img")).toHaveLength(1);
+      expect(view.container.querySelector("#download-button")).toBeEnabled();
+    });
+
+    // Download should work
+    const downloadBtn = view.container.querySelector("#download-button") as HTMLButtonElement;
+    triggerDelegatedClick(downloadBtn);
+
+    expect(mockDownloadProcessedBlob).toHaveBeenCalledWith(processedBlob, "photo-processed.png");
+  });
+
+  it("disables the quality slider for png output", async () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
     const processedBlob = new Blob(["processed"], { type: "image/png" });
 
@@ -89,36 +170,9 @@ describe("ImageApp", () => {
     fireEvent.change(fileInput);
 
     await vi.waitFor(() => {
-      expect(mockGetImageMetadata).toHaveBeenCalledWith(sourceFile);
-      expect(view.container.querySelector("#file-info")).toHaveTextContent("Selected: photo.png");
-      expect(view.container.querySelector("#original-preview")).toHaveAttribute(
-        "src",
-        "blob:original"
-      );
-      expect(view.container.querySelector("#process-button")).toBeEnabled();
+      expect(view.container.querySelector("#quality-slider")).toBeDisabled();
+      expect(view.container).not.toHaveTextContent("Fixed");
     });
-
-    triggerDelegatedClick(view.container.querySelector("#process-button") as HTMLButtonElement);
-
-    await vi.waitFor(() => {
-      expect(mockProcessImage).toHaveBeenCalled();
-      expect(view.container.querySelector("#processed-preview")).toHaveAttribute(
-        "src",
-        "blob:processed"
-      );
-      expect(view.container.querySelector("#processed-tab")).toHaveAttribute(
-        "aria-selected",
-        "true"
-      );
-      expect(view.container.querySelector("#download-button")).toBeEnabled();
-    });
-
-    expect(mockProcessImage.mock.calls[0]?.[0]).toBe(sourceFile);
-    expect(mockProcessImage.mock.calls[0]?.[1]).toEqual(expect.any(Object));
-
-    triggerDelegatedClick(view.container.querySelector("#download-button") as HTMLButtonElement);
-
-    expect(mockDownloadProcessedBlob).toHaveBeenCalledWith(processedBlob, "photo-processed.png");
   });
 
   it("shows a user-facing error when processing fails", async () => {
@@ -146,13 +200,9 @@ describe("ImageApp", () => {
 
     fireEvent.change(fileInput);
 
+    // Wait for auto-process to fire and fail
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#process-button")).toBeEnabled();
-    });
-
-    triggerDelegatedClick(view.container.querySelector("#process-button") as HTMLButtonElement);
-
-    await vi.waitFor(() => {
+      expect(mockProcessImage).toHaveBeenCalled();
       expect(view.container.querySelector("#error-text")).toHaveTextContent("Processing exploded");
       expect(view.container.querySelector("#download-button")).toBeDisabled();
     });

@@ -1,14 +1,14 @@
-import AppSelect from "@/components/shared/AppSelect";
-import { PRESET_OPTIONS } from "@/config/selectOptions";
 import { useImageApp } from "@/components/app/state/ImageAppContext";
+import Field from "@/components/ui/Field";
+import Select from "@/components/ui/Select";
+import { PRESET_OPTIONS } from "@/config/selectOptions";
 
 export default function PresetSelector() {
   const { state, actions } = useImageApp();
 
   return (
-    <div>
-      <span class="block text-[0.8rem] text-sp-text-muted mb-1">Preset</span>
-      <AppSelect
+    <Field label="Preset">
+      <Select
         id="preset-select"
         options={PRESET_OPTIONS}
         value={state.presetValue()}
@@ -16,6 +16,6 @@ export default function PresetSelector() {
         disabled={!state.controlsActive()}
         placeholder="Custom"
       />
-    </div>
+    </Field>
   );
 }

@@ -7,10 +7,5 @@ import ImageApp from "../components/app/ImageApp";
   title="Reshrimp — Image Processor"
   description="Resize, convert, and compress images privately in your browser. No uploads, no tracking."
 >
-  <div
-    class="grid h-full min-h-0 grid-cols-[360px_1fr] gap-6 max-w-[1100px] mx-auto px-8 py-4 max-lg:grid-cols-[300px_1fr] max-lg:px-6 max-md:grid-cols-1 max-md:px-4 max-md:pt-3"
-    transition:animate="fade"
-  >
-    <ImageApp client:only="solid-js" />
-  </div>
+  <ImageApp client:only="solid-js" />
 </AppLayout>

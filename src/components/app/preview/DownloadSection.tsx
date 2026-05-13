@@ -1,25 +1,23 @@
-import ActionButton from "@/components/app/ui/ActionButton";
 import { useImageApp } from "@/components/app/state/ImageAppContext";
+import Button from "@/components/ui/Button";
 import { Download } from "lucide-solid";
 
 export default function DownloadSection() {
   const { state, actions } = useImageApp();
 
   return (
-    <div
-      id="download-section"
-      class="download-section border-t border-sp-border-light p-4 shrink-0"
-      classList={{ "download-inactive": !state.downloadActive() }}
-    >
-      <ActionButton
+    <div id="download-section" class="flex flex-col items-center gap-2 pt-3">
+      <Button
         id="download-button"
-        variant="success"
+        variant="primary"
+        tone="mint"
+        fullWidth={true}
         disabled={!state.downloadActive()}
-        onClick={actions.handleDownload}
-        icon={<Download class="w-5 h-5" />}
+        onClick={() => actions.handleDownload()}
       >
-        Download
-      </ActionButton>
+        <Download class="w-4 h-4" aria-hidden="true" />
+        <span>Download</span>
+      </Button>
     </div>
   );
 }

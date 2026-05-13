@@ -9,14 +9,14 @@ import {
 } from "solid-js";
 import { Portal } from "solid-js/web";
 
-export interface AppSelectOption {
+export interface SelectOption {
   value: string;
   label: string;
   disabled?: boolean;
 }
 
-export interface AppSelectProps {
-  options: AppSelectOption[];
+export interface SelectProps {
+  options: SelectOption[];
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
@@ -35,7 +35,7 @@ interface DropdownPos {
   openUpward: boolean;
 }
 
-export default function AppSelect(props: AppSelectProps) {
+export default function Select(props: SelectProps) {
   const triggerId = createUniqueId();
   const listboxId = createUniqueId();
 

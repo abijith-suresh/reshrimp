@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render } from "@solidjs/testing-library";
-import AppSelect from "./AppSelect";
+import Select from "./Select";
 
-describe("AppSelect", () => {
+describe("Select", () => {
   beforeEach(() => {
     Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
       configurable: true,
@@ -12,7 +12,7 @@ describe("AppSelect", () => {
 
   it("opens from the trigger and moves keyboard focus into the listbox", async () => {
     const view = render(() => (
-      <AppSelect
+      <Select
         id="format-select"
         options={[
           { value: "", label: "Keep original" },
@@ -37,7 +37,7 @@ describe("AppSelect", () => {
 
   it("closes on escape and returns focus to the trigger", async () => {
     const view = render(() => (
-      <AppSelect
+      <Select
         id="quality-select"
         options={[
           { value: "low", label: "Low" },

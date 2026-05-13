@@ -1,18 +1,19 @@
-import AppSelect from "@/components/shared/AppSelect";
-import { FORMAT_OPTIONS } from "@/config/selectOptions";
 import { useImageApp } from "@/components/app/state/ImageAppContext";
+import Select from "@/components/ui/Select";
+import { FORMAT_OPTIONS } from "@/config/selectOptions";
 
-export default function FormatSelector() {
+const PROCESS_FORMAT_OPTIONS = FORMAT_OPTIONS.filter((option) => option.value !== "");
+
+export default function FormatSelect() {
   const { state, actions } = useImageApp();
 
   return (
-    <AppSelect
+    <Select
       id="format-select"
-      options={FORMAT_OPTIONS}
+      options={PROCESS_FORMAT_OPTIONS}
       value={state.formatValue()}
       onChange={actions.setFormatValue}
       disabled={!state.controlsActive() || state.formatSelectDisabled()}
-      placeholder="Keep original"
     />
   );
 }

@@ -1,4 +1,5 @@
 ---
+import ButtonLink from "../components/ui/ButtonLink.astro";
 import MarketingLayout from "../layouts/MarketingLayout.astro";
 import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
 import { ArrowRight } from "lucide-astro";
@@ -27,10 +28,10 @@ import { ROUTES } from "../config/constants";
           <p class="text-[1.1rem] text-sp-text-muted leading-[1.7] m-0 mb-10 max-w-[360px] mx-auto">
             Looks like this page drifted off into the void. Let's get you back on track.
           </p>
-          <a href={makeHref(ROUTES.HOME)} class="cta-pop">
+          <ButtonLink href={makeHref(ROUTES.HOME)}>
             Back to Home
             <ArrowRight size={18} strokeWidth={2} class="cta-pop-arrow" />
-          </a>
+          </ButtonLink>
         </div>
       </div>
     </div>

@@ -1,12 +1,12 @@
-import AppInput from "@/components/app/ui/AppInput";
 import { useImageApp } from "@/components/app/state/ImageAppContext";
+import Input from "@/components/ui/Input";
 
 export default function DimensionInputs() {
   const { state, actions } = useImageApp();
 
   return (
     <div class="grid grid-cols-2 gap-3">
-      <AppInput
+      <Input
         id="width-input"
         label="Width"
         value={state.widthValue()}
@@ -14,7 +14,7 @@ export default function DimensionInputs() {
         placeholder={state.widthPlaceholder()}
         disabled={!state.controlsActive()}
       />
-      <AppInput
+      <Input
         id="height-input"
         label="Height"
         value={state.heightValue()}

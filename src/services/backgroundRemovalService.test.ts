@@ -7,11 +7,16 @@ import {
 
 vi.mock("@imgly/background-removal", () => ({
   removeBackground: vi.fn(async () => new Blob([], { type: "image/png" })),
+  preload: vi.fn(async () => undefined),
 }));
 
-import { removeBackground as imglyRemoveBackground } from "@imgly/background-removal";
-import { removeBackground } from "./backgroundRemovalService";
+import {
+  preload as imglyPreload,
+  removeBackground as imglyRemoveBackground,
+} from "@imgly/background-removal";
+import { preloadBackgroundRemoval, removeBackground } from "./backgroundRemovalService";
 
+const mockImglyPreload = imglyPreload as ReturnType<typeof vi.fn>;
 const mockImglyRemoveBackground = imglyRemoveBackground as ReturnType<typeof vi.fn>;
 
 describe("removeBackground", () => {
@@ -23,6 +28,14 @@ describe("removeBackground", () => {
     expect(getBackgroundRemovalPublicPath("https://reshrimp.test")).toBe(
       `https://reshrimp.test${BACKGROUND_REMOVAL_ASSET_PATH_PREFIX}`
     );
+  });
+
+  it("preloads the runtime with the mirrored public path", async () => {
+    await preloadBackgroundRemoval();
+
+    expect(mockImglyPreload).toHaveBeenCalledWith({
+      publicPath: getBackgroundRemovalPublicPath(window.location.origin),
+    });
   });
 
   it("forwards the shared model and public path configuration", async () => {

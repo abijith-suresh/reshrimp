@@ -13,11 +13,9 @@ export default function EmptyState(props: EmptyStateProps) {
       id="sbs-empty-state"
       class="flex-1 flex flex-col items-center justify-center text-center p-8 transition-opacity duration-300"
     >
-      {props.icon ?? <Image class="w-16 h-16 text-sp-lavender opacity-40 mb-4 animate-float" />}
-      <p class="font-display text-[1.1rem] font-semibold text-sp-text-soft m-0 mb-1">
-        {props.title}
-      </p>
-      <p class="text-[0.85rem] text-sp-text-soft opacity-70 m-0">{props.subtitle}</p>
+      {props.icon ?? <Image class="w-12 h-12 text-sp-text-soft opacity-30 mb-3" />}
+      <p class="font-body text-[0.9rem] font-medium text-sp-text-muted m-0 mb-1">{props.title}</p>
+      <p class="text-[0.8rem] text-sp-text-soft m-0">{props.subtitle}</p>
     </div>
   );
 }

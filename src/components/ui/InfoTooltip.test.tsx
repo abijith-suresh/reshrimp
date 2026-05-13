@@ -19,7 +19,7 @@ describe("InfoTooltip", () => {
   });
 
   it("renders content when open", () => {
-    const { getByText, getByLabelText } = render(() => (
+    const { baseElement, getByLabelText } = render(() => (
       <InfoTooltip
         ariaLabel="DPI info"
         content={<span>DPI tooltip content</span>}
@@ -27,7 +27,7 @@ describe("InfoTooltip", () => {
         onToggle={() => {}}
       />
     ));
-    expect(getByText("DPI tooltip content")).toBeInTheDocument();
+    expect(baseElement.querySelector("[role='tooltip']")).toHaveTextContent("DPI tooltip content");
     expect(getByLabelText("DPI info")).toBeInTheDocument();
   });
 

@@ -21,14 +21,20 @@ vi.mock("./backgroundRemovalService", () => ({
   removeBackground: vi.fn(async () => new Blob([], { type: "image/png" })),
 }));
 
+vi.mock("./formatDetectionService", () => ({
+  decodeHeicBlob: vi.fn(async () => new Blob([], { type: "image/png" })),
+}));
+
 import { loadImage, resizeOnCanvas, canvasToBlob, getBestFormat } from "./canvasService";
 import { removeBackground } from "./backgroundRemovalService";
+import { decodeHeicBlob } from "./formatDetectionService";
 
 const mockLoadImage = loadImage as ReturnType<typeof vi.fn>;
 const mockResizeOnCanvas = resizeOnCanvas as ReturnType<typeof vi.fn>;
 const mockCanvasToBlob = canvasToBlob as ReturnType<typeof vi.fn>;
 const mockGetBestFormat = getBestFormat as ReturnType<typeof vi.fn>;
 const mockRemoveBackground = removeBackground as ReturnType<typeof vi.fn>;
+const mockDecodeHeicBlob = decodeHeicBlob as ReturnType<typeof vi.fn>;
 
 function makeMockImg(width = 800, height = 600) {
   return { width, height } as HTMLImageElement;
@@ -40,6 +46,7 @@ beforeEach(() => {
   mockResizeOnCanvas.mockReturnValue(mockCanvas);
   mockCanvasToBlob.mockResolvedValue(new Blob([], { type: "image/png" }));
   mockGetBestFormat.mockImplementation((f: string) => f);
+  mockDecodeHeicBlob.mockResolvedValue(new Blob([], { type: "image/png" }));
 });
 
 // ─── calculateDimensions ─────────────────────────────────────────────────────
@@ -70,12 +77,10 @@ describe("calculateDimensions", () => {
       expect(calculateDimensions(800, 600, opts)).toEqual({ width: 400, height: 300 });
     });
 
-    it("uses width and ignores height when both provided (width takes precedence)", () => {
-      // 800x600 → aspect 4:3 → width 400 → computed height 300 (not 200)
+    it("fits within the requested box when both width and height are provided", () => {
+      // 800x600 → fit within 400x200 => 267x200
       const opts: ResizeOptions = { width: 400, height: 200, maintainAspectRatio: true };
-      const result = calculateDimensions(800, 600, opts);
-      expect(result.width).toBe(400);
-      expect(result.height).toBe(300);
+      expect(calculateDimensions(800, 600, opts)).toEqual({ width: 267, height: 200 });
     });
 
     it("returns original dimensions when neither provided", () => {
@@ -112,6 +117,23 @@ describe("processImage", () => {
     await processImage(file, opts, onProgress);
 
     expect(mockRemoveBackground).toHaveBeenCalledWith(file, onProgress);
+  });
+
+  it("runs background removal against the decoded png for heic uploads", async () => {
+    const file = new File(["heic"], "test.heic", { type: "image/heic" });
+    const decodedBlob = new Blob(["decoded"], { type: "image/png" });
+    mockDecodeHeicBlob.mockResolvedValue(decodedBlob);
+
+    await processImage(file, { removeBackground: true });
+
+    expect(mockDecodeHeicBlob).toHaveBeenCalledWith(file);
+    expect(mockRemoveBackground).toHaveBeenCalledWith(
+      expect.objectContaining({
+        name: "test.png",
+        type: "image/png",
+      }),
+      undefined
+    );
   });
 
   it("applies resize when resize option provided", async () => {

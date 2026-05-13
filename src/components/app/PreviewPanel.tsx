@@ -1,18 +1,14 @@
 import { Show } from "solid-js";
 import EmptyState from "@/components/app/preview/EmptyState";
-import ImageTabs from "@/components/app/preview/ImageTabs";
-import ImagePreview from "@/components/app/preview/ImagePreview";
 import ImageInfoBar from "@/components/app/preview/ImageInfoBar";
-import SizeDiffBadge from "@/components/app/preview/SizeDiffBadge";
 import ErrorDisplay from "@/components/app/preview/ErrorDisplay";
-import DownloadSection from "@/components/app/preview/DownloadSection";
 import { useImageApp } from "@/components/app/state/ImageAppContext";
 
 export default function PreviewPanel() {
-  const { state, actions } = useImageApp();
+  const { state } = useImageApp();
 
   return (
-    <div class="bg-sp-bg-card border border-sp-border rounded-sp-xl shadow-sp overflow-hidden flex flex-col">
+    <div class="h-full flex flex-col bg-sp-bg overflow-hidden">
       <Show when={!state.currentImage()}>
         <EmptyState
           title="Upload an image to get started"
@@ -21,64 +17,57 @@ export default function PreviewPanel() {
       </Show>
 
       <Show when={state.currentImage()}>
-        {(img) => (
-          <div id="preview-container" class="preview-container flex-1 flex-col">
-            <ImageTabs activeTab={state.activeTab()} onTabChange={actions.setActiveTab} />
+        {(img) => {
+          const displayWidth = () => state.processResult()?.metadata.width ?? img().metadata.width;
+          const displayHeight = () =>
+            state.processResult()?.metadata.height ?? img().metadata.height;
+          const displayFileSize = () =>
+            state.processResult()?.metadata.fileSize ?? img().metadata.fileSize;
+          const previewUrl = () => img().processedUrl ?? img().originalUrl;
 
-            <div class="flex-1 relative min-h-[380px] max-lg:min-h-[300px] max-md:min-h-[250px]">
-              <div
-                id="original-panel"
-                class="tab-panel"
-                classList={{ "tab-panel-active": state.activeTab() === "original" }}
-                role="tabpanel"
-                aria-labelledby="original-tab"
-              >
-                <ImagePreview id="original-preview" src={img().originalUrl} alt="Original" />
+          return (
+            <div class="flex-1 flex flex-col min-h-0">
+              <div class="flex-1 relative min-h-0 m-3 mb-0">
+                <div class="absolute inset-0 preview-frame">
+                  <img
+                    id="preview-image"
+                    src={previewUrl()}
+                    alt="Preview"
+                    class="max-w-full max-h-full object-contain"
+                  />
+
+                  <Show when={state.isProcessing() && state.progressLabel()}>
+                    {(label) => (
+                      <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-sp-bg/80 rounded-sp">
+                        <span class="sp-btn-spinner" aria-hidden="true" />
+                        <span class="text-[0.8rem] text-sp-text-muted font-medium">{label()}</span>
+                      </div>
+                    )}
+                  </Show>
+                </div>
+              </div>
+
+              {/* Info strip — fixed height, always present */}
+              <div class="shrink-0 px-4 py-3">
                 <ImageInfoBar
-                  width={img().metadata.width}
-                  height={img().metadata.height}
-                  fileSize={img().metadata.fileSize}
+                  fileName={img().metadata.fileName}
+                  width={displayWidth()}
+                  height={displayHeight()}
+                  fileSize={displayFileSize()}
+                  sizeDiff={state.sizeDifference()}
                 />
               </div>
 
-              <div
-                id="processed-panel"
-                class="tab-panel"
-                classList={{ "tab-panel-active": state.activeTab() === "processed" }}
-                role="tabpanel"
-                aria-labelledby="processed-tab"
-              >
-                <Show
-                  when={state.processResult() && img().processedUrl}
-                  fallback={
-                    <div id="processed-placeholder" class="text-center text-sp-text-soft p-8">
-                      <p class="text-[0.85rem] m-0">Process to see result</p>
-                    </div>
-                  }
-                >
-                  <ImagePreview id="processed-preview" src={img().processedUrl!} alt="Processed" />
-                </Show>
-                <Show when={state.processResult()}>
-                  {(result) => (
-                    <div id="processed-info" class="info-bar">
-                      <ImageInfoBar
-                        width={result().metadata.width}
-                        height={result().metadata.height}
-                        fileSize={result().metadata.fileSize}
-                        metadataNote="EXIF metadata removed"
-                      />
-                      <SizeDiffBadge diff={state.sizeDifference()} />
-                    </div>
-                  )}
-                </Show>
-              </div>
+              <Show when={state.error()}>
+                {(msg) => (
+                  <div class="px-4 pb-3">
+                    <ErrorDisplay message={msg()} />
+                  </div>
+                )}
+              </Show>
             </div>
-
-            <Show when={state.error()}>{(msg) => <ErrorDisplay message={msg()} />}</Show>
-
-            <DownloadSection />
-          </div>
-        )}
+          );
+        }}
       </Show>
     </div>
   );

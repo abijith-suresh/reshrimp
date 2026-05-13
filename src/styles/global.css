@@ -254,34 +254,7 @@ body {
   transform: translateY(0) scale(1);
 }
 
-/* ===== CTA Buttons ===== */
-.cta-pop {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: var(--sp-font-body);
-  font-size: 1rem;
-  font-weight: 600;
-  padding: 0.9rem 2rem;
-  background: var(--sp-coral);
-  color: #fff;
-  text-decoration: none;
-  border-radius: var(--sp-radius-full);
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 4px 16px rgba(255, 107, 107, 0.3);
-  border: none;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-}
-
-.cta-pop:hover {
-  background: var(--sp-coral-dark);
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 6px 24px rgba(255, 107, 107, 0.4);
-}
-
-/* Ripple element injected by JS */
+/* ===== Button interaction helpers ===== */
 .sp-ripple {
   position: absolute;
   border-radius: 50%;
@@ -298,13 +271,8 @@ body {
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
-.cta-pop:hover .cta-pop-arrow {
+[data-ui-button]:hover .cta-pop-arrow {
   transform: translateX(4px);
-}
-
-.cta-pop-lg {
-  font-size: 1.1rem;
-  padding: 1rem 2.5rem;
 }
 
 /* ===== Chip Variants ===== */
@@ -396,18 +364,17 @@ body {
   color: #d97706;
 }
 
-/* ===== App: Upload Area ===== */
-#file-info:not(.hidden) {
-  background: var(--sp-lavender-light);
-  border-radius: var(--sp-radius);
-  padding: 0.4rem 0.75rem;
+/* ===== App: Panel Layout ===== */
+.app-panel-section {
+  @apply flex flex-col gap-2 border-b border-sp-border-light px-5 py-3;
 }
 
-/* ===== App: Processing Controls ===== */
-.controls-inactive {
-  opacity: 0.4;
-  pointer-events: none;
-  filter: grayscale(0.3);
+.app-panel-section-source {
+  @apply pt-5 pb-3;
+}
+
+.app-panel-section-footer {
+  @apply mt-auto px-5 py-4;
 }
 
 .sp-slider {
@@ -441,42 +408,7 @@ body {
   box-shadow: 0 2px 6px rgba(255, 107, 107, 0.3);
 }
 
-.sp-process-btn {
-  width: 100%;
-  padding: 0.75rem 1.5rem;
-  font-family: var(--sp-font-body);
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #fff;
-  background: var(--sp-coral);
-  border: none;
-  border-radius: var(--sp-radius-full);
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 4px 16px rgba(255, 107, 107, 0.3);
-  margin-top: 0.5rem;
-  position: relative;
-  overflow: hidden;
-}
-
-.sp-process-btn:hover:not(:disabled) {
-  background: var(--sp-coral-dark);
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 6px 24px rgba(255, 107, 107, 0.4);
-}
-
-.sp-process-btn:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  transform: none;
-}
-
-.sp-select-disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* ===== AppSelect — custom accessible select ===== */
+/* ===== Select — custom accessible select ===== */
 .sp-select-trigger {
   display: flex;
   align-items: center;
@@ -497,6 +429,11 @@ body {
     box-shadow 0.2s;
   /* Match the existing input height/style */
   line-height: 1.4;
+}
+
+.sp-select-trigger:hover:not(:disabled) {
+  border-color: var(--sp-lavender);
+  background: var(--sp-lavender-light);
 }
 
 .sp-select-trigger:focus-visible {
@@ -661,14 +598,6 @@ body {
   border-top-color: var(--sp-border);
 }
 
-.sp-process-btn-loading {
-  display: flex !important;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  pointer-events: none;
-}
-
 .sp-btn-spinner {
   width: 1rem;
   height: 1rem;
@@ -699,62 +628,6 @@ body {
   animation: float 3s ease-in-out infinite;
 }
 
-.preview-container:not(.hidden) {
-  display: flex;
-  animation: fade-in 0.35s ease;
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.sbs-tab {
-  padding: 0.85rem 1.25rem;
-  font-family: var(--sp-font-body);
-  font-size: 0.85rem;
-  font-weight: 500;
-  color: var(--sp-text-muted);
-  background: none;
-  border: none;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.sbs-tab:hover {
-  color: var(--sp-text);
-}
-
-.sbs-tab-active {
-  color: var(--sp-coral);
-  border-bottom-color: var(--sp-coral);
-  font-weight: 600;
-}
-
-.tab-panel {
-  position: absolute;
-  inset: 0;
-  padding: 1.25rem;
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  opacity: 0;
-  visibility: hidden;
-  transition:
-    opacity 0.25s ease,
-    visibility 0.25s ease;
-}
-
-.tab-panel-active {
-  opacity: 1;
-  visibility: visible;
-}
-
 .preview-frame {
   flex: 1;
   overflow: hidden;
@@ -777,29 +650,35 @@ body {
   border-radius: var(--sp-radius);
 }
 
-.info-bar {
-  font-size: 0.78rem;
-  color: var(--sp-text-muted);
+/* ===== App: Info Strip (single progressive view) ===== */
+.info-strip {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.15rem 0.5rem;
+  font-size: 0.78rem;
+  color: var(--sp-text-muted);
+  background: var(--sp-lavender-light);
+  border-top: 1px solid var(--sp-border-light);
+  border-radius: var(--sp-radius);
+  padding: 0.5rem 0.85rem;
   flex-shrink: 0;
 }
 
-.info-bar p {
-  margin: 0;
+.info-strip-filename {
+  font-weight: 600;
+  color: var(--sp-text);
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.info-bar p:not(:last-child)::after {
-  content: "\00b7";
-  margin-left: 0.5rem;
+.info-strip-dot {
   color: var(--sp-border);
 }
 
-.info-bar.hidden {
-  display: none;
-}
+/* ===== App: Preview feedback ===== */
 
 .error-container {
   background: var(--sp-coral-light);
@@ -822,49 +701,6 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-.download-inactive {
-  opacity: 0.3;
-  pointer-events: none;
-  transition: opacity 0.4s ease;
-}
-
-.download-section:not(.download-inactive) {
-  transition: opacity 0.4s ease;
-}
-
-.download-btn {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  font-family: var(--sp-font-body);
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: #fff;
-  background: var(--sp-mint);
-  border: none;
-  border-radius: var(--sp-radius-full);
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 4px 16px rgba(45, 212, 191, 0.3);
-  position: relative;
-  overflow: hidden;
-}
-
-.download-btn:hover:not(:disabled) {
-  background: var(--sp-mint-dark);
-  transform: translateY(-2px) scale(1.01);
-  box-shadow: 0 6px 24px rgba(45, 212, 191, 0.4);
-}
-
-.download-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none;
 }
 
 /* ===== Blog Prose Styling ===== */
