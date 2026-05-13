@@ -17,16 +17,14 @@ export default function ProcessPanel() {
 
   return (
     <div class="flex flex-col flex-1 overflow-y-auto min-h-0">
-      {/* SOURCE */}
-      <div class="px-5 pt-5 pb-3 border-b border-sp-border-light">
+      <div class="app-panel-section app-panel-section-source">
         <SectionHeader>Source</SectionHeader>
         <div class="mt-2">
           <UploadArea />
         </div>
       </div>
 
-      {/* GEOMETRY */}
-      <div class="px-5 py-3 border-b border-sp-border-light flex flex-col gap-2">
+      <div class="app-panel-section">
         <SectionHeader>Geometry</SectionHeader>
         <PresetSelector />
         <DimensionInputs />
@@ -43,19 +41,16 @@ export default function ProcessPanel() {
         <InlineToggles />
       </div>
 
-      {/* FORMAT */}
-      <div class="px-5 py-3 border-b border-sp-border-light flex flex-col gap-2">
+      <div class="app-panel-section">
         <SectionHeader>Format</SectionHeader>
         <FormatSelect />
       </div>
 
-      {/* QUALITY */}
-      <div class="px-5 py-3 border-b border-sp-border-light">
+      <div class="app-panel-section gap-3">
         <QualitySection />
       </div>
 
-      {/* DOWNLOAD */}
-      <div class="px-5 py-4 mt-auto">
+      <div class="app-panel-section-footer">
         <DownloadSection />
       </div>
     </div>

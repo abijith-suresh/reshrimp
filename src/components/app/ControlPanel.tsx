@@ -1,34 +1,26 @@
-import { Match, Switch, type Component } from "solid-js";
-import { SlidersHorizontal, Layers } from "lucide-solid";
-import type { AppMode } from "@/components/app/AppSidebar";
+import { Match, Switch } from "solid-js";
+import { getAppMode, type AppMode } from "@/components/app/appModes";
 import ProcessPanel from "@/components/app/panels/ProcessPanel";
 import ComingSoonPanel from "@/components/app/panels/ComingSoonPanel";
-
-type IconComp = Component<{ class?: string; "aria-hidden"?: string }>;
 
 interface ControlPanelProps {
   mode: AppMode;
 }
 
 export default function ControlPanel(props: ControlPanelProps) {
+  const activeMode = () => getAppMode(props.mode);
+
   return (
     <div class="flex flex-col flex-1 overflow-hidden min-h-0">
       <Switch>
         <Match when={props.mode === "image"}>
           <ProcessPanel />
         </Match>
-        <Match when={props.mode === "adjustments"}>
+        <Match when={props.mode !== "image"}>
           <ComingSoonPanel
-            Icon={SlidersHorizontal as unknown as IconComp}
-            title="Adjustments"
-            description="Brightness, contrast, and saturation controls are coming in the next update."
-          />
-        </Match>
-        <Match when={props.mode === "batch"}>
-          <ComingSoonPanel
-            Icon={Layers as unknown as IconComp}
-            title="Batch Processing"
-            description="Process multiple images at once with ZIP download — coming soon."
+            Icon={activeMode().Icon}
+            title={activeMode().panelTitle ?? activeMode().label}
+            description={activeMode().panelDescription ?? activeMode().comingSoonNote}
           />
         </Match>
       </Switch>

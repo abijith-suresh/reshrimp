@@ -1,9 +1,7 @@
-import type { Component } from "solid-js";
-
-type IconComp = Component<{ class?: string; "aria-hidden"?: string }>;
+import type { LucideIcon } from "lucide-solid";
 
 interface ComingSoonPanelProps {
-  Icon: IconComp;
+  Icon: LucideIcon;
   title: string;
   description: string;
 }

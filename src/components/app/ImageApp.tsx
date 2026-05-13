@@ -1,8 +1,9 @@
 import { createSignal, Show } from "solid-js";
-import { ImageAppProvider } from "@/components/app/state/ImageAppContext";
-import AppSidebar, { type AppMode } from "@/components/app/AppSidebar";
+import AppSidebar from "@/components/app/AppSidebar";
+import { type AppMode } from "@/components/app/appModes";
 import ControlPanel from "@/components/app/ControlPanel";
 import PreviewPanel from "@/components/app/PreviewPanel";
+import { ImageAppProvider } from "@/components/app/state/ImageAppContext";
 
 export default function ImageApp() {
   const [activeMode, setActiveMode] = createSignal<AppMode>("image");

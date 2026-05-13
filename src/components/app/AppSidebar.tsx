@@ -1,43 +1,7 @@
-import { For, Show, type Component } from "solid-js";
-import { Wand2, SlidersHorizontal, Layers } from "lucide-solid";
-import { makeHref } from "@/lib/utils";
+import { For, Show } from "solid-js";
 import { ROUTES } from "@/config/constants";
-
-export type AppMode = "image" | "adjustments" | "batch";
-
-type IconComp = Component<{ class?: string; "aria-hidden"?: string }>;
-
-interface ModeItem {
-  mode: AppMode;
-  Icon: IconComp;
-  label: string;
-  available: boolean;
-  comingSoonNote: string;
-}
-
-const MODES: ModeItem[] = [
-  {
-    mode: "image",
-    Icon: Wand2 as unknown as IconComp,
-    label: "Process",
-    available: true,
-    comingSoonNote: "",
-  },
-  {
-    mode: "adjustments",
-    Icon: SlidersHorizontal as unknown as IconComp,
-    label: "Adjust",
-    available: false,
-    comingSoonNote: "Brightness & contrast — coming soon",
-  },
-  {
-    mode: "batch",
-    Icon: Layers as unknown as IconComp,
-    label: "Batch",
-    available: false,
-    comingSoonNote: "Bulk processing — coming soon",
-  },
-];
+import { APP_MODES, type AppMode, type AppModeDefinition } from "@/components/app/appModes";
+import { makeHref } from "@/lib/utils";
 
 interface AppSidebarProps {
   activeMode: AppMode;
@@ -47,24 +11,24 @@ interface AppSidebarProps {
 }
 
 export default function AppSidebar(props: AppSidebarProps) {
-  function handleMobileTabClick(item: ModeItem) {
+  function handleMobileTabClick(item: AppModeDefinition) {
     if (!item.available) return;
+
     if (item.mode !== props.activeMode) {
       props.onModeChange(item.mode);
       if (!props.drawerOpen) props.onToggleDrawer?.();
-    } else {
-      props.onToggleDrawer?.();
+      return;
     }
+
+    props.onToggleDrawer?.();
   }
 
   return (
     <>
-      {/* ── Desktop left dock ────────────────────────────────── */}
       <nav
         class="hidden md:flex flex-col items-center w-12 bg-sp-bg-card border-r border-sp-border py-4 gap-1 shrink-0"
         aria-label="App navigation"
       >
-        {/* Logo / home */}
         <a
           href={makeHref(ROUTES.HOME)}
           class="flex items-center justify-center w-8 h-8 rounded-sp transition-all duration-200 hover:bg-sp-coral-light group mb-2"
@@ -75,7 +39,7 @@ export default function AppSidebar(props: AppSidebarProps) {
 
         <div class="w-6 h-px bg-sp-border-light" />
 
-        <For each={MODES}>
+        <For each={APP_MODES}>
           {(item) => (
             <div class="relative group">
               <button
@@ -96,7 +60,6 @@ export default function AppSidebar(props: AppSidebarProps) {
                 <item.Icon class="w-4 h-4" aria-hidden="true" />
               </button>
 
-              {/* Tooltip */}
               <div class="absolute left-full top-1/2 -translate-y-1/2 ml-2 px-2 py-1 bg-sp-text text-white text-[0.7rem] rounded-sp whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-50">
                 <Show when={item.available} fallback={item.comingSoonNote}>
                   {item.label}
@@ -108,7 +71,6 @@ export default function AppSidebar(props: AppSidebarProps) {
 
         <div class="flex-1" />
 
-        {/* Info link */}
         <a
           href={makeHref(ROUTES.ABOUT)}
           class="flex items-center justify-center w-8 h-8 rounded-sp text-sp-text-soft hover:text-sp-text-muted hover:bg-sp-bg transition-all duration-200"
@@ -133,13 +95,12 @@ export default function AppSidebar(props: AppSidebarProps) {
         </a>
       </nav>
 
-      {/* ── Mobile bottom bar ─────────────────────────────────── */}
       <nav
         class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-sp-bg-card border-t border-sp-border flex items-center justify-around px-4"
         style={{ "padding-bottom": "max(8px, env(safe-area-inset-bottom))", height: "56px" }}
         aria-label="App navigation"
       >
-        <For each={MODES}>
+        <For each={APP_MODES}>
           {(item) => (
             <button
               type="button"
