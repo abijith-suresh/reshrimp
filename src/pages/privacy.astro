@@ -1,6 +1,7 @@
 ---
 import MarketingLayout from "../layouts/MarketingLayout.astro";
 import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
+import MarketingSection from "../components/marketing/layout/MarketingSection.astro";
 import PageContainer from "../components/marketing/layout/PageContainer.astro";
 import HeroSection from "../components/marketing/hero/HeroSection.astro";
 import PrivacyCard from "../components/marketing/cards/PrivacyCard.astro";
@@ -19,7 +20,7 @@ import { GITHUB_URL } from "../config/constants";
       subtitle="Reshrimp is built around local processing, minimal network use, and no image uploads."
     />
 
-    <section class="px-8 py-8 pb-20 relative z-10">
+    <MarketingSection>
       <PageContainer>
         <!-- How it works -->
         <PrivacyCard>
@@ -117,6 +118,6 @@ import { GITHUB_URL } from "../config/constants";
           </p>
         </PrivacyCard>
       </PageContainer>
-    </section>
+    </MarketingSection>
   </MarketingPageWrapper>
 </MarketingLayout>

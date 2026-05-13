@@ -1,11 +1,13 @@
 ---
 import MarketingLayout from "../layouts/MarketingLayout.astro";
 import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
+import MarketingSection from "../components/marketing/layout/MarketingSection.astro";
 import PageContainer from "../components/marketing/layout/PageContainer.astro";
 import HeroSection from "../components/marketing/hero/HeroSection.astro";
 import AboutCard from "../components/marketing/cards/AboutCard.astro";
 import TechStackGrid from "../components/marketing/cards/TechStackGrid.astro";
 import TechStackItem from "../components/marketing/cards/TechStackItem.astro";
+import MarketingButton from "../components/marketing/ui/MarketingButton.astro";
 import { Github, ArrowRight } from "lucide-astro";
 import { makeHref } from "../lib/utils";
 import { GITHUB_URL, ROUTES } from "../config/constants";
@@ -23,7 +25,7 @@ import { GITHUB_URL, ROUTES } from "../config/constants";
       subtitle="Reshrimp is a free, open source image processing tool that runs entirely in your browser. No uploads. No tracking. Just your images, processed locally."
     />
 
-    <section class="px-8 py-8 pb-20 relative z-10">
+    <MarketingSection>
       <PageContainer>
         <!-- The Mission -->
         <AboutCard delay={0}>
@@ -93,22 +95,17 @@ import { GITHUB_URL, ROUTES } from "../config/constants";
             documentation updates.
           </p>
           <div class="flex items-center gap-3 mt-5 flex-wrap">
-            <a
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center gap-2 font-body text-[0.9rem] font-semibold py-3 px-6 bg-sp-bg text-sp-text no-underline rounded-sp-full border border-sp-border transition-all duration-300 shadow-sp hover:translate-y-[-2px] hover:shadow-sp-hover hover:border-sp-lavender"
-            >
+            <MarketingButton href={GITHUB_URL} variant="secondary" external={true}>
               <Github size={18} />
               View on GitHub
-            </a>
-            <a href={makeHref(ROUTES.APP)} class="cta-pop">
+            </MarketingButton>
+            <MarketingButton href={makeHref(ROUTES.APP)}>
               Try Reshrimp
               <ArrowRight size={18} strokeWidth={2} class="cta-pop-arrow" />
-            </a>
+            </MarketingButton>
           </div>
         </AboutCard>
       </PageContainer>
-    </section>
+    </MarketingSection>
   </MarketingPageWrapper>
 </MarketingLayout>

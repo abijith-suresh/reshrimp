@@ -1,0 +1,20 @@
+---
+interface Props {
+  sectionClass?: string;
+  containerClass?: string;
+}
+
+const { sectionClass = "px-8 py-8 pb-20 relative z-10", containerClass } = Astro.props;
+---
+
+<section class={sectionClass}>
+  {
+    containerClass ? (
+      <div class={containerClass}>
+        <slot />
+      </div>
+    ) : (
+      <slot />
+    )
+  }
+</section>

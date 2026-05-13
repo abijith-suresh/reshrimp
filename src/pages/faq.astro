@@ -1,9 +1,11 @@
 ---
 import MarketingLayout from "../layouts/MarketingLayout.astro";
 import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
+import MarketingSection from "../components/marketing/layout/MarketingSection.astro";
 import PageContainer from "../components/marketing/layout/PageContainer.astro";
 import HeroSection from "../components/marketing/hero/HeroSection.astro";
 import FAQAccordion from "../components/marketing/sections/FAQAccordion.astro";
+import MarketingButton from "../components/marketing/ui/MarketingButton.astro";
 import { ArrowRight, Github } from "lucide-astro";
 import { makeHref } from "../lib/utils";
 import { GITHUB_URL, ROUTES } from "../config/constants";
@@ -22,7 +24,7 @@ const faqs = [
   {
     question: "What image formats are supported?",
     answer:
-      "Reshrimp can read JPEG, PNG, WebP, and AVIF images. Output formats are JPEG, PNG, and WebP, using your browser's built-in encoding capabilities.",
+      "Reshrimp can read JPEG, PNG, WebP, AVIF, HEIC, and HEIF images. Output formats are JPEG, PNG, WebP, and AVIF using your browser's built-in encoding capabilities.",
   },
   {
     question: "What's the maximum file size?",
@@ -46,7 +48,7 @@ const faqs = [
   {
     question: "How do the quality settings work?",
     answer:
-      "The quality slider controls the compression level for JPEG and WebP output (0-100%). Higher values mean better image quality but larger file sizes. PNG output is always lossless regardless of the quality setting. You can switch between Original and Processed tabs before downloading.",
+      "The quality slider controls JPEG and WebP output (0-100%). PNG export stays lossless, and this app's browser-native AVIF export uses fixed encoder settings. The preview updates after processing so you can review the result before downloading.",
   },
 ];
 ---
@@ -63,7 +65,7 @@ const faqs = [
       subtitle="Quick answers about privacy, formats, and offline use."
     />
 
-    <section class="px-8 py-8 pb-12 relative z-10">
+    <MarketingSection sectionClass="px-8 py-8 pb-12 relative z-10">
       <PageContainer>
         {
           faqs.map((faq, i) => (
@@ -71,41 +73,37 @@ const faqs = [
           ))
         }
       </PageContainer>
-    </section>
+    </MarketingSection>
 
     <!-- CTA -->
-    <section class="px-8 py-8 pb-20 text-center relative z-10">
-      <div class="max-w-[500px] mx-auto">
-        <h2 class="font-display text-[1.5rem] font-bold mb-3" data-reveal data-reveal-delay="0">
-          Still have questions?
-        </h2>
-        <p
-          class="text-[1rem] text-sp-text-muted leading-[1.6] m-0"
-          data-reveal
-          data-reveal-delay="80"
-        >
-          Check out the source code or just try the app — it's the best way to see how it works.
-        </p>
-        <div
-          class="flex items-center justify-center gap-3 mt-6 flex-wrap"
-          data-reveal
-          data-reveal-delay="160"
-        >
-          <a href={makeHref(ROUTES.APP)} class="cta-pop">
-            Try Reshrimp
-            <ArrowRight size={18} strokeWidth={2} class="cta-pop-arrow" />
-          </a>
-          <a
-            href={GITHUB_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            class="inline-flex items-center gap-2 font-body text-[1rem] font-semibold py-[0.9rem] px-8 bg-sp-bg-card text-sp-text no-underline rounded-sp-full border border-sp-border transition-all duration-300 shadow-sp hover:translate-y-[-2px] hover:shadow-sp-hover hover:border-sp-lavender"
-          >
-            <Github size={18} />
-            GitHub
-          </a>
-        </div>
+    <MarketingSection
+      sectionClass="px-8 py-8 pb-20 text-center relative z-10"
+      containerClass="max-w-[500px] mx-auto"
+    >
+      <h2 class="font-display text-[1.5rem] font-bold mb-3" data-reveal data-reveal-delay="0">
+        Still have questions?
+      </h2>
+      <p
+        class="text-[1rem] text-sp-text-muted leading-[1.6] m-0"
+        data-reveal
+        data-reveal-delay="80"
+      >
+        Check out the source code or just try the app — it's the best way to see how it works.
+      </p>
+      <div
+        class="flex items-center justify-center gap-3 mt-6 flex-wrap"
+        data-reveal
+        data-reveal-delay="160"
+      >
+        <MarketingButton href={makeHref(ROUTES.APP)}>
+          Try Reshrimp
+          <ArrowRight size={18} strokeWidth={2} class="cta-pop-arrow" />
+        </MarketingButton>
+        <MarketingButton href={GITHUB_URL} variant="secondary" size="lg" external={true}>
+          <Github size={18} />
+          GitHub
+        </MarketingButton>
       </div>
-    </section>
+    </MarketingSection>
   </MarketingPageWrapper>
 </MarketingLayout>

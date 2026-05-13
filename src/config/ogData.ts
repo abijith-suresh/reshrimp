@@ -41,9 +41,4 @@ export const ogPageData: Record<string, OgPageData> = {
     description: "Your images never leave your device. Here is exactly how we handle data.",
     label: "Privacy",
   },
-  changelog: {
-    title: "Changelog",
-    description: "A full history of updates, improvements, and new features in Reshrimp.",
-    label: "Changelog",
-  },
 };

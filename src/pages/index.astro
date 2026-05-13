@@ -2,6 +2,7 @@
 import MarketingLayout from "../layouts/MarketingLayout.astro";
 import SectionHeader from "../components/shared/SectionHeader.astro";
 import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
+import MarketingSection from "../components/marketing/layout/MarketingSection.astro";
 import HeroSection from "../components/marketing/hero/HeroSection.astro";
 import HeroCTA from "../components/marketing/hero/HeroCTA.astro";
 import BentoGrid from "../components/marketing/sections/BentoGrid.astro";
@@ -52,70 +53,72 @@ const jsonLd = {
     </HeroSection>
 
     <!-- Bento Features -->
-    <section class="px-8 py-16 relative z-10">
-      <div class="max-w-[1000px] mx-auto">
-        <SectionHeader label="What can you do?" title="Everything you need. Nothing you don't." />
-        <BentoGrid>
-          <BentoCard
-            color="coral"
-            colSpan={true}
-            icon={Scaling}
-            title="Resize with precision"
-            description="Scale to exact pixel dimensions. Aspect ratio lock keeps everything balanced. Works for thumbnails, social media, or high-res exports."
-          />
-          <BentoCard
-            color="mint"
-            icon={ArrowLeftRight}
-            title="Convert formats"
-            description="Switch between JPEG, PNG, and WebP in a click. Browser-native conversion with format-specific quality tradeoffs."
-          />
-          <BentoCard
-            color="lavender"
-            icon={Gauge}
-            title="Compress smartly"
-            description="Fine-tune quality from 0-100%. Check original and processed results in a tabbed preview."
-          />
-          <BentoCard
-            color="yellow"
-            colSpan={true}
-            icon={ShieldCheck}
-            title="Completely private"
-            description="All processing happens locally via browser APIs. After the first online visit, the app shell and core tools work offline. Open source — verify it yourself."
-          />
-        </BentoGrid>
-      </div>
-    </section>
+    <MarketingSection
+      sectionClass="px-8 py-16 relative z-10"
+      containerClass="max-w-[1000px] mx-auto"
+    >
+      <SectionHeader label="What can you do?" title="Everything you need. Nothing you don't." />
+      <BentoGrid>
+        <BentoCard
+          color="coral"
+          colSpan={true}
+          icon={Scaling}
+          title="Resize with precision"
+          description="Scale to exact pixel dimensions. Aspect ratio lock keeps everything balanced. Works for thumbnails, social media, or high-res exports."
+        />
+        <BentoCard
+          color="mint"
+          icon={ArrowLeftRight}
+          title="Convert formats"
+          description="Switch between JPEG, PNG, WebP, and AVIF in a click. Browser-native conversion with format-specific tradeoffs."
+        />
+        <BentoCard
+          color="lavender"
+          icon={Gauge}
+          title="Compress smartly"
+          description="Fine-tune JPEG and WebP quality from 0-100%. PNG stays lossless, while AVIF uses browser-native defaults in this app."
+        />
+        <BentoCard
+          color="yellow"
+          colSpan={true}
+          icon={ShieldCheck}
+          title="Completely private"
+          description="All processing happens locally via browser APIs. After the first online visit, the app shell and core tools work offline. Open source — verify it yourself."
+        />
+      </BentoGrid>
+    </MarketingSection>
 
     <!-- How it works -->
-    <section class="px-8 py-16 relative z-10">
-      <div class="max-w-[900px] mx-auto">
-        <SectionHeader label="Dead simple" title="Three steps. Seriously." />
-        <StepSection>
-          <StepItem
-            number={1}
-            color="coral"
-            title="Drop your image"
-            description="Drag and drop or click to browse. Supports JPEG, PNG, and WebP."
-          />
-          <StepArrow delay={100} />
-          <StepItem
-            number={2}
-            color="mint"
-            title="Tweak the settings"
-            description="Set dimensions, pick a format, adjust quality, then process to review the result."
-            delay={200}
-          />
-          <StepArrow delay={300} />
-          <StepItem
-            number={3}
-            color="lavender"
-            title="Download instantly"
-            description="One click to process, one click to download. Compare before and after."
-            delay={400}
-          />
-        </StepSection>
-      </div>
-    </section>
+    <MarketingSection
+      sectionClass="px-8 py-16 relative z-10"
+      containerClass="max-w-[900px] mx-auto"
+    >
+      <SectionHeader label="Dead simple" title="Three steps. Seriously." />
+      <StepSection>
+        <StepItem
+          number={1}
+          color="coral"
+          title="Drop your image"
+          description="Drag and drop or click to browse. Supports JPEG, PNG, WebP, AVIF, HEIC, and HEIF input."
+        />
+        <StepArrow delay={100} />
+        <StepItem
+          number={2}
+          color="mint"
+          title="Tweak the settings"
+          description="Set dimensions, pick a format, adjust quality, then process to review the result."
+          delay={200}
+        />
+        <StepArrow delay={300} />
+        <StepItem
+          number={3}
+          color="lavender"
+          title="Download instantly"
+          description="One click to process, one click to download. Compare before and after."
+          delay={400}
+        />
+      </StepSection>
+    </MarketingSection>
 
     <!-- Trust banner -->
     <TrustBanner />

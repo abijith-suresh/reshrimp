@@ -1,6 +1,7 @@
 ---
 import MarketingLayout from "../layouts/MarketingLayout.astro";
 import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
+import MarketingSection from "../components/marketing/layout/MarketingSection.astro";
 import HeroSection from "../components/marketing/hero/HeroSection.astro";
 import FeatureSection from "../components/marketing/sections/FeatureSection.astro";
 import CTACard from "../components/marketing/sections/CTACard.astro";
@@ -19,14 +20,14 @@ const features = [
     title: "Convert between formats",
     color: "mint",
     description:
-      "Switch between JPEG, PNG, and WebP with a single click. Browser-native conversion gives you format-specific tradeoffs, so you can pick WebP for the web, PNG for transparency, or JPEG for photos.",
+      "Switch between JPEG, PNG, WebP, and AVIF with a single click. Browser-native conversion gives you format-specific tradeoffs, so you can pick WebP for the web, PNG for transparency, AVIF for dense delivery, or JPEG for photos.",
   },
   {
     icon: Gauge,
     title: "Smart compression",
     color: "lavender",
     description:
-      "Fine-tune quality from 0 to 100% before processing. Switch between original and processed previews before downloading to find the sweet spot between quality and file size.",
+      "Fine-tune quality for JPEG and WebP before processing, then review the updated preview before downloading. PNG stays lossless, and AVIF uses browser-native encoder defaults in this app.",
   },
   {
     icon: ShieldCheck,
@@ -74,21 +75,22 @@ const features = [
     />
 
     <!-- Feature sections -->
-    <section class="px-8 py-8 pb-16 relative z-10">
-      <div class="max-w-[900px] mx-auto flex flex-col gap-12">
-        {
-          features.map((feature, i) => (
-            <FeatureSection
-              icon={feature.icon}
-              title={feature.title}
-              description={feature.description}
-              color={feature.color}
-              index={i}
-            />
-          ))
-        }
-      </div>
-    </section>
+    <MarketingSection
+      sectionClass="px-8 py-8 pb-16 relative z-10"
+      containerClass="max-w-[900px] mx-auto flex flex-col gap-12"
+    >
+      {
+        features.map((feature, i) => (
+          <FeatureSection
+            icon={feature.icon}
+            title={feature.title}
+            description={feature.description}
+            color={feature.color}
+            index={i}
+          />
+        ))
+      }
+    </MarketingSection>
 
     <!-- CTA -->
     <CTACard
