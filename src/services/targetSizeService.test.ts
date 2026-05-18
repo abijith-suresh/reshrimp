@@ -9,7 +9,7 @@ describe("targetSizeService", () => {
       { format: "image/jpeg", expected: true },
       { format: "image/webp", expected: true },
       { format: "image/png", expected: false },
-      { format: "image/avif", expected: false },
+      { format: "image/avif", expected: true },
     ])("returns $expected for $format", ({ format, expected }) => {
       expect(formatSupportsQuality(format)).toBe(expected);
     });

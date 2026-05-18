@@ -12,6 +12,7 @@ import { decodeHeicBlob } from "./formatDetectionService";
 import { compressToTargetSize, formatSupportsQuality } from "./targetSizeService";
 import { isHeicInput } from "../config/imageFormats";
 import { buildFilterString, isNoOpAdjustments } from "./adjustmentService";
+import { encodeAvif } from "./avifEncoderService";
 
 /**
  * Calculate dimensions maintaining aspect ratio
@@ -137,16 +138,17 @@ export async function processImage(
   format = getBestFormat(format);
 
   // Step 6: Determine quality (compress or default)
-  // Browser-native quality control only applies to the formats we explicitly support.
   let quality: number | undefined;
-  if (format === "image/jpeg" || format === "image/webp") {
+  if (format === "image/jpeg" || format === "image/webp" || format === "image/avif") {
     quality = options.quality !== undefined ? options.quality : 0.92;
   }
 
   // Step 7: Convert to blob
   let blob: Blob;
 
-  if (options.targetFileSize && formatSupportsQuality(format)) {
+  if (format === "image/avif" && quality !== undefined) {
+    blob = await encodeAvif(canvas, Math.round(quality * 100));
+  } else if (options.targetFileSize && formatSupportsQuality(format)) {
     const sizeResult = await compressToTargetSize(
       { canvas, format, targetBytes: options.targetFileSize },
       canvasToBlob

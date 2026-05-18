@@ -68,6 +68,6 @@ describe("imageFormats", () => {
       "image/webp",
       "image/avif",
     ]);
-    expect(QUALITY_CONTROLLED_OUTPUT_FORMATS).toEqual(["image/jpeg", "image/webp"]);
+    expect(QUALITY_CONTROLLED_OUTPUT_FORMATS).toEqual(["image/jpeg", "image/webp", "image/avif"]);
   });
 });
