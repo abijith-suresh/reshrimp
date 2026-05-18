@@ -1,4 +1,6 @@
 ---
+import ChipComponent from "../../ui/Chip.astro";
+
 interface Chip {
   label: string;
   variant: "coral" | "mint" | "lavender" | "yellow";
@@ -14,12 +16,6 @@ interface Props {
 }
 
 const { chip, chips, title, subtitle, gradientTitle, centered = true } = Astro.props;
-const variantClasses: Record<string, string> = {
-  coral: "pop-chip-coral",
-  mint: "pop-chip-mint",
-  lavender: "pop-chip-lavender",
-  yellow: "pop-chip-yellow",
-};
 ---
 
 <section class:list={["px-8 py-20 relative z-10 md:px-5 md:py-12", { "text-center": centered }]}>
@@ -31,15 +27,12 @@ const variantClasses: Record<string, string> = {
           style="animation: popBounceIn 0.6s 0.1s forwards"
         >
           {chips.map((c) => (
-            <span class:list={["pop-chip", variantClasses[c.variant]]}>{c.label}</span>
+            <ChipComponent label={c.label} variant={c.variant} />
           ))}
         </div>
       ) : chip ? (
-        <span
-          class:list={["pop-chip", variantClasses[chip.variant]]}
-          style="animation: popBounceIn 0.6s 0.1s forwards"
-        >
-          {chip.label}
+        <span class="opacity-0" style="animation: popBounceIn 0.6s 0.1s forwards">
+          <ChipComponent label={chip.label} variant={chip.variant} />
         </span>
       ) : null
     }

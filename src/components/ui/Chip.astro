@@ -1,0 +1,12 @@
+---
+interface Props {
+  label: string;
+  variant: "coral" | "mint" | "lavender" | "yellow";
+  size?: "sm" | "default";
+}
+
+const { label, variant, size = "default" } = Astro.props;
+const sizeClass = size === "sm" ? "pop-chip-sm" : "";
+---
+
+<span class:list={["pop-chip", `pop-chip-${variant}`, sizeClass]}>{label}</span>

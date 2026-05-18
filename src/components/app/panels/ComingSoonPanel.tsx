@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-solid";
+import Chip from "@/components/ui/Chip";
 
 interface ComingSoonPanelProps {
   Icon: LucideIcon;
@@ -16,11 +17,7 @@ export default function ComingSoonPanel(props: ComingSoonPanelProps) {
         <h3 class="font-semibold text-[0.9rem] text-sp-text m-0">{props.title}</h3>
         <p class="text-[0.8rem] text-sp-text-soft leading-relaxed m-0">{props.description}</p>
       </div>
-      <div class="px-3 py-1 rounded-sp-full bg-sp-lavender-light">
-        <span class="text-[0.65rem] font-semibold text-sp-lavender-dark uppercase tracking-[0.1em]">
-          Coming in a future update
-        </span>
-      </div>
+      <Chip label="Coming in a future update" variant="lavender" size="sm" />
     </div>
   );
 }

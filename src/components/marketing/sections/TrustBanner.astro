@@ -1,5 +1,6 @@
 ---
 import { ShieldCheck } from "lucide-astro";
+import Chip from "../../ui/Chip.astro";
 ---
 
 <section class="px-8 py-12 relative z-10">
@@ -20,26 +21,11 @@ import { ShieldCheck } from "lucide-astro";
         model assets are downloaded once. No uploads, accounts, or tracking.
       </p>
       <div class="flex justify-center flex-wrap gap-2">
-        <span
-          class="inline-block text-[0.7rem] font-semibold py-[0.3rem] px-[0.8rem] rounded-sp-full bg-sp-mint-light text-sp-mint-dark tracking-[0.01em]"
-          >No servers</span
-        >
-        <span
-          class="inline-block text-[0.7rem] font-semibold py-[0.3rem] px-[0.8rem] rounded-sp-full bg-sp-mint-light text-sp-mint-dark tracking-[0.01em]"
-          >No cookies</span
-        >
-        <span
-          class="inline-block text-[0.7rem] font-semibold py-[0.3rem] px-[0.8rem] rounded-sp-full bg-sp-mint-light text-sp-mint-dark tracking-[0.01em]"
-          >No analytics</span
-        >
-        <span
-          class="inline-block text-[0.7rem] font-semibold py-[0.3rem] px-[0.8rem] rounded-sp-full bg-sp-mint-light text-sp-mint-dark tracking-[0.01em]"
-          >No accounts</span
-        >
-        <span
-          class="inline-block text-[0.7rem] font-semibold py-[0.3rem] px-[0.8rem] rounded-sp-full bg-sp-mint-light text-sp-mint-dark tracking-[0.01em]"
-          >Open source</span
-        >
+        <Chip label="No servers" variant="mint" size="sm" />
+        <Chip label="No cookies" variant="mint" size="sm" />
+        <Chip label="No analytics" variant="mint" size="sm" />
+        <Chip label="No accounts" variant="mint" size="sm" />
+        <Chip label="Open source" variant="mint" size="sm" />
       </div>
     </div>
   </div>

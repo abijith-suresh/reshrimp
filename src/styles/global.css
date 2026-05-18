@@ -305,6 +305,11 @@ body {
   color: #a16207;
 }
 
+.pop-chip-sm {
+  font-size: 0.7rem;
+  padding: 0.3rem 0.8rem;
+}
+
 /* ===== Card ===== */
 .sp-card {
   background: var(--sp-bg-card);
