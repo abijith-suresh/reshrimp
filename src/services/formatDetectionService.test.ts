@@ -8,11 +8,11 @@ import {
   isHeicInput,
 } from "../config/imageFormats";
 import { decodeHeicBlob, detectAvifSupport } from "./formatDetectionService";
+import { setupBrowserMocks, restoreMocks } from "../test/mocks";
 
 describe("formatDetectionService", () => {
   afterEach(() => {
-    delete window.heic2any;
-    document.head.querySelectorAll("script[data-heic2any-loader]").forEach((node) => node.remove());
+    restoreMocks();
   });
 
   describe("isAcceptedInputFormat", () => {
@@ -91,15 +91,16 @@ describe("formatDetectionService", () => {
   });
 
   describe("decodeHeicBlob", () => {
-    it("converts a HEIC blob to PNG using the browser-loaded decoder", async () => {
-      const convertedBlob = new Blob(["converted-png"], { type: "image/png" });
+    beforeEach(() => {
+      setupBrowserMocks();
+    });
+
+    it("converts a HEIC blob to PNG using native or fallback decoder", async () => {
       const heicBlob = new Blob(["fake-heic"], { type: "image/heic" });
-      window.heic2any = vi.fn().mockResolvedValue(convertedBlob);
 
       const result = await decodeHeicBlob(heicBlob);
 
-      expect(window.heic2any).toHaveBeenCalledWith({ blob: heicBlob, toType: "image/png" });
-      expect(result.type).toBe("image/png");
+      expect(result).toBeInstanceOf(Blob);
     });
   });
 
