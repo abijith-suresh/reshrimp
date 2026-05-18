@@ -8,6 +8,7 @@ import type {
 import { loadImage, resizeOnCanvas, canvasToBlob, getBestFormat } from "./canvasService";
 import { removeBackground } from "./backgroundRemovalService";
 import { rotateImage, flipImage } from "./transformService";
+import { cropOnCanvas, validateCropRegion } from "./cropService";
 import { decodeHeicBlob } from "./formatDetectionService";
 import { compressToTargetSize, formatSupportsQuality } from "./targetSizeService";
 import { isHeicInput } from "../config/imageFormats";
@@ -100,6 +101,16 @@ export async function processImage(
       const flipCanvas = flipImage(img, flip);
       img = await canvasToImageElement(flipCanvas);
     }
+  }
+
+  // Step 2.7: Apply crop after transforms, before resize
+  if (options.crop) {
+    const error = validateCropRegion(options.crop, img.width, img.height);
+    if (error) {
+      throw new Error(`Invalid crop region: ${error}`);
+    }
+    const cropped = cropOnCanvas(img, options.crop);
+    img = await canvasToImageElement(cropped);
   }
 
   // Step 3: Determine dimensions (resize or original)

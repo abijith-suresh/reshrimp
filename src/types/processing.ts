@@ -20,9 +20,19 @@ export interface ResizeOptions {
 export type RotationDeg = 90 | 180 | 270;
 
 /**
- * Axis along which to mirror the image.
+ * Flip axis along which to mirror the image.
  */
 export type FlipAxis = "horizontal" | "vertical";
+
+/**
+ * Crop region in source-image pixel coordinates.
+ */
+export interface CropRegion {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
 
 /**
  * Transform options applied before resize/format operations.
@@ -51,11 +61,12 @@ export interface ImageAdjustments {
 export interface ProcessOptions {
   resize?: ResizeOptions;
   format?: ImageFormat;
-  quality?: number; // 0-1 range for compression quality
+  quality?: number;
   removeBackground?: boolean;
   transform?: TransformOptions;
-  targetFileSize?: number; // target output size in bytes
+  targetFileSize?: number;
   adjustments?: ImageAdjustments;
+  crop?: CropRegion;
 }
 
 /**
