@@ -1,4 +1,6 @@
 ---
+import { createFaqId } from "@/lib/faqUtils";
+
 interface Props {
   question: string;
   answer: string;
@@ -6,6 +8,8 @@ interface Props {
 }
 
 const { question, answer, delay = 0 } = Astro.props;
+const buttonId = createFaqId(question);
+const panelId = `${buttonId}-panel`;
 ---
 
 <div
@@ -14,14 +18,19 @@ const { question, answer, delay = 0 } = Astro.props;
   data-reveal-delay={String(delay)}
 >
   <button
+    id={buttonId}
     class="faq-question w-full text-left font-display text-[1.05rem] font-semibold py-5 px-6 flex items-center justify-between gap-4 transition-colors duration-200 hover:text-sp-coral"
     aria-expanded="false"
+    aria-controls={panelId}
   >
-    {question}
+    <span>{question}</span>
+    <span class="sr-only faq-toggle-indicator">Expand answer</span>
   </button>
   <div
+    id={panelId}
     class="faq-body grid [grid-template-rows:0fr] transition-[grid-template-rows] duration-[400ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)]"
     role="region"
+    aria-labelledby={buttonId}
   >
     <div class="overflow-hidden">
       <p
@@ -33,7 +42,8 @@ const { question, answer, delay = 0 } = Astro.props;
 </div>
 
 <script>
-  // Use event delegation so all FAQ items work regardless of how many component instances exist
+  import { handleFaqKeyboard } from "@/lib/faqKeyboard";
+
   function handleFaqClick(e: Event) {
     const question = (e.target as HTMLElement).closest(".faq-question");
     if (!question) return;
@@ -41,7 +51,12 @@ const { question, answer, delay = 0 } = Astro.props;
     if (!item) return;
     const isOpen = item.classList.toggle("faq-open");
     question.setAttribute("aria-expanded", String(isOpen));
+    const indicator = question.querySelector(".faq-toggle-indicator");
+    if (indicator) {
+      indicator.textContent = isOpen ? "Collapse answer" : "Expand answer";
+    }
   }
 
   document.addEventListener("click", handleFaqClick);
+  document.addEventListener("keydown", handleFaqKeyboard);
 </script>
