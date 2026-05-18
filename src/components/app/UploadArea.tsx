@@ -1,14 +1,28 @@
+import { onCleanup, onMount } from "solid-js";
 import UploadDropzone from "@/components/app/upload/UploadDropzone";
 import ValidationMessages from "@/components/app/upload/ValidationMessages";
 import { useImageApp } from "@/components/app/state/ImageAppContext";
 import { MAX_FILE_SIZE } from "@/config/constants";
 import { UPLOAD_ACCEPT_ATTRIBUTE } from "@/config/imageFormats";
 import { formatFileSize } from "@/utils/imageUtils";
+import { extractImageFromPaste } from "@/lib/clipboardUpload";
 
 export default function UploadArea() {
   const { state, actions } = useImageApp();
 
   let fileInputRef: HTMLInputElement | undefined;
+
+  function handlePaste(e: ClipboardEvent) {
+    const file = extractImageFromPaste(e);
+    if (file) {
+      actions.handleFileUpload(file);
+    }
+  }
+
+  onMount(() => {
+    document.addEventListener("paste", handlePaste);
+    onCleanup(() => document.removeEventListener("paste", handlePaste));
+  });
 
   function handleFileInput(e: Event) {
     const target = e.target as HTMLInputElement;
