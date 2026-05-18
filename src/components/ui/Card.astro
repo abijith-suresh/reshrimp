@@ -1,0 +1,14 @@
+---
+import { cardPaddingClass } from "./cardUtils";
+
+interface Props {
+  padding?: "md" | "lg";
+  class?: string;
+}
+
+const { padding = "md", class: className } = Astro.props;
+---
+
+<div class:list={["sp-card", cardPaddingClass(padding), className]}>
+  <slot />
+</div>

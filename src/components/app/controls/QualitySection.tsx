@@ -1,5 +1,5 @@
 import { useImageApp } from "@/components/app/state/ImageAppContext";
-import SectionHeader from "@/components/ui/SectionHeader";
+import PanelSectionLabel from "@/components/ui/PanelSectionLabel";
 
 export default function QualitySection() {
   const { state, actions } = useImageApp();
@@ -7,7 +7,7 @@ export default function QualitySection() {
   return (
     <div class="flex flex-col gap-3">
       <div class="flex items-center justify-between gap-3">
-        <SectionHeader>Quality</SectionHeader>
+        <PanelSectionLabel>Quality</PanelSectionLabel>
         {state.qualityControlSupported() ? (
           <span class="text-[0.85rem] font-semibold text-sp-coral">{state.qualityValue()}%</span>
         ) : null}

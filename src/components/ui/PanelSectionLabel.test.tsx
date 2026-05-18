@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { render } from "@solidjs/testing-library";
-import SectionHeader from "./SectionHeader";
+import PanelSectionLabel from "./PanelSectionLabel";
 
-describe("SectionHeader", () => {
+describe("PanelSectionLabel", () => {
   it("renders children", () => {
-    const { getByText } = render(() => <SectionHeader>Resize</SectionHeader>);
+    const { getByText } = render(() => <PanelSectionLabel>Resize</PanelSectionLabel>);
     expect(getByText("Resize")).toBeInTheDocument();
   });
 });

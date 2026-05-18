@@ -1,5 +1,5 @@
 import { Show } from "solid-js";
-import SectionHeader from "@/components/ui/SectionHeader";
+import PanelSectionLabel from "@/components/ui/PanelSectionLabel";
 import UploadArea from "@/components/app/UploadArea";
 import PresetSelector from "@/components/app/controls/PresetSelector";
 import DimensionInputs from "@/components/app/controls/DimensionInputs";
@@ -18,14 +18,14 @@ export default function ProcessPanel() {
   return (
     <div class="flex flex-col flex-1 overflow-y-auto min-h-0">
       <div class="app-panel-section app-panel-section-source">
-        <SectionHeader>Source</SectionHeader>
+        <PanelSectionLabel>Source</PanelSectionLabel>
         <div class="mt-2">
           <UploadArea />
         </div>
       </div>
 
       <div class="app-panel-section">
-        <SectionHeader>Geometry</SectionHeader>
+        <PanelSectionLabel>Geometry</PanelSectionLabel>
         <PresetSelector />
         <DimensionInputs />
         <div class="flex gap-2">
@@ -42,7 +42,7 @@ export default function ProcessPanel() {
       </div>
 
       <div class="app-panel-section">
-        <SectionHeader>Format</SectionHeader>
+        <PanelSectionLabel>Format</PanelSectionLabel>
         <FormatSelect />
       </div>
 

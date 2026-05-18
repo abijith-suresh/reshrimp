@@ -4,7 +4,7 @@ import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWr
 import PageSection from "../components/ui/PageSection.astro";
 import PageContainer from "../components/marketing/layout/PageContainer.astro";
 import HeroSection from "../components/marketing/hero/HeroSection.astro";
-import PrivacyCard from "../components/marketing/cards/PrivacyCard.astro";
+import Card from "../components/ui/Card.astro";
 import { GITHUB_URL } from "../config/constants";
 ---
 
@@ -23,7 +23,7 @@ import { GITHUB_URL } from "../config/constants";
     <PageSection>
       <PageContainer>
         <!-- How it works -->
-        <PrivacyCard>
+        <Card class="mb-6">
           <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">
             How it works technically
           </h2>
@@ -38,10 +38,10 @@ import { GITHUB_URL } from "../config/constants";
             offline. Background removal downloads its model assets the first time you use it, then
             can run offline too.
           </p>
-        </PrivacyCard>
+        </Card>
 
         <!-- What we don't do -->
-        <PrivacyCard>
+        <Card class="mb-6">
           <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">
             What we don't do
           </h2>
@@ -77,10 +77,10 @@ import { GITHUB_URL } from "../config/constants";
               We don't fingerprint your browser or device
             </li>
           </ul>
-        </PrivacyCard>
+        </Card>
 
         <!-- Open source -->
-        <PrivacyCard>
+        <Card class="mb-6">
           <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">
             Open source verification
           </h2>
@@ -100,10 +100,10 @@ import { GITHUB_URL } from "../config/constants";
             >
             to verify our claims.
           </p>
-        </PrivacyCard>
+        </Card>
 
         <!-- Third-party services -->
-        <PrivacyCard>
+        <Card class="mb-6">
           <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">
             Third-party services
           </h2>
@@ -116,7 +116,7 @@ import { GITHUB_URL } from "../config/constants";
             model files once before it can work offline. Those requests are for app or model assets,
             not for uploading your images.
           </p>
-        </PrivacyCard>
+        </Card>
       </PageContainer>
     </PageSection>
   </MarketingPageWrapper>

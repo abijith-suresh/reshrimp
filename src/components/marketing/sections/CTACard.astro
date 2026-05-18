@@ -1,6 +1,7 @@
 ---
 import { ArrowRight } from "lucide-astro";
 import ButtonLink from "../../ui/ButtonLink.astro";
+import Card from "../../ui/Card.astro";
 import { makeHref } from "../../../lib/utils";
 import { ROUTES } from "../../../config/constants";
 
@@ -27,7 +28,7 @@ const {
   <div class="max-w-[500px] mx-auto">
     {
       background ? (
-        <div class="bg-sp-bg-card border border-sp-border rounded-sp-xl p-12 text-center shadow-sp">
+        <Card padding="lg" class="text-center">
           <h2
             class="font-display font-extrabold mb-4 tracking-tight"
             style="font-size: clamp(1.8rem, 4vw, 2.5rem)"
@@ -49,7 +50,7 @@ const {
               <ArrowRight size={18} strokeWidth={2} class="cta-pop-arrow" />
             </ButtonLink>
           </div>
-        </div>
+        </Card>
       ) : (
         <>
           <h2
