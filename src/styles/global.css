@@ -43,6 +43,10 @@
   --sp-lavender-dark: #8b5cf6;
   --sp-yellow: #fde68a;
   --sp-yellow-light: #fefce8;
+  --sp-yellow-dark: #a16207;
+  --sp-warning: #d97706;
+  --sp-checkerboard: #e8e6f0;
+  --sp-code-fg: #e2e8f0;
   --sp-border: #e0deff;
   --sp-border-light: #eeedff;
   --sp-shadow: 0 2px 16px rgba(30, 27, 75, 0.06);
@@ -74,6 +78,10 @@
   --color-sp-lavender-dark: #8b5cf6;
   --color-sp-yellow: #fde68a;
   --color-sp-yellow-light: #fefce8;
+  --color-sp-yellow-dark: #a16207;
+  --color-sp-warning: #d97706;
+  --color-sp-checkerboard: #e8e6f0;
+  --color-sp-code-fg: #e2e8f0;
   --color-sp-border: #e0deff;
   --color-sp-border-light: #eeedff;
 
@@ -119,7 +127,7 @@ body {
 
 ::selection {
   background: var(--sp-lavender);
-  color: #fff;
+  color: var(--sp-bg-card);
 }
 
 /* ===== Keyframe Animations ===== */
@@ -302,7 +310,7 @@ body {
 
 .pop-chip-yellow {
   background: var(--sp-yellow-light);
-  color: #a16207;
+  color: var(--sp-yellow-dark);
 }
 
 /* ===== Card ===== */
@@ -361,7 +369,7 @@ body {
 .sp-validation-warning {
   margin-top: 0.5rem;
   font-size: 0.875rem;
-  color: #d97706;
+  color: var(--sp-warning);
 }
 
 /* ===== App: Panel Layout ===== */
@@ -602,7 +610,7 @@ body {
   width: 1rem;
   height: 1rem;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
+  border-top-color: var(--sp-bg-card);
   border-radius: 50%;
   animation: btn-spin 0.6s linear infinite;
 }
@@ -636,10 +644,10 @@ body {
   justify-content: center;
   background-color: var(--sp-bg);
   background-image:
-    linear-gradient(45deg, #e8e6f0 25%, transparent 25%),
-    linear-gradient(-45deg, #e8e6f0 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #e8e6f0 75%),
-    linear-gradient(-45deg, transparent 75%, #e8e6f0 75%);
+    linear-gradient(45deg, var(--sp-checkerboard) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--sp-checkerboard) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--sp-checkerboard) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--sp-checkerboard) 75%);
   background-size: 16px 16px;
   background-position:
     0 0,
@@ -779,7 +787,7 @@ body {
 
 .prose-sp pre {
   background: var(--sp-text);
-  color: #e2e8f0;
+  color: var(--sp-code-fg);
   padding: 1.25rem;
   border-radius: var(--sp-radius);
   overflow-x: auto;
