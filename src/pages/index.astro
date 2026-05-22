@@ -1,6 +1,6 @@
 ---
 import MarketingLayout from "../layouts/MarketingLayout.astro";
-import SectionHeader from "../components/shared/SectionHeader.astro";
+import MarketingSectionHeader from "../components/shared/MarketingSectionHeader.astro";
 import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
 import HeroSection from "../components/marketing/hero/HeroSection.astro";
 import HeroCTA from "../components/marketing/hero/HeroCTA.astro";
@@ -52,7 +52,10 @@ const jsonLd = {
     </HeroSection>
 
     <PageSection sectionClass="px-8 py-16 relative z-10" containerClass="max-w-[1000px] mx-auto">
-      <SectionHeader label="What can you do?" title="Everything you need. Nothing you don't." />
+      <MarketingSectionHeader
+        label="What can you do?"
+        title="Everything you need. Nothing you don't."
+      />
       <BentoGrid>
         <BentoCard
           color="coral"
@@ -84,7 +87,7 @@ const jsonLd = {
     </PageSection>
 
     <PageSection sectionClass="px-8 py-16 relative z-10" containerClass="max-w-[900px] mx-auto">
-      <SectionHeader label="Dead simple" title="Three steps. Seriously." />
+      <MarketingSectionHeader label="Dead simple" title="Three steps. Seriously." />
       <StepSection>
         <StepItem
           number={1}
