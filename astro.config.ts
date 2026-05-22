@@ -12,7 +12,6 @@ export default defineConfig({
     solid(),
     sitemap(),
     AstroPWA({
-      registerType: "autoUpdate",
       strategies: "injectManifest",
       srcDir: "src",
       filename: "sw.ts",

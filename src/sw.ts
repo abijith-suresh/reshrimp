@@ -6,7 +6,7 @@ import {
   BACKGROUND_REMOVAL_RUNTIME_CACHE_NAME,
   BACKGROUND_REMOVAL_SELF_HOSTED_CACHE_NAME,
 } from "./config/backgroundRemoval";
-import { clientsClaim, setCacheNameDetails } from "workbox-core";
+import { setCacheNameDetails } from "workbox-core";
 import { precacheAndRoute, cleanupOutdatedCaches } from "workbox-precaching";
 import { registerRoute } from "workbox-routing";
 import { CacheFirst } from "workbox-strategies";
@@ -17,9 +17,7 @@ declare let self: ServiceWorkerGlobalScope & {
 };
 
 setCacheNameDetails({ prefix: "reshrimp" });
-clientsClaim();
 cleanupOutdatedCaches();
-self.skipWaiting();
 
 precacheAndRoute(self.__WB_MANIFEST, {
   cleanURLs: true,
