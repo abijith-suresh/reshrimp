@@ -1,20 +1,14 @@
 import { createSignal, Show } from "solid-js";
 import AppSidebar from "@/components/app/AppSidebar";
-import { type AppMode } from "@/components/app/appModes";
 import ControlPanel from "@/components/app/ControlPanel";
 import PreviewPanel from "@/components/app/PreviewPanel";
 import { ImageAppProvider } from "@/components/app/state/ImageAppContext";
 
 export default function ImageApp() {
-  const [activeMode, setActiveMode] = createSignal<AppMode>("image");
   const [drawerOpen, setDrawerOpen] = createSignal(false);
 
   function handleToggleDrawer() {
     setDrawerOpen((prev) => !prev);
-  }
-
-  function handleModeChange(mode: AppMode) {
-    setActiveMode(mode);
   }
 
   return (
@@ -22,16 +16,11 @@ export default function ImageApp() {
       {/* ── Root: h-dvh keeps the whole shell locked to viewport ── */}
       <div class="h-dvh overflow-hidden flex flex-row bg-sp-bg">
         {/* Left nav dock — desktop only (hidden on mobile) */}
-        <AppSidebar
-          activeMode={activeMode()}
-          drawerOpen={drawerOpen()}
-          onModeChange={handleModeChange}
-          onToggleDrawer={handleToggleDrawer}
-        />
+        <AppSidebar drawerOpen={drawerOpen()} onToggleDrawer={handleToggleDrawer} />
 
         {/* Control panel — desktop: second column, hidden on mobile */}
         <div class="hidden md:flex flex-col w-[320px] border-r border-sp-border bg-sp-bg-card overflow-hidden shrink-0">
-          <ControlPanel mode={activeMode()} />
+          <ControlPanel />
         </div>
 
         {/* Preview area — fills remaining space on all screen sizes */}
@@ -53,12 +42,14 @@ export default function ImageApp() {
 
       {/* Drawer panel */}
       <div
+        id="app-controls-drawer"
         class="md:hidden fixed left-0 right-0 z-40 bg-sp-bg-card rounded-t-[20px] shadow-[0_-4px_24px_rgba(30,27,75,0.12)] overflow-hidden flex flex-col transition-transform duration-300 ease-out"
         style={{
           bottom: "56px",
           "max-height": "72dvh",
           transform: drawerOpen() ? "translateY(0)" : "translateY(110%)",
         }}
+        aria-label="Image controls"
         aria-hidden={!drawerOpen()}
       >
         {/* Drag handle — tap to close */}
@@ -71,7 +62,7 @@ export default function ImageApp() {
           <div class="w-10 h-1 bg-sp-border rounded-full" />
         </button>
         <div class="overflow-y-auto flex-1 min-h-0">
-          <ControlPanel mode={activeMode()} />
+          <ControlPanel />
         </div>
       </div>
     </ImageAppProvider>
