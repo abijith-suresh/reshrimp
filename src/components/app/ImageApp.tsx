@@ -19,10 +19,12 @@ import DownloadSection from "@/components/app/preview/DownloadSection";
 type SheetState = "hidden" | "peek" | "open";
 
 /** Total px of the sticky header visible in peek state.
- *  handle-bar (28) + info-row (28) + download-btn section (64) = 120 */
-const PEEK_HEIGHT = 120;
+ *  handle-bar (31) + info-row (28) + download-btn section (~89) = 148.
+ *  Generous to ensure the download button is fully visible even with
+ *  font scaling or padding variation across devices. */
+const PEEK_HEIGHT = 148;
 
-const SPRING = "transform 0.38s cubic-bezier(0.32, 0.72, 0, 1)";
+const SPRING = "transform 0.5s cubic-bezier(0.32, 0.72, 0, 1)";
 
 function translateForState(s: SheetState): string {
   switch (s) {
