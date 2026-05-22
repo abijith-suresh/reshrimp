@@ -1,5 +1,4 @@
 import type { ImageFormat } from "../types/image";
-import type { SocialMediaPreset } from "../config/presets";
 import type { ProcessOptions, ResizeUnit } from "../types/processing";
 import {
   calculateHeightFromWidth,
@@ -73,26 +72,6 @@ export function buildProcessOptions(input: BuildProcessOptionsInput): ProcessOpt
     ...(input.formatValue ? { format: input.formatValue as ImageFormat } : {}),
     quality: input.qualityValue / 100,
     removeBackground: input.removeBackground,
-  };
-}
-
-export function getPresetResizeValues(
-  label: string,
-  presets: ReadonlyArray<SocialMediaPreset>
-): {
-  resizeUnit: "px";
-  widthValue: string;
-  heightValue: string;
-} | null {
-  const preset = presets.find((candidate) => candidate.label === label);
-  if (!preset) {
-    return null;
-  }
-
-  return {
-    resizeUnit: "px",
-    widthValue: String(preset.width),
-    heightValue: String(preset.height),
   };
 }
 

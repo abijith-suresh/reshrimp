@@ -26,14 +26,12 @@ import {
   getDimensionValuesForDpiChange,
   getFormatStateForBackgroundRemoval,
   getLinkedDimensionValues,
-  getPresetResizeValues,
   rebaseDimensionValues,
 } from "@/services/imageWorkflowService";
 import { validateImageFile, generateDownloadFilename } from "@/services/validationService";
 import { formatFileSize, generateId, convertFromPx } from "@/utils/imageUtils";
 import { DEFAULT_DPI } from "@/config/constants";
 import { getInitialOutputFormat, supportsBrowserQualityControl } from "@/config/imageFormats";
-import { SOCIAL_MEDIA_PRESETS } from "@/config/presets";
 
 export interface SizeDiff {
   text: string;
@@ -94,7 +92,6 @@ interface AppState {
   qualityValue: Accessor<number>;
   resizeUnit: Accessor<ResizeUnit>;
   dpiValue: Accessor<number>;
-  presetValue: Accessor<string>;
   currentOutputFormat: Accessor<ImageFormat | null>;
   qualityControlSupported: Accessor<boolean>;
   controlsActive: Accessor<boolean>;
@@ -111,7 +108,6 @@ interface AppActions {
   handleRemoveBackgroundChange(checked: boolean): void;
   handleUnitChange(unit: ResizeUnit): void;
   handleDpiChange(dpi: number): void;
-  handlePresetChange(label: string): void;
   handleWidthInput(val: string): void;
   handleHeightInput(val: string): void;
   handleAspectRatioChange(checked: boolean): void;
@@ -152,7 +148,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   // ── Resize unit controls ──────────────────────────────────────────────────
   const [resizeUnit, setResizeUnit] = createSignal<ResizeUnit>("px");
   const [dpiValue, setDpiValue] = createSignal(DEFAULT_DPI);
-  const [presetValue, setPresetValue] = createSignal("");
 
   const debouncedProcess = createDebouncedTask(() => {
     void handleProcess();
@@ -288,11 +283,10 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         () => (qualityControlSupported() ? qualityValue() : null),
         resizeUnit,
         dpiValue,
-        presetValue,
         maintainAspectRatio,
         removeBackground,
       ],
-      ([image, , , , , , , , , shouldRemoveBackground]) => {
+      ([image, , , , , , , , shouldRemoveBackground]) => {
         if (!image) return;
 
         if (shouldRemoveBackground) {
@@ -351,7 +345,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         // Reset unit controls
         setResizeUnit("px");
         setDpiValue(DEFAULT_DPI);
-        setPresetValue("");
         setDpiTooltipOpen(false);
       });
     } catch (err) {
@@ -432,21 +425,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     setDpiValue(newDpi);
   }
 
-  function handlePresetChange(label: string): void {
-    setPresetValue(label);
-    if (!label) return;
-
-    const presetValues = getPresetResizeValues(label, SOCIAL_MEDIA_PRESETS);
-    if (!presetValues) return;
-
-    setResizeUnit(presetValues.resizeUnit);
-    setWidthValue(presetValues.widthValue);
-    setHeightValue(presetValues.heightValue);
-  }
-
   function handleWidthInput(val: string): void {
-    setPresetValue("");
-
     if (!maintainAspectRatio()) {
       setWidthValue(val);
       return;
@@ -477,8 +456,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   }
 
   function handleHeightInput(val: string): void {
-    setPresetValue("");
-
     if (!maintainAspectRatio()) {
       setHeightValue(val);
       return;
@@ -538,7 +515,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     qualityValue,
     resizeUnit,
     dpiValue,
-    presetValue,
     currentOutputFormat,
     qualityControlSupported,
     controlsActive,
@@ -555,7 +531,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     handleRemoveBackgroundChange,
     handleUnitChange,
     handleDpiChange,
-    handlePresetChange,
     handleWidthInput,
     handleHeightInput,
     handleAspectRatioChange,

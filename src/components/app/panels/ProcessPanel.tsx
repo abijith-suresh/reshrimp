@@ -1,7 +1,6 @@
 import { Show } from "solid-js";
 import SectionHeader from "@/components/ui/SectionHeader";
 import UploadArea from "@/components/app/UploadArea";
-import PresetSelector from "@/components/app/controls/PresetSelector";
 import DimensionInputs from "@/components/app/controls/DimensionInputs";
 import UnitSelector from "@/components/app/controls/UnitSelector";
 import DpiSelector from "@/components/app/controls/DpiSelector";
@@ -26,7 +25,6 @@ export default function ProcessPanel() {
 
       <div class="app-panel-section">
         <SectionHeader>Geometry</SectionHeader>
-        <PresetSelector />
         <DimensionInputs />
         <div class="flex gap-2">
           <div class="flex-1">
