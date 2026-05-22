@@ -1,11 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  getSupportedFormats,
-  isSupportedFormat,
-  validateImageFile,
-  getFileExtension,
-  generateDownloadFilename,
-} from "./validationService";
+import { validateImageFile, getFileExtension, generateDownloadFilename } from "./validationService";
 import type { ImageFormat } from "../types/image";
 
 /**
@@ -19,47 +13,6 @@ function makeFile(name: string, type: string, sizeBytes: number): File {
 }
 
 const MB = 1024 * 1024;
-
-describe("getSupportedFormats", () => {
-  it("returns all accepted input formats", () => {
-    expect(getSupportedFormats()).toHaveLength(6);
-  });
-
-  it("contains the expected formats", () => {
-    expect(getSupportedFormats()).toEqual(
-      expect.arrayContaining(["image/jpeg", "image/png", "image/webp"])
-    );
-  });
-
-  it("returns a new array each call (not mutated between calls)", () => {
-    const a = getSupportedFormats();
-    const b = getSupportedFormats();
-    expect(a).not.toBe(b);
-  });
-});
-
-describe("isSupportedFormat", () => {
-  it("returns true for supported formats", () => {
-    expect(isSupportedFormat("image/jpeg")).toBe(true);
-    expect(isSupportedFormat("image/png")).toBe(true);
-    expect(isSupportedFormat("image/webp")).toBe(true);
-    expect(isSupportedFormat("image/gif")).toBe(false);
-  });
-
-  it("returns false for unsupported formats", () => {
-    expect(isSupportedFormat("image/bmp")).toBe(false);
-    expect(isSupportedFormat("application/pdf")).toBe(false);
-  });
-
-  it("returns false for empty string", () => {
-    expect(isSupportedFormat("")).toBe(false);
-  });
-
-  it("is case-sensitive — rejects mixed-case MIME types", () => {
-    expect(isSupportedFormat("image/JPEG")).toBe(false);
-    expect(isSupportedFormat("Image/jpeg")).toBe(false);
-  });
-});
 
 describe("validateImageFile", () => {
   it("returns error when file is null/falsy", () => {
