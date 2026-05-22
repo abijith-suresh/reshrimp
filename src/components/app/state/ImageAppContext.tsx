@@ -6,15 +6,12 @@ import {
   createSignal,
   on,
   onCleanup,
-  onMount,
   useContext,
-  type Accessor,
   type JSX,
 } from "solid-js";
 import type { ProcessedImage, ValidationResult, ImageFormat } from "@/types/image";
 import type { ProcessResult, ResizeUnit } from "@/types/processing";
 import { processImage, getImageMetadata } from "@/services/imageService";
-import { preloadBackgroundRemoval } from "@/services/backgroundRemovalService";
 import {
   buildProcessOptions,
   formatResizeValue,
@@ -27,11 +24,9 @@ import { validateImageFile, generateDownloadFilename } from "@/services/validati
 import { createDownloadLink, formatFileSize, convertFromPx } from "@/utils/imageUtils";
 import { DEFAULT_DPI } from "@/config/constants";
 import { getInitialOutputFormat, supportsBrowserQualityControl } from "@/config/imageFormats";
-
-export interface SizeDiff {
-  text: string;
-  className: string;
-}
+import type { AppActions, AppState, ImageAppContextValue, SizeDiff } from "./imageAppTypes";
+import { replaceProcessedObjectUrl, revokeImageSessionUrls } from "./imageAppObjectUrls";
+import { useBackgroundRemovalPreload } from "./useBackgroundRemovalPreload";
 
 function createDebouncedTask(fn: () => void, ms: number) {
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -48,92 +43,7 @@ function createDebouncedTask(fn: () => void, ms: number) {
   };
 }
 
-function scheduleIdleTask(callback: () => void): () => void {
-  if (typeof window === "undefined") return () => {};
-
-  const idleWindow = window as Window & {
-    requestIdleCallback?: (callback: IdleRequestCallback, options?: IdleRequestOptions) => number;
-    cancelIdleCallback?: (handle: number) => void;
-  };
-
-  if (
-    typeof idleWindow.requestIdleCallback === "function" &&
-    typeof idleWindow.cancelIdleCallback === "function"
-  ) {
-    const id = idleWindow.requestIdleCallback(() => callback(), { timeout: 1500 });
-    return () => idleWindow.cancelIdleCallback?.(id);
-  }
-
-  const id = globalThis.setTimeout(callback, 300);
-  return () => globalThis.clearTimeout(id);
-}
-
-function replaceObjectUrl(previousUrl: string | null, blob: Blob): string {
-  if (previousUrl) {
-    URL.revokeObjectURL(previousUrl);
-  }
-
-  return URL.createObjectURL(blob);
-}
-
-function revokeImageUrls(image: Pick<ProcessedImage, "originalUrl" | "processedUrl"> | null): void {
-  if (!image) {
-    return;
-  }
-
-  URL.revokeObjectURL(image.originalUrl);
-
-  if (image.processedUrl) {
-    URL.revokeObjectURL(image.processedUrl);
-  }
-}
-
-interface AppState {
-  currentImage: Accessor<ProcessedImage | null>;
-  processResult: Accessor<ProcessResult | null>;
-  isProcessing: Accessor<boolean>;
-  progressLabel: Accessor<string | null>;
-  error: Accessor<string | null>;
-  validation: Accessor<ValidationResult | null>;
-  isDragOver: Accessor<boolean>;
-  tooltipOpen: Accessor<boolean>;
-  dpiTooltipOpen: Accessor<boolean>;
-  widthValue: Accessor<string>;
-  heightValue: Accessor<string>;
-  maintainAspectRatio: Accessor<boolean>;
-  removeBackground: Accessor<boolean>;
-  formatValue: Accessor<string>;
-  previousFormatValue: Accessor<string>;
-  qualityValue: Accessor<number>;
-  resizeUnit: Accessor<ResizeUnit>;
-  dpiValue: Accessor<number>;
-  currentOutputFormat: Accessor<ImageFormat | null>;
-  qualityControlSupported: Accessor<boolean>;
-  controlsActive: Accessor<boolean>;
-  formatSelectDisabled: Accessor<boolean>;
-  downloadActive: Accessor<boolean>;
-  widthPlaceholder: Accessor<string>;
-  heightPlaceholder: Accessor<string>;
-  sizeDifference: Accessor<SizeDiff | null>;
-}
-
-interface AppActions {
-  handleFileUpload(file: File): Promise<void>;
-  handleDownload(): void;
-  handleRemoveBackgroundChange(checked: boolean): void;
-  handleUnitChange(unit: ResizeUnit): void;
-  handleDpiChange(dpi: number): void;
-  handleWidthInput(val: string): void;
-  handleHeightInput(val: string): void;
-  handleAspectRatioChange(checked: boolean): void;
-  setIsDragOver(v: boolean): void;
-  setTooltipOpen(v: boolean): void;
-  setDpiTooltipOpen(v: boolean): void;
-  setFormatValue(v: string): void;
-  setQualityValue(v: number): void;
-}
-
-const ImageAppContext = createContext<{ state: AppState; actions: AppActions }>();
+const ImageAppContext = createContext<ImageAppContextValue>();
 
 export function ImageAppProvider(props: { children: JSX.Element }) {
   // ── Core image state ──────────────────────────────────────────────────────
@@ -170,19 +80,10 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
   onCleanup(() => {
     debouncedProcess.cancel();
-    revokeImageUrls(currentImage());
+    revokeImageSessionUrls(currentImage());
   });
 
-  // ── Preload background removal WASM + model once the app is idle ─────────
-  onMount(() => {
-    const cancelIdleTask = scheduleIdleTask(() => {
-      void preloadBackgroundRemoval().catch(() => {
-        // Silently ignore preload failures — will retry on actual use.
-      });
-    });
-
-    onCleanup(cancelIdleTask);
-  });
+  useBackgroundRemovalPreload();
 
   // ── Derived signals ───────────────────────────────────────────────────────
   const controlsActive = createMemo(() => currentImage() !== null);
@@ -269,7 +170,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
           : undefined
       );
 
-      const processedUrl = replaceObjectUrl(img.processedUrl, result.blob);
+      const processedUrl = replaceProcessedObjectUrl(img.processedUrl, result.blob);
 
       // Batch result updates into a single DOM update
       batch(() => {
@@ -338,7 +239,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       batch(() => {
         // Reset stale state when a new file is loaded
         setCurrentImage((previousImage) => {
-          revokeImageUrls(previousImage);
+          revokeImageSessionUrls(previousImage);
           return processedImage;
         });
         setProcessResult(null);
