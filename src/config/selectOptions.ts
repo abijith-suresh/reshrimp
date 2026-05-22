@@ -3,7 +3,6 @@ import { DPI_OPTIONS } from "./constants";
 import { CONVERTIBLE_OUTPUT_FORMATS, getImageFormatLabel } from "./imageFormats";
 
 export const FORMAT_OPTIONS: SelectOption[] = [
-  { value: "", label: "Keep original" },
   ...CONVERTIBLE_OUTPUT_FORMATS.map((f) => ({
     value: f,
     label: getImageFormatLabel(f),

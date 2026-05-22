@@ -15,10 +15,10 @@ describe("Select", () => {
       <Select
         id="format-select"
         options={[
-          { value: "", label: "Keep original" },
           { value: "image/png", label: "PNG" },
+          { value: "image/webp", label: "WebP" },
         ]}
-        value=""
+        value="image/png"
         onChange={() => {}}
       />
     ));
