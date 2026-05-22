@@ -1,4 +1,4 @@
-import { createSignal, Show, createEffect, on, onCleanup } from "solid-js";
+import { createSignal, Show, createEffect, on } from "solid-js";
 import { ChevronUp } from "lucide-solid";
 import AppSidebar from "@/components/app/AppSidebar";
 import ProcessPanel from "@/components/app/panels/ProcessPanel";
@@ -41,36 +41,24 @@ function MobileSheet() {
   const { state } = useImageApp();
   const [sheetState, setSheetState] = createSignal<SheetState>("hidden");
 
-  // Guard: prevents auto-open-on-focus from firing during or right after
-  // a close transition. Without this guard, an INPUT/SELECT receiving focus
-  // during the close re-render can immediately re-open the sheet (toggle loop).
-  // Mirrors Vaul's scrollLockTimeout pattern — block auto-open for 500ms after
-  // any programmatic state change.
-  let autoOpenGuard = false;
-  let autoOpenTimer: ReturnType<typeof setTimeout> | undefined;
-
-  function armAutoOpenGuard() {
-    autoOpenGuard = true;
-    if (autoOpenTimer) clearTimeout(autoOpenTimer);
-    autoOpenTimer = setTimeout(() => {
-      autoOpenGuard = false;
-    }, 500);
-  }
-
-  onCleanup(() => {
-    if (autoOpenTimer) clearTimeout(autoOpenTimer);
-  });
-
-  // Auto-transition: image loaded → peek, image cleared → hidden
+  // Auto-transition only when an image is newly-loaded (null → image) or
+  // cleared (image → null).  Processing updates (null → null or image → image
+  // with a different ref) must NOT change the sheet state — the auto-process
+  // effect in ImageAppContext creates a referentially-new currentImage every
+  // ~400ms, which would otherwise slam the sheet back to "peek" while the user
+  // is trying to interact with the controls.
   createEffect(
-    on(state.currentImage, (img) => {
-      armAutoOpenGuard();
-      setSheetState(img ? "peek" : "hidden");
+    on(state.currentImage, (img, prevImg) => {
+      if (img && !prevImg) {
+        setSheetState("peek");
+      } else if (!img && prevImg) {
+        setSheetState("hidden");
+      }
+      // image → image (processing update): no-op
     })
   );
 
   function toggleSheet() {
-    armAutoOpenGuard();
     setSheetState((s) => (s === "open" ? "peek" : "open"));
   }
 
@@ -87,10 +75,7 @@ function MobileSheet() {
       <Show when={sheetState() === "open"}>
         <div
           class="md:hidden fixed inset-0 z-30 bg-black/20"
-          onClick={() => {
-            armAutoOpenGuard();
-            setSheetState("peek");
-          }}
+          onClick={() => setSheetState("peek")}
           aria-hidden="true"
         />
       </Show>
@@ -171,11 +156,8 @@ function MobileSheet() {
           class="flex-1 overflow-y-auto min-h-0"
           onFocusIn={(e) => {
             // Auto-open when user focuses a form input so the keyboard doesn't cover it
-            // Ignore focus events during the close guard window to prevent toggle loops.
-            if (autoOpenGuard) return;
             const el = e.target as HTMLElement;
             if ((el.tagName === "INPUT" || el.tagName === "SELECT") && sheetState() !== "open") {
-              armAutoOpenGuard();
               setSheetState("open");
             }
           }}
