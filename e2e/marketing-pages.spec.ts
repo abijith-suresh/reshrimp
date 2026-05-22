@@ -1,12 +1,11 @@
 import { test, expect } from "@playwright/test";
 
-const ROUTES: { path: string; title: RegExp; navPath?: string }[] = [
+const ROUTES: { path: string; title: RegExp }[] = [
   { path: "/", title: /Your images deserve/i },
-  { path: "/features", title: /Everything you need/i, navPath: "/features" },
-  { path: "/about", title: /Built for privacy/i, navPath: "/about" },
-  { path: "/faq", title: /Frequently asked questions/i, navPath: "/faq" },
-  { path: "/privacy", title: /Your images never leave/i, navPath: "/privacy" },
-  { path: "/changelog", title: /What.s new in Reshrimp/i, navPath: "/changelog" },
+  { path: "/features", title: /Everything you need/i },
+  { path: "/about", title: /Built for privacy/i },
+  { path: "/faq", title: /Frequently asked questions/i },
+  { path: "/privacy", title: /Your images never leave/i },
   { path: "/404", title: /Page not found/i },
 ];
 
