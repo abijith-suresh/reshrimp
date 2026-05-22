@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1](https://github.com/abijith-suresh/reshrimp/compare/v0.7.0...v0.7.1) (2026-05-22)
+
+
+### Features
+
+* **mobile:** replace bottom tab bar with tap-toggle snap sheet ([#142](https://github.com/abijith-suresh/reshrimp/issues/142)) ([a6e9a1c](https://github.com/abijith-suresh/reshrimp/commit/a6e9a1c6a56b6bf467ddd87786fcd503a1a55ea8))
+
+
+### Bug Fixes
+
+* avoid mid-session service worker takeover ([#139](https://github.com/abijith-suresh/reshrimp/issues/139)) ([a867257](https://github.com/abijith-suresh/reshrimp/commit/a8672573730f4030cdc4b9d466d51134335bd72e))
+
 ## [0.7.0](https://github.com/abijith-suresh/reshrimp/compare/v0.6.3...v0.7.0) (2026-05-13)
 
 
