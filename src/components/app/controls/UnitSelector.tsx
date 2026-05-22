@@ -1,8 +1,15 @@
 import { useImageApp } from "@/components/app/state/ImageAppContext";
 import Field from "@/components/ui/Field";
 import Select from "@/components/ui/Select";
-import { UNIT_OPTIONS } from "@/config/selectOptions";
+import type { SelectOption } from "@/components/ui/Select";
 import type { ResizeUnit } from "@/types/processing";
+
+const unitOptions: SelectOption[] = [
+  { value: "px", label: "px" },
+  { value: "%", label: "%" },
+  { value: "in", label: "in" },
+  { value: "cm", label: "cm" },
+];
 
 export default function UnitSelector() {
   const { state, actions } = useImageApp();
@@ -11,7 +18,7 @@ export default function UnitSelector() {
     <Field label="Unit">
       <Select
         id="unit-select"
-        options={UNIT_OPTIONS}
+        options={unitOptions}
         value={state.resizeUnit()}
         onChange={(v) => actions.handleUnitChange(v as ResizeUnit)}
         disabled={!state.controlsActive()}
