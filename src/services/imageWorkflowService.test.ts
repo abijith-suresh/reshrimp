@@ -1,11 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { SOCIAL_MEDIA_PRESETS } from "../config/presets";
 import {
   buildProcessOptions,
   getDimensionValuesForDpiChange,
   getFormatStateForBackgroundRemoval,
   getLinkedDimensionValues,
-  getPresetResizeValues,
   rebaseDimensionValues,
 } from "./imageWorkflowService";
 
@@ -32,16 +30,6 @@ describe("buildProcessOptions", () => {
       format: "image/webp",
       quality: 0.75,
       removeBackground: false,
-    });
-  });
-});
-
-describe("getPresetResizeValues", () => {
-  it("returns px-based resize values for a named preset", () => {
-    expect(getPresetResizeValues("Instagram Story", SOCIAL_MEDIA_PRESETS)).toEqual({
-      resizeUnit: "px",
-      widthValue: "1080",
-      heightValue: "1920",
     });
   });
 });

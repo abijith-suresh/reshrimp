@@ -1,7 +1,6 @@
 import type { SelectOption } from "@/components/ui/Select";
 import { DPI_OPTIONS } from "./constants";
 import { CONVERTIBLE_OUTPUT_FORMATS, getImageFormatLabel } from "./imageFormats";
-import { SOCIAL_MEDIA_PRESETS } from "./presets";
 
 export const FORMAT_OPTIONS: SelectOption[] = [
   { value: "", label: "Keep original" },
@@ -9,11 +8,6 @@ export const FORMAT_OPTIONS: SelectOption[] = [
     value: f,
     label: getImageFormatLabel(f),
   })),
-];
-
-export const PRESET_OPTIONS: SelectOption[] = [
-  { value: "", label: "Custom" },
-  ...SOCIAL_MEDIA_PRESETS.map((p) => ({ value: p.label, label: p.label })),
 ];
 
 export const UNIT_OPTIONS: SelectOption[] = [
