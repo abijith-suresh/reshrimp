@@ -23,8 +23,12 @@ function MobileSheet() {
   const [snapState, setSnapState] = createSignal<SnapState>("hidden");
 
   let sheetRef: HTMLDivElement | undefined;
-  let dragging = false;
+  /** true once pointerdown has fired; cleared on pointerup/cancel */
+  let pointerActive = false;
+  /** true once the pointer has moved past the drag threshold */
+  let isDragging = false;
   let startY = 0;
+  /** translateY in px at the moment the pointer went down, from getBoundingClientRect */
   let startTranslateY = 0;
 
   // Auto-snap: image loaded → mini, image cleared → hidden
@@ -38,71 +42,123 @@ function MobileSheet() {
     setSnapState(next);
   }
 
-  function computeTranslateY(snap: SnapState, sheetHeight: number): number {
-    switch (snap) {
-      case "hidden":
-        return sheetHeight;
-      case "mini":
-        return sheetHeight - MINI_HEIGHT;
-      case "full":
-        return 0;
-    }
-  }
+  const SPRING = "transform 0.4s cubic-bezier(0.32, 0.72, 0, 1)";
+  /** Min pointer travel (px) before we treat the gesture as a drag */
+  const DRAG_THRESHOLD = 8;
+  /** Min travel (px) to treat as a directional flick regardless of final position */
+  const FLICK_THRESHOLD = 50;
 
   function translateYString(snap: SnapState): string {
     switch (snap) {
       case "hidden":
         return "100%";
       case "mini":
-        // Subtract safe-area-inset-bottom so the mini peek clears the home indicator
+        // env(safe-area-inset-bottom) keeps the peek above the home indicator on iOS
         return `calc(100% - ${MINI_HEIGHT}px - env(safe-area-inset-bottom, 0px))`;
       case "full":
         return "0%";
     }
   }
 
+  /** Read the element's actual current translateY in px from the DOM. */
+  function readTranslateY(): number {
+    if (!sheetRef) return 0;
+    const rect = sheetRef.getBoundingClientRect();
+    // fixed bottom-0: natural (un-transformed) top = innerHeight - offsetHeight
+    return rect.top - (window.innerHeight - sheetRef.offsetHeight);
+  }
+
+  /** Apply spring snap directly on the element then sync the signal. */
+  function springSnapTo(target: SnapState) {
+    // The sheet is currently at the dragged pixel position (set in onPointerMove).
+    // Re-enabling the spring here causes it to animate FROM that position TO the
+    // target — no flashing or double-snap.
+    if (sheetRef) {
+      sheetRef.style.transition = SPRING;
+      sheetRef.style.transform = translateYString(target);
+    }
+    // Keep the signal in sync; SolidJS will re-apply the same transform/transition
+    // values (no-op visually) so there is no conflict.
+    snapTo(target);
+  }
+
   function handleHandleTap() {
-    if (snapState() === "mini") snapTo("full");
-    else if (snapState() === "full") snapTo("mini");
+    if (snapState() === "mini") springSnapTo("full");
+    else if (snapState() === "full") springSnapTo("mini");
   }
 
   // ── Pointer-event drag ──────────────────────────────────────────────────
   function onPointerDown(e: PointerEvent) {
-    dragging = true;
+    pointerActive = true;
+    isDragging = false;
     startY = e.clientY;
-    startTranslateY = computeTranslateY(snapState(), sheetRef?.offsetHeight ?? 0);
+    // Use actual DOM position so safe-area offset is accounted for
+    startTranslateY = readTranslateY();
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-    // Disable CSS transition while dragging for immediate response
-    if (sheetRef) sheetRef.style.transition = "none";
+    // Don't disable transition yet — wait until we're sure it's a drag
   }
 
   function onPointerMove(e: PointerEvent) {
-    if (!dragging) return;
+    if (!pointerActive) return;
     const delta = e.clientY - startY;
+
+    if (!isDragging) {
+      if (Math.abs(delta) < DRAG_THRESHOLD) return; // below threshold — not a drag yet
+      isDragging = true;
+      // Now we're sure it's a drag: kill the transition so the sheet follows instantly
+      if (sheetRef) sheetRef.style.transition = "none";
+    }
+
     const y = Math.max(0, startTranslateY + delta);
     if (sheetRef) sheetRef.style.transform = `translateY(${y}px)`;
   }
 
   function onPointerUp(e: PointerEvent) {
-    if (!dragging) return;
-    dragging = false;
+    if (!pointerActive) return;
+    pointerActive = false;
+
+    if (!isDragging) {
+      // No significant movement — it was a tap, let onClick handle the toggle
+      return;
+    }
+    isDragging = false;
 
     const delta = e.clientY - startY;
     const height = sheetRef?.offsetHeight ?? 0;
-    const y = startTranslateY + delta;
+    const y = Math.max(0, startTranslateY + delta);
 
-    // Restore CSS spring transition before snapping
-    if (sheetRef) sheetRef.style.transition = "";
-    if (sheetRef) sheetRef.style.transform = "";
-
-    // Velocity-aware snap thresholds
-    if (y < height * 0.25) {
-      snapTo("full");
-    } else if (y > height * 0.7) {
-      snapTo(state.currentImage() ? "mini" : "hidden");
+    // ── Snap decision ───────────────────────────────────────────────────
+    // Fast flick (>FLICK_THRESHOLD px) → honour direction unconditionally.
+    // Slow deliberate drag  → use final position vs 40 % of sheet height.
+    let target: SnapState;
+    if (delta < -FLICK_THRESHOLD) {
+      target = "full"; // fast flick up
+    } else if (delta > FLICK_THRESHOLD) {
+      target = state.currentImage() ? "mini" : "hidden"; // fast flick down
+    } else if (y < height * 0.4) {
+      target = "full"; // dragged into upper 40 %
     } else {
-      // Middle zone: direction decides
-      snapTo(delta < 0 ? "full" : "mini");
+      target = state.currentImage() ? "mini" : "hidden"; // dragged into lower 60 %
+    }
+
+    // ── Critical: do NOT clear style.transform here. ─────────────────────
+    // The element is still at the dragged pixel position set in onPointerMove.
+    // springSnapTo() re-enables the transition and sets the target transform,
+    // which causes the browser to animate FROM the drag position TO the target.
+    // Clearing transform first (old behaviour) made the element flash back to
+    // the SolidJS-reactive position before transitioning — causing the
+    // apparent "snaps up before going down" bug.
+    springSnapTo(target);
+  }
+
+  function onPointerCancel() {
+    if (!pointerActive) return;
+    pointerActive = false;
+    isDragging = false;
+    // Cancelled mid-drag: snap back to whichever state the signal holds
+    if (sheetRef) {
+      sheetRef.style.transition = SPRING;
+      sheetRef.style.transform = translateYString(snapState());
     }
   }
 
@@ -139,40 +195,46 @@ function MobileSheet() {
         aria-label="Image controls"
         aria-hidden={snapState() === "hidden" ? "true" : "false"}
       >
-        {/* ── Drag-handle zone (pointer capture target) ── */}
+        {/* ── Drag zone: handle pill + info strip ── */}
+        {/* Extends to the info strip so the full mini-peek is swipeable;
+            Download button is kept OUTSIDE so taps on it always register. */}
         <div
-          class="shrink-0 touch-none cursor-grab active:cursor-grabbing select-none"
+          class="shrink-0 touch-none select-none"
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}
-          onPointerCancel={onPointerUp}
+          onPointerCancel={onPointerCancel}
         >
+          {/* Tap to toggle mini ↔ full */}
           <button
             type="button"
-            class="flex justify-center pt-3 pb-2 w-full"
+            class="flex justify-center pt-3 pb-2 w-full cursor-grab active:cursor-grabbing"
             aria-label={snapState() === "full" ? "Minimise controls" : "Expand controls"}
             onClick={handleHandleTap}
           >
             <div class="w-10 h-1 bg-sp-border rounded-full pointer-events-none" />
           </button>
-        </div>
 
-        {/* ── Mini-peek header: always visible in mini + full ── */}
-        <div
-          class="shrink-0 px-4 flex flex-col"
-          style={{ "padding-bottom": "max(0.75rem, env(safe-area-inset-bottom, 0px))" }}
-        >
           <Show when={img()}>
             {(currentImg) => (
-              <ImageInfoBar
-                fileName={currentImg().metadata.fileName}
-                width={displayWidth()}
-                height={displayHeight()}
-                fileSize={displayFileSize()}
-                sizeDiff={state.sizeDifference()}
-              />
+              <div class="px-4 pb-2">
+                <ImageInfoBar
+                  fileName={currentImg().metadata.fileName}
+                  width={displayWidth()}
+                  height={displayHeight()}
+                  fileSize={displayFileSize()}
+                  sizeDiff={state.sizeDifference()}
+                />
+              </div>
             )}
           </Show>
+        </div>
+
+        {/* ── Download button — outside drag zone so taps are never swallowed ── */}
+        <div
+          class="shrink-0 px-4"
+          style={{ "padding-bottom": "max(0.75rem, env(safe-area-inset-bottom, 0px))" }}
+        >
           <DownloadSection />
         </div>
 
