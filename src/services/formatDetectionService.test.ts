@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   ACCEPTED_INPUT_FORMATS,
@@ -7,7 +7,7 @@ import {
   isConvertibleOutputFormat,
   isHeicInput,
 } from "../config/imageFormats";
-import { decodeHeicBlob, detectAvifSupport } from "./formatDetectionService";
+import { decodeHeicBlob } from "./formatDetectionService";
 
 describe("formatDetectionService", () => {
   afterEach(() => {
@@ -42,40 +42,6 @@ describe("formatDetectionService", () => {
       expect(
         isConvertibleOutputFormat(format as Parameters<typeof isConvertibleOutputFormat>[0])
       ).toBe(expected);
-    });
-  });
-
-  describe("detectAvifSupport", () => {
-    let origToBlob: typeof HTMLCanvasElement.prototype.toBlob;
-
-    beforeEach(() => {
-      origToBlob = HTMLCanvasElement.prototype.toBlob;
-    });
-
-    afterEach(() => {
-      HTMLCanvasElement.prototype.toBlob = origToBlob;
-    });
-
-    it("returns true when the browser can encode AVIF", async () => {
-      HTMLCanvasElement.prototype.toBlob = vi.fn((callback, type) => {
-        if (type === "image/avif") {
-          callback!(new Blob([], { type: "image/avif" }));
-        }
-        return undefined as unknown as void;
-      });
-
-      await expect(detectAvifSupport()).resolves.toBe(true);
-    });
-
-    it("returns false when the browser cannot encode AVIF", async () => {
-      HTMLCanvasElement.prototype.toBlob = vi.fn((callback, type) => {
-        if (type === "image/avif") {
-          callback!(null as unknown as Blob);
-        }
-        return undefined as unknown as void;
-      });
-
-      await expect(detectAvifSupport()).resolves.toBe(false);
     });
   });
 
