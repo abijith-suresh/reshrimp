@@ -2,7 +2,13 @@ import { useImageApp } from "@/components/app/state/ImageAppContext";
 import Field from "@/components/ui/Field";
 import InfoTooltip from "@/components/ui/InfoTooltip";
 import Select from "@/components/ui/Select";
-import { DPI_SELECT_OPTIONS } from "@/config/selectOptions";
+import type { SelectOption } from "@/components/ui/Select";
+import { DPI_OPTIONS } from "@/config/constants";
+
+const dpiOptions: SelectOption[] = DPI_OPTIONS.map((dpi) => ({
+  value: String(dpi),
+  label: `${dpi} DPI`,
+}));
 
 export default function DpiSelector() {
   const { state, actions } = useImageApp();
@@ -27,7 +33,7 @@ export default function DpiSelector() {
     >
       <Select
         id="dpi-select"
-        options={DPI_SELECT_OPTIONS}
+        options={dpiOptions}
         value={String(state.dpiValue())}
         onChange={(v) => actions.handleDpiChange(Number(v))}
         disabled={!state.controlsActive()}

@@ -1,5 +1,5 @@
 ---
-import { navigation } from "../../config/navigation";
+import { GITHUB_URL, ROUTES } from "../../config/constants";
 import { makeHref } from "../../lib/utils";
 import Logo from "./Logo.astro";
 
@@ -8,7 +8,11 @@ interface Props {
 }
 
 const { currentPath = "/" } = Astro.props;
-const { header } = navigation;
+
+const headerLinks = [
+  { label: "Features", href: ROUTES.FEATURES },
+  { label: "About", href: ROUTES.ABOUT },
+];
 ---
 
 <header class="sp-header" id="sp-header" transition:animate="none">
@@ -17,7 +21,7 @@ const { header } = navigation;
 
     <div class="sp-nav-desktop">
       {
-        header.links.map((link) => (
+        headerLinks.map((link) => (
           <a
             href={makeHref(link.href)}
             class:list={["sp-nav-link", { "sp-nav-link-active": currentPath === link.href }]}
@@ -27,11 +31,11 @@ const { header } = navigation;
         ))
       }
       <a
-        href={header.github.href}
+        href={GITHUB_URL}
         target="_blank"
         rel="noopener noreferrer"
         class="sp-nav-link sp-nav-github"
-        aria-label={header.github.ariaLabel}
+        aria-label="View on GitHub"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
           <path
@@ -68,7 +72,7 @@ const { header } = navigation;
   <div class="sp-mobile-panel" id="mobile-menu-panel">
     <div class="sp-mobile-panel-inner">
       {
-        header.links.map((link) => (
+        headerLinks.map((link) => (
           <a
             href={makeHref(link.href)}
             class:list={["sp-mobile-link", { "sp-mobile-link-active": currentPath === link.href }]}
@@ -77,7 +81,7 @@ const { header } = navigation;
           </a>
         ))
       }
-      <a href={header.github.href} target="_blank" rel="noopener noreferrer" class="sp-mobile-link">
+      <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" class="sp-mobile-link">
         GitHub
       </a>
     </div>
