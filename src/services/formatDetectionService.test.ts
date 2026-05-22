@@ -1,4 +1,4 @@
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 import {
   ACCEPTED_INPUT_FORMATS,
@@ -7,9 +7,17 @@ import {
   isConvertibleOutputFormat,
   isHeicInput,
 } from "../config/imageFormats";
-import { decodeHeicBlob } from "./formatDetectionService";
+
+async function importFormatDetectionService() {
+  vi.resetModules();
+  return import("./formatDetectionService");
+}
 
 describe("formatDetectionService", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
   afterEach(() => {
     delete window.heic2any;
     document.head.querySelectorAll("script[data-heic2any-loader]").forEach((node) => node.remove());
@@ -58,6 +66,7 @@ describe("formatDetectionService", () => {
 
   describe("decodeHeicBlob", () => {
     it("converts a HEIC blob to PNG using the browser-loaded decoder", async () => {
+      const { decodeHeicBlob } = await importFormatDetectionService();
       const convertedBlob = new Blob(["converted-png"], { type: "image/png" });
       const heicBlob = new Blob(["fake-heic"], { type: "image/heic" });
       window.heic2any = vi.fn().mockResolvedValue(convertedBlob);
@@ -66,6 +75,57 @@ describe("formatDetectionService", () => {
 
       expect(window.heic2any).toHaveBeenCalledWith({ blob: heicBlob, toType: "image/png" });
       expect(result.type).toBe("image/png");
+    });
+
+    it("loads the decoder script when the browser global is missing", async () => {
+      const { decodeHeicBlob } = await importFormatDetectionService();
+      const convertedBlob = new Blob(["converted-png"], { type: "image/png" });
+      const heicBlob = new Blob(["fake-heic"], { type: "image/heic" });
+
+      const decodePromise = decodeHeicBlob(heicBlob);
+      const loaderScript = document.head.querySelector(
+        "script[data-heic2any-loader='true']"
+      ) as HTMLScriptElement;
+
+      expect(loaderScript).toBeInTheDocument();
+
+      window.heic2any = vi.fn().mockResolvedValue(convertedBlob);
+      loaderScript.onload?.(new Event("load"));
+
+      await expect(decodePromise).resolves.toBe(convertedBlob);
+      expect(window.heic2any).toHaveBeenCalledWith({ blob: heicBlob, toType: "image/png" });
+    });
+
+    it("rejects when the decoder script fails to load", async () => {
+      const { decodeHeicBlob } = await importFormatDetectionService();
+      const heicBlob = new Blob(["fake-heic"], { type: "image/heic" });
+
+      const decodePromise = decodeHeicBlob(heicBlob);
+      const loaderScript = document.head.querySelector(
+        "script[data-heic2any-loader='true']"
+      ) as HTMLScriptElement;
+
+      loaderScript.onerror?.(new Event("error"));
+
+      await expect(decodePromise).rejects.toThrow("Failed to load the HEIC decoder");
+      expect(document.head.querySelector("script[data-heic2any-loader='true']")).toBeNull();
+    });
+
+    it("rejects when the loaded script does not expose the decoder", async () => {
+      const { decodeHeicBlob } = await importFormatDetectionService();
+      const heicBlob = new Blob(["fake-heic"], { type: "image/heic" });
+
+      const decodePromise = decodeHeicBlob(heicBlob);
+      const loaderScript = document.head.querySelector(
+        "script[data-heic2any-loader='true']"
+      ) as HTMLScriptElement;
+
+      loaderScript.onload?.(new Event("load"));
+
+      await expect(decodePromise).rejects.toThrow(
+        "heic2any loaded without exposing a browser decoder"
+      );
+      expect(document.head.querySelector("script[data-heic2any-loader='true']")).toBeNull();
     });
   });
 
