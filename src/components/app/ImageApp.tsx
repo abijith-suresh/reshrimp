@@ -152,7 +152,7 @@ function MobileSheet() {
             }
           }}
         >
-          <ProcessPanel />
+          <ProcessPanel sourceAtBottom />
         </div>
       </div>
     </>
