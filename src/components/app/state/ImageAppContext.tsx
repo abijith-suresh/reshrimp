@@ -16,11 +16,6 @@ import type { ProcessResult, ResizeUnit } from "@/types/processing";
 import { processImage, getImageMetadata } from "@/services/imageService";
 import { preloadBackgroundRemoval } from "@/services/backgroundRemovalService";
 import {
-  downloadProcessedBlob,
-  replaceObjectUrl,
-  revokeImageUrls,
-} from "@/services/imageSessionService";
-import {
   buildProcessOptions,
   formatResizeValue,
   getDimensionValuesForDpiChange,
@@ -29,7 +24,7 @@ import {
   rebaseDimensionValues,
 } from "@/services/imageWorkflowService";
 import { validateImageFile, generateDownloadFilename } from "@/services/validationService";
-import { formatFileSize, convertFromPx } from "@/utils/imageUtils";
+import { createDownloadLink, formatFileSize, convertFromPx } from "@/utils/imageUtils";
 import { DEFAULT_DPI } from "@/config/constants";
 import { getInitialOutputFormat, supportsBrowserQualityControl } from "@/config/imageFormats";
 
@@ -71,6 +66,26 @@ function scheduleIdleTask(callback: () => void): () => void {
 
   const id = globalThis.setTimeout(callback, 300);
   return () => globalThis.clearTimeout(id);
+}
+
+function replaceObjectUrl(previousUrl: string | null, blob: Blob): string {
+  if (previousUrl) {
+    URL.revokeObjectURL(previousUrl);
+  }
+
+  return URL.createObjectURL(blob);
+}
+
+function revokeImageUrls(image: Pick<ProcessedImage, "originalUrl" | "processedUrl"> | null): void {
+  if (!image) {
+    return;
+  }
+
+  URL.revokeObjectURL(image.originalUrl);
+
+  if (image.processedUrl) {
+    URL.revokeObjectURL(image.processedUrl);
+  }
 }
 
 interface AppState {
@@ -361,7 +376,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     const filename = generateDownloadFilename(img.metadata.fileName, targetFormat);
 
     try {
-      downloadProcessedBlob(result.blob, filename);
+      createDownloadLink(result.blob, filename);
     } catch (err) {
       setError("Failed to download image");
       console.error("Download error:", err);
