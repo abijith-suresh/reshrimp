@@ -1,6 +1,6 @@
 import { createSignal, Show } from "solid-js";
 import AppSidebar from "@/components/app/AppSidebar";
-import ControlPanel from "@/components/app/ControlPanel";
+import ProcessPanel from "@/components/app/panels/ProcessPanel";
 import PreviewPanel from "@/components/app/PreviewPanel";
 import { ImageAppProvider } from "@/components/app/state/ImageAppContext";
 
@@ -20,7 +20,9 @@ export default function ImageApp() {
 
         {/* Control panel — desktop: second column, hidden on mobile */}
         <div class="hidden md:flex flex-col w-[320px] border-r border-sp-border bg-sp-bg-card overflow-hidden shrink-0">
-          <ControlPanel />
+          <div class="flex flex-col flex-1 overflow-hidden min-h-0">
+            <ProcessPanel />
+          </div>
         </div>
 
         {/* Preview area — fills remaining space on all screen sizes */}
@@ -62,7 +64,9 @@ export default function ImageApp() {
           <div class="w-10 h-1 bg-sp-border rounded-full" />
         </button>
         <div class="overflow-y-auto flex-1 min-h-0">
-          <ControlPanel />
+          <div class="flex flex-col flex-1 overflow-hidden min-h-0">
+            <ProcessPanel />
+          </div>
         </div>
       </div>
     </ImageAppProvider>
