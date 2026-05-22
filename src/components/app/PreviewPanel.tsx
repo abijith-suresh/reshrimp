@@ -3,16 +3,43 @@ import EmptyState from "@/components/app/preview/EmptyState";
 import ImageInfoBar from "@/components/app/preview/ImageInfoBar";
 import ErrorDisplay from "@/components/app/preview/ErrorDisplay";
 import { useImageApp } from "@/components/app/state/ImageAppContext";
+import { UPLOAD_ACCEPT_ATTRIBUTE } from "@/config/imageFormats";
 
 export default function PreviewPanel() {
-  const { state } = useImageApp();
+  const { state, actions } = useImageApp();
+
+  // Dedicated file input for the EmptyState mobile upload CTA.
+  // Keeps it separate from the UploadArea input inside ProcessPanel to
+  // avoid duplicate IDs when both are rendered in the DOM.
+  let mobileUploadRef: HTMLInputElement | undefined;
+
+  function handleMobileFileChange(e: Event) {
+    const file = (e.target as HTMLInputElement).files?.[0];
+    if (!file) return;
+    void actions.handleFileUpload(file);
+    (e.target as HTMLInputElement).value = "";
+  }
 
   return (
     <div class="h-full flex flex-col bg-sp-bg overflow-hidden">
+      {/* Hidden file input for the mobile EmptyState upload button */}
+      <input
+        ref={(el) => {
+          mobileUploadRef = el;
+        }}
+        type="file"
+        class="sr-only"
+        accept={UPLOAD_ACCEPT_ATTRIBUTE}
+        tabIndex={-1}
+        aria-hidden="true"
+        onChange={handleMobileFileChange}
+      />
+
       <Show when={!state.currentImage()}>
         <EmptyState
           title="Upload an image to get started"
           subtitle="Your preview will appear here"
+          onUploadClick={() => mobileUploadRef?.click()}
         />
       </Show>
 
@@ -47,8 +74,8 @@ export default function PreviewPanel() {
                 </div>
               </div>
 
-              {/* Info strip — fixed height, always present */}
-              <div class="shrink-0 px-4 py-3">
+              {/* Info strip — desktop only; on mobile it lives in the snap-sheet mini header */}
+              <div class="shrink-0 px-4 py-3 hidden md:block">
                 <ImageInfoBar
                   fileName={img().metadata.fileName}
                   width={displayWidth()}

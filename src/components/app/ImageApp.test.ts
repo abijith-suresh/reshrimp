@@ -410,22 +410,20 @@ describe("ImageApp", () => {
     });
   });
 
-  it("toggles the mobile controls drawer without any extra app modes", () => {
+  it("renders the snap sheet (not the old tab-bar drawer) and starts hidden with no image", () => {
     const view = render(() => ImageApp());
     dispose = view.unmount;
 
+    // No legacy "Adjust" / "Batch" app modes should be present
     expect(view.container).not.toHaveTextContent("Adjust");
     expect(view.container).not.toHaveTextContent("Batch");
 
-    const drawer = view.container.querySelector("#app-controls-drawer") as HTMLDivElement;
-    const toggleButton = view.getByRole("button", { name: "Show controls" }) as HTMLButtonElement;
+    // Old bottom-tab drawer element is gone
+    expect(view.container.querySelector("#app-controls-drawer")).toBeNull();
 
-    expect(drawer).toHaveAttribute("aria-hidden", "true");
-    expect(toggleButton).toHaveAttribute("aria-expanded", "false");
-
-    triggerDelegatedClick(toggleButton);
-
-    expect(drawer).toHaveAttribute("aria-hidden", "false");
-    expect(toggleButton).toHaveAttribute("aria-expanded", "true");
+    // New snap sheet is present and starts hidden (no image loaded)
+    const sheet = view.container.querySelector('[aria-label="Image controls"]') as HTMLDivElement;
+    expect(sheet).not.toBeNull();
+    expect(sheet).toHaveAttribute("aria-hidden", "true");
   });
 });
