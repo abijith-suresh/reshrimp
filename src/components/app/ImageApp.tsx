@@ -1,5 +1,4 @@
 import { createSignal, Show, createEffect, on } from "solid-js";
-import { ChevronUp } from "lucide-solid";
 import AppSidebar from "@/components/app/AppSidebar";
 import ProcessPanel from "@/components/app/panels/ProcessPanel";
 import PreviewPanel from "@/components/app/PreviewPanel";
@@ -95,14 +94,14 @@ function MobileSheet() {
       >
         {/* ── Sticky header — always visible in peek ── */}
         <div class="shrink-0">
-          {/* Handle pill + tap target */}
+          {/* Handle pill — tap to toggle between peek and open */}
           <button
             type="button"
-            class="w-full pt-2.5 pb-1.5 flex flex-col items-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sp-lavender/40 rounded-t-[22px]"
+            class="w-full pt-3 pb-2 flex flex-col items-center cursor-pointer active:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sp-lavender/40 rounded-t-[22px] transition-opacity duration-150"
             onClick={toggleSheet}
             aria-label={sheetState() === "open" ? "Minimise controls" : "Open controls"}
           >
-            {/* Pill — widens slightly when open as a state hint */}
+            {/* Pill — widens and turns lavender when open as a state hint */}
             <div
               class="rounded-full transition-all duration-300"
               style={{
@@ -110,15 +109,6 @@ function MobileSheet() {
                 height: "3px",
                 background: sheetState() === "open" ? "var(--sp-lavender)" : "var(--sp-border)",
               }}
-            />
-            {/* Chevron — flips when open */}
-            <ChevronUp
-              class="w-3.5 h-3.5 transition-transform duration-300"
-              style={{
-                color: "var(--sp-text-soft)",
-                transform: sheetState() === "open" ? "rotate(180deg)" : "rotate(0deg)",
-              }}
-              aria-hidden="true"
             />
           </button>
 
