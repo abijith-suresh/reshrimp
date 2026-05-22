@@ -1,6 +1,6 @@
 # Reshrimp
 
-A client-side image tool built with Astro 6, SolidJS, and TypeScript. Resize, compress, convert, and remove backgrounds in your browser without uploading images. After one online visit, the app shell and core tools work offline. Background removal works offline after its model assets are downloaded once.
+A privacy-first, single-image, client-side image tool built with Astro 6, SolidJS, and TypeScript. Resize, compress, convert, and remove backgrounds in your browser without uploading images. After one online visit, the app shell and core tools work offline. Background removal works offline after its model assets are downloaded once.
 
 ## 🚀 Live Demo
 
@@ -35,6 +35,7 @@ Visit: https://reshrimp.vercel.app
 ├── .github/
 │   ├── workflows/      # CI/CD workflows
 │   └── dependabot.yml  # Dependency automation
+├── docs/               # Product constitution and repository audit
 ├── .husky/             # Git hooks
 ├── .vscode/            # VS Code settings
 ├── public/             # Static assets
@@ -42,11 +43,11 @@ Visit: https://reshrimp.vercel.app
 │   ├── components/     # App and marketing UI
 │   ├── layouts/        # Astro layouts
 │   ├── pages/          # Astro pages
-│   ├── services/       # Image processing and workflow helpers
+│   ├── services/       # Image-processing helpers and browser services
 │   ├── styles/         # Global styles
 │   └── test/           # Test setup and shared mocks
 ├── astro.config.ts     # Astro configuration
-├── eslint.config.mjs   # ESLint configuration
+├── eslint.config.ts    # ESLint configuration
 ├── vitest.config.ts    # Vitest configuration
 └── package.json
 ```
@@ -83,6 +84,11 @@ Reshrimp mirrors the minimum background-removal asset set into `public/backgroun
 ## 🤝 Contributing
 
 Please read [AGENTS.md](./AGENTS.md) for development workflow, commit conventions, and contribution guidelines.
+
+Project governance lives in:
+
+- [`docs/CONSTITUTION.md`](./docs/CONSTITUTION.md)
+- [`docs/REPOSITORY_AUDIT.md`](./docs/REPOSITORY_AUDIT.md)
 
 ## 📄 License
 
