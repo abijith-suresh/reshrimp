@@ -2,8 +2,15 @@
 
 ## Overview
 
-- Reshrimp is an Astro app for image cleanup and background removal.
+- Reshrimp is a tiny, privacy-first, single-image utility app.
+- The supported product surface is resize, compression, format conversion, and background removal.
 - Keep changes aligned with the current browser-first app flow unless the user explicitly asks for backend work.
+
+## Product Constitution
+
+- Read `docs/CONSTITUTION.md` and `docs/REPOSITORY_AUDIT.md` before broad refactors or cleanup passes.
+- Treat batch flows, editor/workspace metaphors, shipped "coming soon" UI, and speculative abstractions as out of scope unless the constitution changes first.
+- Prefer deletion over preserving dormant code. Git history is the archive.
 
 ## Stack
 
@@ -32,6 +39,7 @@
 - Keep business logic in `src/services/` or shared helpers, not scattered through UI components.
 - Follow the existing Astro + Solid structure instead of introducing another UI framework.
 - Preserve the current app behavior and performance posture when changing image-processing flows.
+- Do not introduce architecture for future features that are not part of the active product.
 
 ## Git And CI
 
@@ -42,3 +50,4 @@
 - `pre-commit` runs `lint-staged`, `commit-msg` runs `commitlint`, and `pre-push` runs `bun run verify`.
 - CI enforces `quality` and `pr-title` checks on pull requests.
 - Squash merge is the expected merge strategy.
+- Open one focused PR at a time, then stop and wait for review or merge feedback before continuing.
