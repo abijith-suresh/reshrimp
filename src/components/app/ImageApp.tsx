@@ -72,5 +72,3 @@ export default function ImageApp() {
     </ImageAppProvider>
   );
 }
-
-export type { SizeDiff } from "@/components/app/state/ImageAppContext";
