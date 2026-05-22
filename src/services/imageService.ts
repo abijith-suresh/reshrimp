@@ -7,11 +7,8 @@ import type {
 } from "../types/processing";
 import { loadImage, resizeOnCanvas, canvasToBlob, getBestFormat } from "./canvasService";
 import { removeBackground } from "./backgroundRemovalService";
-import { rotateImage, flipImage } from "./transformService";
 import { decodeHeicBlob } from "./formatDetectionService";
-import { compressToTargetSize, formatSupportsQuality } from "./targetSizeService";
 import { isHeicInput } from "../config/imageFormats";
-import { buildFilterString, isNoOpAdjustments } from "./adjustmentService";
 
 /**
  * Calculate dimensions maintaining aspect ratio
@@ -87,20 +84,7 @@ export async function processImage(
   }
 
   // Step 2: Load image (either original or background-removed)
-  let img = await loadImage(currentFile);
-
-  // Step 2.5: Apply transforms (rotate / flip) before resize
-  if (options.transform) {
-    const { rotation, flip } = options.transform;
-    if (rotation) {
-      const rotCanvas = rotateImage(img, rotation);
-      img = await canvasToImageElement(rotCanvas);
-    }
-    if (flip) {
-      const flipCanvas = flipImage(img, flip);
-      img = await canvasToImageElement(flipCanvas);
-    }
-  }
+  const img = await loadImage(currentFile);
 
   // Step 3: Determine dimensions (resize or original)
   let width = img.width;
@@ -114,17 +98,6 @@ export async function processImage(
 
   // Step 4: Create canvas with final dimensions
   const canvas = resizeOnCanvas(img, width, height);
-
-  // Step 4.5: Apply image adjustments (brightness, contrast, saturation)
-  if (options.adjustments && !isNoOpAdjustments(options.adjustments)) {
-    const filterStr = buildFilterString(options.adjustments);
-    const adjCtx = canvas.getContext("2d");
-    if (adjCtx && filterStr) {
-      adjCtx.filter = filterStr;
-      adjCtx.drawImage(canvas, 0, 0);
-      adjCtx.filter = "none";
-    }
-  }
 
   // Step 5: Determine format (convert or original)
   // If background removal is enabled, force PNG to preserve transparency
@@ -144,17 +117,7 @@ export async function processImage(
   }
 
   // Step 7: Convert to blob
-  let blob: Blob;
-
-  if (options.targetFileSize && formatSupportsQuality(format)) {
-    const sizeResult = await compressToTargetSize(
-      { canvas, format, targetBytes: options.targetFileSize },
-      canvasToBlob
-    );
-    blob = sizeResult.blob;
-  } else {
-    blob = await canvasToBlob(canvas, format, quality);
-  }
+  const blob = await canvasToBlob(canvas, format, quality);
 
   return {
     blob,
@@ -165,18 +128,6 @@ export async function processImage(
       fileSize: blob.size,
     },
   };
-}
-
-/**
- * Convert a canvas back to an HTMLImageElement so it can be fed into the next step.
- */
-function canvasToImageElement(canvas: HTMLCanvasElement): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("Failed to convert canvas to image element"));
-    img.src = canvas.toDataURL();
-  });
 }
 
 /**
