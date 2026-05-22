@@ -48,7 +48,8 @@ export default function ProcessPanel() {
         <QualitySection />
       </div>
 
-      <div class="app-panel-section-footer">
+      {/* Desktop only — on mobile the Download button lives in the snap-sheet mini header */}
+      <div class="app-panel-section-footer hidden md:block">
         <DownloadSection />
       </div>
     </div>
