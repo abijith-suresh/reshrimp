@@ -29,7 +29,7 @@ import {
   rebaseDimensionValues,
 } from "@/services/imageWorkflowService";
 import { validateImageFile, generateDownloadFilename } from "@/services/validationService";
-import { formatFileSize, generateId, convertFromPx } from "@/utils/imageUtils";
+import { formatFileSize, convertFromPx } from "@/utils/imageUtils";
 import { DEFAULT_DPI } from "@/config/constants";
 import { getInitialOutputFormat, supportsBrowserQualityControl } from "@/config/imageFormats";
 
@@ -312,13 +312,10 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       const originalUrl = URL.createObjectURL(file);
 
       const processedImage: ProcessedImage = {
-        id: generateId(),
         file,
         originalUrl,
         processedUrl: null,
         metadata,
-        processing: false,
-        error: null,
       };
 
       // Batch all state resets into a single DOM update to prevent flickering.

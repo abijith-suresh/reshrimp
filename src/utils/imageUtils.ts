@@ -112,10 +112,3 @@ export function convertFromPx(
       return dpi === 0 ? 0 : (px * 2.54) / dpi;
   }
 }
-
-/**
- * Generate a unique ID
- */
-export function generateId(): string {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-}

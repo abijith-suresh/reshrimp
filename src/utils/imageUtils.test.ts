@@ -5,7 +5,6 @@ import {
   formatFileSize,
   calculateHeightFromWidth,
   calculateWidthFromHeight,
-  generateId,
   convertToPx,
   convertFromPx,
 } from "./imageUtils";
@@ -120,19 +119,6 @@ describe("calculateWidthFromHeight", () => {
   it("rounds non-integer results", () => {
     // 3:2 aspect → height 10 → width = 10 * 1.5 = 15
     expect(calculateWidthFromHeight(3, 2, 10)).toBe(15);
-  });
-});
-
-describe("generateId", () => {
-  it("returns a non-empty string", () => {
-    const id = generateId();
-    expect(typeof id).toBe("string");
-    expect(id.length).toBeGreaterThan(0);
-  });
-
-  it("returns unique values across calls", () => {
-    const ids = new Set(Array.from({ length: 20 }, () => generateId()));
-    expect(ids.size).toBe(20);
   });
 });
 

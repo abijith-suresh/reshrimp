@@ -24,13 +24,10 @@ export interface ImageMetadata {
  * Represents the active image session with original and processed states.
  */
 export interface ProcessedImage {
-  id: string;
   file: File;
   originalUrl: string;
   processedUrl: string | null;
   metadata: ImageMetadata;
-  processing: boolean;
-  error: string | null;
 }
 
 /**
