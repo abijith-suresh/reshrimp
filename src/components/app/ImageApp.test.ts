@@ -207,4 +207,23 @@ describe("ImageApp", () => {
       expect(view.container.querySelector("#download-button")).toBeDisabled();
     });
   });
+
+  it("toggles the mobile controls drawer without any extra app modes", () => {
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    expect(view.container).not.toHaveTextContent("Adjust");
+    expect(view.container).not.toHaveTextContent("Batch");
+
+    const drawer = view.container.querySelector("#app-controls-drawer") as HTMLDivElement;
+    const toggleButton = view.getByRole("button", { name: "Show controls" }) as HTMLButtonElement;
+
+    expect(drawer).toHaveAttribute("aria-hidden", "true");
+    expect(toggleButton).toHaveAttribute("aria-expanded", "false");
+
+    triggerDelegatedClick(toggleButton);
+
+    expect(drawer).toHaveAttribute("aria-hidden", "false");
+    expect(toggleButton).toHaveAttribute("aria-expanded", "true");
+  });
 });
