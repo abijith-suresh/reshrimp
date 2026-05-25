@@ -7,13 +7,14 @@ interface Props {
 const { label, title } = Astro.props;
 ---
 
-<div class="sp-section-header">
-  <span class="pop-section-label">{label}</span>
-  <h2 class="pop-section-title">{title}</h2>
+<div class="sp-section-header text-center">
+  <span
+    class="block text-[0.8rem] font-semibold text-sp-lavender-dark uppercase tracking-[0.08em] mb-2"
+    >{label}</span
+  >
+  <h2
+    class="font-display text-[clamp(1.6rem,3.5vw,2.4rem)] font-extrabold leading-[1.2] m-0 mb-12 tracking-tight"
+  >
+    {title}
+  </h2>
 </div>
-
-<style>
-  .sp-section-header {
-    text-align: center;
-  }
-</style>

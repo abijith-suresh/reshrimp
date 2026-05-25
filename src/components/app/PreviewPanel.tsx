@@ -60,6 +60,8 @@ export default function PreviewPanel() {
                     id="preview-image"
                     src={previewUrl()}
                     alt="Preview"
+                    width={displayWidth()}
+                    height={displayHeight()}
                     class="max-w-full max-h-full object-contain"
                   />
 

@@ -29,8 +29,7 @@ const {
       background ? (
         <div class="bg-sp-bg-card border border-sp-border rounded-sp-xl p-12 text-center shadow-sp">
           <h2
-            class="font-display font-extrabold mb-4 tracking-tight"
-            style="font-size: clamp(1.8rem, 4vw, 2.5rem)"
+            class="font-display font-extrabold mb-4 tracking-tight cta-card-title"
             data-reveal
             data-reveal-delay="0"
           >
@@ -52,16 +51,10 @@ const {
         </div>
       ) : (
         <>
-          <h2
-            class="font-display font-extrabold mb-4 tracking-tight opacity-0"
-            style="font-size: clamp(1.8rem, 4vw, 2.5rem); animation: popBounceIn 0.6s 0.1s forwards"
-          >
+          <h2 class="font-display font-extrabold mb-4 tracking-tight opacity-0 cta-card-title animate-cta-title">
             {title}
           </h2>
-          <p
-            class="text-[1rem] text-sp-text-muted mb-8 leading-[1.6] opacity-0"
-            style="animation: popBounceIn 0.6s 0.25s forwards"
-          >
+          <p class="text-[1rem] text-sp-text-muted mb-8 leading-[1.6] opacity-0 animate-cta-subtitle">
             {subtitle}
           </p>
           <ButtonLink href={ctaHref} size={size}>
@@ -73,3 +66,15 @@ const {
     }
   </div>
 </section>
+
+<style>
+  .animate-cta-title {
+    animation: popBounceIn 0.6s 0.1s forwards;
+  }
+  .animate-cta-subtitle {
+    animation: popBounceIn 0.6s 0.25s forwards;
+  }
+  .cta-card-title {
+    font-size: var(--sp-font-title);
+  }
+</style>

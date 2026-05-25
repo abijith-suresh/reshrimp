@@ -15,13 +15,13 @@ import { ROUTES } from "../config/constants";
   <MarketingPageWrapper>
     <div class="flex items-center justify-center min-h-[calc(100vh-200px)] p-16 relative z-10">
       <div class="max-w-[500px] text-center">
-        <div class="opacity-0" style="animation: popBounceIn 0.6s 0.1s forwards">
+        <div class="opacity-0 animate-error-code">
           <span
-            class="inline-block font-display font-extrabold leading-none bg-gradient-to-br from-[var(--sp-coral)] to-[var(--sp-lavender)] bg-clip-text text-transparent"
-            style="font-size: clamp(5rem, 15vw, 8rem); letter-spacing: -0.03em;">404</span
+            class="inline-block font-display font-extrabold leading-none bg-gradient-to-br from-[var(--sp-coral)] to-[var(--sp-lavender)] bg-clip-text text-transparent error-code"
+            >404</span
           >
           <h1
-            class="font-display text-[clamp(1.8rem,4vw,2.5rem)] font-extrabold mt-4 mb-4 tracking-tight"
+            class="font-display text-[var(--sp-font-title)] font-extrabold mt-4 mb-4 tracking-tight"
           >
             Page not found
           </h1>
@@ -37,3 +37,13 @@ import { ROUTES } from "../config/constants";
     </div>
   </MarketingPageWrapper>
 </MarketingLayout>
+
+<style>
+  .error-code {
+    font-size: clamp(5rem, 15vw, 8rem);
+    letter-spacing: -0.03em;
+  }
+  .animate-error-code {
+    animation: popBounceIn 0.6s 0.1s forwards;
+  }
+</style>

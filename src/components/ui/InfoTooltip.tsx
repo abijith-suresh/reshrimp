@@ -79,7 +79,7 @@ export default function InfoTooltip(props: InfoTooltipProps) {
       <button
         id={props.id ? `${props.id}-icon` : undefined}
         type="button"
-        class="info-icon"
+        class="inline-flex items-center justify-center w-5 h-5 p-0 text-sp-text-muted bg-transparent border-none rounded-full cursor-pointer transition-colors duration-200 hover:text-sp-lavender focus-visible:outline-2 focus-visible:outline-sp-lavender focus-visible:outline-offset-2"
         aria-label={props.ariaLabel}
         ref={setTriggerEl}
         onFocus={handleEnter}
@@ -95,15 +95,11 @@ export default function InfoTooltip(props: InfoTooltipProps) {
         <Portal>
           <span
             id={props.id ? `${props.id}-tooltip` : undefined}
-            class="info-tooltip active"
+            class="info-tooltip active info-tooltip-portaled text-[0.75rem] leading-[1.4] text-sp-text"
             role="tooltip"
             style={{
-              position: "fixed",
               bottom: `${pos().bottom}px`,
               left: `${pos().left}px`,
-              transform: "translateX(-50%)",
-              width: "220px",
-              "z-index": "9999",
             }}
           >
             {props.content}

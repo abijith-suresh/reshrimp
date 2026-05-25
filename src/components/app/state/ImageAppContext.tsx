@@ -129,7 +129,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     const sign = diff > 0 ? "+" : "";
     return {
       text: `Change: ${sign}${formatFileSize(Math.abs(diff))} (${sign}${pct}%)`,
-      className: diff > 0 ? "sp-text-increase" : "sp-text-decrease",
+      className: diff > 0 ? "font-medium text-sp-coral" : "font-medium text-sp-mint-dark",
     };
   });
 

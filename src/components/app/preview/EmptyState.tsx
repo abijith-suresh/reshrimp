@@ -24,7 +24,7 @@ export default function EmptyState(props: EmptyStateProps) {
         {/* Mobile-only upload CTA — on desktop the sidebar UploadArea is always visible */}
         <button
           type="button"
-          class="mt-6 md:hidden inline-flex items-center gap-2 px-5 py-2.5 bg-sp-coral text-white text-[0.85rem] font-semibold rounded-sp-full shadow-[0_4px_14px_rgba(255,107,107,0.3)] hover:bg-sp-coral-dark active:scale-95 transition-all duration-200"
+          class="mt-6 md:hidden inline-flex items-center gap-2 px-5 py-2.5 bg-sp-coral text-white text-[0.85rem] font-semibold rounded-sp-full shadow-[0_4px_14px_rgba(255,107,107,0.3)] hover:bg-sp-coral-dark active:scale-95 transition-[background-color,transform] duration-200"
           onClick={() => props.onUploadClick?.()}
         >
           <Upload class="w-4 h-4" aria-hidden="true" />

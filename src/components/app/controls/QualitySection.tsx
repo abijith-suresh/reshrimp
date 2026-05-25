@@ -18,7 +18,7 @@ export default function QualitySection() {
         min={1}
         max={100}
         value={state.qualityValue()}
-        class="sp-slider w-full"
+        class="w-full h-1.5 rounded-[3px] appearance-none bg-sp-border-light cursor-pointer sp-slider"
         disabled={!state.controlsActive() || !state.qualityControlSupported()}
         onInput={(e) => actions.setQualityValue(parseInt((e.target as HTMLInputElement).value, 10))}
       />
