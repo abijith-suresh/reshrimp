@@ -235,15 +235,13 @@ export default function Select(props: SelectProps) {
             role="listbox"
             aria-labelledby={props.id ?? triggerId}
             tabIndex={-1}
-            class="sp-select-listbox"
+            class="sp-select-listbox sp-select-listbox-portaled"
             classList={{ "sp-select-listbox-upward": pos().openUpward }}
             style={{
-              position: "fixed",
               top: pos().top !== undefined ? `${pos().top}px` : "auto",
               bottom: pos().bottom !== undefined ? `${pos().bottom}px` : "auto",
               left: `${pos().left}px`,
               width: `${pos().width}px`,
-              "z-index": "9999",
             }}
             onKeyDown={handleListKeyDown}
             onMouseLeave={() => setFocusedIndex(-1)}

@@ -26,26 +26,20 @@ const variantClasses: Record<string, string> = {
   <div class:list={["mx-auto", centered ? "max-w-[700px]" : "max-w-[700px]"]}>
     {
       chips ? (
-        <div
-          class="flex justify-center gap-2 mb-8 flex-wrap opacity-0"
-          style="animation: popBounceIn 0.6s 0.1s forwards"
-        >
+        <div class="flex justify-center gap-2 mb-8 flex-wrap opacity-0 animate-hero-chip">
           {chips.map((c) => (
             <span class:list={["pop-chip", variantClasses[c.variant]]}>{c.label}</span>
           ))}
         </div>
       ) : chip ? (
-        <span
-          class:list={["pop-chip", variantClasses[chip.variant]]}
-          style="animation: popBounceIn 0.6s 0.1s forwards"
-        >
+        <span class:list={["pop-chip", variantClasses[chip.variant], "animate-hero-chip"]}>
           {chip.label}
         </span>
       ) : null
     }
     <h1
-      class="font-display font-extrabold leading-[1.15] mb-6 tracking-tight opacity-0"
-      style="font-size: clamp(2rem, 5vw, 3rem); animation: popBounceIn 0.6s 0.25s forwards"
+      class="font-display font-extrabold leading-[1.15] mb-6 tracking-tight opacity-0 animate-hero-title"
+      style="font-size: clamp(2rem, 5vw, 3rem)"
     >
       {title}
       {
@@ -63,10 +57,9 @@ const variantClasses: Record<string, string> = {
       subtitle ? (
         <p
           class:list={[
-            "text-[1.05rem] text-sp-text-muted leading-[1.7] m-0 opacity-0",
+            "text-[1.05rem] text-sp-text-muted leading-[1.7] m-0 opacity-0 animate-hero-subtitle",
             { "max-w-[520px] mx-auto": centered },
           ]}
-          style="animation: popBounceIn 0.6s 0.4s forwards"
         >
           {subtitle}
         </p>

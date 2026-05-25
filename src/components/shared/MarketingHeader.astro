@@ -95,7 +95,6 @@ const headerLinks = [
     z-index: 100;
     background: rgba(248, 247, 255, 0.85);
     backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--sp-border-light);
     transition:
       box-shadow 0.3s ease,
@@ -108,7 +107,7 @@ const headerLinks = [
   }
 
   .sp-header-inner {
-    max-width: 1100px;
+    max-width: var(--sp-content-max-width);
     margin: 0 auto;
     display: flex;
     justify-content: space-between;

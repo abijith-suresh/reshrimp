@@ -85,13 +85,10 @@ function MobileSheet() {
       <div
         aria-label="Image controls"
         aria-hidden={sheetState() === "hidden" ? "true" : "false"}
-        class="md:hidden fixed inset-x-0 bottom-0 z-40 flex flex-col bg-sp-bg-card rounded-t-[22px]"
+        class="md:hidden fixed inset-x-0 bottom-0 z-40 flex flex-col bg-sp-bg-card rounded-t-[22px] sp-mobile-sheet"
         style={{
-          height: "80dvh",
           transform: translateForState(sheetState()),
           transition: SPRING,
-          "will-change": "transform",
-          "box-shadow": "0 -4px 24px rgba(30,27,75,0.10), 0 -1px 0 rgba(224,222,255,0.9)",
         }}
       >
         {/* ── Sticky header — always visible in peek ── */}
@@ -105,10 +102,9 @@ function MobileSheet() {
           >
             {/* Pill — widens and turns lavender when open as a state hint */}
             <div
-              class="rounded-full transition-all duration-300"
+              class="rounded-full transition-all duration-300 sp-mobile-sheet-handle"
               style={{
                 width: sheetState() === "open" ? "28px" : "40px",
-                height: "3px",
                 background: sheetState() === "open" ? "var(--sp-lavender)" : "var(--sp-border)",
               }}
             />
@@ -130,12 +126,7 @@ function MobileSheet() {
           </Show>
 
           {/* Download button — primary CTA always reachable without opening */}
-          <div
-            class="px-4 pt-1"
-            style={{
-              "padding-bottom": "max(0.75rem, env(safe-area-inset-bottom, 0px))",
-            }}
-          >
+          <div class="px-4 pt-1 sp-mobile-sheet-footer">
             <DownloadSection />
           </div>
         </div>

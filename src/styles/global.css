@@ -62,6 +62,7 @@
   --sp-duration-fast: 150ms;
   --sp-duration-normal: 300ms;
   --sp-duration-slow: 500ms;
+  --sp-content-max-width: 1100px;
 }
 
 /* ===== Tailwind v4 @theme — register as Tailwind tokens ===== */
@@ -103,6 +104,7 @@
   --color-sp-validation-warning: #d97706;
   --color-sp-chip-yellow: #a16207;
   --font-family-title: clamp(1.8rem, 4vw, 2.5rem);
+  --sp-content-max-width: 1100px;
 }
 
 /* ===== Base Element Styles ===== */
@@ -697,4 +699,69 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ===== InfoTooltip portal override ===== */
+.info-tooltip-portaled {
+  position: fixed;
+  z-index: 9999;
+}
+
+/* ===== Select listbox portal override ===== */
+.sp-select-listbox-portaled {
+  position: fixed;
+  z-index: 9999;
+}
+
+/* ===== Mobile sheet ===== */
+.sp-mobile-sheet {
+  height: 80dvh;
+  box-shadow:
+    0 -4px 24px rgba(30, 27, 75, 0.1),
+    0 -1px 0 rgba(224, 222, 255, 0.9);
+  will-change: transform;
+}
+
+.sp-mobile-sheet-handle {
+  width: 36px;
+  height: 3px;
+  border-radius: var(--sp-radius-full);
+}
+
+.sp-mobile-sheet-footer {
+  padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+}
+
+/* ===== Hero section animations ===== */
+.animate-hero-chip {
+  animation: popBounceIn 0.6s 0.1s forwards;
+}
+.animate-hero-title {
+  animation: popBounceIn 0.6s 0.25s forwards;
+}
+.animate-hero-subtitle {
+  animation: popBounceIn 0.6s 0.4s forwards;
+}
+.animate-hero-cta {
+  animation: popBounceIn 0.6s 0.55s forwards;
+}
+
+/* ===== CTA card ===== */
+.cta-card-title {
+  font-size: var(--sp-font-title);
+}
+.animate-cta-title {
+  animation: popBounceIn 0.6s 0.1s forwards;
+}
+.animate-cta-subtitle {
+  animation: popBounceIn 0.6s 0.25s forwards;
+}
+
+/* ===== 404 error page ===== */
+.error-code {
+  font-size: clamp(5rem, 15vw, 8rem);
+  letter-spacing: -0.03em;
+}
+.animate-error-code {
+  animation: popBounceIn 0.6s 0.1s forwards;
 }

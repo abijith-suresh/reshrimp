@@ -18,7 +18,7 @@ export default function Input(props: InputProps) {
       <input
         id={props.id}
         type={props.type ?? "number"}
-        class="w-full px-3 py-2.5 border border-sp-border rounded-sp-lg font-body text-[0.85rem] text-sp-text bg-sp-bg transition-[border-color,box-shadow] duration-200 focus:outline-none focus:border-sp-lavender focus:shadow-[0_0_0_3px_rgba(167,139,250,0.15)]"
+        class="w-full px-3 py-2.5 border border-sp-border rounded-sp-lg font-body text-[0.85rem] text-sp-text bg-sp-bg transition-[border-color,box-shadow] duration-200 focus:outline-none focus:border-sp-lavender focus:ring-2 focus:ring-sp-lavender/40"
         min={props.min ?? "0.001"}
         max={props.max ?? "100000"}
         step={props.step ?? "any"}
