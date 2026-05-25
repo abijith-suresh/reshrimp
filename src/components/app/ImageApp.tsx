@@ -97,12 +97,13 @@ function MobileSheet() {
           <button
             type="button"
             class="w-full pt-3 pb-2 flex flex-col items-center cursor-pointer active:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sp-lavender/40 rounded-t-[22px] transition-opacity duration-150"
+            style={{ "touch-action": "manipulation" }}
             onClick={toggleSheet}
             aria-label={sheetState() === "open" ? "Minimise controls" : "Open controls"}
           >
             {/* Pill — widens and turns lavender when open as a state hint */}
             <div
-              class="rounded-full transition-all duration-300 sp-mobile-sheet-handle"
+              class="rounded-full transition-[width,background] duration-300 sp-mobile-sheet-handle"
               style={{
                 width: sheetState() === "open" ? "28px" : "40px",
                 background: sheetState() === "open" ? "var(--sp-lavender)" : "var(--sp-border)",

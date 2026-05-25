@@ -16,6 +16,7 @@ const { question, answer, delay = 0 } = Astro.props;
   <button
     class="faq-question w-full text-left font-display text-[1.05rem] font-semibold py-5 px-6 flex items-center justify-between gap-4 transition-colors duration-200 hover:text-sp-coral"
     aria-expanded="false"
+    style="touch-action: manipulation"
   >
     {question}
   </button>

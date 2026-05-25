@@ -15,7 +15,8 @@ export default function Checkbox(props: CheckboxProps) {
         id={props.id}
         aria-checked={props.checked}
         disabled={props.disabled}
-        class="relative flex items-center justify-center w-[18px] h-[18px] rounded-[5px] border-[1.5px] transition-all duration-200 shrink-0 disabled:opacity-40 disabled:cursor-not-allowed active:scale-90"
+        class="relative flex items-center justify-center w-[18px] h-[18px] rounded-[5px] border-[1.5px] transition-[background-color,border-color] duration-200 shrink-0 disabled:opacity-40 disabled:cursor-not-allowed active:scale-90"
+        style={{ "touch-action": "manipulation" }}
         classList={{
           "bg-sp-lavender border-sp-lavender": props.checked,
           "bg-white border-sp-border hover:border-sp-lavender": !props.checked,

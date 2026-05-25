@@ -720,6 +720,7 @@ body {
     0 -4px 24px rgba(30, 27, 75, 0.1),
     0 -1px 0 rgba(224, 222, 255, 0.9);
   will-change: transform;
+  overscroll-behavior: contain;
 }
 
 .sp-mobile-sheet-handle {
