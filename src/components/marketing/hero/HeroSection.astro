@@ -15,10 +15,10 @@ interface Props {
 
 const { chip, chips, title, subtitle, gradientTitle, centered = true } = Astro.props;
 const variantClasses: Record<string, string> = {
-  coral: "pop-chip-coral",
-  mint: "pop-chip-mint",
-  lavender: "pop-chip-lavender",
-  yellow: "pop-chip-yellow",
+  coral: "bg-sp-coral-light text-sp-coral-dark",
+  mint: "bg-sp-mint-light text-sp-mint-dark",
+  lavender: "bg-sp-lavender-light text-sp-lavender-dark",
+  yellow: "bg-sp-yellow-light text-[#a16207]",
 };
 ---
 
@@ -28,11 +28,24 @@ const variantClasses: Record<string, string> = {
       chips ? (
         <div class="flex justify-center gap-2 mb-8 flex-wrap opacity-0 animate-hero-chip">
           {chips.map((c) => (
-            <span class:list={["pop-chip", variantClasses[c.variant]]}>{c.label}</span>
+            <span
+              class:list={[
+                "inline-block text-xs font-semibold px-[0.9rem] py-[0.35rem] rounded-full tracking-[0.01em]",
+                variantClasses[c.variant],
+              ]}
+            >
+              {c.label}
+            </span>
           ))}
         </div>
       ) : chip ? (
-        <span class:list={["pop-chip", variantClasses[chip.variant], "animate-hero-chip"]}>
+        <span
+          class:list={[
+            "inline-block text-xs font-semibold px-[0.9rem] py-[0.35rem] rounded-full tracking-[0.01em]",
+            variantClasses[chip.variant],
+            "animate-hero-chip",
+          ]}
+        >
           {chip.label}
         </span>
       ) : null

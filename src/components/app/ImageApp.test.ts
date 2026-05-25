@@ -106,8 +106,12 @@ describe("ImageApp", () => {
     });
 
     // Info strip should show filename and original metadata
-    expect(view.container.querySelector(".info-strip")).toHaveTextContent("photo.png");
-    expect(view.container.querySelector(".info-strip")).toHaveTextContent("1200 × 800px");
+    expect(view.container.querySelector("[data-testid='info-strip']")).toHaveTextContent(
+      "photo.png"
+    );
+    expect(view.container.querySelector("[data-testid='info-strip']")).toHaveTextContent(
+      "1200 × 800px"
+    );
 
     // Auto-process should fire after debounce
     await vi.waitFor(() => {

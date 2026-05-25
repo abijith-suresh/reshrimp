@@ -24,7 +24,7 @@ export default function ProcessPanel(props: ProcessPanelProps) {
   const showDpi = () => state.resizeUnit() === "in" || state.resizeUnit() === "cm";
 
   const sourceSection = (
-    <div class="app-panel-section app-panel-section-source">
+    <div class="flex flex-col gap-2 border-b border-sp-border-light px-5 py-3 pt-5 pb-3">
       <SectionHeader>Source</SectionHeader>
       <div class="mt-2">
         <UploadArea />
@@ -33,7 +33,7 @@ export default function ProcessPanel(props: ProcessPanelProps) {
   );
 
   const geometrySection = (
-    <div class="app-panel-section">
+    <div class="flex flex-col gap-2 border-b border-sp-border-light px-5 py-3">
       <SectionHeader>Geometry</SectionHeader>
       <DimensionInputs />
       <div class="flex gap-2">
@@ -51,14 +51,14 @@ export default function ProcessPanel(props: ProcessPanelProps) {
   );
 
   const formatSection = (
-    <div class="app-panel-section">
+    <div class="flex flex-col gap-2 border-b border-sp-border-light px-5 py-3">
       <SectionHeader>Format</SectionHeader>
       <FormatSelect />
     </div>
   );
 
   const qualitySection = (
-    <div class="app-panel-section gap-3">
+    <div class="flex flex-col gap-3 border-b border-sp-border-light px-5 py-3">
       <QualitySection />
     </div>
   );
@@ -82,7 +82,7 @@ export default function ProcessPanel(props: ProcessPanelProps) {
       )}
 
       {/* Desktop only — on mobile the Download button lives in the snap-sheet mini header */}
-      <div class="app-panel-section-footer hidden md:block">
+      <div class="mt-auto px-5 py-4 hidden md:block">
         <DownloadSection />
       </div>
     </div>
