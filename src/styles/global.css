@@ -52,7 +52,16 @@
   --sp-radius: 12px;
   --sp-radius-lg: 20px;
   --sp-radius-xl: 28px;
+  --sp-radius-sm: 8px;
   --sp-radius-full: 999px;
+  --sp-shadow-glow: 0 4px 24px rgba(167, 139, 250, 0.14);
+  --sp-shadow-coral: 0 4px 14px rgba(255, 107, 107, 0.3);
+  --sp-color-validation-warning: #d97706;
+  --sp-color-chip-yellow: #a16207;
+  --sp-font-title: clamp(1.8rem, 4vw, 2.5rem);
+  --sp-duration-fast: 150ms;
+  --sp-duration-normal: 300ms;
+  --sp-duration-slow: 500ms;
 }
 
 /* ===== Tailwind v4 @theme — register as Tailwind tokens ===== */
@@ -87,6 +96,13 @@
 
   --shadow-sp: 0 2px 16px rgba(30, 27, 75, 0.06);
   --shadow-sp-hover: 0 8px 30px rgba(30, 27, 75, 0.1);
+
+  --radius-sp-sm: 8px;
+  --shadow-sp-glow: 0 4px 24px rgba(167, 139, 250, 0.14);
+  --shadow-sp-coral: 0 4px 14px rgba(255, 107, 107, 0.3);
+  --color-sp-validation-warning: #d97706;
+  --color-sp-chip-yellow: #a16207;
+  --font-family-title: clamp(1.8rem, 4vw, 2.5rem);
 }
 
 /* ===== Base Element Styles ===== */
@@ -119,7 +135,7 @@ body {
 
 ::selection {
   background: var(--sp-lavender);
-  color: #fff;
+  color: var(--sp-bg-card);
 }
 
 /* ===== Keyframe Animations ===== */
@@ -147,17 +163,6 @@ body {
   }
   75% {
     border-radius: 65% 35% 35% 65% / 40% 55% 45% 60%;
-  }
-}
-
-@keyframes revealUp {
-  from {
-    opacity: 0;
-    transform: translateY(28px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
   }
 }
 
@@ -199,6 +204,13 @@ body {
   animation: pageEnter 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}
+
 /* ===== FAQ Accordion ===== */
 .faq-question::after {
   content: "+";
@@ -213,6 +225,7 @@ body {
   transform: rotate(45deg);
 }
 
+/* !important needed to override Tailwind utility classes — fixing this requires restructuring FAQAccordion.astro */
 .faq-item.faq-open .faq-body {
   grid-template-rows: 1fr !important;
 }
@@ -224,7 +237,7 @@ body {
 
 .faq-item.faq-open {
   border-color: var(--sp-lavender) !important;
-  box-shadow: 0 4px 24px rgba(167, 139, 250, 0.14) !important;
+  box-shadow: var(--sp-shadow-glow) !important;
   transform: scale(1.008) !important;
 }
 
@@ -302,16 +315,7 @@ body {
 
 .pop-chip-yellow {
   background: var(--sp-yellow-light);
-  color: #a16207;
-}
-
-/* ===== Card ===== */
-.sp-card {
-  background: var(--sp-bg-card);
-  border: 1px solid var(--sp-border);
-  border-radius: var(--sp-radius-xl);
-  padding: 2rem;
-  box-shadow: var(--sp-shadow);
+  color: var(--sp-color-chip-yellow);
 }
 
 /* ===== Section Header ===== */
@@ -335,6 +339,7 @@ body {
 }
 
 /* ===== Drag-Drop State ===== */
+/* !important needed because Tailwind classes on the same element create specificity conflict — will be addressed in component migration phase */
 .sp-drag-active {
   border-color: var(--sp-lavender) !important;
   background: var(--sp-lavender-light) !important;
@@ -361,7 +366,7 @@ body {
 .sp-validation-warning {
   margin-top: 0.5rem;
   font-size: 0.875rem;
-  color: #d97706;
+  color: var(--sp-color-validation-warning);
 }
 
 /* ===== App: Panel Layout ===== */
@@ -515,7 +520,7 @@ body {
   align-items: center;
   justify-content: space-between;
   padding: 0.45rem 0.65rem;
-  border-radius: calc(var(--sp-radius) - 4px);
+  border-radius: var(--sp-radius-sm);
   font-family: var(--sp-font-body);
   font-size: 0.85rem;
   color: var(--sp-text);
@@ -564,6 +569,11 @@ body {
   color: var(--sp-lavender);
 }
 
+.info-icon:focus-visible {
+  outline: 2px solid var(--sp-lavender);
+  outline-offset: 2px;
+}
+
 .info-tooltip {
   position: absolute;
   bottom: calc(100% + 8px);
@@ -577,7 +587,7 @@ body {
   background: var(--sp-bg-card);
   border: 1px solid var(--sp-border);
   border-radius: var(--sp-radius);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--sp-shadow-hover);
   z-index: 10;
   pointer-events: none;
   display: none;
@@ -602,7 +612,7 @@ body {
   width: 1rem;
   height: 1rem;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: #fff;
+  border-top-color: var(--sp-bg-card);
   border-radius: 50%;
   animation: btn-spin 0.6s linear infinite;
 }
@@ -614,20 +624,6 @@ body {
 }
 
 /* ===== App: Preview Panel ===== */
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-8px);
-  }
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
 .preview-frame {
   flex: 1;
   overflow: hidden;
@@ -636,10 +632,10 @@ body {
   justify-content: center;
   background-color: var(--sp-bg);
   background-image:
-    linear-gradient(45deg, #e8e6f0 25%, transparent 25%),
-    linear-gradient(-45deg, #e8e6f0 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, #e8e6f0 75%),
-    linear-gradient(-45deg, transparent 75%, #e8e6f0 75%);
+    linear-gradient(45deg, var(--sp-border) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--sp-border) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--sp-border) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--sp-border) 75%);
   background-size: 16px 16px;
   background-position:
     0 0,
@@ -701,127 +697,4 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
-}
-
-/* ===== Blog Prose Styling ===== */
-.prose-sp {
-  font-family: var(--sp-font-body);
-  color: var(--sp-text);
-  line-height: 1.8;
-  font-size: 1.05rem;
-}
-
-.prose-sp h1,
-.prose-sp h2,
-.prose-sp h3,
-.prose-sp h4 {
-  font-family: var(--sp-font-display);
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  margin-top: 2em;
-  margin-bottom: 0.75em;
-  line-height: 1.3;
-}
-
-.prose-sp h1 {
-  font-size: 2rem;
-}
-
-.prose-sp h2 {
-  font-size: 1.5rem;
-}
-
-.prose-sp h3 {
-  font-size: 1.25rem;
-}
-
-.prose-sp p {
-  margin-bottom: 1.25em;
-}
-
-.prose-sp a {
-  color: var(--sp-coral);
-  text-decoration: underline;
-  text-decoration-color: rgba(255, 107, 107, 0.3);
-  text-underline-offset: 2px;
-  transition: text-decoration-color 0.2s;
-}
-
-.prose-sp a:hover {
-  text-decoration-color: var(--sp-coral);
-}
-
-.prose-sp ul,
-.prose-sp ol {
-  padding-left: 1.5em;
-  margin-bottom: 1.25em;
-}
-
-.prose-sp li {
-  margin-bottom: 0.5em;
-}
-
-.prose-sp blockquote {
-  border-left: 3px solid var(--sp-lavender);
-  padding-left: 1.25em;
-  margin: 1.5em 0;
-  color: var(--sp-text-muted);
-  font-style: italic;
-}
-
-.prose-sp code {
-  font-size: 0.9em;
-  background: var(--sp-lavender-light);
-  padding: 0.15em 0.4em;
-  border-radius: 4px;
-  color: var(--sp-lavender-dark);
-}
-
-.prose-sp pre {
-  background: var(--sp-text);
-  color: #e2e8f0;
-  padding: 1.25rem;
-  border-radius: var(--sp-radius);
-  overflow-x: auto;
-  margin: 1.5em 0;
-}
-
-.prose-sp pre code {
-  background: none;
-  padding: 0;
-  color: inherit;
-  border-radius: 0;
-}
-
-.prose-sp img {
-  border-radius: var(--sp-radius);
-  margin: 1.5em 0;
-}
-
-.prose-sp hr {
-  border: none;
-  border-top: 1px solid var(--sp-border);
-  margin: 2em 0;
-}
-
-.prose-sp strong {
-  font-weight: 600;
-}
-
-.prose-sp table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 1.5em 0;
-}
-
-.prose-sp th,
-.prose-sp td {
-  padding: 0.75em 1em;
-  border: 1px solid var(--sp-border);
-  text-align: left;
-}
-
-.prose-sp th {
-  background: var(--sp-lavender-light);
-  font-weight: 600;
 }
