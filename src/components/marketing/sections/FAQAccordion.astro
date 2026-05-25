@@ -8,11 +8,7 @@ interface Props {
 const { question, answer, delay = 0 } = Astro.props;
 ---
 
-<div
-  class="faq-item group border border-sp-border rounded-sp bg-sp-bg-card mb-3 shadow-sp overflow-hidden transition-[border-color,box-shadow,transform] duration-[250ms] [transition-timing-function:cubic-bezier(0.34,1.56,0.64,1)]"
-  data-reveal
-  data-reveal-delay={String(delay)}
->
+<div class="faq-item group mb-3 overflow-hidden" data-reveal data-reveal-delay={String(delay)}>
   <button
     class="faq-question w-full text-left font-display text-[1.05rem] font-semibold py-5 px-6 flex items-center justify-between gap-4 transition-colors duration-200 hover:text-sp-coral"
     aria-expanded="false"
@@ -20,18 +16,83 @@ const { question, answer, delay = 0 } = Astro.props;
   >
     {question}
   </button>
-  <div
-    class="faq-body grid [grid-template-rows:0fr] transition-[grid-template-rows] duration-[400ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)]"
-    role="region"
-  >
+  <div class="faq-body" role="region">
     <div class="overflow-hidden">
       <p
-        class="faq-answer text-[0.95rem] text-sp-text-muted leading-[1.7] px-6 pb-5 m-0 opacity-0 translate-y-[6px] transition-[opacity,transform] duration-300 delay-[80ms]"
+        class="faq-answer text-[0.95rem] text-sp-text-muted leading-[1.7] px-6 pb-5 m-0"
         set:html={answer}
       />
     </div>
   </div>
 </div>
+
+<style>
+  .faq-item {
+    border: 1px solid var(--sp-border);
+    border-radius: var(--sp-radius);
+    background: var(--sp-bg-card);
+    box-shadow: var(--sp-shadow);
+    transition:
+      border-color 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+      box-shadow 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+      transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .faq-question::after {
+    content: "+";
+    font-size: 1.3rem;
+    font-weight: 400;
+    color: var(--sp-coral);
+    flex-shrink: 0;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .faq-item.faq-open .faq-question::after {
+    transform: rotate(45deg);
+  }
+
+  .faq-body {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .faq-item.faq-open .faq-body {
+    grid-template-rows: 1fr;
+  }
+
+  .faq-answer {
+    opacity: 0;
+    transform: translateY(6px);
+    transition:
+      opacity 0.3s ease,
+      transform 0.3s ease;
+    transition-delay: 80ms;
+  }
+
+  .faq-item.faq-open .faq-answer {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .faq-item.faq-open {
+    border-color: var(--sp-lavender);
+    box-shadow: var(--sp-shadow-glow);
+    transform: scale(1.008);
+  }
+
+  .faq-answer a {
+    color: var(--sp-coral);
+    text-decoration: underline;
+    text-decoration-color: rgba(255, 107, 107, 0.3);
+    text-underline-offset: 2px;
+    transition: text-decoration-color 0.2s;
+  }
+
+  .faq-answer a:hover {
+    text-decoration-color: var(--sp-coral);
+  }
+</style>
 
 <script>
   // Use event delegation so all FAQ items work regardless of how many component instances exist
