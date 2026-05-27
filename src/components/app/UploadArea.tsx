@@ -40,6 +40,9 @@ export default function UploadArea() {
         onClick={handleUploadAreaClick}
         onKeyDown={handleKeyDown}
       >
+        <label for="file-input" class="sr-only">
+          Upload image
+        </label>
         <input
           ref={(el) => {
             fileInputRef = el;

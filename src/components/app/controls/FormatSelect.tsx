@@ -12,12 +12,17 @@ export default function FormatSelect() {
   const { state, actions } = useImageApp();
 
   return (
-    <Select
-      id="format-select"
-      options={formatOptions}
-      value={state.formatValue()}
-      onChange={actions.setFormatValue}
-      disabled={!state.controlsActive() || state.formatSelectDisabled()}
-    />
+    <>
+      <label for="format-select" class="sr-only">
+        Output format
+      </label>
+      <Select
+        id="format-select"
+        options={formatOptions}
+        value={state.formatValue()}
+        onChange={actions.setFormatValue}
+        disabled={!state.controlsActive() || state.formatSelectDisabled()}
+      />
+    </>
   );
 }
