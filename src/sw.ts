@@ -11,6 +11,7 @@ import { precacheAndRoute, cleanupOutdatedCaches } from "workbox-precaching";
 import { registerRoute } from "workbox-routing";
 import { CacheFirst } from "workbox-strategies";
 import { CacheableResponsePlugin } from "workbox-cacheable-response";
+import { ExpirationPlugin } from "workbox-expiration";
 
 declare let self: ServiceWorkerGlobalScope & {
   __WB_MANIFEST: Array<string | { revision: string | null; url: string }>;
@@ -37,7 +38,10 @@ registerRoute(
     url.pathname.startsWith(BACKGROUND_REMOVAL_ASSET_PATH_PREFIX),
   new CacheFirst({
     cacheName: BACKGROUND_REMOVAL_SELF_HOSTED_CACHE_NAME,
-    plugins: [new CacheableResponsePlugin({ statuses: [0, 200] })],
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new ExpirationPlugin({ maxEntries: 50, maxAgeSeconds: 30 * 24 * 60 * 60 }),
+    ],
   })
 );
 
@@ -49,6 +53,9 @@ registerRoute(
     BACKGROUND_REMOVAL_RUNTIME_ASSET_PATTERN.test(url.pathname),
   new CacheFirst({
     cacheName: BACKGROUND_REMOVAL_RUNTIME_CACHE_NAME,
-    plugins: [new CacheableResponsePlugin({ statuses: [0, 200] })],
+    plugins: [
+      new CacheableResponsePlugin({ statuses: [0, 200] }),
+      new ExpirationPlugin({ maxEntries: 30 }),
+    ],
   })
 );
