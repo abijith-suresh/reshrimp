@@ -96,7 +96,7 @@ function MobileSheet() {
           {/* Handle pill — tap to toggle between peek and open */}
           <button
             type="button"
-            class="w-full pt-3 pb-2 flex flex-col items-center cursor-pointer active:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sp-lavender/40 rounded-t-[22px] transition-opacity duration-150"
+            class="w-full pt-3 pb-2 flex flex-col items-center cursor-pointer active:opacity-60 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-sp-lavender/40 rounded-t-[22px] transition-opacity duration-150"
             style={{ "touch-action": "manipulation" }}
             onClick={toggleSheet}
             aria-label={sheetState() === "open" ? "Minimise controls" : "Open controls"}

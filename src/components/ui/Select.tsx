@@ -201,7 +201,7 @@ export default function Select(props: SelectProps) {
         aria-controls={open() ? listboxId : undefined}
         aria-disabled={props.disabled}
         disabled={props.disabled}
-        class={`flex w-full items-center justify-between gap-2 px-3 py-2 border border-sp-border rounded-[12px] font-body text-[0.85rem] text-sp-text bg-sp-bg cursor-pointer text-left transition-[border-color,box-shadow] duration-200 hover:border-sp-lavender hover:bg-sp-lavender-light focus-visible:outline-none focus-visible:border-sp-lavender focus-visible:shadow-[0_0_0_3px_rgba(167,139,250,0.15)] disabled:opacity-50 disabled:cursor-not-allowed${props.class ? ` ${props.class}` : ""}`}
+        class={`flex w-full items-center justify-between gap-2 px-3 py-2 border border-sp-border rounded-[12px] font-body text-[0.85rem] text-sp-text bg-sp-bg cursor-pointer text-left transition-[border-color,box-shadow] duration-200 hover:border-sp-lavender hover:bg-sp-lavender-light focus-visible:outline-hidden focus-visible:border-sp-lavender focus-visible:shadow-[0_0_0_3px_rgba(167,139,250,0.15)] disabled:opacity-50 disabled:cursor-not-allowed${props.class ? ` ${props.class}` : ""}`}
         classList={{ "sp-select-trigger-open": open() }}
         onClick={() => (open() ? closeDropdown() : openDropdown())}
         onKeyDown={handleTriggerKeyDown}
