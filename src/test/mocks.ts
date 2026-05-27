@@ -48,8 +48,8 @@ export function setupBrowserMocks() {
     return realCreateElement(tag);
   });
 
-  vi.spyOn(document.body, "appendChild").mockImplementation((node) => node);
-  vi.spyOn(document.body, "removeChild").mockImplementation((node) => node);
+  vi.spyOn(document.body, "appendChild");
+  vi.spyOn(document.body, "removeChild");
   vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
 
   // Image mock — fires onload after a microtask; sentinel URL triggers onerror
@@ -68,9 +68,9 @@ export function setupBrowserMocks() {
     set src(value: string) {
       this._src = value;
       if (value === ERROR_URL) {
-        Promise.resolve().then(() => this.onerror?.());
+        setTimeout(() => this.onerror?.(), 0);
       } else {
-        Promise.resolve().then(() => this.onload?.());
+        setTimeout(() => this.onload?.(), 0);
       }
     }
   };
