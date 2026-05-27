@@ -13,7 +13,7 @@ export default function AppSidebar() {
         class="flex items-center justify-center w-8 h-8 rounded-sp transition-colors duration-200 hover:bg-sp-coral-light group mb-2"
         aria-label="Back to home"
       >
-        <span class="w-3 h-3 rounded-full bg-sp-coral transition-transform duration-300 group-hover:scale-125 flex-shrink-0" />
+        <span class="w-3 h-3 rounded-full bg-sp-coral transition-transform duration-300 group-hover:scale-125 shrink-0" />
       </a>
 
       <div class="w-6 h-px bg-sp-border-light" />

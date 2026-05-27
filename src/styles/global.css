@@ -86,8 +86,8 @@
   --color-sp-border: #e0deff;
   --color-sp-border-light: #eeedff;
 
-  --font-family-display: "Reshrimp Display", "Trebuchet MS", sans-serif;
-  --font-family-body: "Reshrimp Sans", "Trebuchet MS", sans-serif;
+  --font-display: "Reshrimp Display", "Trebuchet MS", sans-serif;
+  --font-body: "Reshrimp Sans", "Trebuchet MS", sans-serif;
 
   --radius-sp: 12px;
   --radius-sp-lg: 20px;
