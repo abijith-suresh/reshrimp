@@ -74,15 +74,20 @@ function MobileSheet() {
     <>
       {/* Backdrop — tap to collapse when fully open */}
       <Show when={sheetState() === "open"}>
-        <div
-          class="md:hidden fixed inset-0 z-30 bg-black/20"
+        <button
+          type="button"
+          class="md:hidden fixed inset-0 z-30 bg-black/20 border-none cursor-pointer focus-visible:ring-2 focus-visible:ring-sp-lavender/40 focus-visible:ring-offset-2"
           onClick={() => setSheetState("peek")}
-          aria-hidden="true"
+          aria-label="Close controls"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setSheetState("peek");
+          }}
         />
       </Show>
 
       {/* Sheet */}
       <div
+        role="region"
         aria-label="Image controls"
         aria-hidden={sheetState() === "hidden" ? "true" : "false"}
         class="md:hidden fixed inset-x-0 bottom-0 z-40 flex flex-col bg-sp-bg-card rounded-t-[22px] sp-mobile-sheet"
