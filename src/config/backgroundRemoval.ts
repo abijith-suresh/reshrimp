@@ -1,5 +1,5 @@
 export const BACKGROUND_REMOVAL_DATA_VERSION = "1.7.0";
-export const BACKGROUND_REMOVAL_MODEL = "isnet_fp16" as const;
+export const BACKGROUND_REMOVAL_MODEL = "isnet_fp16";
 
 /**
  * Runtime assets are served from the app origin after a build-time mirror step.
