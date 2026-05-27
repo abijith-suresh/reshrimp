@@ -8,7 +8,7 @@ import type {
 import { loadImage, resizeOnCanvas, canvasToBlob, getBestFormat } from "./canvasService";
 import { removeBackground } from "./backgroundRemovalService";
 import { decodeHeicBlob } from "./formatDetectionService";
-import { isHeicInput } from "../config/imageFormats";
+import { isAcceptedInputFormat, isHeicInput } from "../config/imageFormats";
 
 /**
  * Calculate dimensions maintaining aspect ratio
@@ -105,7 +105,8 @@ export async function processImage(
   if (options.removeBackground) {
     format = "image/png";
   } else {
-    format = options.format || (currentFile.type as ImageFormat);
+    format =
+      options.format || (isAcceptedInputFormat(currentFile.type) ? currentFile.type : "image/png");
   }
   format = getBestFormat(format);
 

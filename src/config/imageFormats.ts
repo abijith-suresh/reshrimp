@@ -46,17 +46,17 @@ export function getSupportedImageFormatSummary(
 }
 
 export function isAcceptedInputFormat(mimeType: string): mimeType is ImageFormat {
-  return ACCEPTED_INPUT_FORMATS.includes(mimeType as ImageFormat);
+  return (ACCEPTED_INPUT_FORMATS as readonly string[]).includes(mimeType);
 }
 
 export function isConvertibleOutputFormat(format: ImageFormat): format is ConvertibleImageFormat {
-  return CONVERTIBLE_OUTPUT_FORMATS.includes(format as ConvertibleImageFormat);
+  return (CONVERTIBLE_OUTPUT_FORMATS as readonly ImageFormat[]).includes(format);
 }
 
 export function supportsBrowserQualityControl(
   format: ImageFormat
 ): format is QualityControlledImageFormat {
-  return QUALITY_CONTROLLED_OUTPUT_FORMATS.includes(format as QualityControlledImageFormat);
+  return (QUALITY_CONTROLLED_OUTPUT_FORMATS as readonly ImageFormat[]).includes(format);
 }
 
 export function isHeicInput(mimeType: string): boolean {
@@ -64,7 +64,7 @@ export function isHeicInput(mimeType: string): boolean {
 }
 
 export function getInitialOutputFormat(uploadFormat: string): ConvertibleImageFormat {
-  return isConvertibleOutputFormat(uploadFormat as ImageFormat)
-    ? (uploadFormat as ConvertibleImageFormat)
+  return isAcceptedInputFormat(uploadFormat) && isConvertibleOutputFormat(uploadFormat)
+    ? uploadFormat
     : "image/jpeg";
 }
