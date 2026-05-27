@@ -10,7 +10,7 @@ export interface ButtonVariantProps {
 }
 
 const BASE_BUTTON_CLASSES =
-  "relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-sp-full border-none font-body font-semibold no-underline transition-all duration-300 outline-hidden focus-visible:ring-2 focus-visible:ring-sp-lavender/40 disabled:pointer-events-none disabled:opacity-50 [&_svg]:shrink-0";
+  "relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-sp-full border-none font-body font-semibold no-underline transition-[transform,box-shadow,background-color] duration-300 outline-hidden focus-visible:ring-2 focus-visible:ring-sp-lavender/40 disabled:pointer-events-none disabled:opacity-50 [&_svg]:shrink-0";
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
   default: "px-6 py-3 text-[1.17rem]",

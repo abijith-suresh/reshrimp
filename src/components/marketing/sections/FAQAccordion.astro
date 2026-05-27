@@ -57,6 +57,12 @@ const { question, answer, delay = 0 } = Astro.props;
     transition: grid-template-rows 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
+  @media (prefers-reduced-motion: reduce) {
+    .faq-body {
+      transition: none;
+    }
+  }
+
   .faq-item.faq-open .faq-body {
     grid-template-rows: 1fr;
   }
