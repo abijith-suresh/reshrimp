@@ -32,12 +32,12 @@
   --sp-text: #1e1b4b;
   --sp-text-muted: #6366a1;
   --sp-text-soft: #9295c5;
-  --sp-coral: #ff6b6b;
+  --sp-coral: #f25a5a;
   --sp-coral-light: #fff0f0;
-  --sp-coral-dark: #e85d5d;
-  --sp-mint: #2dd4bf;
+  --sp-coral-dark: #dc4a4a;
+  --sp-mint: #1aa593;
   --sp-mint-light: #e6faf7;
-  --sp-mint-dark: #14b8a6;
+  --sp-mint-dark: #138c7b;
   --sp-lavender: #a78bfa;
   --sp-lavender-light: #f0edff;
   --sp-lavender-dark: #8b5cf6;
@@ -55,7 +55,7 @@
   --sp-radius-sm: 8px;
   --sp-radius-full: 999px;
   --sp-shadow-glow: 0 4px 24px rgba(167, 139, 250, 0.14);
-  --sp-shadow-coral: 0 4px 14px rgba(255, 107, 107, 0.3);
+  --sp-shadow-coral: 0 4px 14px rgba(242, 90, 90, 0.3);
   --sp-color-validation-warning: #d97706;
   --sp-color-chip-yellow: #a16207;
   --sp-font-title: clamp(1.8rem, 4vw, 2.5rem);
@@ -72,12 +72,12 @@
   --color-sp-text: #1e1b4b;
   --color-sp-text-muted: #6366a1;
   --color-sp-text-soft: #9295c5;
-  --color-sp-coral: #ff6b6b;
+  --color-sp-coral: #f25a5a;
   --color-sp-coral-light: #fff0f0;
-  --color-sp-coral-dark: #e85d5d;
-  --color-sp-mint: #2dd4bf;
+  --color-sp-coral-dark: #dc4a4a;
+  --color-sp-mint: #1aa593;
   --color-sp-mint-light: #e6faf7;
-  --color-sp-mint-dark: #14b8a6;
+  --color-sp-mint-dark: #138c7b;
   --color-sp-lavender: #a78bfa;
   --color-sp-lavender-light: #f0edff;
   --color-sp-lavender-dark: #8b5cf6;
@@ -86,8 +86,8 @@
   --color-sp-border: #e0deff;
   --color-sp-border-light: #eeedff;
 
-  --font-family-display: "Reshrimp Display", "Trebuchet MS", sans-serif;
-  --font-family-body: "Reshrimp Sans", "Trebuchet MS", sans-serif;
+  --font-display: "Reshrimp Display", "Trebuchet MS", sans-serif;
+  --font-body: "Reshrimp Sans", "Trebuchet MS", sans-serif;
 
   --radius-sp: 12px;
   --radius-sp-lg: 20px;
@@ -99,7 +99,7 @@
 
   --radius-sp-sm: 8px;
   --shadow-sp-glow: 0 4px 24px rgba(167, 139, 250, 0.14);
-  --shadow-sp-coral: 0 4px 14px rgba(255, 107, 107, 0.3);
+  --shadow-sp-coral: 0 4px 14px rgba(242, 90, 90, 0.3);
   --color-sp-validation-warning: #d97706;
   --color-sp-chip-yellow: #a16207;
 }
@@ -130,6 +130,15 @@ body {
   color: var(--sp-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  text-wrap: pretty;
 }
 
 ::selection {

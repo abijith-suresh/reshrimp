@@ -8,7 +8,12 @@ import type {
 import { loadImage, resizeOnCanvas, canvasToBlob, getBestFormat } from "./canvasService";
 import { removeBackground } from "./backgroundRemovalService";
 import { decodeHeicBlob } from "./formatDetectionService";
-import { isHeicInput } from "../config/imageFormats";
+import {
+  isAcceptedInputFormat,
+  isHeicInput,
+  supportsBrowserQualityControl,
+} from "../config/imageFormats";
+import { MAX_PIXEL_DIMENSION } from "../config/constants";
 
 /**
  * Calculate dimensions maintaining aspect ratio
@@ -86,6 +91,12 @@ export async function processImage(
   // Step 2: Load image (either original or background-removed)
   const img = await loadImage(currentFile);
 
+  if (img.width > MAX_PIXEL_DIMENSION || img.height > MAX_PIXEL_DIMENSION) {
+    throw new Error(
+      `Image dimensions (${img.width}×${img.height}) exceed the maximum of ${MAX_PIXEL_DIMENSION}px per side`
+    );
+  }
+
   // Step 3: Determine dimensions (resize or original)
   let width = img.width;
   let height = img.height;
@@ -105,14 +116,14 @@ export async function processImage(
   if (options.removeBackground) {
     format = "image/png";
   } else {
-    format = options.format || (currentFile.type as ImageFormat);
+    format =
+      options.format || (isAcceptedInputFormat(currentFile.type) ? currentFile.type : "image/png");
   }
   format = getBestFormat(format);
 
   // Step 6: Determine quality (compress or default)
-  // Browser-native quality control only applies to the formats we explicitly support.
   let quality: number | undefined;
-  if (format === "image/jpeg" || format === "image/webp") {
+  if (supportsBrowserQualityControl(format)) {
     quality = options.quality !== undefined ? options.quality : 0.92;
   }
 

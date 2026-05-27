@@ -29,3 +29,6 @@ export const DEFAULT_DPI = 96;
 // File size limits (in bytes)
 export const MAX_FILE_SIZE = 50 * 1024 * 1024;
 export const RECOMMENDED_MAX_SIZE = 10 * 1024 * 1024;
+
+// Maximum pixel dimension for canvas operations (browser-safe upper bound)
+export const MAX_PIXEL_DIMENSION = 16384;

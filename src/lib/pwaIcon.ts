@@ -9,7 +9,7 @@ export function createPwaIconResponse(size: number): Response {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
     <rect width="${size}" height="${size}" rx="${outerRadius}" fill="#f8f7ff" />
     <circle cx="${center}" cy="${center}" r="${shadowRadius}" fill="#fff0f0" />
-    <circle cx="${center}" cy="${center}" r="${circleRadius}" fill="#ff6b6b" />
+    <circle cx="${center}" cy="${center}" r="${circleRadius}" fill="#f25a5a" />
   </svg>`;
 
   const png = Buffer.from(

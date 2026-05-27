@@ -12,6 +12,9 @@ export default function QualitySection() {
           <span class="text-[0.85rem] font-semibold text-sp-coral">{state.qualityValue()}%</span>
         ) : null}
       </div>
+      <label for="quality-slider" class="sr-only">
+        Quality
+      </label>
       <input
         id="quality-slider"
         type="range"

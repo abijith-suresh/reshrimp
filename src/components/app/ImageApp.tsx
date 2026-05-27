@@ -74,15 +74,20 @@ function MobileSheet() {
     <>
       {/* Backdrop — tap to collapse when fully open */}
       <Show when={sheetState() === "open"}>
-        <div
-          class="md:hidden fixed inset-0 z-30 bg-black/20"
+        <button
+          type="button"
+          class="md:hidden fixed inset-0 z-30 bg-black/20 border-none cursor-pointer focus-visible:ring-2 focus-visible:ring-sp-lavender/40 focus-visible:ring-offset-2"
           onClick={() => setSheetState("peek")}
-          aria-hidden="true"
+          aria-label="Close controls"
+          onKeyDown={(e) => {
+            if (e.key === "Escape") setSheetState("peek");
+          }}
         />
       </Show>
 
       {/* Sheet */}
       <div
+        role="region"
         aria-label="Image controls"
         aria-hidden={sheetState() === "hidden" ? "true" : "false"}
         class="md:hidden fixed inset-x-0 bottom-0 z-40 flex flex-col bg-sp-bg-card rounded-t-[22px] sp-mobile-sheet"
@@ -96,7 +101,7 @@ function MobileSheet() {
           {/* Handle pill — tap to toggle between peek and open */}
           <button
             type="button"
-            class="w-full pt-3 pb-2 flex flex-col items-center cursor-pointer active:opacity-60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sp-lavender/40 rounded-t-[22px] transition-opacity duration-150"
+            class="w-full pt-3 pb-2 flex flex-col items-center cursor-pointer active:opacity-60 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-sp-lavender/40 rounded-t-[22px] transition-opacity duration-150"
             style={{ "touch-action": "manipulation" }}
             onClick={toggleSheet}
             aria-label={sheetState() === "open" ? "Minimise controls" : "Open controls"}

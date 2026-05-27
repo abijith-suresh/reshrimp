@@ -6,6 +6,7 @@ import {
   convertFromPx,
   convertToPx,
 } from "../utils/imageUtils";
+import { isConvertibleOutputFormat } from "../config/imageFormats";
 
 interface BuildProcessOptionsInput {
   originalWidth: number;
@@ -69,7 +70,9 @@ export function buildProcessOptions(input: BuildProcessOptionsInput): ProcessOpt
           },
         }
       : {}),
-    ...(input.formatValue ? { format: input.formatValue as ImageFormat } : {}),
+    ...(input.formatValue && isConvertibleOutputFormat(input.formatValue as ImageFormat)
+      ? { format: input.formatValue as ImageFormat }
+      : {}),
     quality: input.qualityValue / 100,
     removeBackground: input.removeBackground,
   };
