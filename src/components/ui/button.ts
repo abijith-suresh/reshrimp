@@ -20,8 +20,8 @@ const SIZE_CLASSES: Record<ButtonSize, string> = {
 
 const PRIMARY_TONE_CLASSES: Record<ButtonTone, string> = {
   coral:
-    "bg-sp-coral text-white shadow-[0_4px_16px_rgba(255,107,107,0.3)] hover:bg-sp-coral-dark hover:shadow-[0_6px_24px_rgba(255,107,107,0.4)] hover:-translate-y-[2px]",
-  mint: "bg-sp-mint text-white shadow-[0_4px_16px_rgba(45,212,191,0.3)] hover:bg-sp-mint-dark hover:shadow-[0_6px_24px_rgba(45,212,191,0.4)] hover:-translate-y-[2px]",
+    "bg-sp-coral text-sp-text shadow-[0_4px_16px_rgba(255,107,107,0.3)] hover:bg-sp-coral-dark hover:text-sp-text hover:shadow-[0_6px_24px_rgba(255,107,107,0.4)] hover:-translate-y-[2px]",
+  mint: "bg-sp-mint text-sp-text shadow-[0_4px_16px_rgba(45,212,191,0.3)] hover:bg-sp-mint-dark hover:text-sp-text hover:shadow-[0_6px_24px_rgba(45,212,191,0.4)] hover:-translate-y-[2px]",
   neutral:
     "bg-sp-text text-white shadow-[0_4px_16px_rgba(30,27,75,0.18)] hover:shadow-[0_6px_24px_rgba(30,27,75,0.24)] hover:-translate-y-[2px]",
 };

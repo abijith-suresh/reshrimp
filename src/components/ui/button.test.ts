@@ -6,7 +6,7 @@ describe("buttonVariants", () => {
     const classes = buttonVariants();
 
     expect(classes).toContain("bg-sp-coral");
-    expect(classes).toContain("text-white");
+    expect(classes).toContain("text-sp-text");
     expect(classes).toContain("rounded-sp-full");
   });
 
