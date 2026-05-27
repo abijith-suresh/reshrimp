@@ -1,7 +1,10 @@
 import type { ImageFormat } from "../types/image";
 
 export type ConvertibleImageFormat = Exclude<ImageFormat, "image/heic" | "image/heif">;
-export type QualityControlledImageFormat = Extract<ImageFormat, "image/jpeg" | "image/webp">;
+export type QualityControlledImageFormat = Extract<
+  ImageFormat,
+  "image/jpeg" | "image/webp" | "image/avif"
+>;
 
 export const ACCEPTED_INPUT_FORMATS: readonly ImageFormat[] = [
   "image/jpeg",
@@ -22,6 +25,7 @@ export const CONVERTIBLE_OUTPUT_FORMATS: readonly ConvertibleImageFormat[] = [
 export const QUALITY_CONTROLLED_OUTPUT_FORMATS: readonly QualityControlledImageFormat[] = [
   "image/jpeg",
   "image/webp",
+  "image/avif",
 ];
 
 export const IMAGE_FORMAT_LABELS: Record<ImageFormat, string> = {
