@@ -14,7 +14,7 @@ export default function UploadDropzone(props: UploadDropzoneProps) {
   return (
     <div
       id="upload-area"
-      class="bg-sp-bg-card border border-sp-border rounded-sp-lg px-4 py-5 text-center cursor-pointer transition-[border-color,box-shadow] duration-200 hover:border-sp-lavender hover:shadow-sp"
+      class="bg-sp-bg-card border border-sp-border rounded-sp-lg px-4 py-5 text-center cursor-pointer transition-[border-color,box-shadow] duration-200 hover:border-sp-lavender hover:shadow-sp focus-visible:ring-2 focus-visible:ring-sp-lavender/40"
       style={{ "touch-action": "manipulation" }}
       classList={{ "border-sp-lavender bg-sp-lavender-light": props.isDragOver }}
       role="button"

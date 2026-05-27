@@ -12,7 +12,7 @@ const footerLinks = [
 
 <footer class="sp-footer">
   <div class="sp-footer-inner">
-    <div class="sp-footer-links">
+    <nav class="sp-footer-links" aria-label="Footer navigation">
       {
         footerLinks.map((link) => (
           <a href={makeHref(link.path)} class="sp-footer-link">
@@ -20,7 +20,7 @@ const footerLinks = [
           </a>
         ))
       }
-    </div>
+    </nav>
     <div class="sp-footer-bottom">
       <span>&copy; {new Date().getFullYear()} {SITE_NAME}</span>
       <span class="sp-footer-dot">&middot;</span>
@@ -63,6 +63,12 @@ const footerLinks = [
 
   .sp-footer-link:hover {
     color: var(--sp-coral);
+  }
+
+  .sp-footer-link:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.4);
+    border-radius: 4px;
   }
 
   .sp-footer-bottom {

@@ -139,6 +139,11 @@ const headerLinks = [
     background: var(--sp-border-light);
   }
 
+  .sp-nav-link:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.4);
+  }
+
   .sp-nav-link-active {
     color: var(--sp-text);
     font-weight: 600;
@@ -229,6 +234,12 @@ const headerLinks = [
     color: var(--sp-text);
   }
 
+  .sp-mobile-link:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.4);
+    border-radius: 4px;
+  }
+
   .sp-mobile-link-active {
     color: var(--sp-coral);
     font-weight: 600;
@@ -241,6 +252,21 @@ const headerLinks = [
 
     .sp-hamburger {
       display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      border-radius: var(--sp-radius);
+      padding: 4px;
+      color: var(--sp-text);
+    }
+
+    .sp-hamburger:focus-visible {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.4);
     }
   }
 </style>
