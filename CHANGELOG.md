@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.2](https://github.com/abijith-suresh/reshrimp/compare/v0.7.1...v0.7.2) (2026-06-07)
+
+
+### Features
+
+* softpop design system migration with oklch tokens ([#156](https://github.com/abijith-suresh/reshrimp/issues/156)) ([9f668e9](https://github.com/abijith-suresh/reshrimp/commit/9f668e96f91f2fdd50e6512d6d66ddd985c4a369))
+
+
+### Bug Fixes
+
+* comprehensive audit fixes across design, a11y, types, and tests ([#144](https://github.com/abijith-suresh/reshrimp/issues/144)) ([ef8c9a9](https://github.com/abijith-suresh/reshrimp/commit/ef8c9a94d6851c711bd537a34903c6f51b464a52))
+* correct AVIF quality copy and remove dormant code ([#154](https://github.com/abijith-suresh/reshrimp/issues/154)) ([2cee115](https://github.com/abijith-suresh/reshrimp/commit/2cee115d4df71ef41ac4b7132fac440d652eb0e9))
+
 ## [0.7.1](https://github.com/abijith-suresh/reshrimp/compare/v0.7.0...v0.7.1) (2026-05-22)
 
 
