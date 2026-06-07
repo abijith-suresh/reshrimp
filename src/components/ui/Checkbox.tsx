@@ -9,7 +9,7 @@ interface CheckboxProps {
 export default function Checkbox(props: CheckboxProps) {
   return (
     <label
-      class="flex items-center gap-2 text-[0.85rem] text-sp-text cursor-pointer select-none"
+      class="flex items-center gap-2 text-[0.85rem] text-foreground cursor-pointer select-none"
       classList={{ "opacity-40 cursor-not-allowed": props.disabled }}
     >
       <span class="relative flex items-center justify-center w-[18px] h-[18px] shrink-0">
@@ -23,10 +23,10 @@ export default function Checkbox(props: CheckboxProps) {
           style={{ "touch-action": "manipulation" }}
         />
         <span
-          class="absolute inset-0 rounded-[5px] border-[1.5px] transition-[background-color,border-color] duration-200 pointer-events-none focus-within:ring-2 focus-within:ring-sp-lavender focus-within:ring-offset-2"
+          class="absolute inset-0 rounded-sm border-[1.5px] transition-[background-color,border-color] duration-200 pointer-events-none focus-within:ring-2 focus-within:ring-lavender-500 focus-within:ring-offset-2"
           classList={{
-            "bg-sp-lavender border-sp-lavender": props.checked,
-            "bg-white border-sp-border": !props.checked,
+            "bg-lavender-500 border-lavender-500": props.checked,
+            "bg-white border-border": !props.checked,
           }}
         >
           <svg

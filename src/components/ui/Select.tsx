@@ -201,15 +201,15 @@ export default function Select(props: SelectProps) {
         aria-controls={open() ? listboxId : undefined}
         aria-disabled={props.disabled}
         disabled={props.disabled}
-        class={`flex w-full items-center justify-between gap-2 px-3 py-2 border border-sp-border rounded-sp font-body text-[0.85rem] text-sp-text bg-sp-bg cursor-pointer text-left transition-[border-color,box-shadow] duration-200 hover:border-sp-lavender hover:bg-sp-lavender-light focus-visible:outline-hidden focus-visible:border-sp-lavender focus-visible:shadow-[0_0_0_3px_rgba(167,139,250,0.15)] disabled:opacity-50 disabled:cursor-not-allowed${props.class ? ` ${props.class}` : ""}`}
-        classList={{ "sp-select-trigger-open": open() }}
+        class={`flex w-full items-center justify-between gap-2 px-3 py-2 border border-border rounded-md font-body text-[0.85rem] text-foreground bg-background cursor-pointer text-left transition-[border-color,box-shadow] duration-200 hover:border-lavender-500 hover:bg-lavender-50 focus-visible:outline-hidden focus-visible:border-lavender-500 focus-visible:shadow-[0_0_0_3px_rgba(167,139,250,0.15)] disabled:opacity-50 disabled:cursor-not-allowed${props.class ? ` ${props.class}` : ""}`}
+        classList={{ "select-trigger-open": open() }}
         onClick={() => (open() ? closeDropdown() : openDropdown())}
         onKeyDown={handleTriggerKeyDown}
       >
-        <span class="flex-1 truncate text-sp-text">{selectedLabel()}</span>
+        <span class="flex-1 truncate text-foreground">{selectedLabel()}</span>
         <svg
-          class="shrink-0 text-sp-lavender transition-transform duration-200 sp-select-chevron"
-          classList={{ "sp-select-chevron-open": open() }}
+          class="shrink-0 text-lavender-500 transition-transform duration-200 select-chevron"
+          classList={{ "select-chevron-open": open() }}
           width="12"
           height="12"
           viewBox="0 0 12 12"
@@ -235,8 +235,8 @@ export default function Select(props: SelectProps) {
             role="listbox"
             aria-labelledby={props.id ?? triggerId}
             tabIndex={-1}
-            class="sp-select-listbox sp-select-listbox-portaled"
-            classList={{ "sp-select-listbox-upward": pos().openUpward }}
+            class="select-listbox select-listbox-portaled"
+            classList={{ "select-listbox-upward": pos().openUpward }}
             style={{
               top: pos().top !== undefined ? `${pos().top}px` : "auto",
               bottom: pos().bottom !== undefined ? `${pos().bottom}px` : "auto",
@@ -252,11 +252,11 @@ export default function Select(props: SelectProps) {
                   role="option"
                   aria-selected={option.value === props.value}
                   aria-disabled={option.disabled}
-                  class="flex items-center justify-between px-2.5 py-[0.45rem] rounded-sp-sm font-body text-[0.85rem] text-sp-text cursor-pointer select-none transition-[background] duration-100 sp-select-option"
+                  class="flex items-center justify-between px-2.5 py-[0.45rem] rounded-sm font-body text-[0.85rem] text-foreground cursor-pointer select-none transition-[background] duration-100 select-option"
                   classList={{
-                    "sp-select-option-selected": option.value === props.value,
-                    "sp-select-option-focused": index() === focusedIndex(),
-                    "sp-select-option-disabled": !!option.disabled,
+                    "select-option-selected": option.value === props.value,
+                    "select-option-focused": index() === focusedIndex(),
+                    "select-option-disabled": !!option.disabled,
                   }}
                   onMouseEnter={() => !option.disabled && setFocusedIndex(index())}
                   onMouseDown={(e) => {
@@ -267,7 +267,7 @@ export default function Select(props: SelectProps) {
                   {option.label}
                   <Show when={option.value === props.value}>
                     <svg
-                      class="shrink-0 text-sp-lavender-dark sp-select-check"
+                      class="shrink-0 text-lavender-600 select-check"
                       width="12"
                       height="12"
                       viewBox="0 0 12 12"
