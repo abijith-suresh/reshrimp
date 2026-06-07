@@ -201,7 +201,7 @@ export default function Select(props: SelectProps) {
         aria-controls={open() ? listboxId : undefined}
         aria-disabled={props.disabled}
         disabled={props.disabled}
-        class={`flex w-full items-center justify-between gap-2 px-3 py-2 border border-border rounded-md font-body text-[0.85rem] text-foreground bg-background cursor-pointer text-left transition-[border-color,box-shadow] duration-200 hover:border-lavender-500 hover:bg-lavender-50 focus-visible:outline-hidden focus-visible:border-lavender-500 focus-visible:shadow-[0_0_0_3px_rgba(167,139,250,0.15)] disabled:opacity-50 disabled:cursor-not-allowed${props.class ? ` ${props.class}` : ""}`}
+        class={`flex w-full items-center justify-between gap-2 px-3 py-2 border border-border rounded-md font-body text-sm text-foreground bg-background cursor-pointer text-left transition-[border-color,box-shadow] duration-200 hover:border-lavender-500 hover:bg-lavender-50 focus-visible:outline-hidden focus-visible:border-lavender-500 focus-visible:shadow-[0_0_0_3px_rgba(167,139,250,0.15)] disabled:opacity-50 disabled:cursor-not-allowed${props.class ? ` ${props.class}` : ""}`}
         classList={{ "select-trigger-open": open() }}
         onClick={() => (open() ? closeDropdown() : openDropdown())}
         onKeyDown={handleTriggerKeyDown}
@@ -252,7 +252,7 @@ export default function Select(props: SelectProps) {
                   role="option"
                   aria-selected={option.value === props.value}
                   aria-disabled={option.disabled}
-                  class="flex items-center justify-between px-2.5 py-[0.45rem] rounded-sm font-body text-[0.85rem] text-foreground cursor-pointer select-none transition-[background] duration-100 select-option"
+                  class="flex items-center justify-between px-2.5 py-[0.45rem] rounded-sm font-body text-sm text-foreground cursor-pointer select-none transition-[background] duration-100 select-option"
                   classList={{
                     "select-option-selected": option.value === props.value,
                     "select-option-focused": index() === focusedIndex(),

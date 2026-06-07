@@ -54,7 +54,7 @@ export default function UploadArea() {
           onClick={(e) => e.stopPropagation()}
           onChange={handleFileInput}
         />
-        <p class="text-[0.7rem] text-soft-foreground m-0 mt-1">
+        <p class="text-xs text-soft-foreground m-0 mt-1">
           JPEG, PNG, WebP · max {formatFileSize(MAX_FILE_SIZE)}
         </p>
         <ValidationMessages validation={state.validation()} />

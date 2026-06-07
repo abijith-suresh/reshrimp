@@ -66,11 +66,9 @@ const ABOUT_CARDS = [
         {
           ABOUT_CARDS.map((card) => (
             <AboutCard delay={card.delay}>
-              <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">
-                {card.title}
-              </h2>
+              <h2 class="font-display text-xl font-bold mb-4 tracking-tight">{card.title}</h2>
               {card.paragraphs.map((p) => (
-                <p class="text-[0.95rem] text-muted-foreground leading-[1.7] mb-4 last:mb-0">{p}</p>
+                <p class="text-sm text-muted-foreground leading-[1.7] mb-4 last:mb-0">{p}</p>
               ))}
               {card.hasTechStack && (
                 <TechStackGrid>

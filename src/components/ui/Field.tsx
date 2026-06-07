@@ -10,7 +10,7 @@ export default function Field(props: FieldProps) {
   return (
     <div>
       <div class="flex items-center gap-1.5 mb-1">
-        <span class="text-[0.8rem] text-muted-foreground">{props.label}</span>
+        <span class="text-xs text-muted-foreground">{props.label}</span>
         {props.labelAccessory}
       </div>
       {props.children}

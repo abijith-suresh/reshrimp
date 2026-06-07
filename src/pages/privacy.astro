@@ -60,20 +60,18 @@ const PRIVACY_CARDS = [
         {
           PRIVACY_CARDS.map((card) => (
             <PrivacyCard>
-              <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">
-                {card.title}
-              </h2>
+              <h2 class="font-display text-xl font-bold mb-4 tracking-tight">{card.title}</h2>
               {card.paragraphs &&
                 card.paragraphs.map((p) => (
                   <p
-                    class="text-[0.95rem] text-muted-foreground leading-[1.7] mb-4 last:mb-0"
+                    class="text-sm text-muted-foreground leading-[1.7] mb-4 last:mb-0"
                     set:html={p}
                   />
                 ))}
               {card.listItems && (
                 <ul class="list-none p-0 m-0 flex flex-col gap-[0.6rem]">
                   {card.listItems.map((item) => (
-                    <li class="text-[0.95rem] text-muted-foreground leading-[1.6] pl-6 relative before:content-[''] before:absolute before:left-0 before:top-[0.55rem] before:w-2 before:h-2 before:rounded-full before:bg-mint-500">
+                    <li class="text-sm text-muted-foreground leading-relaxed pl-6 relative before:content-[''] before:absolute before:left-0 before:top-[0.55rem] before:w-2 before:h-2 before:rounded-full before:bg-mint-500">
                       {item}
                     </li>
                   ))}

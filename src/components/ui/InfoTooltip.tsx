@@ -95,7 +95,7 @@ export default function InfoTooltip(props: InfoTooltipProps) {
         <Portal>
           <span
             id={props.id ? `${props.id}-tooltip` : undefined}
-            class="info-tooltip active info-tooltip-portaled text-[0.75rem] leading-[1.4] text-foreground"
+            class="info-tooltip active info-tooltip-portaled text-xs leading-[1.4] text-foreground"
             role="tooltip"
             style={{
               bottom: `${pos().bottom}px`,

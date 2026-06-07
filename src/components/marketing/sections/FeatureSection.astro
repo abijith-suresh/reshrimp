@@ -19,7 +19,7 @@ const colorStroke: Record<string, string> = {
   coral: "text-coral-600",
   mint: "text-mint-600",
   lavender: "text-lavender-600",
-  yellow: "text-[#a16207]",
+  yellow: "text-yellow-700",
 };
 ---
 
@@ -40,7 +40,7 @@ const colorStroke: Record<string, string> = {
     <Icon size={40} strokeWidth={1.75} class={colorStroke[color]} />
   </div>
   <div class="flex-1">
-    <h2 class="font-display text-[1.35rem] font-bold mb-2 tracking-tight">{title}</h2>
-    <p class="text-[0.95rem] text-muted-foreground leading-[1.7] m-0">{description}</p>
+    <h2 class="font-display text-xl font-bold mb-2 tracking-tight">{title}</h2>
+    <p class="text-sm text-muted-foreground leading-[1.7] m-0">{description}</p>
   </div>
 </div>

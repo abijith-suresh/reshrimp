@@ -11,7 +11,6 @@ interface Props {
   ctaLabel?: string;
   ctaHref?: string;
   size?: "default" | "lg";
-  background?: boolean;
 }
 
 const {
@@ -20,61 +19,37 @@ const {
   ctaLabel = "Open Reshrimp",
   ctaHref = makeHref(ROUTES.APP),
   size = "lg",
-  background = false,
 } = Astro.props;
 ---
 
 <section class="px-8 py-20 text-center relative z-10">
   <div class="max-w-[500px] mx-auto">
-    {
-      background ? (
-        <Card variant="default" class="!p-12 text-center">
-          <h2
-            class="font-display font-extrabold mb-4 tracking-tight cta-card-title"
-            data-reveal
-            data-reveal-delay="0"
-          >
-            {title}
-          </h2>
-          <p
-            class="text-[1rem] text-muted-foreground mb-8 leading-[1.6] m-0"
-            data-reveal
-            data-reveal-delay="80"
-          >
-            {subtitle}
-          </p>
-          <div data-reveal data-reveal-delay="160">
-            <ButtonLink href={ctaHref} size={size}>
-              {ctaLabel}
-              <ArrowRight size={18} strokeWidth={2} class="cta-pop-arrow" />
-            </ButtonLink>
-          </div>
-        </Card>
-      ) : (
-        <>
-          <h2 class="font-display font-extrabold mb-4 tracking-tight opacity-0 cta-card-title animate-cta-title">
-            {title}
-          </h2>
-          <p class="text-[1rem] text-muted-foreground mb-8 leading-[1.6] opacity-0 animate-cta-subtitle">
-            {subtitle}
-          </p>
-          <ButtonLink href={ctaHref} size={size}>
-            {ctaLabel}
-            <ArrowRight size={18} strokeWidth={2} class="cta-pop-arrow" />
-          </ButtonLink>
-        </>
-      )
-    }
+    <Card variant="default" class="!p-12 text-center">
+      <h2
+        class="font-display font-extrabold mb-4 tracking-tight cta-card-title"
+        data-reveal
+        data-reveal-delay="0"
+      >
+        {title}
+      </h2>
+      <p
+        class="text-base text-muted-foreground mb-8 leading-relaxed m-0"
+        data-reveal
+        data-reveal-delay="80"
+      >
+        {subtitle}
+      </p>
+      <div data-reveal data-reveal-delay="160">
+        <ButtonLink href={ctaHref} size={size}>
+          {ctaLabel}
+          <ArrowRight size={18} strokeWidth={2} class="cta-pop-arrow" />
+        </ButtonLink>
+      </div>
+    </Card>
   </div>
 </section>
 
 <style>
-  .animate-cta-title {
-    animation: popBounceIn 0.6s 0.1s forwards;
-  }
-  .animate-cta-subtitle {
-    animation: popBounceIn 0.6s 0.25s forwards;
-  }
   .cta-card-title {
     font-size: var(--font-title);
   }

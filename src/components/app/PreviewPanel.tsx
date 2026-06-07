@@ -69,9 +69,7 @@ export default function PreviewPanel() {
                     {(label) => (
                       <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/80 rounded-md">
                         <span class="btn-spinner" aria-hidden="true" />
-                        <span class="text-[0.8rem] text-muted-foreground font-medium">
-                          {label()}
-                        </span>
+                        <span class="text-xs text-muted-foreground font-medium">{label()}</span>
                       </div>
                     )}
                   </Show>

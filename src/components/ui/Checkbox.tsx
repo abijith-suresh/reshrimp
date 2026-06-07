@@ -9,7 +9,7 @@ interface CheckboxProps {
 export default function Checkbox(props: CheckboxProps) {
   return (
     <label
-      class="flex items-center gap-2 text-[0.85rem] text-foreground cursor-pointer select-none"
+      class="flex items-center gap-2 text-sm text-foreground cursor-pointer select-none"
       classList={{ "opacity-40 cursor-not-allowed": props.disabled }}
     >
       <span class="relative flex items-center justify-center w-[18px] h-[18px] shrink-0">

@@ -51,7 +51,7 @@ export default function UploadDropzone(props: UploadDropzoneProps) {
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
         </div>
-        <span class="text-[0.8rem] text-muted-foreground font-medium">Import image or drop</span>
+        <span class="text-xs text-muted-foreground font-medium">Import image or drop</span>
         {props.children}
       </div>
     </div>

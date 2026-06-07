@@ -14,7 +14,7 @@ const answerId = `faq-answer-${question
 
 <div class="faq-item group mb-3 overflow-hidden" data-reveal data-reveal-delay={String(delay)}>
   <button
-    class="faq-question w-full text-left font-display text-[1.05rem] font-semibold py-5 px-6 flex items-center justify-between gap-4 transition-colors duration-200 hover:text-coral-500"
+    class="faq-question w-full text-left font-display text-lg font-semibold py-5 px-6 flex items-center justify-between gap-4 transition-colors duration-200 hover:text-coral-500"
     aria-expanded="false"
     aria-controls={answerId}
     style="touch-action: manipulation"
@@ -24,7 +24,7 @@ const answerId = `faq-answer-${question
   <div class="faq-body" role="region" id={answerId}>
     <div class="overflow-hidden">
       <p
-        class="faq-answer text-[0.95rem] text-muted-foreground leading-[1.7] px-6 pb-5 m-0"
+        class="faq-answer text-sm text-muted-foreground leading-[1.7] px-6 pb-5 m-0"
         set:html={answer}
       />
     </div>

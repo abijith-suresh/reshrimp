@@ -9,7 +9,7 @@ export default function QualitySection() {
       <div class="flex items-center justify-between gap-3">
         <SectionHeader>Quality</SectionHeader>
         {state.qualityControlSupported() ? (
-          <span class="text-[0.85rem] font-semibold text-coral-500">{state.qualityValue()}%</span>
+          <span class="text-sm font-semibold text-coral-500">{state.qualityValue()}%</span>
         ) : null}
       </div>
       <label for="quality-slider" class="sr-only">
