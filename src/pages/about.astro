@@ -11,6 +11,42 @@ import PageSection from "../components/ui/PageSection.astro";
 import { Github, ArrowRight } from "lucide-astro";
 import { makeHref } from "../lib/utils";
 import { GITHUB_URL, ROUTES } from "../config/constants";
+
+const ABOUT_CARDS = [
+  {
+    title: "Why I built this",
+    delay: 0,
+    paragraphs: [
+      "Most online image tools require uploading your photos to someone else's server. That means trusting a third party with your personal images, waiting for uploads and downloads, and dealing with file size limits and account requirements.",
+      "I built Reshrimp to prove that you don't need any of that. Modern browsers have everything needed to resize, convert, and compress images — Canvas API, Blob handling, and efficient JavaScript engines. Why send data across the internet when your computer can handle it locally in milliseconds?",
+      "Reshrimp stays intentionally small. It focuses on fast, private, browser-based work for one image at a time: resize, compress, convert, and background removal.",
+    ],
+  },
+  {
+    title: "The tech stack",
+    delay: 100,
+    paragraphs: [
+      "I chose this stack intentionally — it's modern, type-safe, and performant. Each technology serves a specific purpose in building a privacy-first tool.",
+    ],
+    hasTechStack: true,
+  },
+  {
+    title: "Privacy by default",
+    delay: 200,
+    paragraphs: [
+      "I believe software should respect users by default, not as an afterthought. Every pixel of your image stays in your browser — it's never uploaded to a server, never tracked, and never logged. The Canvas API handles everything locally, from resizing to background removal.",
+      "Even AI background removal runs client-side using WebAssembly. Your images are processed on your own device, not on someone else's servers. You can verify this yourself — the code is open source under the MIT license.",
+    ],
+  },
+  {
+    title: "Open source",
+    delay: 300,
+    paragraphs: [
+      "Reshrimp is fully open source. You can read every line of code, fork it to self-host it, or contribute improvements. I welcome pull requests for bug fixes, new features, or documentation updates.",
+    ],
+    hasButtons: true,
+  },
+];
 ---
 
 <MarketingLayout
@@ -27,78 +63,40 @@ import { GITHUB_URL, ROUTES } from "../config/constants";
 
     <PageSection>
       <PageContainer>
-        <AboutCard delay={0}>
-          <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">
-            Why I built this
-          </h2>
-          <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
-            Most online image tools require uploading your photos to someone else's server. That
-            means trusting a third party with your personal images, waiting for uploads and
-            downloads, and dealing with file size limits and account requirements.
-          </p>
-          <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
-            I built Reshrimp to prove that you don't need any of that. Modern browsers have
-            everything needed to resize, convert, and compress images — Canvas API, Blob handling,
-            and efficient JavaScript engines. Why send data across the internet when your computer
-            can handle it locally in milliseconds?
-          </p>
-          <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
-            Reshrimp stays intentionally small. It focuses on fast, private, browser-based work for
-            one image at a time: resize, compress, convert, and background removal.
-          </p>
-        </AboutCard>
-
-        <AboutCard delay={100}>
-          <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">The tech stack</h2>
-          <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
-            I chose this stack intentionally — it's modern, type-safe, and performant. Each
-            technology serves a specific purpose in building a privacy-first tool.
-          </p>
-          <TechStackGrid>
-            <TechStackItem name="Astro" description="Static site framework" />
-            <TechStackItem name="Solid.js" description="Reactive interactive layer" />
-            <TechStackItem name="TypeScript" description="Type-safe processing logic" />
-            <TechStackItem name="Tailwind CSS" description="Utility-first styling" />
-            <TechStackItem name="Vercel" description="Edge deployment platform" />
-            <TechStackItem name="Vitest" description="Unit testing framework" />
-          </TechStackGrid>
-        </AboutCard>
-
-        <AboutCard delay={200}>
-          <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">
-            Privacy by default
-          </h2>
-          <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
-            I believe software should respect users by default, not as an afterthought. Every pixel
-            of your image stays in your browser — it's never uploaded to a server, never tracked,
-            and never logged. The Canvas API handles everything locally, from resizing to background
-            removal.
-          </p>
-          <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
-            Even AI background removal runs client-side using WebAssembly. Your images are processed
-            on your own device, not on someone else's servers. You can verify this yourself — the
-            code is open source under the MIT license.
-          </p>
-        </AboutCard>
-
-        <AboutCard delay={300}>
-          <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">Open source</h2>
-          <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
-            Reshrimp is fully open source. You can read every line of code, fork it to self-host it,
-            or contribute improvements. I welcome pull requests for bug fixes, new features, or
-            documentation updates.
-          </p>
-          <div class="flex items-center gap-3 mt-5 flex-wrap">
-            <ButtonLink href={GITHUB_URL} variant="secondary" external={true}>
-              <Github size={18} />
-              View on GitHub
-            </ButtonLink>
-            <ButtonLink href={makeHref(ROUTES.APP)}>
-              Try Reshrimp
-              <ArrowRight size={18} strokeWidth={2} class="cta-pop-arrow" />
-            </ButtonLink>
-          </div>
-        </AboutCard>
+        {
+          ABOUT_CARDS.map((card) => (
+            <AboutCard delay={card.delay}>
+              <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">
+                {card.title}
+              </h2>
+              {card.paragraphs.map((p) => (
+                <p class="text-[0.95rem] text-muted-foreground leading-[1.7] mb-4 last:mb-0">{p}</p>
+              ))}
+              {card.hasTechStack && (
+                <TechStackGrid>
+                  <TechStackItem name="Astro" description="Static site framework" />
+                  <TechStackItem name="Solid.js" description="Reactive interactive layer" />
+                  <TechStackItem name="TypeScript" description="Type-safe processing logic" />
+                  <TechStackItem name="Tailwind CSS" description="Utility-first styling" />
+                  <TechStackItem name="Vercel" description="Edge deployment platform" />
+                  <TechStackItem name="Vitest" description="Unit testing framework" />
+                </TechStackGrid>
+              )}
+              {card.hasButtons && (
+                <div class="flex items-center gap-3 mt-5 flex-wrap">
+                  <ButtonLink href={GITHUB_URL} variant="secondary" external={true}>
+                    <Github size={18} />
+                    View on GitHub
+                  </ButtonLink>
+                  <ButtonLink href={makeHref(ROUTES.APP)}>
+                    Try Reshrimp
+                    <ArrowRight size={18} strokeWidth={2} class="cta-pop-arrow" />
+                  </ButtonLink>
+                </div>
+              )}
+            </AboutCard>
+          ))
+        }
       </PageContainer>
     </PageSection>
   </MarketingPageWrapper>

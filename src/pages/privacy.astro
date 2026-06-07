@@ -6,6 +6,41 @@ import PageContainer from "../components/marketing/layout/PageContainer.astro";
 import HeroSection from "../components/marketing/hero/HeroSection.astro";
 import PrivacyCard from "../components/marketing/cards/PrivacyCard.astro";
 import { GITHUB_URL } from "../config/constants";
+
+const PRIVACY_CARDS = [
+  {
+    title: "How it works technically",
+    paragraphs: [
+      "When you select an image, it stays entirely in your browser's memory. Reshrimp uses browser APIs to read, manipulate, and re-encode your image inside a single browser tab. No image data is sent to any server during processing.",
+      "The processed image is generated as a Blob URL, which exists only in your browser's memory. After the first online visit, the app shell and core tools can also load offline. Background removal downloads its model assets the first time you use it, then can run offline too.",
+    ],
+  },
+  {
+    title: "What we don't do",
+    listItems: [
+      "We don't upload your images anywhere",
+      "We don't use cookies or local storage for tracking",
+      "We don't run analytics scripts (no Google Analytics, no Plausible, nothing)",
+      "We don't require accounts or collect personal information",
+      "We don't upload your image data for processing",
+      "We don't fingerprint your browser or device",
+    ],
+  },
+  {
+    title: "Open source verification",
+    paragraphs: [
+      "Don't take our word for it — read the source code. Reshrimp is fully open source under the MIT license. Every line of code is available for inspection.",
+      `The image-processing logic lives in TypeScript services that you can inspect directly. Check the <a href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer" class="text-coral-500 underline underline-offset-2 decoration-[rgba(242,90,90,0.3)] hover:decoration-coral-500 transition-[text-decoration-color]">GitHub repository</a> to verify our claims.`,
+    ],
+  },
+  {
+    title: "Third-party services",
+    paragraphs: [
+      "Reshrimp is deployed as a static site. The first visit needs a network connection to load the app shell.",
+      "After that, the app shell and core tools work offline. Background removal may download model files once before it can work offline. Those requests are for app or model assets, not for uploading your images.",
+    ],
+  },
+];
 ---
 
 <MarketingLayout
@@ -22,101 +57,31 @@ import { GITHUB_URL } from "../config/constants";
 
     <PageSection>
       <PageContainer>
-        <!-- How it works -->
-        <PrivacyCard>
-          <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">
-            How it works technically
-          </h2>
-          <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
-            When you select an image, it stays entirely in your browser's memory. Reshrimp uses
-            browser APIs to read, manipulate, and re-encode your image inside a single browser tab.
-            No image data is sent to any server during processing.
-          </p>
-          <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
-            The processed image is generated as a Blob URL, which exists only in your browser's
-            memory. After the first online visit, the app shell and core tools can also load
-            offline. Background removal downloads its model assets the first time you use it, then
-            can run offline too.
-          </p>
-        </PrivacyCard>
-
-        <!-- What we don't do -->
-        <PrivacyCard>
-          <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">
-            What we don't do
-          </h2>
-          <ul class="list-none p-0 m-0 flex flex-col gap-[0.6rem]">
-            <li
-              class="text-[0.95rem] text-sp-text-muted leading-[1.6] pl-6 relative before:content-[''] before:absolute before:left-0 before:top-[0.55rem] before:w-2 before:h-2 before:rounded-full before:bg-sp-mint"
-            >
-              We don't upload your images anywhere
-            </li>
-            <li
-              class="text-[0.95rem] text-sp-text-muted leading-[1.6] pl-6 relative before:content-[''] before:absolute before:left-0 before:top-[0.55rem] before:w-2 before:h-2 before:rounded-full before:bg-sp-mint"
-            >
-              We don't use cookies or local storage for tracking
-            </li>
-            <li
-              class="text-[0.95rem] text-sp-text-muted leading-[1.6] pl-6 relative before:content-[''] before:absolute before:left-0 before:top-[0.55rem] before:w-2 before:h-2 before:rounded-full before:bg-sp-mint"
-            >
-              We don't run analytics scripts (no Google Analytics, no Plausible, nothing)
-            </li>
-            <li
-              class="text-[0.95rem] text-sp-text-muted leading-[1.6] pl-6 relative before:content-[''] before:absolute before:left-0 before:top-[0.55rem] before:w-2 before:h-2 before:rounded-full before:bg-sp-mint"
-            >
-              We don't require accounts or collect personal information
-            </li>
-            <li
-              class="text-[0.95rem] text-sp-text-muted leading-[1.6] pl-6 relative before:content-[''] before:absolute before:left-0 before:top-[0.55rem] before:w-2 before:h-2 before:rounded-full before:bg-sp-mint"
-            >
-              We don't upload your image data for processing
-            </li>
-            <li
-              class="text-[0.95rem] text-sp-text-muted leading-[1.6] pl-6 relative before:content-[''] before:absolute before:left-0 before:top-[0.55rem] before:w-2 before:h-2 before:rounded-full before:bg-sp-mint"
-            >
-              We don't fingerprint your browser or device
-            </li>
-          </ul>
-        </PrivacyCard>
-
-        <!-- Open source -->
-        <PrivacyCard>
-          <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">
-            Open source verification
-          </h2>
-          <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
-            Don't take our word for it — read the source code. Reshrimp is fully open source under
-            the MIT license. Every line of code is available for inspection.
-          </p>
-          <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
-            The image-processing logic lives in TypeScript services that you can inspect directly.
-            Check the
-            <a
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-sp-coral underline underline-offset-2 decoration-[rgba(242,90,90,0.3)] hover:decoration-sp-coral transition-[text-decoration-color]"
-              >GitHub repository</a
-            >
-            to verify our claims.
-          </p>
-        </PrivacyCard>
-
-        <!-- Third-party services -->
-        <PrivacyCard>
-          <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">
-            Third-party services
-          </h2>
-          <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
-            Reshrimp is deployed as a static site. The first visit needs a network connection to
-            load the app shell.
-          </p>
-          <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] mb-4 last:mb-0">
-            After that, the app shell and core tools work offline. Background removal may download
-            model files once before it can work offline. Those requests are for app or model assets,
-            not for uploading your images.
-          </p>
-        </PrivacyCard>
+        {
+          PRIVACY_CARDS.map((card) => (
+            <PrivacyCard>
+              <h2 class="font-display text-[1.25rem] font-bold mb-4 tracking-tight">
+                {card.title}
+              </h2>
+              {card.paragraphs &&
+                card.paragraphs.map((p) => (
+                  <p
+                    class="text-[0.95rem] text-muted-foreground leading-[1.7] mb-4 last:mb-0"
+                    set:html={p}
+                  />
+                ))}
+              {card.listItems && (
+                <ul class="list-none p-0 m-0 flex flex-col gap-[0.6rem]">
+                  {card.listItems.map((item) => (
+                    <li class="text-[0.95rem] text-muted-foreground leading-[1.6] pl-6 relative before:content-[''] before:absolute before:left-0 before:top-[0.55rem] before:w-2 before:h-2 before:rounded-full before:bg-mint-500">
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </PrivacyCard>
+          ))
+        }
       </PageContainer>
     </PageSection>
   </MarketingPageWrapper>
