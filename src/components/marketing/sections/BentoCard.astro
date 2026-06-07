@@ -1,4 +1,6 @@
 ---
+import Card from "../../ui/Card.astro";
+
 interface Props {
   color: "coral" | "mint" | "lavender" | "yellow";
   colSpan?: boolean;
@@ -11,27 +13,30 @@ interface Props {
 
 const { color, colSpan = false, delay = 0, icon: Icon, title, description } = Astro.props;
 const colorBg: Record<string, string> = {
-  coral: "bg-sp-coral-light border-[rgba(242,90,90,0.15)]",
-  mint: "bg-sp-mint-light border-[rgba(26,165,147,0.15)]",
-  lavender: "bg-sp-lavender-light border-[rgba(167,139,250,0.15)]",
-  yellow: "bg-sp-yellow-light border-[rgba(253,230,138,0.3)]",
+  coral: "bg-coral-50",
+  mint: "bg-mint-50",
+  lavender: "bg-lavender-50",
+  yellow: "bg-yellow-50",
 };
 ---
 
-<div
-  class:list={[
-    "bento-card group border border-transparent rounded-sp-xl p-8 transition-[transform,box-shadow] duration-300 shadow-sp hover:translate-y-[-4px] hover:shadow-sp-hover",
+<Card
+  variant="default"
+  class={[
+    "group",
     colorBg[color],
-    { "md:col-span-2": colSpan },
-  ]}
-  data-reveal
-  data-reveal-delay={String(delay)}
+    "transition-shadow duration-300 hover:shadow-md",
+    colSpan && "md:col-span-2",
+  ]
+    .filter(Boolean)
+    .join(" ")}
+  delay={delay}
 >
   <div
-    class="bento-card-content opacity-0 translate-y-7 scale-[0.98] transition-[opacity,transform] duration-[550ms] [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-[&.revealed]:opacity-100 group-[&.revealed]:translate-y-0 group-[&.revealed]:scale-100"
+    class="bento-card-content opacity-0 translate-y-7 scale-[0.98] transition-[opacity,transform] duration-500 [transition-timing-function:cubic-bezier(0.22,1,0.36,1)] group-[&.revealed]:opacity-100 group-[&.revealed]:translate-y-0 group-[&.revealed]:scale-100"
   >
     <Icon size={32} strokeWidth={1.75} class="block mb-4 opacity-80" aria-hidden="true" />
-    <h3 class="font-display text-[1.2rem] font-bold mb-2 mt-0">{title}</h3>
-    <p class="text-[0.9rem] text-sp-text-muted leading-[1.6] m-0">{description}</p>
+    <h3 class="font-display text-xl font-bold mb-2 mt-0">{title}</h3>
+    <p class="text-sm text-muted-foreground leading-relaxed m-0">{description}</p>
   </div>
-</div>
+</Card>

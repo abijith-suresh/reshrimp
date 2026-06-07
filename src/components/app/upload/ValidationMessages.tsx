@@ -9,10 +9,10 @@ export default function ValidationMessages(props: ValidationMessagesProps) {
   return (
     <>
       <Show when={props.validation?.error}>
-        {(msg) => <div class="mt-2 text-sm text-sp-coral">{msg()}</div>}
+        {(msg) => <div class="mt-2 text-sm text-coral-500">{msg()}</div>}
       </Show>
       <Show when={!props.validation?.error && props.validation?.warning}>
-        {(msg) => <div class="mt-2 text-sm text-[#d97706]">{msg()}</div>}
+        {(msg) => <div class="mt-2 text-sm text-yellow-600">{msg()}</div>}
       </Show>
     </>
   );

@@ -24,7 +24,7 @@ export default function ProcessPanel(props: ProcessPanelProps) {
   const showDpi = () => state.resizeUnit() === "in" || state.resizeUnit() === "cm";
 
   const sourceSection = (
-    <div class="flex flex-col gap-2 border-b border-sp-border-light px-5 py-3 pt-5 pb-3">
+    <div class="flex flex-col gap-2 border-b border-border-light px-5 py-3 pt-5 pb-3">
       <SectionHeader>Source</SectionHeader>
       <div class="mt-2">
         <UploadArea />
@@ -33,7 +33,7 @@ export default function ProcessPanel(props: ProcessPanelProps) {
   );
 
   const geometrySection = (
-    <div class="flex flex-col gap-2 border-b border-sp-border-light px-5 py-3">
+    <div class="flex flex-col gap-2 border-b border-border-light px-5 py-3">
       <SectionHeader>Geometry</SectionHeader>
       <DimensionInputs />
       <div class="flex gap-2">
@@ -51,14 +51,14 @@ export default function ProcessPanel(props: ProcessPanelProps) {
   );
 
   const formatSection = (
-    <div class="flex flex-col gap-2 border-b border-sp-border-light px-5 py-3">
+    <div class="flex flex-col gap-2 border-b border-border-light px-5 py-3">
       <SectionHeader>Format</SectionHeader>
       <FormatSelect />
     </div>
   );
 
   const qualitySection = (
-    <div class="flex flex-col gap-3 border-b border-sp-border-light px-5 py-3">
+    <div class="flex flex-col gap-3 border-b border-border-light px-5 py-3">
       <QualitySection />
     </div>
   );

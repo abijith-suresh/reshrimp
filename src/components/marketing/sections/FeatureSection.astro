@@ -10,16 +10,16 @@ interface Props {
 
 const { icon: Icon, title, description, color, index } = Astro.props;
 const colorBg: Record<string, string> = {
-  coral: "bg-sp-coral-light",
-  mint: "bg-sp-mint-light",
-  lavender: "bg-sp-lavender-light",
-  yellow: "bg-sp-yellow-light",
+  coral: "bg-coral-50",
+  mint: "bg-mint-50",
+  lavender: "bg-lavender-50",
+  yellow: "bg-yellow-50",
 };
 const colorStroke: Record<string, string> = {
-  coral: "text-sp-coral-dark",
-  mint: "text-sp-mint-dark",
-  lavender: "text-sp-lavender-dark",
-  yellow: "text-[#a16207]",
+  coral: "text-coral-600",
+  mint: "text-mint-600",
+  lavender: "text-lavender-600",
+  yellow: "text-yellow-700",
 };
 ---
 
@@ -33,14 +33,14 @@ const colorStroke: Record<string, string> = {
 >
   <div
     class:list={[
-      "shrink-0 w-[120px] h-[120px] rounded-sp-xl flex items-center justify-center shadow-sp max-sm:w-[100px] max-sm:h-[100px]",
+      "shrink-0 w-[120px] h-[120px] rounded-xl flex items-center justify-center shadow-sm max-sm:w-[100px] max-sm:h-[100px]",
       colorBg[color],
     ]}
   >
     <Icon size={40} strokeWidth={1.75} class={colorStroke[color]} />
   </div>
   <div class="flex-1">
-    <h2 class="font-display text-[1.35rem] font-bold mb-2 tracking-tight">{title}</h2>
-    <p class="text-[0.95rem] text-sp-text-muted leading-[1.7] m-0">{description}</p>
+    <h2 class="font-display text-xl font-bold mb-2 tracking-tight">{title}</h2>
+    <p class="text-sm text-muted-foreground leading-[1.7] m-0">{description}</p>
   </div>
 </div>

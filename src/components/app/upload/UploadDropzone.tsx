@@ -14,9 +14,9 @@ export default function UploadDropzone(props: UploadDropzoneProps) {
   return (
     <div
       id="upload-area"
-      class="bg-sp-bg-card border border-sp-border rounded-sp-lg px-4 py-5 text-center cursor-pointer transition-[border-color,box-shadow] duration-200 hover:border-sp-lavender hover:shadow-sp focus-visible:ring-2 focus-visible:ring-sp-lavender/40"
+      class="bg-card border border-border rounded-lg px-4 py-5 text-center cursor-pointer transition-[border-color,box-shadow] duration-200 hover:border-lavender-500 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-lavender-500/40"
       style={{ "touch-action": "manipulation" }}
-      classList={{ "border-sp-lavender bg-sp-lavender-light": props.isDragOver }}
+      classList={{ "border-lavender-500 bg-lavender-50": props.isDragOver }}
       role="button"
       tabIndex={0}
       aria-label="Upload image or drag and drop"
@@ -38,7 +38,7 @@ export default function UploadDropzone(props: UploadDropzoneProps) {
       }}
     >
       <div class="flex flex-col items-center gap-2">
-        <div class="w-10 h-10 rounded-full border border-sp-border flex items-center justify-center text-sp-text-soft mb-1">
+        <div class="w-10 h-10 rounded-full border border-border flex items-center justify-center text-soft-foreground mb-1">
           <svg
             width="18"
             height="18"
@@ -51,7 +51,7 @@ export default function UploadDropzone(props: UploadDropzoneProps) {
             <line x1="5" y1="12" x2="19" y2="12" />
           </svg>
         </div>
-        <span class="text-[0.8rem] text-sp-text-muted font-medium">Import image or drop</span>
+        <span class="text-xs text-muted-foreground font-medium">Import image or drop</span>
         {props.children}
       </div>
     </div>

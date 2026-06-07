@@ -21,7 +21,7 @@ export default function PreviewPanel() {
   }
 
   return (
-    <div class="h-full flex flex-col bg-sp-bg overflow-hidden">
+    <div class="h-full flex flex-col bg-background overflow-hidden">
       {/* Hidden file input for the mobile EmptyState upload button */}
       <input
         ref={(el) => {
@@ -67,9 +67,9 @@ export default function PreviewPanel() {
 
                   <Show when={state.isProcessing() && state.progressLabel()}>
                     {(label) => (
-                      <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-sp-bg/80 rounded-sp">
-                        <span class="sp-btn-spinner" aria-hidden="true" />
-                        <span class="text-[0.8rem] text-sp-text-muted font-medium">{label()}</span>
+                      <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/80 rounded-md">
+                        <span class="btn-spinner" aria-hidden="true" />
+                        <span class="text-xs text-muted-foreground font-medium">{label()}</span>
                       </div>
                     )}
                   </Show>

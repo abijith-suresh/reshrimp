@@ -1,7 +1,14 @@
 ---
+import Card from "../../ui/Card.astro";
 
+interface Props {
+  delay?: number;
+  class?: string;
+}
+
+const { delay = 0, class: className } = Astro.props;
 ---
 
-<div class="bg-sp-bg-card border border-sp-border rounded-sp-xl p-8 shadow-sp mb-6">
+<Card variant="soft" class={["mb-6", className].filter(Boolean).join(" ")} delay={delay}>
   <slot />
-</div>
+</Card>

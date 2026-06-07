@@ -6,7 +6,7 @@ interface SectionHeaderProps {
 
 export default function SectionHeader(props: SectionHeaderProps) {
   return (
-    <h4 class="text-[0.7rem] font-semibold text-sp-text-muted m-0 uppercase tracking-[0.12em]">
+    <h4 class="text-xs font-semibold text-muted-foreground m-0 uppercase tracking-[0.12em]">
       {props.children}
     </h4>
   );

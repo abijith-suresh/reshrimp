@@ -17,15 +17,13 @@ import { ROUTES } from "../config/constants";
       <div class="max-w-[500px] text-center">
         <div class="opacity-0 animate-error-code">
           <span
-            class="inline-block font-display font-extrabold leading-none bg-linear-to-br from-[var(--sp-coral)] to-[var(--sp-lavender)] bg-clip-text text-transparent error-code"
+            class="inline-block font-display font-extrabold leading-none bg-linear-to-br from-[var(--coral-500)] to-[var(--lavender-500)] bg-clip-text text-transparent error-code"
             >404</span
           >
-          <h1
-            class="font-display text-[var(--sp-font-title)] font-extrabold mt-4 mb-4 tracking-tight"
-          >
+          <h1 class="font-display text-[var(--font-title)] font-extrabold mt-4 mb-4 tracking-tight">
             Page not found
           </h1>
-          <p class="text-[1.1rem] text-sp-text-muted leading-[1.7] m-0 mb-10 max-w-[360px] mx-auto">
+          <p class="text-lg text-muted-foreground leading-[1.7] m-0 mb-10 max-w-[360px] mx-auto">
             Looks like this page drifted off into the void. Let's get you back on track.
           </p>
           <ButtonLink href={makeHref(ROUTES.HOME)}>

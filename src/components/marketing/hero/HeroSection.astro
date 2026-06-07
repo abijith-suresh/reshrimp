@@ -15,10 +15,10 @@ interface Props {
 
 const { chip, chips, title, subtitle, gradientTitle, centered = true } = Astro.props;
 const variantClasses: Record<string, string> = {
-  coral: "bg-sp-coral-light text-sp-coral-dark",
-  mint: "bg-sp-mint-light text-sp-mint-dark",
-  lavender: "bg-sp-lavender-light text-sp-lavender-dark",
-  yellow: "bg-sp-yellow-light text-[#a16207]",
+  coral: "bg-coral-50 text-coral-600",
+  mint: "bg-mint-50 text-mint-600",
+  lavender: "bg-lavender-50 text-lavender-600",
+  yellow: "bg-yellow-50 text-yellow-700",
 };
 ---
 
@@ -59,7 +59,7 @@ const variantClasses: Record<string, string> = {
         gradientTitle ? (
           <>
             <br />
-            <span class="bg-linear-to-br from-[var(--sp-coral)] to-[var(--sp-lavender-dark)] bg-clip-text text-transparent">
+            <span class="bg-linear-to-br from-[var(--coral-500)] to-[var(--lavender-600)] bg-clip-text text-transparent">
               {gradientTitle}
             </span>
           </>
@@ -70,7 +70,7 @@ const variantClasses: Record<string, string> = {
       subtitle ? (
         <p
           class:list={[
-            "text-[1.05rem] text-sp-text-muted leading-[1.7] m-0 opacity-0 animate-hero-subtitle",
+            "text-lg text-muted-foreground leading-[1.7] m-0 opacity-0 animate-hero-subtitle",
             { "max-w-[520px] mx-auto": centered },
           ]}
         >

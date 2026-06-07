@@ -66,7 +66,7 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
   <body>
     <a
       href="#main-content"
-      class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 p-2 bg-sp-coral text-white rounded-sp font-semibold"
+      class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 p-2 bg-coral-500 text-white rounded-md font-semibold"
     >
       Skip to main content
     </a>
@@ -118,7 +118,7 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
       if (!btn || btn.hasAttribute("disabled")) return;
 
       const ripple = document.createElement("span");
-      ripple.className = "sp-ripple";
+      ripple.className = "ui-ripple";
       const rect = btn.getBoundingClientRect();
       ripple.style.left = `${e.clientX - rect.left}px`;
       ripple.style.top = `${e.clientY - rect.top}px`;
@@ -143,7 +143,7 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
 </script>
 
 <style>
-  .sp-ripple {
+  .ui-ripple {
     position: absolute;
     border-radius: 50%;
     background: rgba(255, 255, 255, 0.35);

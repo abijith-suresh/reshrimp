@@ -1,0 +1,28 @@
+---
+interface Props {
+  variant?: "default" | "interactive" | "primary" | "soft" | "outline";
+  class?: string;
+  delay?: number;
+}
+
+const { variant = "default", class: className, delay = 0 } = Astro.props;
+
+const variantClasses: Record<string, string> = {
+  default: "bg-card border border-border rounded-xl p-8 shadow-sm",
+  interactive:
+    "bg-card border border-border rounded-xl p-8 shadow-sm transition-[transform,box-shadow] duration-300 hover:translate-y-[-4px] hover:shadow-md cursor-pointer",
+  primary: "bg-coral-50 border border-coral-200 rounded-xl p-8 shadow-sm",
+  soft: "bg-card border border-border rounded-xl p-8 shadow-sm",
+  outline: "bg-transparent border border-border rounded-xl p-8",
+};
+---
+
+<div
+  class:list={[variantClasses[variant], className]}
+  data-reveal
+  data-reveal-delay={String(delay)}
+>
+  <slot name="header" />
+  <slot />
+  <slot name="footer" />
+</div>

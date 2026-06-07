@@ -10,35 +10,35 @@ const footerLinks = [
 ];
 ---
 
-<footer class="sp-footer">
-  <div class="sp-footer-inner">
-    <nav class="sp-footer-links" aria-label="Footer navigation">
+<footer class="footer">
+  <div class="footer-inner">
+    <nav class="footer-links" aria-label="Footer navigation">
       {
         footerLinks.map((link) => (
-          <a href={makeHref(link.path)} class="sp-footer-link">
+          <a href={makeHref(link.path)} class="footer-link">
             {link.label}
           </a>
         ))
       }
     </nav>
-    <div class="sp-footer-bottom">
+    <div class="footer-bottom">
       <span>&copy; {new Date().getFullYear()} {SITE_NAME}</span>
-      <span class="sp-footer-dot">&middot;</span>
+      <span class="footer-dot">&middot;</span>
       <span>Processed locally in your browser</span>
     </div>
   </div>
 </footer>
 
 <style>
-  .sp-footer {
-    border-top: 1px solid var(--sp-border-light);
+  .footer {
+    border-top: 1px solid var(--border-light);
     padding: 2rem;
     position: relative;
     z-index: 1;
   }
 
-  .sp-footer-inner {
-    max-width: var(--sp-content-max-width);
+  .footer-inner {
+    max-width: var(--content-max-width);
     margin: 0 auto;
     display: flex;
     flex-direction: column;
@@ -46,40 +46,40 @@ const footerLinks = [
     gap: 1rem;
   }
 
-  .sp-footer-links {
+  .footer-links {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 0.5rem 1.5rem;
   }
 
-  .sp-footer-link {
+  .footer-link {
     font-size: 0.85rem;
     font-weight: 500;
-    color: var(--sp-text-muted);
+    color: var(--muted-foreground);
     text-decoration: none;
     transition: color 0.2s;
   }
 
-  .sp-footer-link:hover {
-    color: var(--sp-coral);
+  .footer-link:hover {
+    color: var(--coral-500);
   }
 
-  .sp-footer-link:focus-visible {
+  .footer-link:focus-visible {
     outline: none;
     box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.4);
     border-radius: 4px;
   }
 
-  .sp-footer-bottom {
+  .footer-bottom {
     display: flex;
     align-items: center;
     gap: 0.75rem;
     font-size: 0.8rem;
-    color: var(--sp-text-soft);
+    color: var(--soft-foreground);
   }
 
-  .sp-footer-dot {
-    color: var(--sp-border);
+  .footer-dot {
+    color: var(--border);
   }
 </style>

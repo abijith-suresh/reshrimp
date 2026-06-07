@@ -76,7 +76,7 @@ function MobileSheet() {
       <Show when={sheetState() === "open"}>
         <button
           type="button"
-          class="md:hidden fixed inset-0 z-30 bg-black/20 border-none cursor-pointer focus-visible:ring-2 focus-visible:ring-sp-lavender/40 focus-visible:ring-offset-2"
+          class="md:hidden fixed inset-0 z-30 bg-black/20 border-none cursor-pointer focus-visible:ring-2 focus-visible:ring-lavender-500/40 focus-visible:ring-offset-2"
           onClick={() => setSheetState("peek")}
           aria-label="Close controls"
           onKeyDown={(e) => {
@@ -90,7 +90,7 @@ function MobileSheet() {
         role="region"
         aria-label="Image controls"
         aria-hidden={sheetState() === "hidden" ? "true" : "false"}
-        class="md:hidden fixed inset-x-0 bottom-0 z-40 flex flex-col bg-sp-bg-card rounded-t-[22px] sp-mobile-sheet"
+        class="md:hidden fixed inset-x-0 bottom-0 z-40 flex flex-col bg-card rounded-t-[22px] mobile-sheet"
         style={{
           transform: translateForState(sheetState()),
           transition: SPRING,
@@ -101,17 +101,17 @@ function MobileSheet() {
           {/* Handle pill — tap to toggle between peek and open */}
           <button
             type="button"
-            class="w-full pt-3 pb-2 flex flex-col items-center cursor-pointer active:opacity-60 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-sp-lavender/40 rounded-t-[22px] transition-opacity duration-150"
+            class="w-full pt-3 pb-2 flex flex-col items-center cursor-pointer active:opacity-60 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-lavender-500/40 rounded-t-[22px] transition-opacity duration-150"
             style={{ "touch-action": "manipulation" }}
             onClick={toggleSheet}
             aria-label={sheetState() === "open" ? "Minimise controls" : "Open controls"}
           >
             {/* Pill — widens and turns lavender when open as a state hint */}
             <div
-              class="rounded-full transition-[width,background] duration-300 sp-mobile-sheet-handle"
+              class="rounded-full transition-[width,background] duration-300 mobile-sheet-handle"
               style={{
                 width: sheetState() === "open" ? "28px" : "40px",
-                background: sheetState() === "open" ? "var(--sp-lavender)" : "var(--sp-border)",
+                background: sheetState() === "open" ? "var(--lavender-500)" : "var(--border)",
               }}
             />
           </button>
@@ -132,13 +132,13 @@ function MobileSheet() {
           </Show>
 
           {/* Download button — primary CTA always reachable without opening */}
-          <div class="px-4 pt-1 sp-mobile-sheet-footer">
+          <div class="px-4 pt-1 mobile-sheet-footer">
             <DownloadSection />
           </div>
         </div>
 
         {/* Hairline divider between header and content */}
-        <div class="mx-4 h-px bg-sp-border-light shrink-0" />
+        <div class="mx-4 h-px bg-border-light shrink-0" />
 
         {/* Scrollable settings content */}
         <div
@@ -162,12 +162,12 @@ function MobileSheet() {
 export default function ImageApp() {
   return (
     <ImageAppProvider>
-      <div class="h-dvh overflow-hidden flex flex-row bg-sp-bg">
+      <div class="h-dvh overflow-hidden flex flex-row bg-background">
         {/* Desktop icon dock */}
         <AppSidebar />
 
         {/* Control panel — desktop only */}
-        <div class="hidden md:flex flex-col w-[320px] border-r border-sp-border bg-sp-bg-card overflow-hidden shrink-0">
+        <div class="hidden md:flex flex-col w-[320px] border-r border-border bg-card overflow-hidden shrink-0">
           <div class="flex flex-col flex-1 overflow-hidden min-h-0">
             <ProcessPanel />
           </div>

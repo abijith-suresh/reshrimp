@@ -15,16 +15,16 @@ const headerLinks = [
 ];
 ---
 
-<header class="sp-header" id="sp-header" transition:animate="none">
-  <nav class="sp-header-inner">
+<header class="header" id="header" transition:animate="none">
+  <nav class="header-inner">
     <Logo />
 
-    <div class="sp-nav-desktop">
+    <div class="nav-desktop">
       {
         headerLinks.map((link) => (
           <a
             href={makeHref(link.href)}
-            class:list={["sp-nav-link", { "sp-nav-link-active": currentPath === link.href }]}
+            class:list={["nav-link", { "nav-link-active": currentPath === link.href }]}
           >
             {link.label}
           </a>
@@ -34,7 +34,7 @@ const headerLinks = [
         href={GITHUB_URL}
         target="_blank"
         rel="noopener noreferrer"
-        class="sp-nav-link sp-nav-github"
+        class="nav-link nav-github"
         aria-label="View on GitHub"
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
@@ -47,14 +47,14 @@ const headerLinks = [
 
     <button
       type="button"
-      class="sp-hamburger"
+      class="hamburger"
       id="mobile-menu-btn"
       aria-label="Toggle menu"
       aria-expanded="false"
       aria-controls="mobile-menu-panel"
     >
       <svg
-        class="sp-hamburger-icon"
+        class="hamburger-icon"
         width="24"
         height="24"
         viewBox="0 0 24 24"
@@ -70,19 +70,19 @@ const headerLinks = [
     </button>
   </nav>
 
-  <div class="sp-mobile-panel" id="mobile-menu-panel">
-    <div class="sp-mobile-panel-inner">
+  <div class="mobile-panel" id="mobile-menu-panel">
+    <div class="mobile-panel-inner">
       {
         headerLinks.map((link) => (
           <a
             href={makeHref(link.href)}
-            class:list={["sp-mobile-link", { "sp-mobile-link-active": currentPath === link.href }]}
+            class:list={["mobile-link", { "mobile-link-active": currentPath === link.href }]}
           >
             {link.label}
           </a>
         ))
       }
-      <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" class="sp-mobile-link">
+      <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" class="mobile-link">
         GitHub
       </a>
     </div>
@@ -90,25 +90,25 @@ const headerLinks = [
 </header>
 
 <style>
-  .sp-header {
+  .header {
     position: sticky;
     top: 0;
     z-index: 100;
     background: rgba(248, 247, 255, 0.85);
     backdrop-filter: blur(16px);
-    border-bottom: 1px solid var(--sp-border-light);
+    border-bottom: 1px solid var(--border-light);
     transition:
       box-shadow 0.3s ease,
       border-bottom-color 0.3s ease;
   }
 
-  .sp-header.scrolled {
+  .header.scrolled {
     box-shadow: 0 2px 20px rgba(30, 27, 75, 0.08);
-    border-bottom-color: var(--sp-border);
+    border-bottom-color: var(--border);
   }
 
-  .sp-header-inner {
-    max-width: var(--sp-content-max-width);
+  .header-inner {
+    max-width: var(--content-max-width);
     margin: 0 auto;
     display: flex;
     justify-content: space-between;
@@ -116,42 +116,42 @@ const headerLinks = [
     padding: 0.85rem 2rem;
   }
 
-  .sp-nav-desktop {
+  .nav-desktop {
     display: flex;
     align-items: center;
     gap: 0.5rem;
   }
 
-  .sp-nav-link {
+  .nav-link {
     font-size: 0.85rem;
     font-weight: 500;
-    color: var(--sp-text-muted);
+    color: var(--muted-foreground);
     text-decoration: none;
     padding: 0.45rem 0.85rem;
-    border-radius: var(--sp-radius-full);
+    border-radius: var(--radius-full);
     transition:
       color 0.2s ease,
       background 0.2s ease;
     position: relative;
   }
 
-  .sp-nav-link:hover {
-    color: var(--sp-text);
-    background: var(--sp-border-light);
+  .nav-link:hover {
+    color: var(--foreground);
+    background: var(--border-light);
   }
 
-  .sp-nav-link:focus-visible {
+  .nav-link:focus-visible {
     outline: none;
     box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.4);
   }
 
-  .sp-nav-link-active {
-    color: var(--sp-text);
+  .nav-link-active {
+    color: var(--foreground);
     font-weight: 600;
-    background: var(--sp-border-light);
+    background: var(--border-light);
   }
 
-  .sp-nav-link-active::after {
+  .nav-link-active::after {
     content: "";
     position: absolute;
     bottom: 4px;
@@ -159,20 +159,20 @@ const headerLinks = [
     transform: translateX(-50%);
     width: 16px;
     height: 2px;
-    background: var(--sp-coral);
+    background: var(--coral-500);
     border-radius: 2px;
   }
 
-  .sp-nav-github {
+  .nav-github {
     display: flex;
     align-items: center;
     padding: 0.45rem;
   }
 
-  .sp-hamburger {
+  .hamburger {
     display: none;
     cursor: pointer;
-    color: var(--sp-text);
+    color: var(--foreground);
     background: none;
     border: none;
     padding: 0.25rem;
@@ -187,20 +187,20 @@ const headerLinks = [
     transform-origin: center;
   }
 
-  .sp-hamburger[aria-expanded="true"] .ham-line-1 {
+  .hamburger[aria-expanded="true"] .ham-line-1 {
     transform: translateY(6px) rotate(45deg);
   }
 
-  .sp-hamburger[aria-expanded="true"] .ham-line-2 {
+  .hamburger[aria-expanded="true"] .ham-line-2 {
     opacity: 0;
     transform: scaleX(0);
   }
 
-  .sp-hamburger[aria-expanded="true"] .ham-line-3 {
+  .hamburger[aria-expanded="true"] .ham-line-3 {
     transform: translateY(-6px) rotate(-45deg);
   }
 
-  .sp-mobile-panel {
+  .mobile-panel {
     max-height: 0;
     overflow: hidden;
     transition:
@@ -209,49 +209,49 @@ const headerLinks = [
     border-bottom: 1px solid transparent;
   }
 
-  .sp-mobile-panel.sp-mobile-open {
+  .mobile-panel.mobile-open {
     max-height: 400px;
-    border-bottom-color: var(--sp-border-light);
+    border-bottom-color: var(--border-light);
   }
 
-  .sp-mobile-panel-inner {
+  .mobile-panel-inner {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
     padding: 0.5rem 2rem 1.5rem;
   }
 
-  .sp-mobile-link {
+  .mobile-link {
     font-size: 0.95rem;
     font-weight: 500;
-    color: var(--sp-text-muted);
+    color: var(--muted-foreground);
     text-decoration: none;
     padding: 0.6rem 0;
     transition: color 0.2s;
     border-bottom: 1px solid transparent;
   }
 
-  .sp-mobile-link:hover {
-    color: var(--sp-text);
+  .mobile-link:hover {
+    color: var(--foreground);
   }
 
-  .sp-mobile-link:focus-visible {
+  .mobile-link:focus-visible {
     outline: none;
     box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.4);
     border-radius: 4px;
   }
 
-  .sp-mobile-link-active {
-    color: var(--sp-coral);
+  .mobile-link-active {
+    color: var(--coral-500);
     font-weight: 600;
   }
 
   @media (max-width: 768px) {
-    .sp-nav-desktop {
+    .nav-desktop {
       display: none;
     }
 
-    .sp-hamburger {
+    .hamburger {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -260,12 +260,12 @@ const headerLinks = [
       border: none;
       background: none;
       cursor: pointer;
-      border-radius: var(--sp-radius);
+      border-radius: var(--radius-md);
       padding: 4px;
-      color: var(--sp-text);
+      color: var(--foreground);
     }
 
-    .sp-hamburger:focus-visible {
+    .hamburger:focus-visible {
       outline: none;
       box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.4);
     }
@@ -281,12 +281,12 @@ const headerLinks = [
     if (!btn || !panel) return;
 
     const closeMenu = () => {
-      panel.classList.remove("sp-mobile-open");
+      panel.classList.remove("mobile-open");
       btn.setAttribute("aria-expanded", "false");
     };
 
     const toggleMenu = () => {
-      const open = panel.classList.toggle("sp-mobile-open");
+      const open = panel.classList.toggle("mobile-open");
       btn.setAttribute("aria-expanded", String(open));
     };
 
@@ -300,7 +300,7 @@ const headerLinks = [
   }
 
   function initHeaderScroll(isSpaNavigation: boolean) {
-    const header = document.getElementById("sp-header");
+    const header = document.getElementById("header");
     if (!header) return;
 
     const update = () => {

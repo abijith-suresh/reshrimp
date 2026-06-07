@@ -9,9 +9,9 @@ interface Props {
 
 const { number, title, description, color, delay = 0 } = Astro.props;
 const colorBg: Record<string, string> = {
-  coral: "bg-sp-coral text-white",
-  mint: "bg-sp-mint text-white",
-  lavender: "bg-sp-lavender text-white",
+  coral: "bg-coral-500 text-white",
+  mint: "bg-mint-500 text-white",
+  lavender: "bg-lavender-500 text-white",
 };
 ---
 
@@ -22,8 +22,8 @@ const colorBg: Record<string, string> = {
       colorBg[color],
     ]}
   >
-    <span class="font-display text-[1.2rem] font-bold">{number}</span>
+    <span class="font-display text-lg font-bold">{number}</span>
   </div>
-  <h3 class="font-display text-[1.05rem] font-bold mb-1">{title}</h3>
-  <p class="text-[0.85rem] text-sp-text-muted leading-[1.6] m-0">{description}</p>
+  <h3 class="font-display text-lg font-bold mb-1">{title}</h3>
+  <p class="text-sm text-muted-foreground leading-relaxed m-0">{description}</p>
 </div>

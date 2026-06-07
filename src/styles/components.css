@@ -1,62 +1,62 @@
 /* SolidJS component primitives — loaded only on the /app route */
 
 /* ===== Slider ===== */
-.sp-slider {
+.slider {
   width: 100%;
   height: 6px;
   border-radius: 3px;
   appearance: none;
   -webkit-appearance: none;
-  background: var(--sp-border-light);
+  background: var(--border-light);
   cursor: pointer;
 }
 
-.sp-slider::-webkit-slider-thumb {
+.slider::-webkit-slider-thumb {
   appearance: none;
   -webkit-appearance: none;
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--sp-coral);
+  background: var(--coral-500);
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(242, 90, 90, 0.3);
 }
 
-.sp-slider::-moz-range-thumb {
+.slider::-moz-range-thumb {
   width: 18px;
   height: 18px;
   border-radius: 50%;
-  background: var(--sp-coral);
+  background: var(--coral-500);
   border: none;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(242, 90, 90, 0.3);
 }
 
 /* ===== Select — custom accessible select ===== */
-.sp-select-trigger-open {
-  border-color: var(--sp-lavender);
+.select-trigger-open {
+  border-color: var(--lavender-500);
   box-shadow: 0 0 0 3px rgba(167, 139, 250, 0.15);
 }
 
-.sp-select-chevron-open {
+.select-chevron-open {
   transform: rotate(180deg);
 }
 
-.sp-select-listbox {
+.select-listbox {
   list-style: none;
   margin: 0;
   padding: 0.25rem;
-  background: var(--sp-bg-card);
-  border: 1px solid var(--sp-border);
-  border-radius: var(--sp-radius);
-  box-shadow: var(--sp-shadow-hover);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
   max-height: 240px;
   overflow-y: auto;
   /* Smooth appear */
-  animation: sp-select-in 0.12s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: select-in 0.12s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@keyframes sp-select-in {
+@keyframes select-in {
   from {
     opacity: 0;
     transform: translateY(-4px) scale(0.98);
@@ -67,11 +67,11 @@
   }
 }
 
-.sp-select-listbox-upward {
-  animation: sp-select-in-up 0.12s cubic-bezier(0.22, 1, 0.36, 1);
+.select-listbox-upward {
+  animation: select-in-up 0.12s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@keyframes sp-select-in-up {
+@keyframes select-in-up {
   from {
     opacity: 0;
     transform: translateY(4px) scale(0.98);
@@ -82,39 +82,39 @@
   }
 }
 
-.sp-select-option {
+.select-option {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0.45rem 0.65rem;
-  border-radius: var(--sp-radius-sm);
-  font-family: var(--sp-font-body);
+  border-radius: var(--radius-sm);
+  font-family: var(--font-body);
   font-size: 0.85rem;
-  color: var(--sp-text);
+  color: var(--foreground);
   cursor: pointer;
   user-select: none;
   transition: background 0.1s;
 }
 
-.sp-select-option-focused {
-  background: var(--sp-lavender-light);
-  color: var(--sp-lavender-dark);
+.select-option-focused {
+  background: var(--lavender-50);
+  color: var(--lavender-600);
 }
 
-.sp-select-option-selected {
+.select-option-selected {
   font-weight: 600;
-  color: var(--sp-lavender-dark);
+  color: var(--lavender-600);
 }
 
-.sp-select-option-disabled {
+.select-option-disabled {
   opacity: 0.4;
   cursor: not-allowed;
   pointer-events: none;
 }
 
-.sp-select-check {
+.select-check {
   flex-shrink: 0;
-  color: var(--sp-lavender-dark);
+  color: var(--lavender-600);
 }
 
 /* ===== InfoTooltip ===== */
@@ -127,11 +127,11 @@
   padding: 0.5rem 0.65rem;
   font-size: 0.75rem;
   line-height: 1.4;
-  color: var(--sp-text);
-  background: var(--sp-bg-card);
-  border: 1px solid var(--sp-border);
-  border-radius: var(--sp-radius);
-  box-shadow: var(--sp-shadow-hover);
+  color: var(--foreground);
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
   z-index: 10;
   pointer-events: none;
   display: none;
@@ -149,15 +149,15 @@
   left: 50%;
   transform: translateX(-50%);
   border: 5px solid transparent;
-  border-top-color: var(--sp-border);
+  border-top-color: var(--border);
 }
 
 /* ===== Button Spinner ===== */
-.sp-btn-spinner {
+.btn-spinner {
   width: 1rem;
   height: 1rem;
   border: 2px solid rgba(255, 255, 255, 0.3);
-  border-top-color: var(--sp-bg-card);
+  border-top-color: var(--card);
   border-radius: 50%;
   animation: btn-spin 0.6s linear infinite;
 }
@@ -175,27 +175,27 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--sp-bg);
+  background-color: var(--background);
   background-image:
-    linear-gradient(45deg, var(--sp-border) 25%, transparent 25%),
-    linear-gradient(-45deg, var(--sp-border) 25%, transparent 25%),
-    linear-gradient(45deg, transparent 75%, var(--sp-border) 75%),
-    linear-gradient(-45deg, transparent 75%, var(--sp-border) 75%);
+    linear-gradient(45deg, var(--border) 25%, transparent 25%),
+    linear-gradient(-45deg, var(--border) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, var(--border) 75%),
+    linear-gradient(-45deg, transparent 75%, var(--border) 75%);
   background-size: 16px 16px;
   background-position:
     0 0,
     0 8px,
     8px -8px,
     -8px 0;
-  border: 1px solid var(--sp-border-light);
-  border-radius: var(--sp-radius);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
 }
 
 /* ===== Preview Feedback ===== */
 .error-container {
-  background: var(--sp-coral-light);
+  background: var(--coral-50);
   border: 1px solid rgba(242, 90, 90, 0.2);
-  border-radius: var(--sp-radius);
+  border-radius: var(--radius-md);
   padding: 1rem 1.25rem;
   margin: 0 1.25rem;
 }
@@ -221,13 +221,13 @@
   z-index: 9999;
 }
 
-.sp-select-listbox-portaled {
+.select-listbox-portaled {
   position: fixed;
   z-index: 9999;
 }
 
 /* ===== Mobile Sheet ===== */
-.sp-mobile-sheet {
+.mobile-sheet {
   height: 80dvh;
   box-shadow:
     0 -4px 24px rgba(30, 27, 75, 0.1),
@@ -236,12 +236,12 @@
   overscroll-behavior: contain;
 }
 
-.sp-mobile-sheet-handle {
+.mobile-sheet-handle {
   width: 36px;
   height: 3px;
-  border-radius: var(--sp-radius-full);
+  border-radius: var(--radius-full);
 }
 
-.sp-mobile-sheet-footer {
+.mobile-sheet-footer {
   padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
 }
