@@ -1,27 +1,3 @@
-# -------------------------------------------------------------------
-# Dependabot auto-merge workflow
-#
-# Automatically enables merge-on-green for Dependabot pull requests
-# that update non-major dependencies (patch and minor).
-#
-# Requires a fine-grained PAT stored as a repository secret named
-# DEPENDABOT_AUTOMERGE_PAT.  Required token permissions:
-#   - Pull requests: Read and Write
-#   - Contents: Read (already default for fine-grained tokens)
-#
-# The PAT must belong to a user who has write access to the repo
-# (needed for the merge action).
-#
-# Why a PAT instead of GITHUB_TOKEN?
-# When a workflow is triggered by dependabot[bot], the built-in
-# GITHUB_TOKEN has read-only permissions for contents and
-# pull-requests, even if the workflow YAML requests write.  A PAT
-# bypasses this restriction and allows `gh pr merge --auto` to work.
-#
-# Reference: https://docs.github.com/en/code-security/dependabot/
-#   working-with-dependabot/automating-dependabot-with-github-actions
-# -------------------------------------------------------------------
-
 name: Dependabot auto-merge
 
 on:
@@ -35,8 +11,7 @@ jobs:
   dependabot:
     runs-on: ubuntu-latest
 
-    # Only act on PRs opened by Dependabot itself.
-    # Update the repository check to match your org/repo.
+    # Only act on Dependabot PRs in this repo.
     if: >
       github.event.pull_request.user.login == 'dependabot[bot]'
       && github.repository == 'abijith-suresh/reshrimp'
@@ -48,8 +23,7 @@ jobs:
         with:
           github-token: "${{ secrets.DEPENDABOT_AUTOMERGE_PAT }}"
 
-      # Enable auto-merge for patch and minor updates.
-      # Major-version bumps are skipped — they deserve a human look.
+      # Skip major bumps — they deserve human review.
       - name: Enable auto-merge for patch and minor updates
         if: >
           steps.metadata.outputs.update-type == 'version-update:semver-patch'
