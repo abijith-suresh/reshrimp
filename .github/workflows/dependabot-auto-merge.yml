@@ -4,9 +4,13 @@
 # Automatically enables merge-on-green for Dependabot pull requests
 # that update non-major dependencies (patch and minor).
 #
-# Requires a PAT (classic) with `repo` scope stored as a repository
-# secret named `DEPENDABOT_AUTOMERGE_PAT`.  The PAT must belong to a
-# user who has write access to the repository.
+# Requires a fine-grained PAT stored as a repository secret named
+# DEPENDABOT_AUTOMERGE_PAT.  Required token permissions:
+#   - Pull requests: Read and Write
+#   - Contents: Read (already default for fine-grained tokens)
+#
+# The PAT must belong to a user who has write access to the repo
+# (needed for the merge action).
 #
 # Why a PAT instead of GITHUB_TOKEN?
 # When a workflow is triggered by dependabot[bot], the built-in
