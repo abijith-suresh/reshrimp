@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.3](https://github.com/abijith-suresh/reshrimp/compare/v0.7.2...v0.7.3) (2026-07-14)
+
+
+### Bug Fixes
+
+* replace invalid dependabot auto-merge config with actions workflow ([#165](https://github.com/abijith-suresh/reshrimp/issues/165)) ([caf0299](https://github.com/abijith-suresh/reshrimp/commit/caf02999d9f427f997dfc19237809ffa8c389b7c))
+* resolve astro 7 / vitest 4 plugin type mismatch in vitest.config.ts ([e901f5a](https://github.com/abijith-suresh/reshrimp/commit/e901f5a6ebbd6375aa3ee35f10fcd11eda347626))
+
 ## [0.7.2](https://github.com/abijith-suresh/reshrimp/compare/v0.7.1...v0.7.2) (2026-06-07)
 
 
