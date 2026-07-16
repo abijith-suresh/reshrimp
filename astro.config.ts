@@ -1,8 +1,8 @@
-import { defineConfig } from "astro/config";
-import AstroPWA from "@vite-pwa/astro";
-import tailwindcss from "@tailwindcss/vite";
 import sitemap from "@astrojs/sitemap";
 import solid from "@astrojs/solid-js";
+import tailwindcss from "@tailwindcss/vite";
+import AstroPWA from "@vite-pwa/astro";
+import { defineConfig } from "astro/config";
 import { visualizer } from "rollup-plugin-visualizer";
 
 // https://astro.build/config
