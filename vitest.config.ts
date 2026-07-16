@@ -3,7 +3,7 @@ import solid from "vite-plugin-solid";
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // biome-ignore lint/suspicious/noExplicitAny: solid() type is complex
   plugins: [solid() as any],
 
   resolve: {
