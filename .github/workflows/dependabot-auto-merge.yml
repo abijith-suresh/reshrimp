@@ -24,6 +24,7 @@ jobs:
         with:
           github-token: "${{ secrets.GITHUB_TOKEN }}"
 
+      # Patch & minor updates → always auto-merge (safe by definition)
       - name: Auto-merge patch and minor updates
         if: >
           steps.metadata.outputs.update-type == 'version-update:semver-patch'
@@ -33,6 +34,7 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Dev dependency majors → auto-merge (CI gate is sufficient)
       - name: Auto-merge major updates for dev dependencies
         if: >
           steps.metadata.outputs.update-type == 'version-update:semver-major'
@@ -42,6 +44,7 @@ jobs:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Runtime dependency majors → auto-merge only if compat score ≥ 90
       - name: Auto-merge major updates for runtime deps with high compat
         if: >
           steps.metadata.outputs.update-type == 'version-update:semver-major'
