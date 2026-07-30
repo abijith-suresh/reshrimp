@@ -1,0 +1,15 @@
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.svg text
+*.woff binary
+*.woff2 binary
+*.eot binary
+*.ttf binary
+*.lock -diff
+.changeset/** linguist-generated=true
+CHANGELOG.md linguist-generated=true
