@@ -40,7 +40,7 @@
     "@commitlint/config-conventional": "^21.2.0",
     "@solidjs/testing-library": "^0.8.10",
     "@tailwindcss/vite": "^4.3.3",
-    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/jest-dom": "^7.0.0",
     "@vite-pwa/astro": "^1.2.0",
     "husky": "^9.1.7",
     "jsdom": "^30.0.1",
