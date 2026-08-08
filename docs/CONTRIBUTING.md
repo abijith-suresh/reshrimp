@@ -34,6 +34,8 @@ bun run verify
 
 `bun run verify` is the full quality gate and should pass before pushing.
 
+Pull request CI uses the pinned central Bun quality workflow, runs dependency review, and reports both through the required `quality` check. Pull request titles use the pinned central Conventional Commit workflow and retain the required local `pr-title` check.
+
 Background-removal assets are mirrored before `dev` and `build` through the configured package scripts. If assets are missing locally, that step needs network access.
 
 ## Workflow
