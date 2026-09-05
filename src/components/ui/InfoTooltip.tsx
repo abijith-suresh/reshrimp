@@ -1,6 +1,6 @@
-import { Show, createEffect, createSignal, onCleanup, type JSX } from "solid-js";
-import { Portal } from "solid-js/web";
 import { Info } from "lucide-solid";
+import { createEffect, createSignal, type JSX, onCleanup, Show } from "solid-js";
+import { Portal } from "solid-js/web";
 
 interface InfoTooltipProps {
   id?: string;
@@ -52,7 +52,8 @@ export default function InfoTooltip(props: InfoTooltipProps) {
     if (!el) return;
 
     const handler = (e: MouseEvent) => {
-      if (!el!.contains(e.target as Node)) {
+      const trigger = triggerEl();
+      if (trigger && !trigger.contains(e.target as Node)) {
         props.onToggle(false);
       }
     };
@@ -70,12 +71,7 @@ export default function InfoTooltip(props: InfoTooltipProps) {
   }
 
   return (
-    <span
-      id={props.id}
-      class="relative inline-flex"
-      onMouseEnter={handleEnter}
-      onMouseLeave={handleLeave}
-    >
+    <span id={props.id} class="relative inline-flex">
       <button
         id={props.id ? `${props.id}-icon` : undefined}
         type="button"
@@ -84,6 +80,8 @@ export default function InfoTooltip(props: InfoTooltipProps) {
         ref={setTriggerEl}
         onFocus={handleEnter}
         onBlur={handleLeave}
+        onMouseEnter={handleEnter}
+        onMouseLeave={handleLeave}
         onClick={(e) => {
           e.stopPropagation();
           props.onToggle(!props.open);

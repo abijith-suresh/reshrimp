@@ -30,6 +30,7 @@ export default function Checkbox(props: CheckboxProps) {
           }}
         >
           <svg
+            aria-hidden="true"
             class="w-3 h-3 text-white transition-transform duration-150 absolute inset-0 m-auto"
             classList={{
               "scale-100": props.checked,

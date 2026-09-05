@@ -65,12 +65,12 @@ const BENTO_CARDS = [
     description:
       "All processing happens locally via browser APIs. After the first online visit, the app shell and core tools work offline. Open source — verify it yourself.",
   },
-];
+] as const;
 ---
 
 <MarketingLayout title="Reshrimp — Your Images Deserve Better" currentPath="/">
   <Fragment slot="head">
-    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+    <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </Fragment>
   <MarketingPageWrapper>
     <HeroSection

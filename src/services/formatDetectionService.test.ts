@@ -20,7 +20,9 @@ describe("formatDetectionService", () => {
 
   afterEach(() => {
     delete window.heic2any;
-    document.head.querySelectorAll("script[data-heic2any-loader]").forEach((node) => node.remove());
+    document.head.querySelectorAll("script[data-heic2any-loader]").forEach((node) => {
+      node.remove();
+    });
   });
 
   describe("isAcceptedInputFormat", () => {

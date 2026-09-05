@@ -1,3 +1,4 @@
+import { isConvertibleOutputFormat } from "../config/imageFormats";
 import type { ImageFormat } from "../types/image";
 import type { ProcessOptions, ResizeUnit } from "../types/processing";
 import {
@@ -6,7 +7,6 @@ import {
   convertFromPx,
   convertToPx,
 } from "../utils/imageUtils";
-import { isConvertibleOutputFormat } from "../config/imageFormats";
 
 interface BuildProcessOptionsInput {
   originalWidth: number;

@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
-import { validateImageFile, getFileExtension, generateDownloadFilename } from "./validationService";
+import { describe, expect, it } from "vitest";
 import type { ImageFormat } from "../types/image";
+import { generateDownloadFilename, getFileExtension, validateImageFile } from "./validationService";
 
 /**
  * Helper to create a File with a specific size.

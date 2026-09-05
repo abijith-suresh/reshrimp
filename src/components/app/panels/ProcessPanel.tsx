@@ -1,14 +1,14 @@
 import { Show } from "solid-js";
-import SectionHeader from "@/components/ui/SectionHeader";
-import UploadArea from "@/components/app/UploadArea";
 import DimensionInputs from "@/components/app/controls/DimensionInputs";
-import UnitSelector from "@/components/app/controls/UnitSelector";
 import DpiSelector from "@/components/app/controls/DpiSelector";
-import InlineToggles from "@/components/app/controls/InlineToggles";
 import FormatSelect from "@/components/app/controls/FormatSelect";
+import InlineToggles from "@/components/app/controls/InlineToggles";
 import QualitySection from "@/components/app/controls/QualitySection";
+import UnitSelector from "@/components/app/controls/UnitSelector";
 import DownloadSection from "@/components/app/preview/DownloadSection";
 import { useImageApp } from "@/components/app/state/ImageAppContext";
+import UploadArea from "@/components/app/UploadArea";
+import SectionHeader from "@/components/ui/SectionHeader";
 
 interface ProcessPanelProps {
   /**

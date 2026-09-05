@@ -1,5 +1,5 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render } from "@solidjs/testing-library";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import Select from "./Select";
 
 describe("Select", () => {

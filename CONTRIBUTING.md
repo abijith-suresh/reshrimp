@@ -6,11 +6,10 @@ This document describes the development workflow for Reshrimp.
 
 Read these documents first:
 
-- `docs/CONTEXT.md` for product truth
-- `docs/ARCHITECTURE.md` for technical truth
-- `AGENTS.md` for agent behavior and documentation ownership
+- `AGENTS.md` for product truth and agent behavior
+- `ARCHITECTURE.md` for technical truth
 
-Do not expand product scope unless `docs/CONTEXT.md` is updated first.
+Do not expand product scope unless the Product Truth section of `AGENTS.md` is updated first.
 
 ## Setup
 
@@ -89,11 +88,20 @@ Current contributions should preserve these constraints:
 - no server-side image processing
 - no accounts or authentication
 - no ads, tracking, or analytics
-- no batch UI unless `docs/CONTEXT.md` changes first
-- no editor/workspace expansion unless `docs/CONTEXT.md` changes first
+- no batch UI unless the Product Truth section of `AGENTS.md` changes first
+- no editor/workspace expansion unless the Product Truth section of `AGENTS.md` changes first
 - no public copy for unimplemented features
 
 Target file-size export is a desired near-term capability, but public copy should not promise it until it is implemented.
+
+## Versioning And Releases
+
+Releases are automated by release-please from Conventional Commits. Versioning restarted at `0.0.1` for a fresh development phase.
+
+- While the project is in private development, versions stay in the `0.0.x` range.
+- A `feat:` commit bumps the minor version pre-1.0, a `fix:` commit bumps the patch version.
+- The maintainer cuts the first real release (`0.1.0`) when the product is satisfying; `1.0.0` is earned later.
+- Release PRs and tags are created automatically after conventional commits land on `main`.
 
 ## Code Style
 
@@ -126,7 +134,7 @@ Avoid:
 Documentation is part of the product.
 
 - Update `README.md` only with user-facing current behavior.
-- Update `docs/CONTEXT.md` before changing product promises or scope.
-- Update `docs/ARCHITECTURE.md` when technical structure changes.
+- Update the Product Truth section of `AGENTS.md` before changing product promises or scope.
+- Update `ARCHITECTURE.md` when technical structure changes.
 - Update this file when development workflow changes.
 - Update `AGENTS.md` when agent behavior or document ownership changes.

@@ -1,6 +1,6 @@
+import { Download } from "lucide-solid";
 import { useImageApp } from "@/components/app/state/ImageAppContext";
 import Button from "@/components/ui/Button";
-import { Download } from "lucide-solid";
 
 export default function DownloadSection() {
   const { state, actions } = useImageApp();

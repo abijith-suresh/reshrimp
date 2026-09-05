@@ -55,5 +55,3 @@ if (typeof window !== "undefined" && !window.__reshrimpPwaRegistered) {
     registerSW(options);
   }
 }
-
-export {};

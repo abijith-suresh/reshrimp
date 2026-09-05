@@ -1,10 +1,10 @@
-import type { APIRoute, GetStaticPaths } from "astro";
-import satori from "satori";
-import { Resvg } from "@resvg/resvg-js";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
-import { ogPageData } from "../../config/ogData";
+import { Resvg } from "@resvg/resvg-js";
+import type { APIRoute, GetStaticPaths } from "astro";
+import satori from "satori";
 import type { OgPageData } from "../../config/ogData";
+import { ogPageData } from "../../config/ogData";
 
 const WIDTH = 1200;
 const HEIGHT = 630;

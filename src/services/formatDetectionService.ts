@@ -64,5 +64,11 @@ function loadHeic2AnyConverter(): Promise<Heic2AnyConverter> {
 export async function decodeHeicBlob(blob: Blob): Promise<Blob> {
   const heic2any = await loadHeic2AnyConverter();
   const result = await heic2any({ blob, toType: "image/png" });
-  return Array.isArray(result) ? result[0]! : result;
+  if (Array.isArray(result)) {
+    if (!result[0]) {
+      throw new Error("HEIC decoding produced no output image");
+    }
+    return result[0];
+  }
+  return result;
 }

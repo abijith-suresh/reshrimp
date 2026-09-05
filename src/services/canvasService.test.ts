@@ -1,13 +1,13 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { makeCanvasMock, restoreMocks, setupBrowserMocks } from "../test/mocks";
+import type { ImageFormat } from "../types/image";
 import {
+  canvasToBlob,
+  getBestFormat,
   loadImage,
   resizeOnCanvas,
-  canvasToBlob,
   supportsFormat,
-  getBestFormat,
 } from "./canvasService";
-import { setupBrowserMocks, restoreMocks, makeCanvasMock } from "../test/mocks";
-import type { ImageFormat } from "../types/image";
 
 describe("loadImage", () => {
   beforeEach(() => {
