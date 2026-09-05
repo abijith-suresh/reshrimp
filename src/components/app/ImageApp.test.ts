@@ -1,6 +1,6 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render } from "@solidjs/testing-library";
-import { setupBrowserMocks, restoreMocks } from "../../test/mocks";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { restoreMocks, setupBrowserMocks } from "../../test/mocks";
 
 vi.mock("@/services/imageService", () => ({
   getImageMetadata: vi.fn(),
@@ -26,9 +26,9 @@ vi.mock("@/services/backgroundRemovalService", async () => {
   };
 });
 
-import ImageApp from "./ImageApp";
 import { getImageMetadata, processImage } from "@/services/imageService";
 import { createDownloadLink } from "@/utils/imageUtils";
+import ImageApp from "./ImageApp";
 
 const mockGetImageMetadata = vi.mocked(getImageMetadata);
 const mockProcessImage = vi.mocked(processImage);

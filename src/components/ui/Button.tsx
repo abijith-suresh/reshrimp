@@ -1,6 +1,6 @@
-import { splitProps, type JSX } from "solid-js";
+import { type JSX, splitProps } from "solid-js";
+import { type ButtonVariantProps, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { buttonVariants, type ButtonVariantProps } from "@/components/ui/button";
 
 type ButtonProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & ButtonVariantProps;
 

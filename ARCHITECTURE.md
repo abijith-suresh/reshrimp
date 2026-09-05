@@ -1,12 +1,12 @@
 # Architecture
 
-Last updated: 2026-06-06
+Last updated: 2026-09-05
 
 This document is the technical truth for Reshrimp. Update it when architecture, processing flow, dependencies, or project structure changes.
 
 ## Stack
 
-- Astro 6 for pages, layouts, routing, build, and mostly static marketing surfaces.
+- Astro 7 for pages, layouts, routing, build, and mostly static marketing surfaces.
 - SolidJS for the interactive image app mounted at `/app`.
 - TypeScript for application, service, and test code.
 - Tailwind CSS v4 for styling, supported by shared design tokens.

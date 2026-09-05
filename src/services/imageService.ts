@@ -1,19 +1,19 @@
-import type { ImageFormat } from "../types/image";
-import type {
-  ResizeOptions,
-  ProcessOptions,
-  ProcessResult,
-  BackgroundRemovalProgressCallback,
-} from "../types/processing";
-import { loadImage, resizeOnCanvas, canvasToBlob, getBestFormat } from "./canvasService";
-import { removeBackground } from "./backgroundRemovalService";
-import { decodeHeicBlob } from "./formatDetectionService";
+import { MAX_PIXEL_DIMENSION } from "../config/constants";
 import {
   isAcceptedInputFormat,
   isHeicInput,
   supportsBrowserQualityControl,
 } from "../config/imageFormats";
-import { MAX_PIXEL_DIMENSION } from "../config/constants";
+import type { ImageFormat } from "../types/image";
+import type {
+  BackgroundRemovalProgressCallback,
+  ProcessOptions,
+  ProcessResult,
+  ResizeOptions,
+} from "../types/processing";
+import { removeBackground } from "./backgroundRemovalService";
+import { canvasToBlob, getBestFormat, loadImage, resizeOnCanvas } from "./canvasService";
+import { decodeHeicBlob } from "./formatDetectionService";
 
 /**
  * Calculate dimensions maintaining aspect ratio

@@ -1,14 +1,14 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { restoreMocks, setupBrowserMocks } from "../test/mocks";
 import {
   calculateAspectRatio,
-  createDownloadLink,
-  formatFileSize,
   calculateHeightFromWidth,
   calculateWidthFromHeight,
-  convertToPx,
   convertFromPx,
+  convertToPx,
+  createDownloadLink,
+  formatFileSize,
 } from "./imageUtils";
-import { setupBrowserMocks, restoreMocks } from "../test/mocks";
 
 describe("calculateAspectRatio", () => {
   it("returns width/height ratio", () => {

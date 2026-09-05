@@ -1,7 +1,10 @@
 ---
+type IconComponent = (
+  props: astroHTML.JSX.SVGAttributes & { size?: number; strokeWidth?: number }
+) => unknown;
+
 interface Props {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  icon: any;
+  icon: IconComponent;
   title: string;
   description: string;
   color: "coral" | "mint" | "lavender" | "yellow";

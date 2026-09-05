@@ -1,6 +1,6 @@
+import { useImageApp } from "@/components/app/state/ImageAppContext";
 import UploadDropzone from "@/components/app/upload/UploadDropzone";
 import ValidationMessages from "@/components/app/upload/ValidationMessages";
-import { useImageApp } from "@/components/app/state/ImageAppContext";
 import { MAX_FILE_SIZE } from "@/config/constants";
 import { UPLOAD_ACCEPT_ATTRIBUTE } from "@/config/imageFormats";
 import { formatFileSize } from "@/utils/imageUtils";

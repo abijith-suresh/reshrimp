@@ -1,5 +1,5 @@
 import type { Accessor } from "solid-js";
-import type { ProcessedImage, ValidationResult, ImageFormat } from "@/types/image";
+import type { ImageFormat, ProcessedImage, ValidationResult } from "@/types/image";
 import type { ProcessResult, ResizeUnit } from "@/types/processing";
 
 export interface SizeDiff {

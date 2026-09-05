@@ -1,8 +1,8 @@
 import { useImageApp } from "@/components/app/state/ImageAppContext";
 import Field from "@/components/ui/Field";
 import InfoTooltip from "@/components/ui/InfoTooltip";
-import Select from "@/components/ui/Select";
 import type { SelectOption } from "@/components/ui/Select";
+import Select from "@/components/ui/Select";
 import { DPI_OPTIONS } from "@/config/constants";
 
 const dpiOptions: SelectOption[] = DPI_OPTIONS.map((dpi) => ({

@@ -1,5 +1,5 @@
-import { describe, expect, it } from "vitest";
 import { render } from "@solidjs/testing-library";
+import { describe, expect, it } from "vitest";
 import SectionHeader from "./SectionHeader";
 
 describe("SectionHeader", () => {

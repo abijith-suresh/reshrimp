@@ -4,14 +4,14 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  type JSX,
   on,
   onCleanup,
   useContext,
-  type JSX,
 } from "solid-js";
-import type { ProcessedImage, ValidationResult, ImageFormat } from "@/types/image";
-import type { ProcessResult, ResizeUnit } from "@/types/processing";
-import { processImage, getImageMetadata } from "@/services/imageService";
+import { DEFAULT_DPI } from "@/config/constants";
+import { getInitialOutputFormat, supportsBrowserQualityControl } from "@/config/imageFormats";
+import { getImageMetadata, processImage } from "@/services/imageService";
 import {
   buildProcessOptions,
   formatResizeValue,
@@ -20,12 +20,12 @@ import {
   getLinkedDimensionValues,
   rebaseDimensionValues,
 } from "@/services/imageWorkflowService";
-import { validateImageFile, generateDownloadFilename } from "@/services/validationService";
-import { createDownloadLink, formatFileSize, convertFromPx } from "@/utils/imageUtils";
-import { DEFAULT_DPI } from "@/config/constants";
-import { getInitialOutputFormat, supportsBrowserQualityControl } from "@/config/imageFormats";
-import type { AppActions, AppState, ImageAppContextValue, SizeDiff } from "./imageAppTypes";
+import { generateDownloadFilename, validateImageFile } from "@/services/validationService";
+import type { ImageFormat, ProcessedImage, ValidationResult } from "@/types/image";
+import type { ProcessResult, ResizeUnit } from "@/types/processing";
+import { convertFromPx, createDownloadLink, formatFileSize } from "@/utils/imageUtils";
 import { replaceProcessedObjectUrl, revokeImageSessionUrls } from "./imageAppObjectUrls";
+import type { AppActions, AppState, ImageAppContextValue, SizeDiff } from "./imageAppTypes";
 import { useBackgroundRemovalPreload } from "./useBackgroundRemovalPreload";
 
 function createDebouncedTask(fn: () => void, ms: number) {

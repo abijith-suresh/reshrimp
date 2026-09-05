@@ -1,4 +1,4 @@
-export type PageInitializerCleanup = void | (() => void);
+export type PageInitializerCleanup = (() => void) | undefined;
 
 declare global {
   interface Window {
@@ -21,7 +21,10 @@ export function registerPageInitializer(
     return;
   }
 
-  const registry = (window.__reshrimpPageInitializers ??= new Set<string>());
+  if (!window.__reshrimpPageInitializers) {
+    window.__reshrimpPageInitializers = new Set<string>();
+  }
+  const registry = window.__reshrimpPageInitializers;
   if (registry.has(key)) {
     return;
   }
