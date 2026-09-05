@@ -1,6 +1,6 @@
 import { useImageApp } from "@/components/app/state/ImageAppContext";
-import Select from "@/components/ui/Select";
 import type { SelectOption } from "@/components/ui/Select";
+import Select from "@/components/ui/Select";
 import { CONVERTIBLE_OUTPUT_FORMATS, getImageFormatLabel } from "@/config/imageFormats";
 
 const formatOptions: SelectOption[] = CONVERTIBLE_OUTPUT_FORMATS.map((format) => ({

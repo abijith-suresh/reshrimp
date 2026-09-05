@@ -1,6 +1,6 @@
+import { Image, Upload } from "lucide-solid";
 import type { JSX } from "solid-js";
 import { Show } from "solid-js";
-import { Image, Upload } from "lucide-solid";
 
 interface EmptyStateProps {
   icon?: JSX.Element;

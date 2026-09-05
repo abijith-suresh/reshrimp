@@ -1,5 +1,5 @@
+import { fireEvent, render } from "@solidjs/testing-library";
 import { describe, expect, it, vi } from "vitest";
-import { render, fireEvent } from "@solidjs/testing-library";
 import InfoTooltip from "./InfoTooltip";
 
 describe("InfoTooltip", () => {

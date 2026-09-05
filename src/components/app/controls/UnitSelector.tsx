@@ -1,7 +1,7 @@
 import { useImageApp } from "@/components/app/state/ImageAppContext";
 import Field from "@/components/ui/Field";
-import Select from "@/components/ui/Select";
 import type { SelectOption } from "@/components/ui/Select";
+import Select from "@/components/ui/Select";
 import type { ResizeUnit } from "@/types/processing";
 
 const unitOptions: SelectOption[] = [

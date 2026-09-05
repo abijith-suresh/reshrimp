@@ -1,17 +1,17 @@
 /// <reference lib="webworker" />
 
+import { CacheableResponsePlugin } from "workbox-cacheable-response";
+import { setCacheNameDetails } from "workbox-core";
+import { ExpirationPlugin } from "workbox-expiration";
+import { cleanupOutdatedCaches, precacheAndRoute } from "workbox-precaching";
+import { registerRoute } from "workbox-routing";
+import { CacheFirst } from "workbox-strategies";
 import {
   BACKGROUND_REMOVAL_ASSET_PATH_PREFIX,
   BACKGROUND_REMOVAL_RUNTIME_ASSET_PATTERN,
   BACKGROUND_REMOVAL_RUNTIME_CACHE_NAME,
   BACKGROUND_REMOVAL_SELF_HOSTED_CACHE_NAME,
 } from "./config/backgroundRemoval";
-import { setCacheNameDetails } from "workbox-core";
-import { precacheAndRoute, cleanupOutdatedCaches } from "workbox-precaching";
-import { registerRoute } from "workbox-routing";
-import { CacheFirst } from "workbox-strategies";
-import { CacheableResponsePlugin } from "workbox-cacheable-response";
-import { ExpirationPlugin } from "workbox-expiration";
 
 declare let self: ServiceWorkerGlobalScope & {
   __WB_MANIFEST: Array<string | { revision: string | null; url: string }>;

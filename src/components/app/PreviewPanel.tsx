@@ -1,7 +1,7 @@
 import { Show } from "solid-js";
 import EmptyState from "@/components/app/preview/EmptyState";
-import ImageInfoBar from "@/components/app/preview/ImageInfoBar";
 import ErrorDisplay from "@/components/app/preview/ErrorDisplay";
+import ImageInfoBar from "@/components/app/preview/ImageInfoBar";
 import { useImageApp } from "@/components/app/state/ImageAppContext";
 import { UPLOAD_ACCEPT_ATTRIBUTE } from "@/config/imageFormats";
 

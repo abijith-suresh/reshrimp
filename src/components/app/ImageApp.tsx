@@ -1,11 +1,11 @@
-import { createSignal, Show, createEffect, on } from "solid-js";
+import { createEffect, createSignal, on, Show } from "solid-js";
 import AppSidebar from "@/components/app/AppSidebar";
-import ProcessPanel from "@/components/app/panels/ProcessPanel";
-import PreviewPanel from "@/components/app/PreviewPanel";
-import { ImageAppProvider, useImageApp } from "@/components/app/state/ImageAppContext";
 import FloatingBackButton from "@/components/app/FloatingBackButton";
-import ImageInfoBar from "@/components/app/preview/ImageInfoBar";
+import PreviewPanel from "@/components/app/PreviewPanel";
+import ProcessPanel from "@/components/app/panels/ProcessPanel";
 import DownloadSection from "@/components/app/preview/DownloadSection";
+import ImageInfoBar from "@/components/app/preview/ImageInfoBar";
+import { ImageAppProvider, useImageApp } from "@/components/app/state/ImageAppContext";
 
 // ── Mobile bottom sheet ─────────────────────────────────────────────────────
 // Two visible states, zero drag logic:
@@ -86,8 +86,7 @@ function MobileSheet() {
       </Show>
 
       {/* Sheet */}
-      <div
-        role="region"
+      <section
         aria-label="Image controls"
         aria-hidden={sheetState() === "hidden" ? "true" : "false"}
         class="md:hidden fixed inset-x-0 bottom-0 z-40 flex flex-col bg-card rounded-t-[22px] mobile-sheet"
@@ -153,7 +152,7 @@ function MobileSheet() {
         >
           <ProcessPanel sourceAtBottom />
         </div>
-      </div>
+      </section>
     </>
   );
 }
