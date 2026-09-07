@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { calculateDimensions, processImage, getImageMetadata } from "./imageService";
-import type { ResizeOptions, ProcessOptions } from "../types/processing";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { ProcessOptions, ResizeOptions } from "../types/processing";
+import { calculateDimensions, getImageMetadata, processImage } from "./imageService";
 
 const mockCanvas = {
   width: 0,
@@ -25,8 +25,8 @@ vi.mock("./formatDetectionService", () => ({
   decodeHeicBlob: vi.fn(async () => new Blob([], { type: "image/png" })),
 }));
 
-import { loadImage, resizeOnCanvas, canvasToBlob, getBestFormat } from "./canvasService";
 import { removeBackground } from "./backgroundRemovalService";
+import { canvasToBlob, getBestFormat, loadImage, resizeOnCanvas } from "./canvasService";
 import { decodeHeicBlob } from "./formatDetectionService";
 
 const mockLoadImage = loadImage as ReturnType<typeof vi.fn>;

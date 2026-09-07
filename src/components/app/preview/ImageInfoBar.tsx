@@ -1,6 +1,6 @@
 import { Show } from "solid-js";
-import { formatFileSize } from "@/utils/imageUtils";
 import type { SizeDiff } from "@/components/app/state/imageAppTypes";
+import { formatFileSize } from "@/utils/imageUtils";
 
 interface ImageInfoBarProps {
   fileName: string;

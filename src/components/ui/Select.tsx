@@ -1,11 +1,11 @@
 import {
-  For,
-  Show,
-  createSignal,
-  createEffect,
-  onCleanup,
-  createUniqueId,
   type Accessor,
+  createEffect,
+  createSignal,
+  createUniqueId,
+  For,
+  onCleanup,
+  Show,
 } from "solid-js";
 import { Portal } from "solid-js/web";
 
@@ -40,8 +40,8 @@ export default function Select(props: SelectProps) {
   const listboxId = createUniqueId();
 
   // Callback refs so static analysis can see the assignment
-  let triggerRef: HTMLButtonElement | undefined = undefined;
-  let listboxRef: HTMLUListElement | undefined = undefined;
+  let triggerRef: HTMLButtonElement | undefined;
+  let listboxRef: HTMLDivElement | undefined;
 
   const [open, setOpen] = createSignal(false);
   const [focusedIndex, setFocusedIndex] = createSignal(-1);
@@ -155,24 +155,25 @@ export default function Select(props: SelectProps) {
       case "ArrowDown": {
         e.preventDefault();
         const cur = focusedIndex();
-        const next = enabled.find((i) => i > cur) ?? enabled[0]!;
+        const next = enabled.find((i) => i > cur) ?? enabled[0] ?? 0;
         setFocusedIndex(next);
         break;
       }
       case "ArrowUp": {
         e.preventDefault();
         const cur = focusedIndex();
-        const prev = [...enabled].reverse().find((i) => i < cur) ?? enabled[enabled.length - 1]!;
+        const prev =
+          [...enabled].reverse().find((i) => i < cur) ?? enabled[enabled.length - 1] ?? 0;
         setFocusedIndex(prev);
         break;
       }
       case "Home":
         e.preventDefault();
-        setFocusedIndex(enabled[0]!);
+        setFocusedIndex(enabled[0] ?? 0);
         break;
       case "End":
         e.preventDefault();
-        setFocusedIndex(enabled[enabled.length - 1]!);
+        setFocusedIndex(enabled[enabled.length - 1] ?? 0);
         break;
       case "Enter":
       case " ": {
@@ -229,7 +230,7 @@ export default function Select(props: SelectProps) {
       {/* Dropdown portal */}
       <Show when={open()}>
         <Portal>
-          <ul
+          <div
             ref={(el) => (listboxRef = el)}
             id={listboxId}
             role="listbox"
@@ -248,10 +249,11 @@ export default function Select(props: SelectProps) {
           >
             <For each={props.options}>
               {(option, index) => (
-                <li
+                <div
                   role="option"
                   aria-selected={option.value === props.value}
                   aria-disabled={option.disabled}
+                  tabIndex={-1}
                   class="flex items-center justify-between px-2.5 py-[0.45rem] rounded-sm font-body text-sm text-foreground cursor-pointer select-none transition-[background] duration-100 select-option"
                   classList={{
                     "select-option-selected": option.value === props.value,
@@ -283,10 +285,10 @@ export default function Select(props: SelectProps) {
                       />
                     </svg>
                   </Show>
-                </li>
+                </div>
               )}
             </For>
-          </ul>
+          </div>
         </Portal>
       </Show>
     </>

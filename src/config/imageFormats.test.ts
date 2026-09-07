@@ -2,16 +2,16 @@ import { describe, expect, it } from "vitest";
 import {
   ACCEPTED_INPUT_FORMATS,
   CONVERTIBLE_OUTPUT_FORMATS,
-  IMAGE_FORMAT_LABELS,
-  QUALITY_CONTROLLED_OUTPUT_FORMATS,
-  UPLOAD_ACCEPT_ATTRIBUTE,
   getImageFormatLabel,
   getInitialOutputFormat,
   getSupportedImageFormatSummary,
+  IMAGE_FORMAT_LABELS,
   isAcceptedInputFormat,
   isConvertibleOutputFormat,
   isHeicInput,
+  QUALITY_CONTROLLED_OUTPUT_FORMATS,
   supportsBrowserQualityControl,
+  UPLOAD_ACCEPT_ATTRIBUTE,
 } from "./imageFormats";
 
 describe("imageFormats", () => {

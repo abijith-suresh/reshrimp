@@ -6,11 +6,9 @@ This document describes the development workflow for Reshrimp.
 
 Read these documents first:
 
-- `docs/CONTEXT.md` for product truth
-- `docs/ARCHITECTURE.md` for technical truth
-- `AGENTS.md` for agent behavior and documentation ownership
+- `AGENTS.md` for product truth, hard rules, and agent behavior
 
-Do not expand product scope unless `docs/CONTEXT.md` is updated first.
+Do not expand product scope unless the Product Truth section of `AGENTS.md` is updated first.
 
 ## Setup
 
@@ -43,7 +41,7 @@ Background-removal assets are mirrored before `dev` and `build` through the conf
 1. Start from the latest `main`.
 2. Create a focused branch.
 3. Make the smallest correct change.
-4. Keep product copy, context docs, and implementation aligned.
+4. Keep public copy, product truth, and implementation aligned.
 5. Run the relevant checks, preferably `bun run verify` before push.
 6. Open one focused pull request.
 7. Stop and wait for review or merge feedback before starting unrelated work.
@@ -73,6 +71,7 @@ Allowed types:
 - `chore`
 - `test`
 - `ci`
+- `build`
 
 Examples:
 
@@ -89,11 +88,19 @@ Current contributions should preserve these constraints:
 - no server-side image processing
 - no accounts or authentication
 - no ads, tracking, or analytics
-- no batch UI unless `docs/CONTEXT.md` changes first
-- no editor/workspace expansion unless `docs/CONTEXT.md` changes first
+- no batch UI unless the Product Truth section of `AGENTS.md` changes first
+- no editor/workspace expansion unless the Product Truth section of `AGENTS.md` changes first
 - no public copy for unimplemented features
 
 Target file-size export is a desired near-term capability, but public copy should not promise it until it is implemented.
+
+## Versioning And Releases
+
+Releases are automated by release-please from Conventional Commits. Versioning restarted at `0.0.1` for a fresh development phase.
+
+- While the project is in private development, versions stay in the `0.0.x` range: before 1.0, both `feat:` and `fix:` commits bump the patch version (`bump-patch-for-minor-pre-major` in the release-please config).
+- The first real release (`0.1.0`) is cut deliberately by the maintainer, via a `Release-As: 0.1.0` footer on the release PR or a breaking change; `1.0.0` is earned later.
+- Release PRs and tags are created automatically after conventional commits land on `main`.
 
 ## Code Style
 
@@ -126,7 +133,6 @@ Avoid:
 Documentation is part of the product.
 
 - Update `README.md` only with user-facing current behavior.
-- Update `docs/CONTEXT.md` before changing product promises or scope.
-- Update `docs/ARCHITECTURE.md` when technical structure changes.
+- Update the Product Truth section of `AGENTS.md` before changing product promises or scope.
 - Update this file when development workflow changes.
 - Update `AGENTS.md` when agent behavior or document ownership changes.
