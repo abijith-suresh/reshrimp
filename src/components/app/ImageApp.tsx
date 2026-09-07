@@ -43,11 +43,10 @@ function MobileSheet() {
   const [sheetState, setSheetState] = createSignal<SheetState>("hidden");
 
   // Auto-transition only when an image is newly-loaded (null → image) or
-  // cleared (image → null).  Processing updates (null → null or image → image
-  // with a different ref) must NOT change the sheet state — the auto-process
-  // effect in ImageAppContext creates a referentially-new currentImage every
-  // ~400ms, which would otherwise slam the sheet back to "peek" while the user
-  // is trying to interact with the controls.
+  // cleared (image → null).  A processing completion replaces the currentImage
+  // object (fresh processed URL), so the image → image transition must stay a
+  // no-op — otherwise the sheet would slam back to "peek" while the user is
+  // trying to interact with the controls.
   createEffect(
     on(state.currentImage, (img, prevImg) => {
       if (img && !prevImg) {

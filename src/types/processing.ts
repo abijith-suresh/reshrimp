@@ -38,7 +38,7 @@ export interface ProcessResult {
   metadata: {
     width: number;
     height: number;
-    format: string;
+    format: ImageFormat;
     fileSize: number;
   };
 }

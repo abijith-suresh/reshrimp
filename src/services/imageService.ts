@@ -13,7 +13,7 @@ import type {
 } from "../types/processing";
 import { removeBackground } from "./backgroundRemovalService";
 import { canvasToBlob, getBestFormat, loadImage, resizeOnCanvas } from "./canvasService";
-import { decodeHeicBlob } from "./formatDetectionService";
+import { decodeHeicBlob, isHeicBlob } from "./formatDetectionService";
 
 /**
  * Calculate dimensions maintaining aspect ratio
@@ -62,6 +62,31 @@ export function calculateDimensions(
 }
 
 /**
+ * Reject resize targets that cannot produce a valid output: non-positive
+ * dimensions and targets beyond the browser-safe canvas limit.
+ */
+function assertValidResizeTargets(resize: ResizeOptions): void {
+  const targets: Array<["Width" | "Height", number | undefined]> = [
+    ["Width", resize.width],
+    ["Height", resize.height],
+  ];
+
+  for (const [label, value] of targets) {
+    if (value === undefined) {
+      continue;
+    }
+    if (!Number.isFinite(value) || value < 1) {
+      throw new Error(`${label} must be at least 1px`);
+    }
+    if (value > MAX_PIXEL_DIMENSION) {
+      throw new Error(
+        `${label} (${value}px) exceeds the maximum of ${MAX_PIXEL_DIMENSION}px per side`
+      );
+    }
+  }
+}
+
+/**
  * Process an image with combined operations (resize, format conversion, compression)
  * Operations are applied in order: background removal -> resize -> format conversion -> compression
  *
@@ -74,43 +99,57 @@ export async function processImage(
 ): Promise<ProcessResult> {
   let currentFile = file;
 
-  // Step 0.5: Decode HEIC/HEIF input to PNG before processing
-  if (isHeicInput(file.type)) {
+  // Step 0.5: Decode HEIC/HEIF input to PNG before processing. Also covers
+  // HEIC content that arrives with an empty or generic MIME type.
+  if (isHeicInput(file.type) || (await isHeicBlob(file))) {
     const decodedBlob = await decodeHeicBlob(file);
     currentFile = new File([decodedBlob], file.name.replace(/\.(?:heic|heif)$/i, ".png"), {
       type: "image/png",
     });
   }
 
-  // Step 1: Remove background if requested
+  // Step 1: Load the source and guard dimensions before any heavy work —
+  // background removal downloads a large ML model and must not run for
+  // images that would be rejected anyway.
+  const sourceImage = await loadImage(currentFile);
+
+  if (sourceImage.width > MAX_PIXEL_DIMENSION || sourceImage.height > MAX_PIXEL_DIMENSION) {
+    throw new Error(
+      `Image dimensions (${sourceImage.width}×${sourceImage.height}) exceed the maximum of ${MAX_PIXEL_DIMENSION}px per side`
+    );
+  }
+
+  // Step 2: Remove background if requested
   if (options.removeBackground) {
     const transparentBlob = await removeBackground(currentFile, onBackgroundRemovalProgress);
     currentFile = new File([transparentBlob], currentFile.name, { type: "image/png" });
   }
 
-  // Step 2: Load image (either original or background-removed)
-  const img = await loadImage(currentFile);
+  // Step 3: Load the working image (the background-removed output when applicable)
+  const img = options.removeBackground ? await loadImage(currentFile) : sourceImage;
 
-  if (img.width > MAX_PIXEL_DIMENSION || img.height > MAX_PIXEL_DIMENSION) {
-    throw new Error(
-      `Image dimensions (${img.width}×${img.height}) exceed the maximum of ${MAX_PIXEL_DIMENSION}px per side`
-    );
-  }
-
-  // Step 3: Determine dimensions (resize or original)
+  // Step 4: Determine dimensions (resize or original)
   let width = img.width;
   let height = img.height;
 
   if (options.resize) {
+    assertValidResizeTargets(options.resize);
     const dimensions = calculateDimensions(img.width, img.height, options.resize);
     width = dimensions.width;
     height = dimensions.height;
+
+    // Aspect-ratio derivation can push an in-range target past the canvas limit
+    if (width > MAX_PIXEL_DIMENSION || height > MAX_PIXEL_DIMENSION) {
+      throw new Error(
+        `Target dimensions (${width}×${height}) exceed the maximum of ${MAX_PIXEL_DIMENSION}px per side`
+      );
+    }
   }
 
-  // Step 4: Create canvas with final dimensions
+  // Step 5: Create canvas with final dimensions
   const canvas = resizeOnCanvas(img, width, height);
 
-  // Step 5: Determine format (convert or original)
+  // Step 6: Determine format (convert or original)
   // If background removal is enabled, force PNG to preserve transparency
   let format: ImageFormat;
   if (options.removeBackground) {
@@ -121,13 +160,13 @@ export async function processImage(
   }
   format = getBestFormat(format);
 
-  // Step 6: Determine quality (compress or default)
+  // Step 7: Determine quality (compress or default)
   let quality: number | undefined;
   if (supportsBrowserQualityControl(format)) {
     quality = options.quality !== undefined ? options.quality : 0.92;
   }
 
-  // Step 7: Convert to blob
+  // Step 8: Convert to blob
   const blob = await canvasToBlob(canvas, format, quality);
 
   return {

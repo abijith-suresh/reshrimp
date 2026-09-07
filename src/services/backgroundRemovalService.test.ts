@@ -80,3 +80,33 @@ describe("removeBackground", () => {
     expect(onProgress).not.toHaveBeenCalled();
   });
 });
+
+describe("module loading", () => {
+  it("retries a failed dynamic import on the next call", async () => {
+    let importShouldFail = true;
+    vi.doMock("@imgly/background-removal", () => {
+      if (importShouldFail) {
+        throw new Error("Simulated transient import failure");
+      }
+      return {
+        removeBackground: vi.fn(async () => new Blob([], { type: "image/png" })),
+        preload: vi.fn(async () => undefined),
+      };
+    });
+
+    // Fresh service module instance so the retry is not served by a cached
+    // import promise from the tests above.
+    vi.resetModules();
+    const { removeBackground: freshRemoveBackground } = await import("./backgroundRemovalService");
+    const file = new File([], "photo.jpg", { type: "image/jpeg" });
+
+    // Vitest wraps the thrown factory error, so only assert that the import
+    // rejects; the retry assertion below proves the promise cache was reset.
+    await expect(freshRemoveBackground(file)).rejects.toThrow();
+
+    importShouldFail = false;
+    await expect(freshRemoveBackground(file)).resolves.toBeInstanceOf(Blob);
+
+    vi.doUnmock("@imgly/background-removal");
+  });
+});

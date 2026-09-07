@@ -7,13 +7,19 @@ import type { BackgroundRemovalProgressCallback } from "../types/processing";
 let backgroundRemovalModulePromise: Promise<typeof import("@imgly/background-removal")> | undefined;
 
 function loadBackgroundRemovalModule() {
-  backgroundRemovalModulePromise ??= import("@imgly/background-removal");
+  backgroundRemovalModulePromise ??= import("@imgly/background-removal").catch((err: unknown) => {
+    // A rejected import must not stay cached — a single transient failure
+    // would otherwise kill background removal for the whole session.
+    backgroundRemovalModulePromise = undefined;
+    throw err;
+  });
   return backgroundRemovalModulePromise;
 }
 
 /**
  * Preloads the WASM runtime and ML model in the background.
- * Call this on app mount so background removal is faster when the user first toggles it.
+ * Call this when the user first enables background removal, never on app
+ * mount — the model assets are large (~100 MB) and most visits never use it.
  */
 export async function preloadBackgroundRemoval(): Promise<void> {
   const publicPath = getBackgroundRemovalPublicPath(window.location.origin);

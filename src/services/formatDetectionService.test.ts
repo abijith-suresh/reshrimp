@@ -66,6 +66,46 @@ describe("formatDetectionService", () => {
     });
   });
 
+  describe("isHeicBlob", () => {
+    function makeFtypBlob(brand: string): Blob {
+      const bytes = new Uint8Array(12);
+      for (let i = 0; i < 4; i += 1) {
+        bytes[4 + i] = "ftyp".charCodeAt(i);
+        bytes[8 + i] = brand.charCodeAt(i);
+      }
+      return new Blob([bytes]);
+    }
+
+    it.each(["heic", "heix", "mif1", "msf1", "hevc"])(
+      "detects the %s ftyp brand as HEIC content",
+      async (brand) => {
+        const { isHeicBlob } = await importFormatDetectionService();
+        await expect(isHeicBlob(makeFtypBlob(brand))).resolves.toBe(true);
+      }
+    );
+
+    it.each(["avif", "mp42", "isom", "qt  "])(
+      "does not treat the %s ftyp brand as HEIC content",
+      async (brand) => {
+        const { isHeicBlob } = await importFormatDetectionService();
+        await expect(isHeicBlob(makeFtypBlob(brand))).resolves.toBe(false);
+      }
+    );
+
+    it("rejects a blob without an ftyp box", async () => {
+      const { isHeicBlob } = await importFormatDetectionService();
+      const jpegBytes = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 0, 0, 0, 1, 2, 3, 4]);
+
+      await expect(isHeicBlob(new Blob([jpegBytes]))).resolves.toBe(false);
+    });
+
+    it("rejects a blob too small to contain an ftyp box", async () => {
+      const { isHeicBlob } = await importFormatDetectionService();
+
+      await expect(isHeicBlob(new Blob([new Uint8Array(8)]))).resolves.toBe(false);
+    });
+  });
+
   describe("decodeHeicBlob", () => {
     it("converts a HEIC blob to PNG using the browser-loaded decoder", async () => {
       const { decodeHeicBlob } = await importFormatDetectionService();

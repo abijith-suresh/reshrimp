@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { MAX_PIXEL_DIMENSION } from "../config/constants";
+import type { ResizeUnit } from "../types/processing";
 import {
   buildProcessOptions,
   getDimensionValuesForDpiChange,
@@ -7,19 +9,26 @@ import {
   rebaseDimensionValues,
 } from "./imageWorkflowService";
 
+const baseInput = {
+  originalWidth: 1200,
+  originalHeight: 800,
+  maintainAspectRatio: true,
+  removeBackground: false,
+  formatValue: "",
+  qualityValue: 92,
+  resizeUnit: "px" as ResizeUnit,
+  dpi: 96,
+};
+
 describe("buildProcessOptions", () => {
   it("converts display values into processing options", () => {
     const options = buildProcessOptions({
-      originalWidth: 1200,
-      originalHeight: 800,
+      ...baseInput,
       widthValue: "50",
       heightValue: "",
-      maintainAspectRatio: true,
-      removeBackground: false,
+      resizeUnit: "%",
       formatValue: "image/webp",
       qualityValue: 75,
-      resizeUnit: "%",
-      dpi: 96,
     });
 
     expect(options).toEqual({
@@ -31,6 +40,41 @@ describe("buildProcessOptions", () => {
       quality: 0.75,
       removeBackground: false,
     });
+  });
+
+  it("omits resize when no dimensions are provided", () => {
+    const options = buildProcessOptions({ ...baseInput, widthValue: "", heightValue: "" });
+    expect(options.resize).toBeUndefined();
+  });
+
+  it("omits resize when dimensions are not numeric", () => {
+    const options = buildProcessOptions({ ...baseInput, widthValue: "abc", heightValue: "" });
+    expect(options.resize).toBeUndefined();
+  });
+
+  it("keeps zero-width targets so processing can reject them", () => {
+    const options = buildProcessOptions({ ...baseInput, widthValue: "0", heightValue: "" });
+    expect(options.resize).toEqual({ width: 0, maintainAspectRatio: true });
+  });
+
+  it("keeps negative targets so processing can reject them", () => {
+    const options = buildProcessOptions({ ...baseInput, widthValue: "-50", heightValue: "" });
+    expect(options.resize).toEqual({ width: -50, maintainAspectRatio: true });
+  });
+
+  it("clamps oversized targets to the maximum pixel dimension", () => {
+    const options = buildProcessOptions({ ...baseInput, widthValue: "99999", heightValue: "" });
+    expect(options.resize?.width).toBe(MAX_PIXEL_DIMENSION);
+  });
+
+  it("clamps percentage targets that convert past the maximum pixel dimension", () => {
+    const options = buildProcessOptions({
+      ...baseInput,
+      widthValue: "1400",
+      heightValue: "",
+      resizeUnit: "%",
+    });
+    expect(options.resize?.width).toBe(MAX_PIXEL_DIMENSION);
   });
 });
 
