@@ -6,8 +6,7 @@ This document describes the development workflow for Reshrimp.
 
 Read these documents first:
 
-- `AGENTS.md` for product truth and agent behavior
-- `ARCHITECTURE.md` for technical truth
+- `AGENTS.md` for product truth, hard rules, and agent behavior
 
 Do not expand product scope unless the Product Truth section of `AGENTS.md` is updated first.
 
@@ -42,7 +41,7 @@ Background-removal assets are mirrored before `dev` and `build` through the conf
 1. Start from the latest `main`.
 2. Create a focused branch.
 3. Make the smallest correct change.
-4. Keep product copy, context docs, and implementation aligned.
+4. Keep public copy, product truth, and implementation aligned.
 5. Run the relevant checks, preferably `bun run verify` before push.
 6. Open one focused pull request.
 7. Stop and wait for review or merge feedback before starting unrelated work.
@@ -135,6 +134,5 @@ Documentation is part of the product.
 
 - Update `README.md` only with user-facing current behavior.
 - Update the Product Truth section of `AGENTS.md` before changing product promises or scope.
-- Update `ARCHITECTURE.md` when technical structure changes.
 - Update this file when development workflow changes.
 - Update `AGENTS.md` when agent behavior or document ownership changes.
