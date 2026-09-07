@@ -71,6 +71,7 @@ Allowed types:
 - `chore`
 - `test`
 - `ci`
+- `build`
 
 Examples:
 
@@ -97,9 +98,8 @@ Target file-size export is a desired near-term capability, but public copy shoul
 
 Releases are automated by release-please from Conventional Commits. Versioning restarted at `0.0.1` for a fresh development phase.
 
-- While the project is in private development, versions stay in the `0.0.x` range.
-- A `feat:` commit bumps the minor version pre-1.0, a `fix:` commit bumps the patch version.
-- The maintainer cuts the first real release (`0.1.0`) when the product is satisfying; `1.0.0` is earned later.
+- While the project is in private development, versions stay in the `0.0.x` range: before 1.0, both `feat:` and `fix:` commits bump the patch version (`bump-patch-for-minor-pre-major` in the release-please config).
+- The first real release (`0.1.0`) is cut deliberately by the maintainer, via a `Release-As: 0.1.0` footer on the release PR or a breaking change; `1.0.0` is earned later.
 - Release PRs and tags are created automatically after conventional commits land on `main`.
 
 ## Code Style

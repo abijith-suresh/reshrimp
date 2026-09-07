@@ -129,6 +129,16 @@ describe("formatDetectionService", () => {
       );
       expect(document.head.querySelector("script[data-heic2any-loader='true']")).toBeNull();
     });
+
+    it("rejects when the decoder returns no output images", async () => {
+      const { decodeHeicBlob } = await importFormatDetectionService();
+      const heicBlob = new Blob(["fake-heic"], { type: "image/heic" });
+      window.heic2any = vi.fn().mockResolvedValue([]);
+
+      await expect(decodeHeicBlob(heicBlob)).rejects.toThrow(
+        "HEIC decoding produced no output image"
+      );
+    });
   });
 
   describe("ACCEPTED_INPUT_FORMATS", () => {

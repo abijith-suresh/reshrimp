@@ -108,7 +108,7 @@ If product scope changes, update the Product Truth section of this file first, t
 
 - Branch from the latest `main` before starting changes.
 - Never commit directly to `main`.
-- Commit and PR titles must use Conventional Commits: `feat`, `fix`, `docs`, `refactor`, `chore`, `test`, or `ci`.
+- Commit and PR titles must use Conventional Commits: `feat`, `fix`, `docs`, `refactor`, `chore`, `test`, `ci`, or `build`.
 - Before push, run `bun run verify` when feasible.
 - `pre-commit` runs `lint-staged`, `commit-msg` runs `commitlint`, and `pre-push` runs `bun run verify`.
 - CI enforces quality and PR-title checks on pull requests.

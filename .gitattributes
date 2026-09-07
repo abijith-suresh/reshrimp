@@ -16,4 +16,3 @@
 *.lock -diff
 
 # GitHub linguist overrides
-CHANGELOG.md linguist-generated=true
