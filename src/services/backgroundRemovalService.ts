@@ -43,6 +43,7 @@ export async function removeBackground(
     progress?: (key: string, current: number, total: number) => void;
     model?: "isnet" | "isnet_fp16" | "isnet_quint8";
     publicPath?: string;
+    device?: "cpu" | "gpu";
   } = {};
 
   if (onProgress) {
@@ -55,6 +56,10 @@ export async function removeBackground(
 
   config.model = BACKGROUND_REMOVAL_MODEL;
   config.publicPath = getBackgroundRemovalPublicPath(window.location.origin);
+  // Pinned so the WebGPU onnxruntime stays unreachable — the build excludes
+  // its ~24 MB jsep wasm (see excludeOnnxruntimeWebGpu in astro.config.ts),
+  // and the self-hosted mirror only carries the CPU runtime assets.
+  config.device = "cpu";
 
   const { removeBackground: imglyRemoveBackground } = await loadBackgroundRemovalModule();
   const blob = await imglyRemoveBackground(imageFile, config);
