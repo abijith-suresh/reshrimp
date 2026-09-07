@@ -11,6 +11,7 @@ import {
 } from "solid-js";
 import { DEFAULT_DPI } from "@/config/constants";
 import { getInitialOutputFormat, supportsBrowserQualityControl } from "@/config/imageFormats";
+import { preloadBackgroundRemoval } from "@/services/backgroundRemovalService";
 import { getImageMetadata, processImage } from "@/services/imageService";
 import {
   buildProcessOptions,
@@ -20,13 +21,16 @@ import {
   getLinkedDimensionValues,
   rebaseDimensionValues,
 } from "@/services/imageWorkflowService";
-import { generateDownloadFilename, validateImageFile } from "@/services/validationService";
+import {
+  generateDownloadFilename,
+  validateImageDimensions,
+  validateImageFile,
+} from "@/services/validationService";
 import type { ImageFormat, ProcessedImage, ValidationResult } from "@/types/image";
 import type { ProcessResult, ResizeUnit } from "@/types/processing";
 import { convertFromPx, createDownloadLink, formatFileSize } from "@/utils/imageUtils";
 import { replaceProcessedObjectUrl, revokeImageSessionUrls } from "./imageAppObjectUrls";
 import type { AppActions, AppState, ImageAppContextValue, SizeDiff } from "./imageAppTypes";
-import { useBackgroundRemovalPreload } from "./useBackgroundRemovalPreload";
 
 function createDebouncedTask(fn: () => void, ms: number) {
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -49,6 +53,21 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   // ── Core image state ──────────────────────────────────────────────────────
   const [currentImage, setCurrentImage] = createSignal<ProcessedImage | null>(null);
   const [processResult, setProcessResult] = createSignal<ProcessResult | null>(null);
+
+  // ── Session identity ──────────────────────────────────────────────────────
+  // Bumped on every successful upload. Processing is keyed off this id, never
+  // off the currentImage object: a processing completion rewrites currentImage,
+  // so depending on its identity would re-trigger processing forever.
+  const [sessionId, setSessionId] = createSignal(0);
+
+  // Session of the in-flight run; null when idle. Guarding with a plain
+  // variable (not the isProcessing signal) keeps stale completions from
+  // clobbering the state of a newer run.
+  let activeRunSession: number | null = null;
+  // Set when inputs change mid-run; consumed after completion so the change
+  // is re-processed instead of silently dropped.
+  let pendingReprocess = false;
+  let preloadRequested = false;
 
   // ── Async / loading state ─────────────────────────────────────────────────
   const [isProcessing, setIsProcessing] = createSignal(false);
@@ -82,8 +101,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     debouncedProcess.cancel();
     revokeImageSessionUrls(currentImage());
   });
-
-  useBackgroundRemovalPreload();
 
   // ── Derived signals ───────────────────────────────────────────────────────
   const controlsActive = createMemo(() => currentImage() !== null);
@@ -136,7 +153,14 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   // ── Core processing (internal) ────────────────────────────────────────────
   async function handleProcess(): Promise<void> {
     const img = currentImage();
-    if (!img || isProcessing()) return;
+    if (!img) return;
+
+    if (activeRunSession !== null) {
+      pendingReprocess = true;
+      return;
+    }
+
+    const session = sessionId();
 
     const options = buildProcessOptions({
       originalWidth: img.metadata.width,
@@ -151,6 +175,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       dpi: dpiValue(),
     });
 
+    activeRunSession = session;
     setIsProcessing(true);
     setError(null);
 
@@ -170,6 +195,10 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
           : undefined
       );
 
+      // A new upload started a different session while this run was in
+      // flight — discard the result instead of stamping it onto the new image.
+      if (sessionId() !== session) return;
+
       const processedUrl = replaceProcessedObjectUrl(img.processedUrl, result.blob);
 
       // Batch result updates into a single DOM update
@@ -178,21 +207,33 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         setProcessResult(result);
       });
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Processing failed");
-      console.error("Error processing image:", err);
+      if (sessionId() === session) {
+        setError(err instanceof Error ? err.message : "Processing failed");
+        console.error("Error processing image:", err);
+      }
     } finally {
+      if (activeRunSession === session) {
+        activeRunSession = null;
+      }
       batch(() => {
         setIsProcessing(false);
         setProgressLabel(null);
       });
+      if (pendingReprocess) {
+        pendingReprocess = false;
+        debouncedProcess.run();
+      }
     }
   }
 
   // ── Auto-process: debounce fast operations, immediate for bg removal ──────
+  // Depends on the session id and user-input signals only. currentImage is
+  // read for the null-check but is not a dependency: processing completions
+  // replace its object identity, which would re-trigger processing forever.
   createEffect(
     on(
       [
-        currentImage,
+        sessionId,
         widthValue,
         heightValue,
         formatValue,
@@ -202,10 +243,10 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         maintainAspectRatio,
         removeBackground,
       ],
-      ([image, , , , , , , , shouldRemoveBackground]) => {
-        if (!image) return;
+      () => {
+        if (!currentImage()) return;
 
-        if (shouldRemoveBackground) {
+        if (removeBackground()) {
           void handleProcess();
           return;
         }
@@ -218,13 +259,20 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
   // ── Handlers ──────────────────────────────────────────────────────────────
   async function handleFileUpload(file: File): Promise<void> {
-    const validationResult = validateImageFile(file);
+    const validationResult = await validateImageFile(file);
     setValidation(validationResult);
 
     if (!validationResult.valid) return;
 
     try {
       const metadata = await getImageMetadata(file);
+
+      const dimensionResult = validateImageDimensions(metadata);
+      if (!dimensionResult.valid) {
+        setValidation(dimensionResult);
+        return;
+      }
+
       const originalUrl = URL.createObjectURL(file);
 
       const processedImage: ProcessedImage = {
@@ -242,6 +290,10 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
           revokeImageSessionUrls(previousImage);
           return processedImage;
         });
+        // Queued re-process work belongs to the previous session; the session
+        // bump re-triggers the auto-process effect for the new image anyway.
+        pendingReprocess = false;
+        setSessionId((id) => id + 1);
         setProcessResult(null);
         setError(null);
 
@@ -271,10 +323,10 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     const result = processResult();
     if (!img?.processedUrl || !result) return;
 
-    const targetFormat = currentOutputFormat();
-    if (!targetFormat) return;
-
-    const filename = generateDownloadFilename(img.metadata.fileName, targetFormat);
+    // Name the file after the ACTUAL encoded format: getBestFormat can fall
+    // back when the browser cannot encode the requested format (e.g. AVIF →
+    // PNG), so the extension must match the blob's bytes, not the request.
+    const filename = generateDownloadFilename(img.metadata.fileName, result.metadata.format);
 
     try {
       createDownloadLink(result.blob, filename);
@@ -294,6 +346,15 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     setPreviousFormatValue(nextFormatState.previousFormatValue);
     setFormatValue(nextFormatState.formatValue);
     setRemoveBackground(checked);
+
+    // Warm the model on first use instead of on every app visit — the
+    // download is large and most sessions never touch background removal.
+    if (checked && !preloadRequested) {
+      preloadRequested = true;
+      void preloadBackgroundRemoval().catch(() => {
+        // Non-fatal: the removeBackground call loads the module on use.
+      });
+    }
   }
 
   function handleUnitChange(newUnit: ResizeUnit): void {

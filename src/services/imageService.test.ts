@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { MAX_PIXEL_DIMENSION } from "../config/constants";
 import type { ProcessOptions, ResizeOptions } from "../types/processing";
 import { calculateDimensions, getImageMetadata, processImage } from "./imageService";
 
@@ -23,11 +24,12 @@ vi.mock("./backgroundRemovalService", () => ({
 
 vi.mock("./formatDetectionService", () => ({
   decodeHeicBlob: vi.fn(async () => new Blob([], { type: "image/png" })),
+  isHeicBlob: vi.fn(async () => false),
 }));
 
 import { removeBackground } from "./backgroundRemovalService";
 import { canvasToBlob, getBestFormat, loadImage, resizeOnCanvas } from "./canvasService";
-import { decodeHeicBlob } from "./formatDetectionService";
+import { decodeHeicBlob, isHeicBlob } from "./formatDetectionService";
 
 const mockLoadImage = loadImage as ReturnType<typeof vi.fn>;
 const mockResizeOnCanvas = resizeOnCanvas as ReturnType<typeof vi.fn>;
@@ -35,6 +37,7 @@ const mockCanvasToBlob = canvasToBlob as ReturnType<typeof vi.fn>;
 const mockGetBestFormat = getBestFormat as ReturnType<typeof vi.fn>;
 const mockRemoveBackground = removeBackground as ReturnType<typeof vi.fn>;
 const mockDecodeHeicBlob = decodeHeicBlob as ReturnType<typeof vi.fn>;
+const mockIsHeicBlob = isHeicBlob as ReturnType<typeof vi.fn>;
 
 function makeMockImg(width = 800, height = 600) {
   return { width, height } as HTMLImageElement;
@@ -47,6 +50,7 @@ beforeEach(() => {
   mockCanvasToBlob.mockResolvedValue(new Blob([], { type: "image/png" }));
   mockGetBestFormat.mockImplementation((f: string) => f);
   mockDecodeHeicBlob.mockResolvedValue(new Blob([], { type: "image/png" }));
+  mockIsHeicBlob.mockResolvedValue(false);
 });
 
 // ─── calculateDimensions ─────────────────────────────────────────────────────
@@ -98,6 +102,55 @@ describe("calculateDimensions", () => {
 
 // ─── processImage ────────────────────────────────────────────────────────────
 
+describe("processImage dimension guards", () => {
+  it("rejects sources beyond MAX_PIXEL_DIMENSION before any heavy work runs", async () => {
+    mockLoadImage.mockResolvedValue(makeMockImg(MAX_PIXEL_DIMENSION + 1, 100));
+    const file = new File([], "huge.png", { type: "image/png" });
+
+    await expect(processImage(file, { removeBackground: true })).rejects.toThrow(
+      /exceed the maximum/
+    );
+    expect(mockRemoveBackground).not.toHaveBeenCalled();
+    expect(mockCanvasToBlob).not.toHaveBeenCalled();
+  });
+
+  it("rejects resize targets beyond MAX_PIXEL_DIMENSION", async () => {
+    const file = new File([], "test.png", { type: "image/png" });
+    const opts: ProcessOptions = {
+      resize: { width: MAX_PIXEL_DIMENSION + 1, maintainAspectRatio: true },
+    };
+
+    await expect(processImage(file, opts)).rejects.toThrow(/exceeds the maximum/);
+  });
+
+  it("rejects non-positive and non-finite resize targets", async () => {
+    const file = new File([], "test.png", { type: "image/png" });
+
+    await expect(
+      processImage(file, { resize: { width: 0, maintainAspectRatio: false } })
+    ).rejects.toThrow(/at least 1px/);
+
+    await expect(
+      processImage(file, { resize: { height: -10, maintainAspectRatio: false } })
+    ).rejects.toThrow(/at least 1px/);
+
+    await expect(
+      processImage(file, { resize: { width: Number.NaN, maintainAspectRatio: false } })
+    ).rejects.toThrow(/at least 1px/);
+  });
+
+  it("rejects targets that overflow the limit via aspect-ratio derivation", async () => {
+    mockLoadImage.mockResolvedValue(makeMockImg(200, 16000));
+    const file = new File([], "tall.png", { type: "image/png" });
+    const opts: ProcessOptions = {
+      resize: { width: MAX_PIXEL_DIMENSION, maintainAspectRatio: true },
+    };
+
+    await expect(processImage(file, opts)).rejects.toThrow(/exceed the maximum/);
+    expect(mockResizeOnCanvas).not.toHaveBeenCalled();
+  });
+});
+
 describe("processImage", () => {
   it("applies background removal and forces PNG format", async () => {
     const file = new File([], "test.jpg", { type: "image/jpeg" });
@@ -134,6 +187,32 @@ describe("processImage", () => {
       }),
       undefined
     );
+  });
+
+  it("decodes heic content that ships with an empty mime type", async () => {
+    const bytes = new Uint8Array(12);
+    for (let i = 0; i < 4; i += 1) {
+      bytes[4 + i] = "ftyp".charCodeAt(i);
+      bytes[8 + i] = "heic".charCodeAt(i);
+    }
+    const file = new File([bytes], "photo", { type: "" });
+
+    // The byte-level sniff itself is covered in formatDetectionService tests;
+    // here the empty-MIME file must reach the sniff and route to the decoder.
+    mockIsHeicBlob.mockResolvedValue(true);
+
+    await processImage(file, {});
+
+    expect(mockIsHeicBlob).toHaveBeenCalledWith(file);
+    expect(mockDecodeHeicBlob).toHaveBeenCalledWith(file);
+  });
+
+  it("skips heic decoding for ordinary uploads", async () => {
+    const file = new File(["png"], "test.png", { type: "image/png" });
+
+    await processImage(file, {});
+
+    expect(mockDecodeHeicBlob).not.toHaveBeenCalled();
   });
 
   it("applies resize when resize option provided", async () => {

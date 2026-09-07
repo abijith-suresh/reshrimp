@@ -1,13 +1,14 @@
-import { MAX_FILE_SIZE, RECOMMENDED_MAX_SIZE } from "../config/constants";
+import { MAX_FILE_SIZE, MAX_PIXEL_DIMENSION, RECOMMENDED_MAX_SIZE } from "../config/constants";
 import { getSupportedImageFormatSummary, isAcceptedInputFormat } from "../config/imageFormats";
-import type { ImageFormat, ValidationResult } from "../types/image";
+import type { ImageFormat, ImageMetadata, ValidationResult } from "../types/image";
 import { formatFileSize } from "../utils/imageUtils";
+import { isHeicBlob } from "./formatDetectionService";
 
 /**
  * Validate an image file for processing
  * Returns validation result with error or warning messages
  */
-export function validateImageFile(file: File): ValidationResult {
+export async function validateImageFile(file: File): Promise<ValidationResult> {
   // Check if file exists
   if (!file) {
     return {
@@ -16,16 +17,17 @@ export function validateImageFile(file: File): ValidationResult {
     };
   }
 
-  // Check if it's an image file
+  // Check if it's an image file. Devices that export HEIC with an empty or
+  // generic MIME type are still accepted when the magic bytes confirm HEIC.
   if (!file.type.startsWith("image/")) {
-    return {
-      valid: false,
-      error: "File must be an image",
-    };
-  }
-
-  // Check if format is supported (including HEIC/HEIF/AVIF)
-  if (!isAcceptedInputFormat(file.type)) {
+    if (!(await isHeicBlob(file))) {
+      return {
+        valid: false,
+        error: "File must be an image",
+      };
+    }
+  } else if (!isAcceptedInputFormat(file.type)) {
+    // Check if format is supported (including HEIC/HEIF/AVIF)
     return {
       valid: false,
       error: `Unsupported image format: ${file.type}. Supported formats: ${getSupportedImageFormatSummary()}`,
@@ -55,6 +57,25 @@ export function validateImageFile(file: File): ValidationResult {
     : {
         valid: true,
       };
+}
+
+/**
+ * Validate that an image's pixel dimensions are processable.
+ * Needs decoded metadata, so callers run it after extracting dimensions.
+ */
+export function validateImageDimensions(
+  metadata: Pick<ImageMetadata, "width" | "height">
+): ValidationResult {
+  if (metadata.width > MAX_PIXEL_DIMENSION || metadata.height > MAX_PIXEL_DIMENSION) {
+    return {
+      valid: false,
+      error: `Image dimensions (${metadata.width}×${metadata.height}) exceed the maximum of ${MAX_PIXEL_DIMENSION}px per side`,
+    };
+  }
+
+  return {
+    valid: true,
+  };
 }
 
 /**
