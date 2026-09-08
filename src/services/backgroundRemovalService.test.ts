@@ -48,6 +48,7 @@ describe("removeBackground", () => {
       expect.objectContaining({
         model: BACKGROUND_REMOVAL_MODEL,
         publicPath: getBackgroundRemovalPublicPath(window.location.origin),
+        device: "cpu",
       })
     );
   });

@@ -2,7 +2,7 @@
 
 @font-face {
   font-family: "Reshrimp Display";
-  src: url("../assets/fonts/BricolageGrotesque-Bold.ttf") format("truetype");
+  src: url("../assets/fonts/BricolageGrotesque-Bold.woff2") format("woff2");
   font-style: normal;
   font-weight: 700;
   font-display: swap;
@@ -10,7 +10,7 @@
 
 @font-face {
   font-family: "Reshrimp Sans";
-  src: url("../assets/fonts/PlusJakartaSans-Regular.ttf") format("truetype");
+  src: url("../assets/fonts/PlusJakartaSans-Regular.woff2") format("woff2");
   font-style: normal;
   font-weight: 400;
   font-display: swap;
@@ -18,7 +18,7 @@
 
 @font-face {
   font-family: "Reshrimp Sans";
-  src: url("../assets/fonts/PlusJakartaSans-SemiBold.ttf") format("truetype");
+  src: url("../assets/fonts/PlusJakartaSans-SemiBold.woff2") format("woff2");
   font-style: normal;
   font-weight: 600;
   font-display: swap;
