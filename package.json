@@ -42,7 +42,6 @@
     "@solidjs/testing-library": "^0.8.10",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.1",
-    "@vite-pwa/astro": "^1.2.0",
     "husky": "^9.1.7",
     "jsdom": "^30.0.1",
     "lint-staged": "^17.5.1",
@@ -50,12 +49,6 @@
     "tailwindcss": "^4.3.3",
     "vite": "^8.3.0",
     "vite-plugin-solid": "^2.11.14",
-    "vitest": "^5.0.0",
-    "workbox-cacheable-response": "^7.4.1",
-    "workbox-core": "^7.4.1",
-    "workbox-expiration": "^7.4.1",
-    "workbox-precaching": "^7.4.1",
-    "workbox-routing": "^7.4.1",
-    "workbox-strategies": "^7.4.1"
+    "vitest": "^5.0.0"
   }
 }

@@ -26,10 +26,6 @@ Your image is processed in your browser. Reshrimp does not upload your image for
 
 The app still loads website files like any web app. Background removal also loads model/runtime assets before it can run, but the image itself stays on your device.
 
-## Offline Use
-
-After the first online visit, the app shell and core tools can work offline. Background removal can also work offline after its model assets have been downloaded once.
-
 ## Current Limits
 
 - One image at a time.
