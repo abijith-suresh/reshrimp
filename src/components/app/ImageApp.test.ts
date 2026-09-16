@@ -507,6 +507,7 @@ describe("ImageApp", () => {
     mockProcessImage
       .mockResolvedValueOnce({
         blob: firstBlob,
+        requestedFormat: "image/png",
         metadata: { width: 1200, height: 800, format: "image/png", fileSize: firstBlob.size },
       })
       .mockRejectedValueOnce(new Error("Second run failed"));
@@ -576,6 +577,7 @@ describe("ImageApp", () => {
     dispose = undefined;
     resolveProcessing({
       blob: new Blob(["processed"], { type: "image/png" }),
+      requestedFormat: "image/png",
       metadata: { width: 1200, height: 800, format: "image/png", fileSize: 9 },
     });
 
@@ -717,6 +719,7 @@ describe("ImageApp", () => {
     });
     mockProcessImage.mockResolvedValue({
       blob: blobB,
+      requestedFormat: "image/png",
       metadata: { width: 200, height: 200, format: "image/png", fileSize: blobB.size },
     });
 
