@@ -63,7 +63,7 @@ const BENTO_CARDS = [
     icon: ShieldCheck,
     title: "Completely private",
     description:
-      "All processing happens locally via browser APIs. After the first online visit, the app shell and core tools work offline. Open source — verify it yourself.",
+      "All processing happens locally via browser APIs. Images are not uploaded, and the source is open for inspection.",
   },
 ] as const;
 ---
@@ -77,13 +77,13 @@ const BENTO_CARDS = [
       chips={[
         { label: "Free forever", variant: "mint" },
         { label: "100% private", variant: "coral" },
-        { label: "Offline-ready", variant: "lavender" },
+        { label: "Browser-local", variant: "lavender" },
       ]}
       title="Private image tools"
       gradientTitle="that stay on your device."
-      subtitle="Resize, convert, and compress images right in your browser. Nothing gets uploaded. Nothing gets tracked. After one online visit, the app shell and core tools work offline."
+      subtitle="Resize, convert, and compress images right in your browser. Nothing gets uploaded. Nothing gets tracked."
     >
-      <HeroCTA secondaryText="No sign-up · Offline-ready" />
+      <HeroCTA secondaryText="No sign-up · Runs in your browser" />
     </HeroSection>
 
     <PageSection sectionClass="px-8 py-16 relative z-10" containerClass="max-w-[1000px] mx-auto">

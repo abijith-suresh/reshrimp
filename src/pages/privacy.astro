@@ -12,7 +12,7 @@ const PRIVACY_CARDS = [
     title: "How it works technically",
     paragraphs: [
       "When you select an image, it stays entirely in your browser's memory. Reshrimp uses browser APIs to read, manipulate, and re-encode your image inside a single browser tab. No image data is sent to any server during processing.",
-      "The processed image is generated as a Blob URL, which exists only in your browser's memory. After the first online visit, the app shell and core tools can also load offline. Background removal downloads its model assets the first time you use it, then can run offline too.",
+      "The processed image is generated as a Blob URL, which exists only in your browser's memory. Background removal loads its model and runtime assets from the app origin when you use it.",
     ],
   },
   {
@@ -37,7 +37,7 @@ const PRIVACY_CARDS = [
     title: "Third-party services",
     paragraphs: [
       "Reshrimp is deployed as a static site. The first visit needs a network connection to load the app shell.",
-      "After that, the app shell and core tools work offline. Background removal may download model files once before it can work offline. Those requests are for app or model assets, not for uploading your images.",
+      "Background removal may request model and runtime assets from the app origin. Those requests are for app assets, not for uploading your images.",
     ],
   },
 ];
