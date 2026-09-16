@@ -5,6 +5,7 @@ import { restoreMocks, setupBrowserMocks } from "../../test/mocks";
 
 vi.mock("@/services/imageService", () => ({
   getImageMetadata: vi.fn(),
+  prepareImageFile: vi.fn(),
   processImage: vi.fn(),
 }));
 
@@ -28,11 +29,12 @@ vi.mock("@/services/backgroundRemovalService", async () => {
 });
 
 import { preloadBackgroundRemoval } from "@/services/backgroundRemovalService";
-import { getImageMetadata, processImage } from "@/services/imageService";
+import { getImageMetadata, prepareImageFile, processImage } from "@/services/imageService";
 import { createDownloadLink } from "@/utils/imageUtils";
 import ImageApp from "./ImageApp";
 
 const mockGetImageMetadata = vi.mocked(getImageMetadata);
+const mockPrepareImageFile = vi.mocked(prepareImageFile);
 const mockProcessImage = vi.mocked(processImage);
 const mockCreateDownloadLink = vi.mocked(createDownloadLink);
 const mockPreloadBackgroundRemoval = vi.mocked(preloadBackgroundRemoval);
@@ -61,6 +63,8 @@ describe("ImageApp", () => {
   beforeEach(() => {
     setupBrowserMocks();
     mockGetImageMetadata.mockReset();
+    mockPrepareImageFile.mockReset();
+    mockPrepareImageFile.mockImplementation(async (file) => ({ file, format: file.type }));
     mockProcessImage.mockReset();
     mockCreateDownloadLink.mockReset();
     mockPreloadBackgroundRemoval.mockClear();
@@ -581,6 +585,80 @@ describe("ImageApp", () => {
 
     // The stale blob never received an object URL: a-original, b-original, b-processed
     expect(URL.createObjectURL).toHaveBeenCalledTimes(3);
+  });
+
+  it("does not let slower metadata from an older upload replace a newer file", async () => {
+    const fileA = new File(["a"], "a.png", { type: "image/png" });
+    const fileB = new File(["b"], "b.png", { type: "image/png" });
+    const blobB = new Blob(["processed-b"], { type: "image/png" });
+
+    let resolveMetadataA!: (metadata: {
+      width: number;
+      height: number;
+      format: string;
+      fileSize: number;
+      fileName: string;
+    }) => void;
+    mockGetImageMetadata.mockImplementation((file) => {
+      if (file === fileA) {
+        return new Promise((resolve) => {
+          resolveMetadataA = resolve;
+        });
+      }
+
+      return Promise.resolve({
+        width: 200,
+        height: 200,
+        format: "image/png",
+        fileSize: fileB.size,
+        fileName: fileB.name,
+      });
+    });
+    mockProcessImage.mockResolvedValue({
+      blob: blobB,
+      metadata: { width: 200, height: 200, format: "image/png", fileSize: blobB.size },
+    });
+
+    vi.mocked(URL.createObjectURL)
+      .mockReturnValueOnce("blob:b-original")
+      .mockReturnValueOnce("blob:b-processed");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [fileA] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(mockGetImageMetadata).toHaveBeenCalledWith(fileA);
+    });
+
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [fileB] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+        "src",
+        "blob:b-processed"
+      );
+    });
+
+    resolveMetadataA({
+      width: 100,
+      height: 100,
+      format: "image/png",
+      fileSize: fileA.size,
+      fileName: fileA.name,
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      "src",
+      "blob:b-processed"
+    );
+    expect(mockProcessImage).toHaveBeenCalledTimes(1);
+    expect(mockProcessImage.mock.calls[0]?.[0]).toBe(fileB);
   });
 
   it("re-processes inputs that changed while a run was in flight", async () => {

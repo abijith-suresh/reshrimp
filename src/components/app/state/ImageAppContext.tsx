@@ -12,7 +12,7 @@ import {
 import { DEFAULT_DPI } from "@/config/constants";
 import { getInitialOutputFormat, supportsBrowserQualityControl } from "@/config/imageFormats";
 import { preloadBackgroundRemoval } from "@/services/backgroundRemovalService";
-import { getImageMetadata, processImage } from "@/services/imageService";
+import { getImageMetadata, prepareImageFile, processImage } from "@/services/imageService";
 import {
   buildProcessOptions,
   formatResizeValue,
@@ -64,6 +64,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   // variable (not the isProcessing signal) keeps stale completions from
   // clobbering the state of a newer run.
   let activeRunSession: number | null = null;
+  let uploadRequestId = 0;
   // Set when inputs change mid-run; consumed after completion so the change
   // is re-processed instead of silently dropped.
   let pendingReprocess = false;
@@ -161,6 +162,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     }
 
     const session = sessionId();
+    const uploadRequest = uploadRequestId;
 
     const options = buildProcessOptions({
       originalWidth: img.metadata.width,
@@ -197,7 +199,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
       // A new upload started a different session while this run was in
       // flight — discard the result instead of stamping it onto the new image.
-      if (sessionId() !== session) return;
+      if (sessionId() !== session || uploadRequestId !== uploadRequest) return;
 
       const processedUrl = replaceProcessedObjectUrl(img.processedUrl, result.blob);
 
@@ -207,7 +209,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         setProcessResult(result);
       });
     } catch (err) {
-      if (sessionId() === session) {
+      if (sessionId() === session && uploadRequestId === uploadRequest) {
         setError(err instanceof Error ? err.message : "Processing failed");
         console.error("Error processing image:", err);
       }
@@ -259,13 +261,22 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
   // ── Handlers ──────────────────────────────────────────────────────────────
   async function handleFileUpload(file: File): Promise<void> {
+    const requestId = ++uploadRequestId;
     const validationResult = await validateImageFile(file);
+    if (requestId !== uploadRequestId) return;
     setValidation(validationResult);
 
     if (!validationResult.valid) return;
 
     try {
-      const metadata = await getImageMetadata(file);
+      const preparedImage = await prepareImageFile(file);
+      if (requestId !== uploadRequestId) return;
+
+      const metadata =
+        preparedImage.format === preparedImage.file.type
+          ? await getImageMetadata(preparedImage.file)
+          : await getImageMetadata(preparedImage.file, preparedImage.format);
+      if (requestId !== uploadRequestId) return;
 
       const dimensionResult = validateImageDimensions(metadata);
       if (!dimensionResult.valid) {
@@ -276,7 +287,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       const originalUrl = URL.createObjectURL(file);
 
       const processedImage: ProcessedImage = {
-        file,
+        file: preparedImage.file,
         originalUrl,
         processedUrl: null,
         metadata,

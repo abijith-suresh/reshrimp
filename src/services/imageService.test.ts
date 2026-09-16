@@ -1,7 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MAX_PIXEL_DIMENSION } from "../config/constants";
 import type { ProcessOptions, ResizeOptions } from "../types/processing";
-import { calculateDimensions, getImageMetadata, processImage } from "./imageService";
+import {
+  calculateDimensions,
+  getImageMetadata,
+  prepareImageFile,
+  processImage,
+} from "./imageService";
 
 const mockCanvas = {
   width: 0,
@@ -257,6 +262,40 @@ describe("processImage", () => {
       format: expect.any(String),
       fileSize: expect.any(Number),
     });
+  });
+});
+
+describe("prepareImageFile", () => {
+  it("returns ordinary input unchanged", async () => {
+    const file = new File(["png"], "photo.png", { type: "image/png" });
+
+    await expect(prepareImageFile(file)).resolves.toEqual({ file, format: "image/png" });
+    expect(mockDecodeHeicBlob).not.toHaveBeenCalled();
+  });
+
+  it("decodes HEIC input before metadata extraction and preserves its input format", async () => {
+    const file = new File(["heic"], "photo.heic", { type: "image/heic" });
+    const decodedBlob = new Blob(["decoded"], { type: "image/png" });
+    mockDecodeHeicBlob.mockResolvedValue(decodedBlob);
+
+    const prepared = await prepareImageFile(file);
+
+    expect(mockDecodeHeicBlob).toHaveBeenCalledWith(file);
+    expect(prepared.format).toBe("image/heic");
+    expect(prepared.file).toEqual(
+      expect.objectContaining({ name: "photo.png", type: "image/png" })
+    );
+  });
+
+  it("detects HEIC content when the MIME type is empty", async () => {
+    const file = new File(["heic"], "photo", { type: "" });
+    mockIsHeicBlob.mockResolvedValue(true);
+
+    const prepared = await prepareImageFile(file);
+
+    expect(mockIsHeicBlob).toHaveBeenCalledWith(file);
+    expect(prepared.format).toBe("image/heic");
+    expect(mockDecodeHeicBlob).toHaveBeenCalledWith(file);
   });
 });
 
