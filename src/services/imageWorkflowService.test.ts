@@ -1,5 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { MAX_PIXEL_DIMENSION } from "../config/constants";
 import type { ResizeUnit } from "../types/processing";
 import {
   buildProcessOptions,
@@ -62,19 +61,19 @@ describe("buildProcessOptions", () => {
     expect(options.resize).toEqual({ width: -50, maintainAspectRatio: true });
   });
 
-  it("clamps oversized targets to the maximum pixel dimension", () => {
+  it("preserves oversized targets so processing can reject them", () => {
     const options = buildProcessOptions({ ...baseInput, widthValue: "99999", heightValue: "" });
-    expect(options.resize?.width).toBe(MAX_PIXEL_DIMENSION);
+    expect(options.resize?.width).toBe(99999);
   });
 
-  it("clamps percentage targets that convert past the maximum pixel dimension", () => {
+  it("preserves percentage targets that convert past the maximum pixel dimension", () => {
     const options = buildProcessOptions({
       ...baseInput,
       widthValue: "1400",
       heightValue: "",
       resizeUnit: "%",
     });
-    expect(options.resize?.width).toBe(MAX_PIXEL_DIMENSION);
+    expect(options.resize?.width).toBe(16800);
   });
 });
 

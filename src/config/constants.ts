@@ -31,3 +31,7 @@ export const RECOMMENDED_MAX_SIZE = 10 * 1024 * 1024;
 
 // Maximum pixel dimension for canvas operations (browser-safe upper bound)
 export const MAX_PIXEL_DIMENSION = 16384;
+
+// Total pixels are bounded separately because a large square canvas can
+// allocate hundreds of megabytes even when each side is within the limit.
+export const MAX_TOTAL_PIXELS = 32_000_000;

@@ -1,4 +1,9 @@
-import { MAX_FILE_SIZE, MAX_PIXEL_DIMENSION, RECOMMENDED_MAX_SIZE } from "../config/constants";
+import {
+  MAX_FILE_SIZE,
+  MAX_PIXEL_DIMENSION,
+  MAX_TOTAL_PIXELS,
+  RECOMMENDED_MAX_SIZE,
+} from "../config/constants";
 import { getSupportedImageFormatSummary, isAcceptedInputFormat } from "../config/imageFormats";
 import type { ImageFormat, ImageMetadata, ValidationResult } from "../types/image";
 import { formatFileSize } from "../utils/imageUtils";
@@ -70,6 +75,13 @@ export function validateImageDimensions(
     return {
       valid: false,
       error: `Image dimensions (${metadata.width}×${metadata.height}) exceed the maximum of ${MAX_PIXEL_DIMENSION}px per side`,
+    };
+  }
+
+  if (metadata.width * metadata.height > MAX_TOTAL_PIXELS) {
+    return {
+      valid: false,
+      error: `Image dimensions (${metadata.width}×${metadata.height}) exceed the maximum pixel budget of ${MAX_TOTAL_PIXELS.toLocaleString()} pixels`,
     };
   }
 
