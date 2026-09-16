@@ -207,10 +207,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     activeRunId = runId;
 
     const isCurrentRun = () =>
-      !disposed &&
-      activeRunSession === session &&
-      activeRunId === runId &&
-      sessionId() === session;
+      !disposed && activeRunSession === session && activeRunId === runId && sessionId() === session;
 
     batch(() => {
       if (img.processedUrl) {
