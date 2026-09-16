@@ -485,6 +485,97 @@ describe("ImageApp", () => {
     });
   });
 
+  it("clears the previous output when a reprocess fails", async () => {
+    const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
+    const firstBlob = new Blob(["first"], { type: "image/png" });
+
+    mockGetImageMetadata.mockResolvedValue({
+      width: 1200,
+      height: 800,
+      format: "image/png",
+      fileSize: sourceFile.size,
+      fileName: sourceFile.name,
+    });
+    mockProcessImage
+      .mockResolvedValueOnce({
+        blob: firstBlob,
+        metadata: { width: 1200, height: 800, format: "image/png", fileSize: firstBlob.size },
+      })
+      .mockRejectedValueOnce(new Error("Second run failed"));
+
+    vi.mocked(URL.createObjectURL)
+      .mockReturnValueOnce("blob:original")
+      .mockReturnValueOnce("blob:first-processed");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#download-button")).toBeEnabled();
+    });
+
+    const widthInput = view.container.querySelector("#width-input") as HTMLInputElement;
+    fireEvent.input(widthInput, { target: { value: "400" } });
+
+    await vi.waitFor(() => {
+      expect(mockProcessImage).toHaveBeenCalledTimes(2);
+      expect(view.container.querySelector("#error-text")).toHaveTextContent("Second run failed");
+      expect(view.container.querySelector("#download-button")).toBeDisabled();
+      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+        "src",
+        "blob:original"
+      );
+    });
+
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:first-processed");
+  });
+
+  it("does not create a processed URL after unmounting during processing", async () => {
+    const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
+    mockGetImageMetadata.mockResolvedValue({
+      width: 1200,
+      height: 800,
+      format: "image/png",
+      fileSize: sourceFile.size,
+      fileName: sourceFile.name,
+    });
+
+    let resolveProcessing!: (result: ProcessResult) => void;
+    mockProcessImage.mockImplementationOnce(
+      () =>
+        new Promise<ProcessResult>((resolve) => {
+          resolveProcessing = resolve;
+        })
+    );
+    vi.mocked(URL.createObjectURL).mockReturnValueOnce("blob:original");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(mockProcessImage).toHaveBeenCalledTimes(1);
+    });
+
+    view.unmount();
+    dispose = undefined;
+    resolveProcessing({
+      blob: new Blob(["processed"], { type: "image/png" }),
+      metadata: { width: 1200, height: 800, format: "image/png", fileSize: 9 },
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:original");
+  });
+
   it("renders the snap sheet (not the old tab-bar drawer) and starts hidden with no image", () => {
     const view = render(() => ImageApp());
     dispose = view.unmount;
