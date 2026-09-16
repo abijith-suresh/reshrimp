@@ -5,7 +5,7 @@ import PageSection from "../components/ui/PageSection.astro";
 import HeroSection from "../components/marketing/hero/HeroSection.astro";
 import FeatureSection from "../components/marketing/sections/FeatureSection.astro";
 import CTACard from "../components/marketing/sections/CTACard.astro";
-import { Scaling, ArrowLeftRight, Gauge, ShieldCheck, WifiOff, Code, Wand2 } from "lucide-astro";
+import { Scaling, ArrowLeftRight, Gauge, ShieldCheck, Monitor, Code, Wand2 } from "lucide-astro";
 
 const features = [
   {
@@ -37,11 +37,11 @@ const features = [
       "Every pixel is processed locally in your browser. No servers, no uploads, no tracking, no cookies, no accounts. Your images never leave your device. Verify it yourself — the source code is open.",
   },
   {
-    icon: WifiOff,
-    title: "Runs locally",
+    icon: Monitor,
+    title: "Runs in your browser",
     color: "coral",
     description:
-      "After the first online visit, the app shell and core tools work offline. Image processing still runs locally in your browser.",
+      "Core image processing uses browser APIs and keeps your image on your device. Background removal loads its model and runtime assets from the app when you use it.",
   },
   {
     icon: Code,
@@ -55,7 +55,7 @@ const features = [
     title: "Remove background",
     color: "lavender",
     description:
-      "Browser-based background removal using WebAssembly. Downloads model assets once, then works offline. Exports PNG to preserve transparency.",
+      "Browser-based background removal using WebAssembly. The model and runtime assets are served from the app origin when needed. Exports PNG to preserve transparency.",
   },
 ] as const;
 ---
@@ -71,7 +71,7 @@ const features = [
       chip={{ label: "Features", variant: "lavender" }}
       title="Four focused tools."
       gradientTitle="One image at a time."
-      subtitle="Reshrimp is a private browser utility for resize, compression, format conversion, and background removal. After the first online visit, the app shell and core tools work offline."
+      subtitle="Reshrimp is a private browser utility for resize, compression, format conversion, and background removal."
     />
 
     <!-- Feature sections -->
@@ -95,7 +95,7 @@ const features = [
     <!-- CTA -->
     <CTACard
       title="Ready to try it?"
-      subtitle="Free, open source, private, and offline-ready after the first visit."
+      subtitle="Free, open source, and private by design."
     />
   </MarketingPageWrapper>
 </MarketingLayout>
