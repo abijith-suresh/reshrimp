@@ -18,8 +18,18 @@ export function createDownloadLink(blob: Blob, filename: string): void {
   link.download = filename;
   link.style.display = "none";
 
-  document.body.appendChild(link);
-  link.click();
+  let appended = false;
+  try {
+    document.body.appendChild(link);
+    appended = true;
+    link.click();
+  } catch (error) {
+    if (appended) {
+      document.body.removeChild(link);
+    }
+    URL.revokeObjectURL(url);
+    throw error;
+  }
 
   // Cleanup
   setTimeout(() => {

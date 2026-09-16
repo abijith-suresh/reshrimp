@@ -70,6 +70,20 @@ describe("createDownloadLink", () => {
     expect(document.body.removeChild).toHaveBeenCalledWith(link);
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url");
   });
+
+  it("cleans up synchronously when triggering the download throws", () => {
+    const error = new Error("download blocked");
+    vi.mocked(HTMLAnchorElement.prototype.click).mockImplementationOnce(() => {
+      throw error;
+    });
+
+    expect(() => createDownloadLink(new Blob([]), "file.png")).toThrow(error);
+
+    const link = (document.body.appendChild as ReturnType<typeof vi.fn>).mock
+      .calls[0][0] as HTMLAnchorElement;
+    expect(document.body.removeChild).toHaveBeenCalledWith(link);
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url");
+  });
 });
 
 describe("formatFileSize", () => {

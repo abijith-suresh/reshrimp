@@ -72,6 +72,8 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   // variable (not the isProcessing signal) keeps stale completions from
   // clobbering the state of a newer run.
   let activeRunSession: number | null = null;
+  let activeRunId: number | null = null;
+  let nextRunId = 0;
   let uploadRequestId = 0;
   let disposed = false;
   // Set when inputs change mid-run; consumed after completion so the change
@@ -186,7 +188,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     }
 
     const session = sessionId();
-    const uploadRequest = uploadRequestId;
+    const runId = ++nextRunId;
 
     const options = buildProcessOptions({
       originalWidth: img.metadata.width,
@@ -202,6 +204,13 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     });
 
     activeRunSession = session;
+    activeRunId = runId;
+
+    const isCurrentRun = () =>
+      !disposed &&
+      activeRunSession === session &&
+      activeRunId === runId &&
+      sessionId() === session;
 
     batch(() => {
       if (img.processedUrl) {
@@ -227,6 +236,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         options,
         options.removeBackground
           ? (progress: number) => {
+              if (!isCurrentRun()) return;
               const pct = Math.round(progress * 100);
               setProgressLabel(`Removing background ${pct}%\u2026`);
             }
@@ -235,7 +245,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
       // A new upload started a different session while this run was in
       // flight — discard the result instead of stamping it onto the new image.
-      if (disposed || sessionId() !== session || uploadRequestId !== uploadRequest) return;
+      if (!isCurrentRun()) return;
 
       const processedUrl = replaceProcessedObjectUrl(null, result.blob);
 
@@ -245,15 +255,15 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         setProcessResult(result);
       });
     } catch (err) {
-      if (!disposed && sessionId() === session && uploadRequestId === uploadRequest) {
+      if (isCurrentRun()) {
         setError(err instanceof Error ? err.message : "Processing failed");
         console.error("Error processing image:", err);
       }
     } finally {
-      const ownsRun = activeRunSession === session;
-      const ownsSession = sessionId() === session;
+      const ownsRun = activeRunSession === session && activeRunId === runId;
       if (ownsRun) activeRunSession = null;
-      if (ownsRun && ownsSession && !disposed) {
+      if (ownsRun) activeRunId = null;
+      if (ownsRun && !disposed) {
         batch(() => {
           setIsProcessing(false);
           setProgressLabel(null);
@@ -300,21 +310,22 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   // ── Handlers ──────────────────────────────────────────────────────────────
   async function handleFileUpload(file: File): Promise<void> {
     const requestId = ++uploadRequestId;
-    const validationResult = await validateImageFile(file);
-    if (requestId !== uploadRequestId) return;
-    setValidation(validationResult);
-
-    if (!validationResult.valid) return;
 
     try {
+      const validationResult = await validateImageFile(file);
+      if (disposed || requestId !== uploadRequestId) return;
+      setValidation(validationResult);
+
+      if (!validationResult.valid) return;
+
       const preparedImage = await prepareImageFile(file);
-      if (requestId !== uploadRequestId) return;
+      if (disposed || requestId !== uploadRequestId) return;
 
       const metadata =
         preparedImage.format === preparedImage.file.type
           ? await getImageMetadata(preparedImage.file)
           : await getImageMetadata(preparedImage.file, preparedImage.format);
-      if (requestId !== uploadRequestId) return;
+      if (disposed || requestId !== uploadRequestId) return;
 
       const dimensionResult = validateImageDimensions(metadata);
       if (!dimensionResult.valid) {
@@ -323,6 +334,10 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       }
 
       const originalUrl = URL.createObjectURL(file);
+      if (disposed || requestId !== uploadRequestId) {
+        URL.revokeObjectURL(originalUrl);
+        return;
+      }
 
       const processedImage: ProcessedImage = {
         file: preparedImage.file,
@@ -345,6 +360,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         setSessionId((id) => id + 1);
         setProcessResult(null);
         setError(null);
+        setProgressLabel(null);
 
         // Reset form controls to defaults
         setWidthValue("");
@@ -362,8 +378,10 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         setDpiTooltipOpen(false);
       });
     } catch (err) {
-      setError("Failed to load image. Please try another file.");
-      console.error("Error loading image:", err);
+      if (!disposed && requestId === uploadRequestId) {
+        setError("Failed to load image. Please try another file.");
+        console.error("Error loading image:", err);
+      }
     }
   }
 
