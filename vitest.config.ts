@@ -13,6 +13,18 @@ export default defineConfig({
     conditions: ["browser", "development"],
   },
   test: {
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "json-summary", "html"],
+      reportsDirectory: "./coverage",
+      exclude: ["src/test/**", "**/*.d.ts", "**/*.test.*", "**/*.spec.*"],
+      thresholds: {
+        branches: 60,
+        functions: 70,
+        lines: 70,
+        statements: 70,
+      },
+    },
     environment: "jsdom",
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
