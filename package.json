@@ -17,9 +17,10 @@
     "format": "biome format --write .",
     "format:check": "biome format .",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "analyze": "ANALYZE=true bun run build",
-    "verify": "bun run type-check && bun run lint && bun run format:check && bun run test && bun run build",
+    "verify": "bun run type-check && bun run lint && bun run format:check && bun run test:coverage && bun run build",
     "prepare": "husky"
   },
   "dependencies": {
@@ -42,6 +43,7 @@
     "@solidjs/testing-library": "^0.8.10",
     "@tailwindcss/vite": "^4.3.3",
     "@testing-library/jest-dom": "^7.0.1",
+    "@vitest/coverage-v8": "5.0.0",
     "husky": "^9.1.7",
     "jsdom": "^30.0.1",
     "lint-staged": "^17.5.1",
