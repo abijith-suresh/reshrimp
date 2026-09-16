@@ -1,4 +1,5 @@
-import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -58,22 +59,41 @@ async function getResourceMap() {
   return fetchJson(new URL("resources.json", sourceBaseUrl));
 }
 
-async function hasExpectedSize(filePath, expectedSize) {
+function getExpectedHash(chunk) {
+  if (!/^[a-f0-9]{64}$/i.test(chunk.hash)) {
+    throw new Error(`Invalid background-removal chunk hash for ${chunk.name}`);
+  }
+
+  return chunk.hash.toLowerCase();
+}
+
+function getSha256(buffer) {
+  return createHash("sha256").update(buffer).digest("hex");
+}
+
+async function hasExpectedChunk(filePath, chunk) {
   try {
-    const fileStat = await stat(filePath);
-    return fileStat.size === expectedSize;
+    const buffer = await readFile(filePath);
+    return (
+      buffer.byteLength === getChunkSize(chunk) && getSha256(buffer) === getExpectedHash(chunk)
+    );
   } catch {
     return false;
   }
 }
 
-async function downloadFile(url, destinationPath) {
+async function downloadFile(url, destinationPath, chunk) {
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`Failed to download ${url}: ${response.status} ${response.statusText}`);
   }
 
   const buffer = Buffer.from(await response.arrayBuffer());
+
+  if (buffer.byteLength !== getChunkSize(chunk) || getSha256(buffer) !== getExpectedHash(chunk)) {
+    throw new Error(`Downloaded background-removal chunk failed integrity check: ${chunk.name}`);
+  }
+
   await writeFile(destinationPath, buffer);
 }
 
@@ -98,13 +118,12 @@ async function main() {
 
   for (const chunk of chunks) {
     const destinationPath = path.join(targetDir, chunk.name);
-    const expectedSize = getChunkSize(chunk);
 
-    if (await hasExpectedSize(destinationPath, expectedSize)) {
+    if (await hasExpectedChunk(destinationPath, chunk)) {
       continue;
     }
 
-    await downloadFile(new URL(chunk.name, sourceBaseUrl), destinationPath);
+    await downloadFile(new URL(chunk.name, sourceBaseUrl), destinationPath, chunk);
     downloadedCount += 1;
   }
 
