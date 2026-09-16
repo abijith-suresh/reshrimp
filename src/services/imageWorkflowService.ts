@@ -1,4 +1,3 @@
-import { MAX_PIXEL_DIMENSION } from "../config/constants";
 import { isConvertibleOutputFormat } from "../config/imageFormats";
 import type { ImageFormat } from "../types/image";
 import type { ProcessOptions, ResizeUnit } from "../types/processing";
@@ -51,26 +50,15 @@ function rebaseDimensionValue(input: {
   return formatResizeValue(rebasedValue, input.newUnit);
 }
 
-/**
- * Cap converted pixel targets at the browser-safe canvas limit so an
- * oversized entry cannot allocate an unbounded canvas. Values at or below
- * zero are passed through so processing can reject them with a clear error.
- */
-function clampToPixelLimit(px: number): number {
-  return Math.min(px, MAX_PIXEL_DIMENSION);
-}
-
 export function buildProcessOptions(input: BuildProcessOptionsInput): ProcessOptions {
   const widthNumber = input.widthValue ? parseFloat(input.widthValue) : NaN;
   const heightNumber = input.heightValue ? parseFloat(input.heightValue) : NaN;
   const width = Number.isNaN(widthNumber)
     ? undefined
-    : clampToPixelLimit(convertToPx(widthNumber, input.resizeUnit, input.originalWidth, input.dpi));
+    : convertToPx(widthNumber, input.resizeUnit, input.originalWidth, input.dpi);
   const height = Number.isNaN(heightNumber)
     ? undefined
-    : clampToPixelLimit(
-        convertToPx(heightNumber, input.resizeUnit, input.originalHeight, input.dpi)
-      );
+    : convertToPx(heightNumber, input.resizeUnit, input.originalHeight, input.dpi);
 
   return {
     // Explicit undefined checks instead of truthiness so that a "0" target

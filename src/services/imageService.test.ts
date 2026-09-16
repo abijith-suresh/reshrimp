@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MAX_PIXEL_DIMENSION } from "../config/constants";
+import { MAX_PIXEL_DIMENSION, MAX_TOTAL_PIXELS } from "../config/constants";
 import type { ProcessOptions, ResizeOptions } from "../types/processing";
 import {
   calculateDimensions,
@@ -119,6 +119,14 @@ describe("processImage dimension guards", () => {
     expect(mockCanvasToBlob).not.toHaveBeenCalled();
   });
 
+  it("rejects sources beyond the total pixel budget before canvas work", async () => {
+    mockLoadImage.mockResolvedValue(makeMockImg(8000, 4001));
+    const file = new File([], "huge.png", { type: "image/png" });
+
+    await expect(processImage(file, {})).rejects.toThrow(String(MAX_TOTAL_PIXELS.toLocaleString()));
+    expect(mockResizeOnCanvas).not.toHaveBeenCalled();
+  });
+
   it("rejects resize targets beyond MAX_PIXEL_DIMENSION", async () => {
     const file = new File([], "test.png", { type: "image/png" });
     const opts: ProcessOptions = {
@@ -126,6 +134,16 @@ describe("processImage dimension guards", () => {
     };
 
     await expect(processImage(file, opts)).rejects.toThrow(/exceeds the maximum/);
+  });
+
+  it("rejects resize targets beyond the total pixel budget", async () => {
+    const file = new File([], "test.png", { type: "image/png" });
+
+    await expect(
+      processImage(file, {
+        resize: { width: 8000, height: 4001, maintainAspectRatio: false },
+      })
+    ).rejects.toThrow(String(MAX_TOTAL_PIXELS.toLocaleString()));
   });
 
   it("rejects non-positive and non-finite resize targets", async () => {

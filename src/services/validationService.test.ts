@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { MAX_PIXEL_DIMENSION } from "../config/constants";
+import { MAX_PIXEL_DIMENSION, MAX_TOTAL_PIXELS } from "../config/constants";
 import type { ImageFormat } from "../types/image";
 import {
   generateDownloadFilename,
@@ -137,7 +137,7 @@ describe("validateImageDimensions", () => {
   it("accepts dimensions at the maximum pixel limit", () => {
     const result = validateImageDimensions({
       width: MAX_PIXEL_DIMENSION,
-      height: MAX_PIXEL_DIMENSION,
+      height: 1,
     });
     expect(result.valid).toBe(true);
   });
@@ -158,6 +158,13 @@ describe("validateImageDimensions", () => {
     });
     expect(result.valid).toBe(false);
     expect(result.error).toContain(String(MAX_PIXEL_DIMENSION));
+  });
+
+  it("rejects dimensions over the total pixel budget", () => {
+    const result = validateImageDimensions({ width: 8000, height: 4001 });
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toContain(String(MAX_TOTAL_PIXELS.toLocaleString()));
   });
 });
 

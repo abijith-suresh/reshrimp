@@ -1,4 +1,4 @@
-import { MAX_PIXEL_DIMENSION } from "../config/constants";
+import { MAX_PIXEL_DIMENSION, MAX_TOTAL_PIXELS } from "../config/constants";
 import {
   isAcceptedInputFormat,
   isHeicInput,
@@ -111,6 +111,20 @@ function assertValidResizeTargets(resize: ResizeOptions): void {
   }
 }
 
+function assertWithinPixelLimits(width: number, height: number, label: string): void {
+  if (width > MAX_PIXEL_DIMENSION || height > MAX_PIXEL_DIMENSION) {
+    throw new Error(
+      `${label} dimensions (${width}×${height}) exceed the maximum of ${MAX_PIXEL_DIMENSION}px per side`
+    );
+  }
+
+  if (width * height > MAX_TOTAL_PIXELS) {
+    throw new Error(
+      `${label} dimensions (${width}×${height}) exceed the maximum pixel budget of ${MAX_TOTAL_PIXELS.toLocaleString()} pixels`
+    );
+  }
+}
+
 /**
  * Process an image with combined operations (resize, format conversion, compression)
  * Operations are applied in order: background removal -> resize -> format conversion -> compression
@@ -131,11 +145,7 @@ export async function processImage(
   // images that would be rejected anyway.
   const sourceImage = await loadImage(currentFile);
 
-  if (sourceImage.width > MAX_PIXEL_DIMENSION || sourceImage.height > MAX_PIXEL_DIMENSION) {
-    throw new Error(
-      `Image dimensions (${sourceImage.width}×${sourceImage.height}) exceed the maximum of ${MAX_PIXEL_DIMENSION}px per side`
-    );
-  }
+  assertWithinPixelLimits(sourceImage.width, sourceImage.height, "Image");
 
   // Step 2: Remove background if requested
   if (options.removeBackground) {
@@ -145,6 +155,7 @@ export async function processImage(
 
   // Step 3: Load the working image (the background-removed output when applicable)
   const img = options.removeBackground ? await loadImage(currentFile) : sourceImage;
+  assertWithinPixelLimits(img.width, img.height, "Image");
 
   // Step 4: Determine dimensions (resize or original)
   let width = img.width;
@@ -157,11 +168,7 @@ export async function processImage(
     height = dimensions.height;
 
     // Aspect-ratio derivation can push an in-range target past the canvas limit
-    if (width > MAX_PIXEL_DIMENSION || height > MAX_PIXEL_DIMENSION) {
-      throw new Error(
-        `Target dimensions (${width}×${height}) exceed the maximum of ${MAX_PIXEL_DIMENSION}px per side`
-      );
-    }
+    assertWithinPixelLimits(width, height, "Target");
   }
 
   // Step 5: Create canvas with final dimensions
