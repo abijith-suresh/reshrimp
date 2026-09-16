@@ -35,6 +35,8 @@ export type BackgroundRemovalProgressCallback = (progress: number) => void;
  */
 export interface ProcessResult {
   blob: Blob;
+  /** The format requested by the workflow before browser capability fallback. */
+  requestedFormat: ImageFormat;
   metadata: {
     width: number;
     height: number;

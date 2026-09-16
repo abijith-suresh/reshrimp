@@ -34,6 +34,7 @@ export interface AppState {
   widthPlaceholder: Accessor<string>;
   heightPlaceholder: Accessor<string>;
   sizeDifference: Accessor<SizeDiff | null>;
+  formatNotice: Accessor<string | null>;
 }
 
 export interface AppActions {
