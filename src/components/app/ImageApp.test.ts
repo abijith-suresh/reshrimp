@@ -96,6 +96,7 @@ describe("ImageApp", () => {
     });
     mockProcessImage.mockResolvedValue({
       blob: processedBlob,
+      requestedFormat: "image/png",
       metadata: {
         width: 1200,
         height: 800,
@@ -171,6 +172,7 @@ describe("ImageApp", () => {
     });
     mockProcessImage.mockResolvedValue({
       blob: processedBlob,
+      requestedFormat: "image/png",
       metadata: { width: 1200, height: 800, format: "image/png", fileSize: processedBlob.size },
     });
 
@@ -218,6 +220,7 @@ describe("ImageApp", () => {
     mockProcessImage
       .mockResolvedValueOnce({
         blob: firstBlob,
+        requestedFormat: "image/png",
         metadata: {
           width: 1200,
           height: 800,
@@ -227,6 +230,7 @@ describe("ImageApp", () => {
       })
       .mockResolvedValueOnce({
         blob: secondBlob,
+        requestedFormat: "image/png",
         metadata: {
           width: 600,
           height: 400,
@@ -300,6 +304,7 @@ describe("ImageApp", () => {
     mockProcessImage
       .mockResolvedValueOnce({
         blob: firstProcessedBlob,
+        requestedFormat: "image/png",
         metadata: {
           width: 1200,
           height: 800,
@@ -309,6 +314,7 @@ describe("ImageApp", () => {
       })
       .mockResolvedValueOnce({
         blob: secondProcessedBlob,
+        requestedFormat: "image/png",
         metadata: {
           width: 800,
           height: 600,
@@ -373,6 +379,7 @@ describe("ImageApp", () => {
     });
     mockProcessImage.mockResolvedValue({
       blob: processedBlob,
+      requestedFormat: "image/png",
       metadata: {
         width: 1200,
         height: 800,
@@ -423,6 +430,7 @@ describe("ImageApp", () => {
     });
     mockProcessImage.mockResolvedValue({
       blob: processedBlob,
+      requestedFormat: "image/png",
       metadata: {
         width: 1200,
         height: 800,
@@ -625,6 +633,7 @@ describe("ImageApp", () => {
       )
       .mockResolvedValueOnce({
         blob: blobB,
+        requestedFormat: "image/png",
         metadata: { width: 200, height: 200, format: "image/png", fileSize: blobB.size },
       });
 
@@ -659,6 +668,7 @@ describe("ImageApp", () => {
     // A's stale completion must not stamp its result onto B's session
     resolveA({
       blob: blobA,
+      requestedFormat: "image/png",
       metadata: { width: 100, height: 100, format: "image/png", fileSize: blobA.size },
     });
 
@@ -775,6 +785,7 @@ describe("ImageApp", () => {
       )
       .mockResolvedValueOnce({
         blob: secondBlob,
+        requestedFormat: "image/png",
         metadata: { width: 400, height: 300, format: "image/png", fileSize: secondBlob.size },
       });
 
@@ -802,6 +813,7 @@ describe("ImageApp", () => {
 
     resolveFirst({
       blob: firstBlob,
+      requestedFormat: "image/png",
       metadata: { width: 1200, height: 800, format: "image/png", fileSize: firstBlob.size },
     });
 
@@ -836,6 +848,7 @@ describe("ImageApp", () => {
     // Simulate a browser that cannot encode AVIF: AVIF requested, PNG produced
     mockProcessImage.mockResolvedValue({
       blob: processedBlob,
+      requestedFormat: "image/avif",
       metadata: { width: 1200, height: 800, format: "image/png", fileSize: processedBlob.size },
     });
 
@@ -874,6 +887,9 @@ describe("ImageApp", () => {
         "src",
         "blob:second-processed"
       );
+      expect(view.container.querySelector("#format-fallback-warning")).toHaveTextContent(
+        "could not export AVIF"
+      );
     });
 
     const downloadBtn = view.container.querySelector("#download-button") as HTMLButtonElement;
@@ -895,6 +911,7 @@ describe("ImageApp", () => {
     });
     mockProcessImage.mockResolvedValue({
       blob: processedBlob,
+      requestedFormat: "image/png",
       metadata: { width: 1200, height: 800, format: "image/png", fileSize: processedBlob.size },
     });
 

@@ -176,14 +176,14 @@ export async function processImage(
 
   // Step 6: Determine format (convert or original)
   // If background removal is enabled, force PNG to preserve transparency
-  let format: ImageFormat;
+  let requestedFormat: ImageFormat;
   if (options.removeBackground) {
-    format = "image/png";
+    requestedFormat = "image/png";
   } else {
-    format =
+    requestedFormat =
       options.format || (isAcceptedInputFormat(currentFile.type) ? currentFile.type : "image/png");
   }
-  format = getBestFormat(format);
+  const format = getBestFormat(requestedFormat);
 
   // Step 7: Determine quality (compress or default)
   let quality: number | undefined;
@@ -196,6 +196,7 @@ export async function processImage(
 
   return {
     blob,
+    requestedFormat,
     metadata: {
       width,
       height,

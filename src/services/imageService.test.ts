@@ -273,6 +273,7 @@ describe("processImage", () => {
     const result = await processImage(file, {});
 
     expect(result).toHaveProperty("blob");
+    expect(result.requestedFormat).toBe("image/png");
     expect(result).toHaveProperty("metadata");
     expect(result.metadata).toMatchObject({
       width: expect.any(Number),

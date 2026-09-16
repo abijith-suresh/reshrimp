@@ -10,7 +10,11 @@ import {
   useContext,
 } from "solid-js";
 import { DEFAULT_DPI } from "@/config/constants";
-import { getInitialOutputFormat, supportsBrowserQualityControl } from "@/config/imageFormats";
+import {
+  getImageFormatLabel,
+  getInitialOutputFormat,
+  supportsBrowserQualityControl,
+} from "@/config/imageFormats";
 import { preloadBackgroundRemoval } from "@/services/backgroundRemovalService";
 import { getImageMetadata, prepareImageFile, processImage } from "@/services/imageService";
 import {
@@ -157,6 +161,16 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       text: `Change: ${sign}${formatFileSize(Math.abs(diff))} (${sign}${pct}%)`,
       className: diff > 0 ? "font-medium text-coral-500" : "font-medium text-mint-600",
     };
+  });
+
+  const formatNotice = createMemo<string | null>(() => {
+    const result = processResult();
+    if (!result) return null;
+
+    const requestedFormat = result.requestedFormat;
+    if (requestedFormat === result.metadata.format) return null;
+
+    return `Your browser could not export ${getImageFormatLabel(requestedFormat)}. Downloaded as ${getImageFormatLabel(result.metadata.format)} instead.`;
   });
 
   // ── Core processing (internal) ────────────────────────────────────────────
@@ -532,6 +546,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     widthPlaceholder,
     heightPlaceholder,
     sizeDifference,
+    formatNotice,
   };
 
   const actions: AppActions = {
