@@ -8,6 +8,12 @@ export function replaceProcessedObjectUrl(previousUrl: string | null, blob: Blob
   return URL.createObjectURL(blob);
 }
 
+export function revokeProcessedObjectUrl(url: string | null): void {
+  if (url) {
+    URL.revokeObjectURL(url);
+  }
+}
+
 export function revokeImageSessionUrls(
   image: Pick<ProcessedImage, "originalUrl" | "processedUrl"> | null
 ): void {

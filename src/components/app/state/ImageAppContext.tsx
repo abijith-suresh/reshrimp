@@ -29,7 +29,11 @@ import {
 import type { ImageFormat, ProcessedImage, ValidationResult } from "@/types/image";
 import type { ProcessResult, ResizeUnit } from "@/types/processing";
 import { convertFromPx, createDownloadLink, formatFileSize } from "@/utils/imageUtils";
-import { replaceProcessedObjectUrl, revokeImageSessionUrls } from "./imageAppObjectUrls";
+import {
+  replaceProcessedObjectUrl,
+  revokeImageSessionUrls,
+  revokeProcessedObjectUrl,
+} from "./imageAppObjectUrls";
 import type { AppActions, AppState, ImageAppContextValue, SizeDiff } from "./imageAppTypes";
 
 function createDebouncedTask(fn: () => void, ms: number) {
@@ -65,6 +69,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   // clobbering the state of a newer run.
   let activeRunSession: number | null = null;
   let uploadRequestId = 0;
+  let disposed = false;
   // Set when inputs change mid-run; consumed after completion so the change
   // is re-processed instead of silently dropped.
   let pendingReprocess = false;
@@ -99,6 +104,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   }, 400);
 
   onCleanup(() => {
+    disposed = true;
     debouncedProcess.cancel();
     revokeImageSessionUrls(currentImage());
   });
@@ -106,7 +112,9 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   // ── Derived signals ───────────────────────────────────────────────────────
   const controlsActive = createMemo(() => currentImage() !== null);
   const formatSelectDisabled = createMemo(() => removeBackground());
-  const downloadActive = createMemo(() => processResult() !== null);
+  const downloadActive = createMemo(
+    () => processResult() !== null && currentImage()?.processedUrl !== null
+  );
 
   const currentOutputFormat = createMemo<ImageFormat | null>(() => {
     const image = currentImage();
@@ -153,6 +161,8 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
   // ── Core processing (internal) ────────────────────────────────────────────
   async function handleProcess(): Promise<void> {
+    if (disposed) return;
+
     const img = currentImage();
     if (!img) return;
 
@@ -178,8 +188,20 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     });
 
     activeRunSession = session;
-    setIsProcessing(true);
-    setError(null);
+
+    batch(() => {
+      if (img.processedUrl) {
+        revokeProcessedObjectUrl(img.processedUrl);
+        setCurrentImage((previousImage) =>
+          previousImage?.processedUrl === img.processedUrl
+            ? { ...previousImage, processedUrl: null }
+            : previousImage
+        );
+      }
+      setProcessResult(null);
+      setIsProcessing(true);
+      setError(null);
+    });
 
     if (options.removeBackground) {
       setProgressLabel("Removing background\u2026");
@@ -199,9 +221,9 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
       // A new upload started a different session while this run was in
       // flight — discard the result instead of stamping it onto the new image.
-      if (sessionId() !== session || uploadRequestId !== uploadRequest) return;
+      if (disposed || sessionId() !== session || uploadRequestId !== uploadRequest) return;
 
-      const processedUrl = replaceProcessedObjectUrl(img.processedUrl, result.blob);
+      const processedUrl = replaceProcessedObjectUrl(null, result.blob);
 
       // Batch result updates into a single DOM update
       batch(() => {
@@ -209,21 +231,23 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         setProcessResult(result);
       });
     } catch (err) {
-      if (sessionId() === session && uploadRequestId === uploadRequest) {
+      if (!disposed && sessionId() === session && uploadRequestId === uploadRequest) {
         setError(err instanceof Error ? err.message : "Processing failed");
         console.error("Error processing image:", err);
       }
     } finally {
-      if (activeRunSession === session) {
-        activeRunSession = null;
-      }
-      batch(() => {
-        setIsProcessing(false);
-        setProgressLabel(null);
-      });
-      if (pendingReprocess) {
-        pendingReprocess = false;
-        debouncedProcess.run();
+      const ownsRun = activeRunSession === session;
+      const ownsSession = sessionId() === session;
+      if (ownsRun) activeRunSession = null;
+      if (ownsRun && ownsSession && !disposed) {
+        batch(() => {
+          setIsProcessing(false);
+          setProgressLabel(null);
+        });
+        if (pendingReprocess) {
+          pendingReprocess = false;
+          debouncedProcess.run();
+        }
       }
     }
   }
