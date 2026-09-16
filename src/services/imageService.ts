@@ -61,6 +61,31 @@ export function calculateDimensions(
   return { width: originalWidth, height: originalHeight };
 }
 
+interface PreparedImageFile {
+  file: File;
+  format: string;
+}
+
+/**
+ * Normalize browser-unsupported HEIC/HEIF input before metadata extraction.
+ * The original format is retained separately so the UI can choose a sensible
+ * output format after the working file has been decoded to PNG.
+ */
+export async function prepareImageFile(file: File): Promise<PreparedImageFile> {
+  const isHeic = isHeicInput(file.type) || (await isHeicBlob(file));
+  if (!isHeic) {
+    return { file, format: file.type };
+  }
+
+  const decodedBlob = await decodeHeicBlob(file);
+  return {
+    file: new File([decodedBlob], file.name.replace(/\.(?:heic|heif)$/i, ".png"), {
+      type: "image/png",
+    }),
+    format: isHeicInput(file.type) ? file.type : "image/heic",
+  };
+}
+
 /**
  * Reject resize targets that cannot produce a valid output: non-positive
  * dimensions and targets beyond the browser-safe canvas limit.
@@ -97,16 +122,9 @@ export async function processImage(
   options: ProcessOptions,
   onBackgroundRemovalProgress?: BackgroundRemovalProgressCallback
 ): Promise<ProcessResult> {
-  let currentFile = file;
-
   // Step 0.5: Decode HEIC/HEIF input to PNG before processing. Also covers
   // HEIC content that arrives with an empty or generic MIME type.
-  if (isHeicInput(file.type) || (await isHeicBlob(file))) {
-    const decodedBlob = await decodeHeicBlob(file);
-    currentFile = new File([decodedBlob], file.name.replace(/\.(?:heic|heif)$/i, ".png"), {
-      type: "image/png",
-    });
-  }
+  let currentFile = (await prepareImageFile(file)).file;
 
   // Step 1: Load the source and guard dimensions before any heavy work —
   // background removal downloads a large ML model and must not run for
@@ -183,12 +201,12 @@ export async function processImage(
 /**
  * Extract metadata from an image file
  */
-export async function getImageMetadata(file: File) {
+export async function getImageMetadata(file: File, format = file.type) {
   const img = await loadImage(file);
   return {
     width: img.width,
     height: img.height,
-    format: file.type,
+    format,
     fileSize: file.size,
     fileName: file.name,
   };
