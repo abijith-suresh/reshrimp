@@ -8,8 +8,9 @@ RUN apt-get update && apt-get install -y \
     sudo \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Bun
-RUN curl -fsSL https://bun.sh/install | bash
+# Install mise. The repository's mise.toml is the source of truth for Bun.
+ENV MISE_INSTALL_PATH="/usr/local/bin/mise"
+RUN curl --proto '=https' --proto-redir '=https' --fail --show-error --silent --location https://mise.run | sh
 
 # Install GitHub CLI
 RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
@@ -27,9 +28,9 @@ RUN useradd -m -s /bin/bash nodeuser \
 USER nodeuser
 WORKDIR /workspace
 
-# Add Bun to PATH
-ENV BUN_INSTALL="/home/nodeuser/.bun"
-ENV PATH="$BUN_INSTALL/bin:$PATH"
+# Let mise expose the Bun version declared by the workspace mise.toml.
+ENV MISE_DATA_DIR="/home/nodeuser/.local/share/mise"
+ENV PATH="/home/nodeuser/.local/share/mise/shims:$PATH"
 
 # Expose port for Astro dev server
 EXPOSE 4321
