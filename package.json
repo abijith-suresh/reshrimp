@@ -17,10 +17,11 @@
     "format": "biome format --write .",
     "format:check": "biome format .",
     "test": "vitest run",
+    "test:asset-sync": "node --test scripts/sync-background-removal-assets.test.mjs",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
     "analyze": "ANALYZE=true bun run build",
-    "verify": "bun run type-check && bun run lint && bun run format:check && bun run test:coverage && bun run build",
+    "verify": "bun run type-check && bun run lint && bun run format:check && bun run test:coverage && bun run test:asset-sync && bun run build",
     "prepare": "husky"
   },
   "dependencies": {
@@ -28,12 +29,23 @@
     "@astrojs/solid-js": "^7.0.2",
     "@imgly/background-removal": "^1.7.0",
     "@resvg/resvg-js": "^2.6.2",
-    "astro": "^7.3.2",
+    "astro": "^7.3.3",
     "heic2any": "^0.0.4",
     "lucide-astro": "^0.556.0",
     "lucide-solid": "^1.44.0",
     "satori": "^0.33.4",
     "solid-js": "^1.9.15"
+  },
+  "overrides": {
+    "baseline-browser-mapping": "2.11.24",
+    "browserslist": "4.29.0",
+    "fast-uri": "3.1.6",
+    "fflate": "0.7.5",
+    "js-yaml": "4.3.2",
+    "nanoid": "3.3.18",
+    "postcss": "8.5.28",
+    "protobufjs": "7.6.6",
+    "smol-toml": "1.8.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",

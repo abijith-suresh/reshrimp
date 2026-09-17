@@ -23,14 +23,152 @@ const targetDir = path.join(
   "dist"
 );
 const resourceMapPath = path.join(targetDir, "resources.json");
+const trustedResourceMapPath = path.join(scriptDir, "background-removal-resources.json");
 const sourceBaseUrl = new URL(BACKGROUND_REMOVAL_CDN_PATH_PREFIX, BACKGROUND_REMOVAL_CDN_ORIGIN);
 
-function getChunkSize(chunk) {
-  return chunk.offsets[1] - chunk.offsets[0];
+function isRecord(value) {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
 }
 
-function hasRequiredAssetMetadata(resourceMap) {
-  return BACKGROUND_REMOVAL_ASSET_KEYS.every((assetKey) => resourceMap?.[assetKey]);
+function getChunkOffsets(chunk) {
+  if (
+    !isRecord(chunk) ||
+    !Array.isArray(chunk.offsets) ||
+    chunk.offsets.length !== 2 ||
+    !chunk.offsets.every((offset) => Number.isSafeInteger(offset)) ||
+    chunk.offsets[0] < 0 ||
+    chunk.offsets[1] <= chunk.offsets[0]
+  ) {
+    throw new Error("Invalid background-removal chunk offsets");
+  }
+
+  return chunk.offsets;
+}
+
+function getExpectedHash(chunk) {
+  if (!isRecord(chunk) || typeof chunk.hash !== "string" || !/^[a-f0-9]{64}$/.test(chunk.hash)) {
+    throw new Error("Invalid background-removal chunk hash");
+  }
+
+  return chunk.hash;
+}
+
+function getChunkName(chunk) {
+  const expectedHash = getExpectedHash(chunk);
+
+  if (chunk.name !== expectedHash) {
+    throw new Error("Background-removal chunk names must match their SHA-256 hashes");
+  }
+
+  return chunk.name;
+}
+
+function getChunkSize(chunk) {
+  const offsets = getChunkOffsets(chunk);
+  return offsets[1] - offsets[0];
+}
+
+function normalizeResourceMap(resourceMap) {
+  if (!isRecord(resourceMap)) {
+    throw new Error("Invalid background-removal resource map");
+  }
+
+  const normalizedResourceMap = {};
+
+  for (const assetKey of BACKGROUND_REMOVAL_ASSET_KEYS) {
+    const entry = resourceMap[assetKey];
+    if (
+      !isRecord(entry) ||
+      !Array.isArray(entry.chunks) ||
+      entry.chunks.length === 0 ||
+      !Number.isSafeInteger(entry.size) ||
+      entry.size <= 0 ||
+      typeof entry.mime !== "string" ||
+      entry.mime.length === 0
+    ) {
+      throw new Error(`Invalid background-removal asset metadata for ${assetKey}`);
+    }
+
+    const chunks = [];
+    const names = new Set();
+    let nextOffset = 0;
+
+    for (const chunk of entry.chunks) {
+      const hash = getExpectedHash(chunk);
+      const name = getChunkName(chunk);
+      const offsets = getChunkOffsets(chunk);
+
+      if (names.has(name) || offsets[0] !== nextOffset) {
+        throw new Error(`Invalid background-removal chunk sequence for ${assetKey}`);
+      }
+
+      names.add(name);
+      chunks.push({ hash, name, offsets: [...offsets] });
+      nextOffset = offsets[1];
+    }
+
+    if (nextOffset !== entry.size) {
+      throw new Error(`Background-removal asset size does not match its chunks for ${assetKey}`);
+    }
+
+    normalizedResourceMap[assetKey] = {
+      chunks,
+      size: entry.size,
+      mime: entry.mime,
+    };
+  }
+
+  return normalizedResourceMap;
+}
+
+function getSha256(buffer) {
+  return createHash("sha256").update(buffer).digest("hex");
+}
+
+function getResourceMapFingerprint(resourceMap) {
+  const normalizedResourceMap = normalizeResourceMap(resourceMap);
+  return getSha256(Buffer.from(`${JSON.stringify(normalizedResourceMap, null, 2)}\n`));
+}
+
+function assertTrustedResourceMap(resourceMap, trustedResourceMap) {
+  const normalizedResourceMap = normalizeResourceMap(resourceMap);
+
+  if (
+    getResourceMapFingerprint(normalizedResourceMap) !==
+    getResourceMapFingerprint(trustedResourceMap)
+  ) {
+    throw new Error("Background-removal resource map does not match the trusted manifest");
+  }
+
+  return normalizedResourceMap;
+}
+
+function getChunkUrl(chunk) {
+  const name = getChunkName(chunk);
+  const url = new URL(name, sourceBaseUrl);
+  const expectedPath = `${sourceBaseUrl.pathname}${name}`;
+
+  if (
+    url.origin !== sourceBaseUrl.origin ||
+    url.pathname !== expectedPath ||
+    url.search ||
+    url.hash
+  ) {
+    throw new Error("Invalid background-removal chunk URL");
+  }
+
+  return url;
+}
+
+function getChunkDestinationPath(chunk) {
+  const name = getChunkName(chunk);
+  const destinationPath = path.join(targetDir, name);
+
+  if (path.relative(targetDir, destinationPath) !== name) {
+    throw new Error("Invalid background-removal chunk destination");
+  }
+
+  return destinationPath;
 }
 
 async function fetchJson(url) {
@@ -51,24 +189,24 @@ async function readLocalJson(filePath) {
 }
 
 async function getResourceMap() {
+  const trustedResourceMap = await readLocalJson(trustedResourceMapPath);
+  if (!trustedResourceMap) {
+    throw new Error(`Missing trusted background-removal manifest: ${trustedResourceMapPath}`);
+  }
+
+  const normalizedTrustedResourceMap = normalizeResourceMap(trustedResourceMap);
   const localResourceMap = await readLocalJson(resourceMapPath);
-  if (hasRequiredAssetMetadata(localResourceMap)) {
-    return localResourceMap;
+
+  if (localResourceMap) {
+    try {
+      return assertTrustedResourceMap(localResourceMap, normalizedTrustedResourceMap);
+    } catch {
+      // Re-fetch the upstream manifest when the generated local copy is stale or corrupt.
+    }
   }
 
-  return fetchJson(new URL("resources.json", sourceBaseUrl));
-}
-
-function getExpectedHash(chunk) {
-  if (!/^[a-f0-9]{64}$/i.test(chunk.hash)) {
-    throw new Error(`Invalid background-removal chunk hash for ${chunk.name}`);
-  }
-
-  return chunk.hash.toLowerCase();
-}
-
-function getSha256(buffer) {
-  return createHash("sha256").update(buffer).digest("hex");
+  const remoteResourceMap = await fetchJson(new URL("resources.json", sourceBaseUrl));
+  return assertTrustedResourceMap(remoteResourceMap, normalizedTrustedResourceMap);
 }
 
 async function hasExpectedChunk(filePath, chunk) {
@@ -82,7 +220,8 @@ async function hasExpectedChunk(filePath, chunk) {
   }
 }
 
-async function downloadFile(url, destinationPath, chunk) {
+async function downloadFile(destinationPath, chunk) {
+  const url = getChunkUrl(chunk);
   const response = await fetch(url);
   if (!response.ok) {
     throw new Error(`Failed to download ${url}: ${response.status} ${response.statusText}`);
@@ -101,33 +240,21 @@ async function main() {
   await mkdir(targetDir, { recursive: true });
 
   const resourceMap = await getResourceMap();
-  const filteredResourceMap = {};
-  const chunks = [];
-
-  for (const assetKey of BACKGROUND_REMOVAL_ASSET_KEYS) {
-    const entry = resourceMap[assetKey];
-    if (!entry) {
-      throw new Error(`Missing background-removal asset metadata for ${assetKey}`);
-    }
-
-    filteredResourceMap[assetKey] = entry;
-    chunks.push(...entry.chunks);
-  }
-
+  const chunks = BACKGROUND_REMOVAL_ASSET_KEYS.flatMap((assetKey) => resourceMap[assetKey].chunks);
   let downloadedCount = 0;
 
   for (const chunk of chunks) {
-    const destinationPath = path.join(targetDir, chunk.name);
+    const destinationPath = getChunkDestinationPath(chunk);
 
     if (await hasExpectedChunk(destinationPath, chunk)) {
       continue;
     }
 
-    await downloadFile(new URL(chunk.name, sourceBaseUrl), destinationPath, chunk);
+    await downloadFile(destinationPath, chunk);
     downloadedCount += 1;
   }
 
-  await writeFile(resourceMapPath, `${JSON.stringify(filteredResourceMap, null, 2)}\n`);
+  await writeFile(resourceMapPath, `${JSON.stringify(resourceMap, null, 2)}\n`);
 
   console.log(
     downloadedCount === 0
@@ -136,4 +263,19 @@ async function main() {
   );
 }
 
-await main();
+export {
+  assertTrustedResourceMap,
+  getChunkDestinationPath,
+  getChunkName,
+  getChunkSize,
+  getChunkUrl,
+  getResourceMapFingerprint,
+  normalizeResourceMap,
+};
+
+const isMainModule =
+  process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url);
+
+if (isMainModule) {
+  await main();
+}
