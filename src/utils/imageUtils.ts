@@ -60,7 +60,7 @@ export function calculateHeightFromWidth(
   targetWidth: number
 ): number {
   const aspectRatio = calculateAspectRatio(originalWidth, originalHeight);
-  return Math.round(targetWidth / aspectRatio);
+  return Math.max(1, Math.round(targetWidth / aspectRatio));
 }
 
 /**
@@ -72,7 +72,7 @@ export function calculateWidthFromHeight(
   targetHeight: number
 ): number {
   const aspectRatio = calculateAspectRatio(originalWidth, originalHeight);
-  return Math.round(targetHeight * aspectRatio);
+  return Math.max(1, Math.round(targetHeight * aspectRatio));
 }
 
 /**

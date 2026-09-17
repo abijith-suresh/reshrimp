@@ -136,6 +136,38 @@ describe("getLinkedDimensionValues", () => {
       heightValue: "300",
     });
   });
+
+  it("clamps a derived height to one pixel for very wide images", () => {
+    expect(
+      getLinkedDimensionValues({
+        changedDimension: "width",
+        value: "1",
+        resizeUnit: "px",
+        dpi: 96,
+        originalWidth: 16384,
+        originalHeight: 1,
+      })
+    ).toEqual({
+      widthValue: "1",
+      heightValue: "1",
+    });
+  });
+
+  it("clamps a derived width to one pixel for very tall images", () => {
+    expect(
+      getLinkedDimensionValues({
+        changedDimension: "height",
+        value: "1",
+        resizeUnit: "px",
+        dpi: 96,
+        originalWidth: 1,
+        originalHeight: 16384,
+      })
+    ).toEqual({
+      widthValue: "1",
+      heightValue: "1",
+    });
+  });
 });
 
 describe("getDimensionValuesForDpiChange", () => {
