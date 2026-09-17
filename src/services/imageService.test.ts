@@ -102,6 +102,16 @@ describe("calculateDimensions", () => {
       const opts: ResizeOptions = { width: 10, maintainAspectRatio: true };
       expect(calculateDimensions(3, 2, opts)).toEqual({ width: 10, height: 7 });
     });
+
+    it("clamps a derived height to one pixel for very wide images", () => {
+      const opts: ResizeOptions = { width: 1, maintainAspectRatio: true };
+      expect(calculateDimensions(16384, 1, opts)).toEqual({ width: 1, height: 1 });
+    });
+
+    it("clamps a derived width to one pixel for very tall images", () => {
+      const opts: ResizeOptions = { height: 1, maintainAspectRatio: true };
+      expect(calculateDimensions(1, 16384, opts)).toEqual({ width: 1, height: 1 });
+    });
   });
 });
 

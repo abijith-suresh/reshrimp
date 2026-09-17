@@ -35,13 +35,13 @@ export function calculateDimensions(
   if (options.width && !options.height) {
     return {
       width: options.width,
-      height: Math.round(options.width / aspectRatio),
+      height: Math.max(1, Math.round(options.width / aspectRatio)),
     };
   }
 
   if (options.height && !options.width) {
     return {
-      width: Math.round(options.height * aspectRatio),
+      width: Math.max(1, Math.round(options.height * aspectRatio)),
       height: options.height,
     };
   }

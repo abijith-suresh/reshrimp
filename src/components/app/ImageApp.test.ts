@@ -667,6 +667,11 @@ describe("ImageApp", () => {
       );
     });
 
+    // Let B's debounce expire while A is still running. The completion of A
+    // must still hand the queued work back to B instead of leaving the app
+    // stuck in its processing state.
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
     // A's stale completion must not stamp its result onto B's session
     resolveA({
       blob: blobA,
@@ -688,6 +693,254 @@ describe("ImageApp", () => {
 
     // The stale blob never received an object URL: a-original, b-original, b-processed
     expect(URL.createObjectURL).toHaveBeenCalledTimes(3);
+  });
+
+  it("ignores progress callbacks from a run that belongs to an older upload", async () => {
+    const fileA = new File(["a"], "a.png", { type: "image/png" });
+    const fileB = new File(["b"], "b.png", { type: "image/png" });
+    const firstBlob = new Blob(["first"], { type: "image/png" });
+    const secondBlob = new Blob(["second"], { type: "image/png" });
+
+    mockGetImageMetadata.mockImplementation((file) =>
+      Promise.resolve({
+        width: file === fileA ? 100 : 200,
+        height: file === fileA ? 100 : 200,
+        format: "image/png",
+        fileSize: file.size,
+        fileName: file.name,
+      })
+    );
+
+    let resolveBackgroundRemoval!: (result: ProcessResult) => void;
+    let reportBackgroundRemovalProgress!: (progress: number) => void;
+    mockProcessImage
+      .mockResolvedValueOnce({
+        blob: firstBlob,
+        requestedFormat: "image/png",
+        metadata: { width: 100, height: 100, format: "image/png", fileSize: firstBlob.size },
+      })
+      .mockImplementationOnce((_file, _options, onProgress) => {
+        reportBackgroundRemovalProgress = onProgress as (progress: number) => void;
+        return new Promise<ProcessResult>((resolve) => {
+          resolveBackgroundRemoval = resolve;
+        });
+      })
+      .mockResolvedValueOnce({
+        blob: secondBlob,
+        requestedFormat: "image/png",
+        metadata: { width: 200, height: 200, format: "image/png", fileSize: secondBlob.size },
+      });
+
+    vi.mocked(URL.createObjectURL)
+      .mockReturnValueOnce("blob:a-original")
+      .mockReturnValueOnce("blob:a-processed")
+      .mockReturnValueOnce("blob:b-original")
+      .mockReturnValueOnce("blob:b-processed");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [fileA] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+        "src",
+        "blob:a-processed"
+      );
+    });
+
+    const backgroundCheckbox = view.container.querySelector(
+      "#remove-background-checkbox"
+    ) as HTMLInputElement;
+    fireEvent.click(backgroundCheckbox);
+
+    await vi.waitFor(() => {
+      expect(mockProcessImage).toHaveBeenCalledTimes(2);
+      expect(reportBackgroundRemovalProgress).toBeDefined();
+    });
+
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [fileB] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+        "src",
+        "blob:b-original"
+      );
+    });
+
+    reportBackgroundRemovalProgress(0.6);
+    expect(view.container).not.toHaveTextContent("Removing background 60%\u2026");
+
+    await new Promise((resolve) => setTimeout(resolve, 500));
+    resolveBackgroundRemoval({
+      blob: new Blob(["stale"], { type: "image/png" }),
+      requestedFormat: "image/png",
+      metadata: { width: 100, height: 100, format: "image/png", fileSize: 5 },
+    });
+
+    await vi.waitFor(() => {
+      expect(mockProcessImage).toHaveBeenCalledTimes(3);
+      expect(mockProcessImage.mock.calls[2]?.[0]).toBe(fileB);
+    });
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+        "src",
+        "blob:b-processed"
+      );
+    });
+  });
+
+  it("keeps an active processing run alive after an invalid upload attempt", async () => {
+    const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
+    const processedBlob = new Blob(["processed"], { type: "image/png" });
+
+    mockGetImageMetadata.mockResolvedValue({
+      width: 1200,
+      height: 800,
+      format: "image/png",
+      fileSize: sourceFile.size,
+      fileName: sourceFile.name,
+    });
+
+    let resolveProcessing!: (result: ProcessResult) => void;
+    mockProcessImage.mockImplementationOnce(
+      () =>
+        new Promise<ProcessResult>((resolve) => {
+          resolveProcessing = resolve;
+        })
+    );
+    vi.mocked(URL.createObjectURL)
+      .mockReturnValueOnce("blob:original")
+      .mockReturnValueOnce("blob:processed");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(mockProcessImage).toHaveBeenCalledTimes(1);
+    });
+
+    const invalidFile = new File(["not an image"], "notes.txt", { type: "text/plain" });
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [invalidFile] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(view.container).toHaveTextContent("File must be an image");
+    });
+
+    resolveProcessing({
+      blob: processedBlob,
+      requestedFormat: "image/png",
+      metadata: { width: 1200, height: 800, format: "image/png", fileSize: processedBlob.size },
+    });
+
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+        "src",
+        "blob:processed"
+      );
+      expect(view.container.querySelector("#download-button")).toBeEnabled();
+    });
+    expect(mockProcessImage).toHaveBeenCalledTimes(1);
+  });
+
+  it("does not let a stale upload failure overwrite a newer upload", async () => {
+    const fileA = new File(["a"], "a.png", { type: "image/png" });
+    const fileB = new File(["b"], "b.png", { type: "image/png" });
+    const blobB = new Blob(["processed-b"], { type: "image/png" });
+
+    let rejectPreparationA!: (error: Error) => void;
+    mockPrepareImageFile.mockImplementation((file) => {
+      if (file === fileA) {
+        return new Promise((_, reject) => {
+          rejectPreparationA = reject;
+        });
+      }
+      return Promise.resolve({ file, format: file.type });
+    });
+    mockGetImageMetadata.mockImplementation((file) =>
+      Promise.resolve({
+        width: 200,
+        height: 200,
+        format: "image/png",
+        fileSize: file.size,
+        fileName: file.name,
+      })
+    );
+    mockProcessImage.mockResolvedValue({
+      blob: blobB,
+      requestedFormat: "image/png",
+      metadata: { width: 200, height: 200, format: "image/png", fileSize: blobB.size },
+    });
+    vi.mocked(URL.createObjectURL)
+      .mockReturnValueOnce("blob:b-original")
+      .mockReturnValueOnce("blob:b-processed");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [fileA] });
+    fireEvent.change(fileInput);
+    await vi.waitFor(() => {
+      expect(mockPrepareImageFile).toHaveBeenCalledWith(fileA);
+    });
+
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [fileB] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+        "src",
+        "blob:b-processed"
+      );
+    });
+
+    rejectPreparationA(new Error("stale upload failed"));
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(view.container.querySelector("#error-text")).toBeNull();
+    expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      "src",
+      "blob:b-processed"
+    );
+  });
+
+  it("does not continue upload work after unmounting during preparation", async () => {
+    const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
+    let resolvePreparation!: (result: { file: File; format: string }) => void;
+    mockPrepareImageFile.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolvePreparation = resolve;
+        })
+    );
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(mockPrepareImageFile).toHaveBeenCalledWith(sourceFile);
+    });
+
+    view.unmount();
+    dispose = undefined;
+    resolvePreparation({ file: sourceFile, format: sourceFile.type });
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
+    expect(mockGetImageMetadata).not.toHaveBeenCalled();
+    expect(URL.createObjectURL).not.toHaveBeenCalled();
   });
 
   it("does not let slower metadata from an older upload replace a newer file", async () => {
