@@ -17,6 +17,8 @@ interface TooltipPos {
 
 export default function InfoTooltip(props: InfoTooltipProps) {
   const [triggerEl, setTriggerEl] = createSignal<HTMLButtonElement | null>(null);
+  let pointerInside = false;
+  let openedByFocus = false;
 
   const [pos, setPos] = createSignal<TooltipPos>({ bottom: 0, left: 0 });
 
@@ -62,11 +64,24 @@ export default function InfoTooltip(props: InfoTooltipProps) {
     onCleanup(() => document.removeEventListener("click", handler));
   });
 
-  function handleEnter() {
+  function handleFocus() {
+    openedByFocus = !props.open;
     props.onToggle(true);
   }
 
-  function handleLeave() {
+  function handleMouseEnter() {
+    pointerInside = true;
+    props.onToggle(true);
+  }
+
+  function handleBlur() {
+    openedByFocus = false;
+    props.onToggle(false);
+  }
+
+  function handleMouseLeave() {
+    pointerInside = false;
+    openedByFocus = false;
     props.onToggle(false);
   }
 
@@ -78,12 +93,16 @@ export default function InfoTooltip(props: InfoTooltipProps) {
         class="inline-flex items-center justify-center w-5 h-5 p-0 text-muted-foreground bg-transparent border-none rounded-full cursor-pointer transition-colors duration-200 hover:text-lavender-500 focus-visible:outline-2 focus-visible:outline-lavender-500 focus-visible:outline-offset-2"
         aria-label={props.ariaLabel}
         ref={setTriggerEl}
-        onFocus={handleEnter}
-        onBlur={handleLeave}
-        onMouseEnter={handleEnter}
-        onMouseLeave={handleLeave}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         onClick={(e) => {
           e.stopPropagation();
+          // Pointer and keyboard activation already opened the tooltip via
+          // hover or focus. Keep it open instead of closing it in the same
+          // browser event sequence.
+          if (pointerInside || openedByFocus) return;
           props.onToggle(!props.open);
         }}
       >
