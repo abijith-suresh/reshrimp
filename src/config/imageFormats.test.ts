@@ -11,6 +11,7 @@ import {
   isHeicInput,
   QUALITY_CONTROLLED_OUTPUT_FORMATS,
   supportsBrowserQualityControl,
+  UPLOAD_ACCEPT_ATTRIBUTE,
 } from "./imageFormats";
 
 describe("imageFormats", () => {
@@ -93,5 +94,9 @@ describe("imageFormats", () => {
       "image/avif",
     ]);
     expect(QUALITY_CONTROLLED_OUTPUT_FORMATS).toEqual(["image/jpeg", "image/webp", "image/avif"]);
+  });
+
+  it("keeps the file-picker filter aligned with accepted input formats", () => {
+    expect(UPLOAD_ACCEPT_ATTRIBUTE).toBe(ACCEPTED_INPUT_FORMATS.join(","));
   });
 });
