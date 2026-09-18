@@ -168,6 +168,30 @@ describe("getLinkedDimensionValues", () => {
       heightValue: "1",
     });
   });
+
+  it("keeps a linked physical dimension positive at high DPI", () => {
+    const linked = getLinkedDimensionValues({
+      changedDimension: "width",
+      value: "1",
+      resizeUnit: "in",
+      dpi: 300,
+      originalWidth: 16384,
+      originalHeight: 1,
+    });
+
+    expect(linked).toEqual({ widthValue: "1", heightValue: "0.0033" });
+    expect(
+      buildProcessOptions({
+        ...baseInput,
+        originalWidth: 16384,
+        originalHeight: 1,
+        widthValue: linked?.widthValue ?? "",
+        heightValue: linked?.heightValue ?? "",
+        resizeUnit: "in",
+        dpi: 300,
+      }).resize
+    ).toMatchObject({ width: 300, height: 1 });
+  });
 });
 
 describe("getDimensionValuesForDpiChange", () => {

@@ -26,7 +26,12 @@ export function formatResizeValue(value: number, unit: ResizeUnit): string {
     return String(Math.round(value));
   }
 
-  return parseFloat(value.toFixed(2)).toString();
+  const rounded = Number(value.toFixed(2));
+  if (value > 0 && rounded === 0) {
+    return value.toPrecision(2);
+  }
+
+  return String(rounded);
 }
 
 function rebaseDimensionValue(input: {
