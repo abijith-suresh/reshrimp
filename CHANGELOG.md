@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.0.3](https://github.com/abijith-suresh/reshrimp/compare/v0.0.2...v0.0.3) (2026-09-18)
+
+
+### Bug Fixes
+
+* hand off processing after new uploads ([#211](https://github.com/abijith-suresh/reshrimp/issues/211)) ([5fee467](https://github.com/abijith-suresh/reshrimp/commit/5fee46749bb55ea288182414bf94151747735884))
+* harden async image sessions ([#203](https://github.com/abijith-suresh/reshrimp/issues/203)) ([e743648](https://github.com/abijith-suresh/reshrimp/commit/e743648cc257ab011fb29aef028b387deeb5cda4))
+* invalidate stale processing results ([#206](https://github.com/abijith-suresh/reshrimp/issues/206)) ([6340575](https://github.com/abijith-suresh/reshrimp/commit/634057516135deb9b535f3525c64c966583fb4f0))
+* make responsive controls uniquely addressable ([#209](https://github.com/abijith-suresh/reshrimp/issues/209)) ([45335b9](https://github.com/abijith-suresh/reshrimp/commit/45335b97493803cfcd44e2be4fe3a525c8604a08))
+* preserve HEIC source metadata and preview ([#207](https://github.com/abijith-suresh/reshrimp/issues/207)) ([5e39217](https://github.com/abijith-suresh/reshrimp/commit/5e3921794894e98ac8a6b25c3232c1d53fcf299e))
+* preserve positive linked resize dimensions ([#208](https://github.com/abijith-suresh/reshrimp/issues/208)) ([06d815c](https://github.com/abijith-suresh/reshrimp/commit/06d815cc230001b40b0d56774c1eda236ec33710))
+* preserve tooltip and validation accessibility ([#212](https://github.com/abijith-suresh/reshrimp/issues/212)) ([7c0fb3a](https://github.com/abijith-suresh/reshrimp/commit/7c0fb3a57194ce65366bf82d5976542ce53ec0f2))
+
 ## [0.0.2](https://github.com/abijith-suresh/reshrimp/compare/v0.0.1...v0.0.2) (2026-09-16)
 
 
