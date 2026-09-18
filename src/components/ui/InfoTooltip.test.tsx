@@ -1,4 +1,5 @@
 import { fireEvent, render } from "@solidjs/testing-library";
+import { createSignal } from "solid-js";
 import { describe, expect, it, vi } from "vitest";
 import InfoTooltip from "./InfoTooltip";
 
@@ -16,6 +17,25 @@ describe("InfoTooltip", () => {
     const btn = getByLabelText("DPI info");
     fireEvent.click(btn);
     expect(onToggle).toHaveBeenCalledWith(true);
+  });
+
+  it("does not close when a click follows focus opening", () => {
+    const [open, setOpen] = createSignal(false);
+    const { getByLabelText } = render(() => (
+      <InfoTooltip
+        ariaLabel="DPI info"
+        content={<span>DPI tooltip content</span>}
+        open={open()}
+        onToggle={setOpen}
+      />
+    ));
+    const btn = getByLabelText("DPI info");
+
+    fireEvent.focus(btn);
+    expect(open()).toBe(true);
+
+    fireEvent.click(btn);
+    expect(open()).toBe(true);
   });
 
   it("renders content when open", () => {

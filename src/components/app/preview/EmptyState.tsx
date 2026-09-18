@@ -24,7 +24,7 @@ export default function EmptyState(props: EmptyStateProps) {
 
       <Show when={props.validationError}>
         {(message) => (
-          <p class="mt-3 text-sm text-coral-500 md:hidden" role="alert">
+          <p class="mt-3 text-sm text-coral-500 md:hidden" role="status">
             {message()}
           </p>
         )}

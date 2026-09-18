@@ -693,7 +693,15 @@ describe("ImageApp", () => {
     expect(view.container.querySelector("#unit-select")).toHaveAccessibleName("Unit: px");
     expect(view.container.querySelector("#mobile-unit-select")).toHaveAccessibleName("Unit: px");
 
-    triggerDelegatedClick(view.container.querySelector("#unit-select") as HTMLButtonElement);
+    const openButton = sheet.querySelector(
+      'button[aria-label="Open controls"]'
+    ) as HTMLButtonElement;
+    triggerDelegatedClick(openButton);
+
+    expect(settings).toHaveAttribute("aria-hidden", "false");
+    expect(settings.inert).toBe(false);
+
+    triggerDelegatedClick(view.container.querySelector("#mobile-unit-select") as HTMLButtonElement);
     const inchOption = Array.from(
       document.body.querySelectorAll<HTMLElement>('[role="option"]')
     ).find((option) => option.textContent?.trim() === "in");
@@ -708,14 +716,6 @@ describe("ImageApp", () => {
         "Resolution: 96 DPI"
       );
     });
-
-    const openButton = sheet.querySelector(
-      'button[aria-label="Open controls"]'
-    ) as HTMLButtonElement;
-    triggerDelegatedClick(openButton);
-
-    expect(settings).toHaveAttribute("aria-hidden", "false");
-    expect(settings.inert).toBe(false);
   });
 
   it("shows an invalid first upload error in the empty state", async () => {
@@ -725,12 +725,18 @@ describe("ImageApp", () => {
     const fileInput = view.container.querySelector(
       'input[type="file"][aria-hidden="true"]'
     ) as HTMLInputElement;
+    const openFilePicker = vi.spyOn(fileInput, "click");
+    triggerDelegatedClick(
+      view.container.querySelector("#sbs-empty-state button") as HTMLButtonElement
+    );
+    expect(openFilePicker).toHaveBeenCalledOnce();
+
     const invalidFile = new File(["not an image"], "notes.txt", { type: "text/plain" });
     Object.defineProperty(fileInput, "files", { configurable: true, value: [invalidFile] });
     fireEvent.change(fileInput);
 
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#sbs-empty-state [role='alert']")).toHaveTextContent(
+      expect(view.container.querySelector("#sbs-empty-state [role='status']")).toHaveTextContent(
         "File must be an image"
       );
     });
