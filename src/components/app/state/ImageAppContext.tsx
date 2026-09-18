@@ -76,6 +76,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   let nextRunId = 0;
   let uploadRequestId = 0;
   let disposed = false;
+  let processingRevision = 0;
   // Set when inputs change mid-run; consumed after completion so the change
   // is re-processed instead of silently dropped.
   let pendingReprocess = false;
@@ -189,6 +190,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
     const session = sessionId();
     const runId = ++nextRunId;
+    const runRevision = processingRevision;
 
     const options = buildProcessOptions({
       originalWidth: img.metadata.width,
@@ -207,7 +209,11 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     activeRunId = runId;
 
     const isCurrentRun = () =>
-      !disposed && activeRunSession === session && activeRunId === runId && sessionId() === session;
+      !disposed &&
+      activeRunSession === session &&
+      activeRunId === runId &&
+      sessionId() === session &&
+      processingRevision === runRevision;
 
     batch(() => {
       if (img.processedUrl) {
@@ -291,7 +297,20 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         removeBackground,
       ],
       () => {
-        if (!currentImage()) return;
+        const img = currentImage();
+        if (!img) return;
+
+        processingRevision += 1;
+
+        if (img.processedUrl) {
+          revokeProcessedObjectUrl(img.processedUrl);
+          setCurrentImage((previousImage) =>
+            previousImage?.processedUrl === img.processedUrl
+              ? { ...previousImage, processedUrl: null }
+              : previousImage
+          );
+        }
+        setProcessResult(null);
 
         if (removeBackground()) {
           void handleProcess();
