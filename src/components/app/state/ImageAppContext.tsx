@@ -372,6 +372,13 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       // Without batch(), each set* after an await triggers a separate re-render.
       batch(() => {
         // Reset stale state when a new file is loaded
+        // Detach the previous run before starting the new session. Its
+        // eventual completion is stale and must not keep the new session
+        // waiting for an active run that belongs to the old image.
+        activeRunSession = null;
+        activeRunId = null;
+        debouncedProcess.cancel();
+        setIsProcessing(false);
         setCurrentImage((previousImage) => {
           revokeImageSessionUrls(previousImage);
           return processedImage;

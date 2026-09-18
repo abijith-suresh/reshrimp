@@ -907,17 +907,20 @@ describe("ImageApp", () => {
     reportBackgroundRemovalProgress(0.6);
     expect(view.container).not.toHaveTextContent("Removing background 60%\u2026");
 
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    // The new session should start without waiting for the old background
+    // removal promise to settle.
+    await vi.waitFor(() => {
+      expect(mockProcessImage).toHaveBeenCalledTimes(3);
+      expect(mockProcessImage.mock.calls[2]?.[0]).toBe(fileB);
+    });
+
+    // Completing the stale run must not overwrite the newer session.
     resolveBackgroundRemoval({
       blob: new Blob(["stale"], { type: "image/png" }),
       requestedFormat: "image/png",
       metadata: { width: 100, height: 100, format: "image/png", fileSize: 5 },
     });
 
-    await vi.waitFor(() => {
-      expect(mockProcessImage).toHaveBeenCalledTimes(3);
-      expect(mockProcessImage.mock.calls[2]?.[0]).toBe(fileB);
-    });
     await vi.waitFor(() => {
       expect(view.container.querySelector("#preview-image")).toHaveAttribute(
         "src",
