@@ -5,8 +5,13 @@ import { MAX_FILE_SIZE } from "@/config/constants";
 import { UPLOAD_ACCEPT_ATTRIBUTE } from "@/config/imageFormats";
 import { formatFileSize } from "@/utils/imageUtils";
 
-export default function UploadArea() {
+interface UploadAreaProps {
+  idPrefix?: string;
+}
+
+export default function UploadArea(props: UploadAreaProps) {
   const { state, actions } = useImageApp();
+  const fileInputId = `${props.idPrefix ?? ""}file-input`;
 
   let fileInputRef: HTMLInputElement | undefined;
 
@@ -40,7 +45,7 @@ export default function UploadArea() {
         onClick={handleUploadAreaClick}
         onKeyDown={handleKeyDown}
       >
-        <label for="file-input" class="sr-only">
+        <label for={fileInputId} class="sr-only">
           Upload image
         </label>
         <input
@@ -48,7 +53,7 @@ export default function UploadArea() {
             fileInputRef = el;
           }}
           type="file"
-          id="file-input"
+          id={fileInputId}
           accept={UPLOAD_ACCEPT_ATTRIBUTE}
           class="hidden"
           onClick={(e) => e.stopPropagation()}
@@ -57,8 +62,8 @@ export default function UploadArea() {
         <p class="text-xs text-soft-foreground m-0 mt-1">
           JPEG, PNG, WebP · max {formatFileSize(MAX_FILE_SIZE)}
         </p>
-        <ValidationMessages validation={state.validation()} />
       </UploadDropzone>
+      <ValidationMessages validation={state.validation()} />
     </div>
   );
 }

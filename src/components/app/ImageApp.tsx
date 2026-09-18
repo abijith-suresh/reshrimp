@@ -88,6 +88,7 @@ function MobileSheet() {
       <section
         aria-label="Image controls"
         aria-hidden={sheetState() === "hidden" ? "true" : "false"}
+        inert={sheetState() === "hidden"}
         class="md:hidden fixed inset-x-0 bottom-0 z-40 flex flex-col bg-card rounded-t-[22px] mobile-sheet"
         style={{
           transform: translateForState(sheetState()),
@@ -131,7 +132,7 @@ function MobileSheet() {
 
           {/* Download button — primary CTA always reachable without opening */}
           <div class="px-4 pt-1 mobile-sheet-footer">
-            <DownloadSection />
+            <DownloadSection idPrefix="mobile-" />
           </div>
         </div>
 
@@ -141,15 +142,10 @@ function MobileSheet() {
         {/* Scrollable settings content */}
         <div
           class="flex-1 overflow-y-auto min-h-0"
-          onFocusIn={(e) => {
-            // Auto-open when user focuses a form input so the keyboard doesn't cover it
-            const el = e.target as HTMLElement;
-            if ((el.tagName === "INPUT" || el.tagName === "SELECT") && sheetState() !== "open") {
-              setSheetState("open");
-            }
-          }}
+          aria-hidden={sheetState() === "open" ? "false" : "true"}
+          inert={sheetState() !== "open"}
         >
-          <ProcessPanel sourceAtBottom />
+          <ProcessPanel sourceAtBottom idPrefix="mobile-" showDownload={false} />
         </div>
       </section>
     </>

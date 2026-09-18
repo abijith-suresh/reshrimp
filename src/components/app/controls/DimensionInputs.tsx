@@ -1,13 +1,18 @@
 import { useImageApp } from "@/components/app/state/ImageAppContext";
 import Input from "@/components/ui/Input";
 
-export default function DimensionInputs() {
+interface DimensionInputsProps {
+  idPrefix?: string;
+}
+
+export default function DimensionInputs(props: DimensionInputsProps) {
   const { state, actions } = useImageApp();
+  const prefix = props.idPrefix ?? "";
 
   return (
     <div class="grid grid-cols-2 gap-3">
       <Input
-        id="width-input"
+        id={`${prefix}width-input`}
         label="Width"
         value={state.widthValue()}
         onInput={actions.handleWidthInput}
@@ -15,7 +20,7 @@ export default function DimensionInputs() {
         disabled={!state.controlsActive()}
       />
       <Input
-        id="height-input"
+        id={`${prefix}height-input`}
         label="Height"
         value={state.heightValue()}
         onInput={actions.handleHeightInput}

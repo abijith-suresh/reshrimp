@@ -642,6 +642,98 @@ describe("ImageApp", () => {
     const sheet = view.container.querySelector('[aria-label="Image controls"]') as HTMLDivElement;
     expect(sheet).not.toBeNull();
     expect(sheet).toHaveAttribute("aria-hidden", "true");
+    expect(sheet.inert).toBe(true);
+
+    const ids = Array.from(
+      view.container.querySelectorAll<HTMLElement>("[id]"),
+      (element) => element.id
+    );
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("keeps peeked mobile settings inert until the sheet is opened", async () => {
+    const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
+
+    mockGetImageMetadata.mockResolvedValue({
+      width: 1200,
+      height: 800,
+      format: "image/png",
+      fileSize: sourceFile.size,
+      fileName: sourceFile.name,
+    });
+    mockProcessImage.mockResolvedValue({
+      blob: new Blob(["processed"], { type: "image/png" }),
+      requestedFormat: "image/png",
+      metadata: { width: 1200, height: 800, format: "image/png", fileSize: 9 },
+    });
+    vi.mocked(URL.createObjectURL)
+      .mockReturnValueOnce("blob:original")
+      .mockReturnValueOnce("blob:processed");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+        "src",
+        "blob:original"
+      );
+    });
+
+    const sheet = view.container.querySelector('[aria-label="Image controls"]') as HTMLDivElement;
+    const settings = sheet.querySelector(".overflow-y-auto") as HTMLDivElement;
+    expect(sheet).toHaveAttribute("aria-hidden", "false");
+    expect(sheet.inert).toBe(false);
+    expect(settings).toHaveAttribute("aria-hidden", "true");
+    expect(settings.inert).toBe(true);
+    expect(view.container.querySelector("#unit-select")).toHaveAccessibleName("Unit: px");
+    expect(view.container.querySelector("#mobile-unit-select")).toHaveAccessibleName("Unit: px");
+
+    triggerDelegatedClick(view.container.querySelector("#unit-select") as HTMLButtonElement);
+    const inchOption = Array.from(
+      document.body.querySelectorAll<HTMLElement>('[role="option"]')
+    ).find((option) => option.textContent?.trim() === "in");
+    expect(inchOption).toBeDefined();
+    triggerDelegatedMouseDown(inchOption as HTMLElement);
+
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#dpi-select")).toHaveAccessibleName(
+        "Resolution: 96 DPI"
+      );
+      expect(view.container.querySelector("#mobile-dpi-select")).toHaveAccessibleName(
+        "Resolution: 96 DPI"
+      );
+    });
+
+    const openButton = sheet.querySelector(
+      'button[aria-label="Open controls"]'
+    ) as HTMLButtonElement;
+    triggerDelegatedClick(openButton);
+
+    expect(settings).toHaveAttribute("aria-hidden", "false");
+    expect(settings.inert).toBe(false);
+  });
+
+  it("shows an invalid first upload error in the empty state", async () => {
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector(
+      'input[type="file"][aria-hidden="true"]'
+    ) as HTMLInputElement;
+    const invalidFile = new File(["not an image"], "notes.txt", { type: "text/plain" });
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [invalidFile] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#sbs-empty-state [role='alert']")).toHaveTextContent(
+        "File must be an image"
+      );
+    });
   });
 
   it("discards a processing result when a new image is uploaded mid-flight", async () => {

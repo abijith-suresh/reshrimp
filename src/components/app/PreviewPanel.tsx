@@ -39,6 +39,8 @@ export default function PreviewPanel() {
         <EmptyState
           title="Upload an image to get started"
           subtitle="Your preview will appear here"
+          validationError={state.validation()?.error}
+          validationWarning={state.validation()?.warning}
           onUploadClick={() => mobileUploadRef?.click()}
         />
       </Show>

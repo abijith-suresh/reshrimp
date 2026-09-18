@@ -14,6 +14,7 @@ describe("Select", () => {
     const view = render(() => (
       <Select
         id="format-select"
+        ariaLabel="Output format"
         options={[
           { value: "image/png", label: "PNG" },
           { value: "image/webp", label: "WebP" },
@@ -31,6 +32,7 @@ describe("Select", () => {
     const listbox = document.querySelector('[role="listbox"]') as HTMLUListElement;
 
     expect(trigger).toHaveAttribute("aria-haspopup", "listbox");
+    expect(trigger).toHaveAccessibleName("Output format");
     expect(trigger).toHaveAttribute("aria-expanded", "true");
     expect(document.activeElement).toBe(listbox);
   });

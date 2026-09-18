@@ -10,15 +10,20 @@ const dpiOptions: SelectOption[] = DPI_OPTIONS.map((dpi) => ({
   label: `${dpi} DPI`,
 }));
 
-export default function DpiSelector() {
+interface DpiSelectorProps {
+  idPrefix?: string;
+}
+
+export default function DpiSelector(props: DpiSelectorProps) {
   const { state, actions } = useImageApp();
+  const prefix = props.idPrefix ?? "";
 
   return (
     <Field
       label="Resolution"
       labelAccessory={
         <InfoTooltip
-          id="dpi-info-tip"
+          id={`${prefix}dpi-info-tip`}
           ariaLabel="DPI info"
           content={
             <>
@@ -32,7 +37,8 @@ export default function DpiSelector() {
       }
     >
       <Select
-        id="dpi-select"
+        id={`${prefix}dpi-select`}
+        ariaLabel={`Resolution: ${state.dpiValue()} DPI`}
         options={dpiOptions}
         value={String(state.dpiValue())}
         onChange={(v) => actions.handleDpiChange(Number(v))}
