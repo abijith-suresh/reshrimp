@@ -268,6 +268,9 @@ describe("ImageApp", () => {
     const widthInput = view.container.querySelector("#width-input") as HTMLInputElement;
     fireEvent.input(widthInput, { target: { value: "400" } });
 
+    expect(view.container.querySelector("#preview-image")).toHaveAttribute("src", "blob:original");
+    expect(view.container.querySelector("#download-button")).toBeDisabled();
+
     await vi.waitFor(() => {
       expect(mockProcessImage).toHaveBeenCalledTimes(2);
       expect(view.container.querySelector("#preview-image")).toHaveAttribute(
@@ -1047,7 +1050,6 @@ describe("ImageApp", () => {
 
     vi.mocked(URL.createObjectURL)
       .mockReturnValueOnce("blob:original")
-      .mockReturnValueOnce("blob:first-processed")
       .mockReturnValueOnce("blob:second-processed");
 
     const view = render(() => ImageApp());
@@ -1072,6 +1074,10 @@ describe("ImageApp", () => {
       requestedFormat: "image/png",
       metadata: { width: 1200, height: 800, format: "image/png", fileSize: firstBlob.size },
     });
+
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(view.container.querySelector("#preview-image")).toHaveAttribute("src", "blob:original");
+    expect(view.container.querySelector("#download-button")).toBeDisabled();
 
     await vi.waitFor(() => {
       expect(mockProcessImage).toHaveBeenCalledTimes(2);
