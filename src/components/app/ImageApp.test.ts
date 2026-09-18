@@ -30,7 +30,7 @@ vi.mock("@/services/backgroundRemovalService", async () => {
 
 import { preloadBackgroundRemoval } from "@/services/backgroundRemovalService";
 import { getImageMetadata, prepareImageFile, processImage } from "@/services/imageService";
-import { createDownloadLink } from "@/utils/imageUtils";
+import { createDownloadLink, formatFileSize } from "@/utils/imageUtils";
 import ImageApp from "./ImageApp";
 
 const mockGetImageMetadata = vi.mocked(getImageMetadata);
@@ -203,6 +203,44 @@ describe("ImageApp", () => {
     // full debounce window and confirm no further runs were queued.
     await new Promise((resolve) => setTimeout(resolve, 900));
     expect(mockProcessImage).toHaveBeenCalledTimes(1);
+  });
+
+  it("uses the decoded HEIC preview while preserving source metadata", async () => {
+    const sourceFile = new File(["original heic"], "photo.heic", { type: "image/heic" });
+    const decodedFile = new File(["decoded png with more bytes"], "photo.png", {
+      type: "image/png",
+    });
+
+    mockPrepareImageFile.mockResolvedValueOnce({ file: decodedFile, format: "image/heic" });
+    mockGetImageMetadata.mockResolvedValueOnce({
+      width: 1200,
+      height: 800,
+      format: "image/heic",
+      fileSize: decodedFile.size,
+      fileName: decodedFile.name,
+    });
+    mockProcessImage.mockImplementationOnce(() => new Promise<ProcessResult>(() => {}));
+    vi.mocked(URL.createObjectURL).mockReturnValueOnce("blob:decoded-preview");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(mockGetImageMetadata).toHaveBeenCalledWith(decodedFile, "image/heic");
+      expect(URL.createObjectURL).toHaveBeenCalledWith(decodedFile);
+      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+        "src",
+        "blob:decoded-preview"
+      );
+    });
+
+    const info = view.container.querySelector("[data-testid='info-strip']");
+    expect(info).toHaveTextContent("photo.heic");
+    expect(info).toHaveTextContent(formatFileSize(sourceFile.size));
   });
 
   it("revokes the previous processed URL before replacing it on reprocess", async () => {
