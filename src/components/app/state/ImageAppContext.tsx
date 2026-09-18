@@ -343,13 +343,19 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
           : await getImageMetadata(preparedImage.file, preparedImage.format);
       if (disposed || requestId !== uploadRequestId) return;
 
-      const dimensionResult = validateImageDimensions(metadata);
+      const sourceMetadata = {
+        ...metadata,
+        fileSize: file.size,
+        fileName: file.name,
+      };
+
+      const dimensionResult = validateImageDimensions(sourceMetadata);
       if (!dimensionResult.valid) {
         setValidation(dimensionResult);
         return;
       }
 
-      const originalUrl = URL.createObjectURL(file);
+      const originalUrl = URL.createObjectURL(preparedImage.file);
       if (disposed || requestId !== uploadRequestId) {
         URL.revokeObjectURL(originalUrl);
         return;
@@ -359,7 +365,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         file: preparedImage.file,
         originalUrl,
         processedUrl: null,
-        metadata,
+        metadata: sourceMetadata,
       };
 
       // Batch all state resets into a single DOM update to prevent flickering.
