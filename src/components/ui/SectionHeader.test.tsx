@@ -4,7 +4,7 @@ import SectionHeader from "./SectionHeader";
 
 describe("SectionHeader", () => {
   it("renders children", () => {
-    const { getByText } = render(() => <SectionHeader>Resize</SectionHeader>);
-    expect(getByText("Resize")).toBeInTheDocument();
+    const { getByRole } = render(() => <SectionHeader>Resize</SectionHeader>);
+    expect(getByRole("heading", { level: 4, name: "Resize" })).toBeInTheDocument();
   });
 });

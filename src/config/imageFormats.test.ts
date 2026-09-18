@@ -29,24 +29,49 @@ describe("imageFormats", () => {
     expect(getInitialOutputFormat("image/tiff")).toBe("image/jpeg");
   });
 
-  it("exposes accepted input formats through the upload accept attribute", () => {
-    expect(UPLOAD_ACCEPT_ATTRIBUTE).toBe(ACCEPTED_INPUT_FORMATS.join(","));
-  });
-
   it("keeps labels in sync with the supported formats", () => {
     expect(getImageFormatLabel("image/webp")).toBe("WebP");
     expect(IMAGE_FORMAT_LABELS["image/heif"]).toBe("HEIF");
   });
 
-  it("reports format support helpers consistently", () => {
-    expect(isAcceptedInputFormat("image/png")).toBe(true);
-    expect(isAcceptedInputFormat("image/tiff")).toBe(false);
-    expect(isConvertibleOutputFormat("image/avif")).toBe(true);
-    expect(isConvertibleOutputFormat("image/heic")).toBe(false);
+  it.each([
+    ["image/jpeg", true],
+    ["image/png", true],
+    ["image/webp", true],
+    ["image/gif", false],
+    ["image/avif", true],
+    ["image/heic", true],
+    ["image/heif", true],
+    ["image/svg+xml", false],
+    ["image/tiff", false],
+  ])("reports accepted input support for %s as %s", (mime, expected) => {
+    expect(isAcceptedInputFormat(mime)).toBe(expected);
+  });
+
+  it.each([
+    ["image/jpeg", true],
+    ["image/png", true],
+    ["image/webp", true],
+    ["image/avif", true],
+    ["image/heic", false],
+  ])("reports convertible output support for %s as %s", (format, expected) => {
+    expect(
+      isConvertibleOutputFormat(format as Parameters<typeof isConvertibleOutputFormat>[0])
+    ).toBe(expected);
+  });
+
+  it.each([
+    ["image/heic", true],
+    ["image/heif", true],
+    ["image/jpeg", false],
+    ["image/png", false],
+  ])("reports HEIC input support for %s as %s", (mime, expected) => {
+    expect(isHeicInput(mime)).toBe(expected);
+  });
+
+  it("reports browser quality control support", () => {
     expect(supportsBrowserQualityControl("image/webp")).toBe(true);
     expect(supportsBrowserQualityControl("image/png")).toBe(false);
-    expect(isHeicInput("image/heif")).toBe(true);
-    expect(isHeicInput("image/png")).toBe(false);
   });
 
   it("provides a readable summary of supported upload formats", () => {
@@ -69,5 +94,9 @@ describe("imageFormats", () => {
       "image/avif",
     ]);
     expect(QUALITY_CONTROLLED_OUTPUT_FORMATS).toEqual(["image/jpeg", "image/webp", "image/avif"]);
+  });
+
+  it("keeps the file-picker filter aligned with accepted input formats", () => {
+    expect(UPLOAD_ACCEPT_ATTRIBUTE).toBe(ACCEPTED_INPUT_FORMATS.join(","));
   });
 });
