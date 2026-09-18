@@ -17,6 +17,8 @@ interface ProcessPanelProps {
    * uploading a new image is a secondary action.
    */
   sourceAtBottom?: boolean;
+  idPrefix?: string;
+  showDownload?: boolean;
 }
 
 export default function ProcessPanel(props: ProcessPanelProps) {
@@ -27,7 +29,7 @@ export default function ProcessPanel(props: ProcessPanelProps) {
     <div class="flex flex-col gap-2 border-b border-border-light px-5 py-3 pt-5 pb-3">
       <SectionHeader>Source</SectionHeader>
       <div class="mt-2">
-        <UploadArea />
+        <UploadArea idPrefix={props.idPrefix} />
       </div>
     </div>
   );
@@ -35,31 +37,31 @@ export default function ProcessPanel(props: ProcessPanelProps) {
   const geometrySection = (
     <div class="flex flex-col gap-2 border-b border-border-light px-5 py-3">
       <SectionHeader>Geometry</SectionHeader>
-      <DimensionInputs />
+      <DimensionInputs idPrefix={props.idPrefix} />
       <div class="flex gap-2">
         <div class="flex-1">
-          <UnitSelector />
+          <UnitSelector idPrefix={props.idPrefix} />
         </div>
         <Show when={showDpi()}>
           <div class="flex-1">
-            <DpiSelector />
+            <DpiSelector idPrefix={props.idPrefix} />
           </div>
         </Show>
       </div>
-      <InlineToggles />
+      <InlineToggles idPrefix={props.idPrefix} />
     </div>
   );
 
   const formatSection = (
     <div class="flex flex-col gap-2 border-b border-border-light px-5 py-3">
       <SectionHeader>Format</SectionHeader>
-      <FormatSelect />
+      <FormatSelect idPrefix={props.idPrefix} />
     </div>
   );
 
   const qualitySection = (
     <div class="flex flex-col gap-3 border-b border-border-light px-5 py-3">
-      <QualitySection />
+      <QualitySection idPrefix={props.idPrefix} />
     </div>
   );
 
@@ -82,9 +84,11 @@ export default function ProcessPanel(props: ProcessPanelProps) {
       )}
 
       {/* Desktop only — on mobile the Download button lives in the snap-sheet mini header */}
-      <div class="mt-auto px-5 py-4 hidden md:block">
-        <DownloadSection />
-      </div>
+      <Show when={props.showDownload !== false}>
+        <div class="mt-auto px-5 py-4 hidden md:block">
+          <DownloadSection idPrefix={props.idPrefix} />
+        </div>
+      </Show>
     </div>
   );
 }

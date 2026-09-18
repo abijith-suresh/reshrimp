@@ -6,6 +6,7 @@ interface EmptyStateProps {
   icon?: JSX.Element;
   title: string;
   subtitle: string;
+  validationMessage?: string;
   /** When provided, renders a mobile-only "Upload image" CTA button. */
   onUploadClick?: () => void;
 }
@@ -19,6 +20,14 @@ export default function EmptyState(props: EmptyStateProps) {
       {props.icon ?? <Image class="w-12 h-12 text-soft-foreground opacity-30 mb-3" />}
       <p class="font-body text-sm font-medium text-muted-foreground m-0 mb-1">{props.title}</p>
       <p class="text-xs text-soft-foreground m-0">{props.subtitle}</p>
+
+      <Show when={props.validationMessage}>
+        {(message) => (
+          <p class="mt-3 text-sm text-coral-500 md:hidden" role="alert">
+            {message()}
+          </p>
+        )}
+      </Show>
 
       <Show when={props.onUploadClick}>
         {/* Mobile-only upload CTA — on desktop the sidebar UploadArea is always visible */}

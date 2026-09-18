@@ -6,7 +6,7 @@ interface ErrorDisplayProps {
 
 export default function ErrorDisplay(props: ErrorDisplayProps) {
   return (
-    <div id="error-message" class="error-container">
+    <div id="error-message" class="error-container" role="alert">
       <div class="flex gap-3">
         <CircleAlert class="w-5 h-5 text-coral-500 shrink-0 mt-0.5" aria-hidden="true" />
         <div>

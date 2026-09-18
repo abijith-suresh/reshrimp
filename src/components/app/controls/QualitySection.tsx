@@ -1,8 +1,13 @@
 import { useImageApp } from "@/components/app/state/ImageAppContext";
 import SectionHeader from "@/components/ui/SectionHeader";
 
-export default function QualitySection() {
+interface QualitySectionProps {
+  idPrefix?: string;
+}
+
+export default function QualitySection(props: QualitySectionProps) {
   const { state, actions } = useImageApp();
+  const qualityId = `${props.idPrefix ?? ""}quality-slider`;
 
   return (
     <div class="flex flex-col gap-3">
@@ -12,11 +17,11 @@ export default function QualitySection() {
           <span class="text-sm font-semibold text-coral-500">{state.qualityValue()}%</span>
         ) : null}
       </div>
-      <label for="quality-slider" class="sr-only">
+      <label for={qualityId} class="sr-only">
         Quality
       </label>
       <input
-        id="quality-slider"
+        id={qualityId}
         type="range"
         min={1}
         max={100}

@@ -642,6 +642,29 @@ describe("ImageApp", () => {
     const sheet = view.container.querySelector('[aria-label="Image controls"]') as HTMLDivElement;
     expect(sheet).not.toBeNull();
     expect(sheet).toHaveAttribute("aria-hidden", "true");
+    expect(sheet.inert).toBe(true);
+
+    const ids = Array.from(
+      view.container.querySelectorAll<HTMLElement>("[id]"),
+      (element) => element.id
+    );
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("shows an invalid first upload error in the empty state", async () => {
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    const invalidFile = new File(["not an image"], "notes.txt", { type: "text/plain" });
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [invalidFile] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#sbs-empty-state [role='alert']")).toHaveTextContent(
+        "File must be an image"
+      );
+    });
   });
 
   it("discards a processing result when a new image is uploaded mid-flight", async () => {

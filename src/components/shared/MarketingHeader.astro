@@ -70,7 +70,7 @@ const headerLinks = [
     </button>
   </nav>
 
-  <div class="mobile-panel" id="mobile-menu-panel">
+  <div class="mobile-panel" id="mobile-menu-panel" aria-hidden="true" inert>
     <div class="mobile-panel-inner">
       {
         headerLinks.map((link) => (
@@ -280,14 +280,23 @@ const headerLinks = [
     const panel = document.getElementById("mobile-menu-panel");
     if (!btn || !panel) return;
 
+    const setMenuOpen = (open: boolean) => {
+      panel.classList.toggle("mobile-open", open);
+      btn.setAttribute("aria-expanded", String(open));
+      panel.setAttribute("aria-hidden", String(!open));
+      if (open) {
+        panel.removeAttribute("inert");
+      } else {
+        panel.setAttribute("inert", "");
+      }
+    };
+
     const closeMenu = () => {
-      panel.classList.remove("mobile-open");
-      btn.setAttribute("aria-expanded", "false");
+      setMenuOpen(false);
     };
 
     const toggleMenu = () => {
-      const open = panel.classList.toggle("mobile-open");
-      btn.setAttribute("aria-expanded", String(open));
+      setMenuOpen(!panel.classList.contains("mobile-open"));
     };
 
     closeMenu();

@@ -8,16 +8,21 @@ const formatOptions: SelectOption[] = CONVERTIBLE_OUTPUT_FORMATS.map((format) =>
   label: getImageFormatLabel(format),
 }));
 
-export default function FormatSelect() {
+interface FormatSelectProps {
+  idPrefix?: string;
+}
+
+export default function FormatSelect(props: FormatSelectProps) {
   const { state, actions } = useImageApp();
+  const formatId = `${props.idPrefix ?? ""}format-select`;
 
   return (
     <>
-      <label for="format-select" class="sr-only">
+      <label for={formatId} class="sr-only">
         Output format
       </label>
       <Select
-        id="format-select"
+        id={formatId}
         options={formatOptions}
         value={state.formatValue()}
         onChange={actions.setFormatValue}

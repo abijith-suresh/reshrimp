@@ -3,13 +3,18 @@ import { useImageApp } from "@/components/app/state/ImageAppContext";
 import Checkbox from "@/components/ui/Checkbox";
 import InfoTooltip from "@/components/ui/InfoTooltip";
 
-export default function InlineToggles() {
+interface InlineTogglesProps {
+  idPrefix?: string;
+}
+
+export default function InlineToggles(props: InlineTogglesProps) {
   const { state, actions } = useImageApp();
+  const prefix = props.idPrefix ?? "";
 
   return (
     <div class="flex items-center gap-5 pt-1">
       <Checkbox
-        id="maintain-aspect-ratio"
+        id={`${prefix}maintain-aspect-ratio`}
         label="Lock ratio"
         checked={state.maintainAspectRatio()}
         onChange={actions.handleAspectRatioChange}
@@ -17,7 +22,7 @@ export default function InlineToggles() {
       />
       <div class="flex items-center gap-1.5">
         <Checkbox
-          id="remove-background-checkbox"
+          id={`${prefix}remove-background-checkbox`}
           label="Remove bg"
           checked={state.removeBackground()}
           onChange={actions.handleRemoveBackgroundChange}
@@ -25,7 +30,7 @@ export default function InlineToggles() {
         />
         <Show when={state.removeBackground()}>
           <InfoTooltip
-            id="bg-removal-info-tip"
+            id={`${prefix}bg-removal-info-tip`}
             ariaLabel="Background removal info"
             content={
               <>

@@ -22,6 +22,7 @@ export interface SelectProps {
   disabled?: boolean;
   placeholder?: string;
   id?: string;
+  ariaLabel?: string;
   class?: string;
 }
 
@@ -197,6 +198,7 @@ export default function Select(props: SelectProps) {
         ref={(el) => (triggerRef = el)}
         type="button"
         id={props.id ?? triggerId}
+        aria-label={props.ariaLabel}
         aria-haspopup="listbox"
         aria-expanded={open()}
         aria-controls={open() ? listboxId : undefined}

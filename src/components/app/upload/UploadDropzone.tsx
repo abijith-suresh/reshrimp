@@ -15,7 +15,6 @@ export default function UploadDropzone(props: UploadDropzoneProps) {
     <>
       {/* biome-ignore lint/a11y/useSemanticElements: contains a hidden file input; nesting interactive elements inside a real button would be invalid HTML */}
       <div
-        id="upload-area"
         class="bg-card border border-border rounded-lg px-4 py-5 text-center cursor-pointer transition-[border-color,box-shadow] duration-200 hover:border-lavender-500 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-lavender-500/40"
         style={{ "touch-action": "manipulation" }}
         classList={{ "border-lavender-500 bg-lavender-50": props.isDragOver }}

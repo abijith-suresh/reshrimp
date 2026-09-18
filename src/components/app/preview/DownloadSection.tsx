@@ -3,15 +3,20 @@ import { Show } from "solid-js";
 import { useImageApp } from "@/components/app/state/ImageAppContext";
 import Button from "@/components/ui/Button";
 
-export default function DownloadSection() {
+interface DownloadSectionProps {
+  idPrefix?: string;
+}
+
+export default function DownloadSection(props: DownloadSectionProps) {
   const { state, actions } = useImageApp();
+  const prefix = props.idPrefix ?? "";
 
   return (
-    <div id="download-section" class="flex flex-col items-center gap-2 pt-3">
+    <div id={`${prefix}download-section`} class="flex flex-col items-center gap-2 pt-3">
       <Show when={state.formatNotice()}>
         {(message) => (
           <p
-            id="format-fallback-warning"
+            id={`${prefix}format-fallback-warning`}
             class="w-full text-xs leading-relaxed text-yellow-700"
             role="status"
           >
@@ -20,7 +25,7 @@ export default function DownloadSection() {
         )}
       </Show>
       <Button
-        id="download-button"
+        id={`${prefix}download-button`}
         variant="primary"
         tone="mint"
         fullWidth={true}

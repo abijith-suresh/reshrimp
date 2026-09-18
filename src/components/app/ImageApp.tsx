@@ -88,6 +88,7 @@ function MobileSheet() {
       <section
         aria-label="Image controls"
         aria-hidden={sheetState() === "hidden" ? "true" : "false"}
+        inert={sheetState() === "hidden"}
         class="md:hidden fixed inset-x-0 bottom-0 z-40 flex flex-col bg-card rounded-t-[22px] mobile-sheet"
         style={{
           transform: translateForState(sheetState()),
@@ -131,7 +132,7 @@ function MobileSheet() {
 
           {/* Download button — primary CTA always reachable without opening */}
           <div class="px-4 pt-1 mobile-sheet-footer">
-            <DownloadSection />
+            <DownloadSection idPrefix="mobile-" />
           </div>
         </div>
 
@@ -149,7 +150,7 @@ function MobileSheet() {
             }
           }}
         >
-          <ProcessPanel sourceAtBottom />
+          <ProcessPanel sourceAtBottom idPrefix="mobile-" showDownload={false} />
         </div>
       </section>
     </>
