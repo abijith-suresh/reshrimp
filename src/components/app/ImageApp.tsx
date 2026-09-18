@@ -142,13 +142,8 @@ function MobileSheet() {
         {/* Scrollable settings content */}
         <div
           class="flex-1 overflow-y-auto min-h-0"
-          onFocusIn={(e) => {
-            // Auto-open when user focuses a form input so the keyboard doesn't cover it
-            const el = e.target as HTMLElement;
-            if ((el.tagName === "INPUT" || el.tagName === "SELECT") && sheetState() !== "open") {
-              setSheetState("open");
-            }
-          }}
+          aria-hidden={sheetState() === "open" ? "false" : "true"}
+          inert={sheetState() !== "open"}
         >
           <ProcessPanel sourceAtBottom idPrefix="mobile-" showDownload={false} />
         </div>

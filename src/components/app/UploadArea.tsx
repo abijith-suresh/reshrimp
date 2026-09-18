@@ -62,8 +62,8 @@ export default function UploadArea(props: UploadAreaProps) {
         <p class="text-xs text-soft-foreground m-0 mt-1">
           JPEG, PNG, WebP · max {formatFileSize(MAX_FILE_SIZE)}
         </p>
-        <ValidationMessages validation={state.validation()} />
       </UploadDropzone>
+      <ValidationMessages validation={state.validation()} />
     </div>
   );
 }
