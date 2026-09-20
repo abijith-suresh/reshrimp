@@ -9,7 +9,6 @@ import {
   onCleanup,
   useContext,
 } from "solid-js";
-import { DEFAULT_DPI } from "@/config/constants";
 import {
   getImageFormatLabel,
   getInitialOutputFormat,
@@ -19,8 +18,6 @@ import { preloadBackgroundRemoval } from "@/services/backgroundRemovalService";
 import { getImageMetadata, prepareImageFile, processImage } from "@/services/imageService";
 import {
   buildProcessOptions,
-  formatResizeValue,
-  getDimensionValuesForDpiChange,
   getFormatStateForBackgroundRemoval,
   getLinkedDimensionValues,
   rebaseDimensionValues,
@@ -29,10 +26,11 @@ import {
   generateDownloadFilename,
   validateImageDimensions,
   validateImageFile,
+  validateResizeOptions,
 } from "@/services/validationService";
 import type { ImageFormat, ProcessedImage, ValidationResult } from "@/types/image";
 import type { ProcessResult, ResizeUnit } from "@/types/processing";
-import { convertFromPx, createDownloadLink, formatFileSize } from "@/utils/imageUtils";
+import { createDownloadLink, formatFileSize } from "@/utils/imageUtils";
 import {
   replaceProcessedObjectUrl,
   revokeImageSessionUrls,
@@ -40,19 +38,71 @@ import {
 } from "./imageAppObjectUrls";
 import type { AppActions, AppState, ImageAppContextValue, SizeDiff } from "./imageAppTypes";
 
-function createDebouncedTask(fn: () => void, ms: number) {
-  let timer: ReturnType<typeof setTimeout> | undefined;
+interface ProcessingSettings {
+  widthValue: string;
+  heightValue: string;
+  widthPx: number | undefined;
+  heightPx: number | undefined;
+  maintainAspectRatio: boolean;
+  removeBackground: boolean;
+  formatValue: string;
+  qualityValue: number;
+  qualityRelevant: boolean;
+  resizeUnit: ResizeUnit;
+}
 
-  return {
-    run() {
-      if (timer !== undefined) clearTimeout(timer);
-      timer = setTimeout(fn, ms);
-    },
-    cancel() {
-      if (timer !== undefined) clearTimeout(timer);
-      timer = undefined;
-    },
-  };
+const DEFAULT_QUALITY_VALUE = 92;
+
+function getResizeValidationMessage(
+  error: string,
+  unit: ResizeUnit,
+  metadata: Pick<ProcessedImage["metadata"], "width" | "height">
+): string {
+  if (unit !== "%" || !error.includes("must be at least 1px")) return error;
+
+  const label = error.startsWith("Height") ? "Height" : "Width";
+  const originalPixels = label === "Height" ? metadata.height : metadata.width;
+  const minimumPercent = Math.ceil((100 / originalPixels) * 1000) / 1000;
+  return `${label} must be at least ${minimumPercent}% to produce 1px`;
+}
+
+function focusResizeField(error: string): void {
+  const dimension = error.startsWith("Height") ? "height" : "width";
+  const preferMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const prefixes = preferMobile ? ["mobile-"] : [""];
+  const input = prefixes
+    .map((prefix) => document.getElementById(`${prefix}${dimension}-input`))
+    .find((element): element is HTMLInputElement => {
+      return (
+        element instanceof HTMLInputElement && !element.disabled && !element.closest("[inert]")
+      );
+    });
+
+  if (input) {
+    input.focus();
+  } else if (preferMobile) {
+    window.dispatchEvent(new CustomEvent("reshrimp:focus-resize-field", { detail: { dimension } }));
+  }
+}
+
+function haveSameProcessingSettings(
+  first: ProcessingSettings,
+  second: ProcessingSettings
+): boolean {
+  const resizeMatches =
+    first.resizeUnit === second.resizeUnit
+      ? first.widthValue === second.widthValue && first.heightValue === second.heightValue
+      : first.widthPx === second.widthPx && first.heightPx === second.heightPx;
+
+  return (
+    resizeMatches &&
+    first.maintainAspectRatio === second.maintainAspectRatio &&
+    first.removeBackground === second.removeBackground &&
+    first.formatValue === second.formatValue &&
+    (!first.qualityRelevant ||
+      !second.qualityRelevant ||
+      first.qualityValue === second.qualityValue)
+  );
 }
 
 const ImageAppContext = createContext<ImageAppContextValue>();
@@ -61,6 +111,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   // ── Core image state ──────────────────────────────────────────────────────
   const [currentImage, setCurrentImage] = createSignal<ProcessedImage | null>(null);
   const [processResult, setProcessResult] = createSignal<ProcessResult | null>(null);
+  const [appliedSettings, setAppliedSettings] = createSignal<ProcessingSettings | null>(null);
 
   // ── Session identity ──────────────────────────────────────────────────────
   // Bumped on every successful upload. Processing is keyed off this id, never
@@ -77,21 +128,22 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   let uploadRequestId = 0;
   let disposed = false;
   let processingRevision = 0;
-  // Set when inputs change mid-run; consumed after completion so the change
-  // is re-processed instead of silently dropped.
-  let pendingReprocess = false;
   let preloadRequested = false;
+  let lastProgressAnnouncement = -10;
+  let applyRequested = false;
 
   // ── Async / loading state ─────────────────────────────────────────────────
   const [isProcessing, setIsProcessing] = createSignal(false);
   const [progressLabel, setProgressLabel] = createSignal<string | null>(null);
+  const [statusMessage, setStatusMessage] = createSignal<string | null>(null);
 
   // ── UI state ──────────────────────────────────────────────────────────────
   const [error, setError] = createSignal<string | null>(null);
+  const [resizeError, setResizeError] = createSignal<string | null>(null);
   const [validation, setValidation] = createSignal<ValidationResult | null>(null);
   const [isDragOver, setIsDragOver] = createSignal(false);
   const [tooltipOpen, setTooltipOpen] = createSignal(false);
-  const [dpiTooltipOpen, setDpiTooltipOpen] = createSignal(false);
+  const [hasPendingChanges, setHasPendingChanges] = createSignal(false);
 
   // ── Form controls ─────────────────────────────────────────────────────────
   const [widthValue, setWidthValue] = createSignal("");
@@ -104,23 +156,17 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
   // ── Resize unit controls ──────────────────────────────────────────────────
   const [resizeUnit, setResizeUnit] = createSignal<ResizeUnit>("px");
-  const [dpiValue, setDpiValue] = createSignal(DEFAULT_DPI);
-
-  const debouncedProcess = createDebouncedTask(() => {
-    void handleProcess();
-  }, 400);
 
   onCleanup(() => {
     disposed = true;
-    debouncedProcess.cancel();
     revokeImageSessionUrls(currentImage());
   });
 
   // ── Derived signals ───────────────────────────────────────────────────────
-  const controlsActive = createMemo(() => currentImage() !== null);
+  const controlsActive = createMemo(() => currentImage() !== null && !isProcessing());
   const formatSelectDisabled = createMemo(() => removeBackground());
   const downloadActive = createMemo(
-    () => processResult() !== null && currentImage()?.processedUrl !== null
+    () => !hasPendingChanges() && processResult() !== null && currentImage()?.processedUrl !== null
   );
 
   const currentOutputFormat = createMemo<ImageFormat | null>(() => {
@@ -134,23 +180,10 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
   const qualityControlSupported = createMemo(() => {
     const format = currentOutputFormat();
-    return format !== null && supportsBrowserQualityControl(format);
-  });
+    if (format === null || !supportsBrowserQualityControl(format)) return false;
 
-  const widthPlaceholder = createMemo(() => {
-    const img = currentImage();
-    if (!img) return "Original";
-    const px = img.metadata.width;
-    const display = convertFromPx(px, resizeUnit(), px, dpiValue());
-    return formatResizeValue(display, resizeUnit());
-  });
-
-  const heightPlaceholder = createMemo(() => {
-    const img = currentImage();
-    if (!img) return "Original";
-    const px = img.metadata.height;
-    const display = convertFromPx(px, resizeUnit(), px, dpiValue());
-    return formatResizeValue(display, resizeUnit());
+    const applied = appliedSettings();
+    return !(applied?.formatValue === format && applied.qualityRelevant === false);
   });
 
   const sizeDifference = createMemo<SizeDiff | null>(() => {
@@ -168,13 +201,43 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
   const formatNotice = createMemo<string | null>(() => {
     const result = processResult();
-    if (!result) return null;
+    if (!result || hasPendingChanges()) return null;
 
     const requestedFormat = result.requestedFormat;
     if (requestedFormat === result.metadata.format) return null;
 
     return `Your browser could not export ${getImageFormatLabel(requestedFormat)}. Downloaded as ${getImageFormatLabel(result.metadata.format)} instead.`;
   });
+
+  function getProcessingSettings(qualityRelevant = qualityControlSupported()): ProcessingSettings {
+    const image = currentImage();
+    const resize = image
+      ? buildProcessOptions({
+          originalWidth: image.metadata.width,
+          originalHeight: image.metadata.height,
+          widthValue: widthValue(),
+          heightValue: heightValue(),
+          maintainAspectRatio: maintainAspectRatio(),
+          removeBackground: removeBackground(),
+          formatValue: formatValue(),
+          qualityValue: qualityValue(),
+          resizeUnit: resizeUnit(),
+        }).resize
+      : undefined;
+
+    return {
+      widthValue: widthValue(),
+      heightValue: heightValue(),
+      widthPx: resize?.width,
+      heightPx: resize?.height,
+      maintainAspectRatio: maintainAspectRatio(),
+      removeBackground: removeBackground(),
+      formatValue: formatValue(),
+      qualityValue: qualityRelevant ? qualityValue() : DEFAULT_QUALITY_VALUE,
+      qualityRelevant,
+      resizeUnit: resizeUnit(),
+    };
+  }
 
   // ── Core processing (internal) ────────────────────────────────────────────
   async function handleProcess(): Promise<void> {
@@ -183,10 +246,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     const img = currentImage();
     if (!img) return;
 
-    if (activeRunSession !== null) {
-      pendingReprocess = true;
-      return;
-    }
+    if (activeRunSession !== null) return;
 
     const session = sessionId();
     const runId = ++nextRunId;
@@ -202,11 +262,29 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       formatValue: formatValue(),
       qualityValue: qualityValue(),
       resizeUnit: resizeUnit(),
-      dpi: dpiValue(),
     });
+
+    const resizeValidation = validateResizeOptions(img.metadata, options.resize);
+    if (!resizeValidation.valid) {
+      applyRequested = false;
+      const resizeError = getResizeValidationMessage(
+        resizeValidation.error ?? "Invalid dimensions",
+        resizeUnit(),
+        img.metadata
+      );
+      batch(() => {
+        setError(resizeError);
+        setResizeError(resizeError);
+        setHasPendingChanges(true);
+        setStatusMessage(null);
+      });
+      queueMicrotask(() => focusResizeField(resizeError));
+      return;
+    }
 
     activeRunSession = session;
     activeRunId = runId;
+    lastProgressAnnouncement = -10;
 
     const isCurrentRun = () =>
       !disposed &&
@@ -227,11 +305,11 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       setProcessResult(null);
       setIsProcessing(true);
       setError(null);
+      setResizeError(null);
+      setStatusMessage(null);
     });
 
-    if (options.removeBackground) {
-      setProgressLabel("Removing background\u2026");
-    }
+    setProgressLabel(options.removeBackground ? "Removing background…" : "Processing…");
 
     try {
       const result = await processImage(
@@ -241,6 +319,8 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
           ? (progress: number) => {
               if (!isCurrentRun()) return;
               const pct = Math.round(progress * 100);
+              if (pct < 100 && pct - lastProgressAnnouncement < 10) return;
+              lastProgressAnnouncement = pct;
               setProgressLabel(`Removing background ${pct}%\u2026`);
             }
           : undefined
@@ -251,15 +331,33 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       if (!isCurrentRun()) return;
 
       const processedUrl = replaceProcessedObjectUrl(null, result.blob);
+      const wasExplicitApply = applyRequested;
+      applyRequested = false;
 
       // Batch result updates into a single DOM update
       batch(() => {
         setCurrentImage((prev) => (prev ? { ...prev, processedUrl } : null));
         setProcessResult(result);
+        setAppliedSettings(
+          getProcessingSettings(
+            supportsBrowserQualityControl(result.metadata.format as ImageFormat)
+          )
+        );
+        setHasPendingChanges(false);
+        setResizeError(null);
+        setStatusMessage(
+          wasExplicitApply
+            ? "Changes applied. Ready to download."
+            : "Image ready. Ready to download."
+        );
       });
     } catch (err) {
       if (isCurrentRun()) {
+        applyRequested = false;
         setError(err instanceof Error ? err.message : "Processing failed");
+        setResizeError(null);
+        setHasPendingChanges(true);
+        setStatusMessage(null);
         console.error("Error processing image:", err);
       }
     } finally {
@@ -271,53 +369,17 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
           setIsProcessing(false);
           setProgressLabel(null);
         });
-        if (pendingReprocess) {
-          pendingReprocess = false;
-          debouncedProcess.run();
-        }
       }
     }
   }
 
-  // ── Auto-process: debounce fast operations, immediate for bg removal ──────
-  // Depends on the session id and user-input signals only. currentImage is
-  // read for the null-check but is not a dependency: processing completions
-  // replace its object identity, which would re-trigger processing forever.
+  // A new upload gets one automatic processing pass. All later changes stay
+  // in the draft controls until the user explicitly applies them.
   createEffect(
     on(
-      [
-        sessionId,
-        widthValue,
-        heightValue,
-        formatValue,
-        () => (qualityControlSupported() ? qualityValue() : null),
-        resizeUnit,
-        dpiValue,
-        maintainAspectRatio,
-        removeBackground,
-      ],
+      sessionId,
       () => {
-        const img = currentImage();
-        if (!img) return;
-
-        processingRevision += 1;
-
-        if (img.processedUrl) {
-          revokeProcessedObjectUrl(img.processedUrl);
-          setCurrentImage((previousImage) =>
-            previousImage?.processedUrl === img.processedUrl
-              ? { ...previousImage, processedUrl: null }
-              : previousImage
-          );
-        }
-        setProcessResult(null);
-
-        if (removeBackground()) {
-          void handleProcess();
-          return;
-        }
-
-        debouncedProcess.run();
+        if (currentImage()) void handleProcess();
       },
       { defer: true }
     )
@@ -377,23 +439,23 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         // waiting for an active run that belongs to the old image.
         activeRunSession = null;
         activeRunId = null;
-        debouncedProcess.cancel();
         setIsProcessing(false);
         setCurrentImage((previousImage) => {
           revokeImageSessionUrls(previousImage);
           return processedImage;
         });
-        // Queued re-process work belongs to the previous session; the session
-        // bump re-triggers the auto-process effect for the new image anyway.
-        pendingReprocess = false;
         setSessionId((id) => id + 1);
         setProcessResult(null);
+        setAppliedSettings(null);
         setError(null);
+        setResizeError(null);
         setProgressLabel(null);
+        setStatusMessage(null);
+        applyRequested = false;
 
         // Reset form controls to defaults
-        setWidthValue("");
-        setHeightValue("");
+        setWidthValue(String(metadata.width));
+        setHeightValue(String(metadata.height));
         setMaintainAspectRatio(true);
         setRemoveBackground(false);
         setFormatValue(getInitialOutputFormat(metadata.format));
@@ -403,8 +465,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
         // Reset unit controls
         setResizeUnit("px");
-        setDpiValue(DEFAULT_DPI);
-        setDpiTooltipOpen(false);
+        setHasPendingChanges(false);
       });
     } catch (err) {
       if (!disposed && requestId === uploadRequestId) {
@@ -432,6 +493,20 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     }
   }
 
+  function markChangesPending(): void {
+    processingRevision += 1;
+    setError(null);
+    setResizeError(null);
+    setStatusMessage(null);
+    const applied = appliedSettings();
+    setHasPendingChanges(
+      applied === null ||
+        processResult() === null ||
+        currentImage()?.processedUrl === null ||
+        !haveSameProcessingSettings(getProcessingSettings(), applied)
+    );
+  }
+
   function handleRemoveBackgroundChange(checked: boolean): void {
     const nextFormatState = getFormatStateForBackgroundRemoval({
       checked,
@@ -442,6 +517,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     setPreviousFormatValue(nextFormatState.previousFormatValue);
     setFormatValue(nextFormatState.formatValue);
     setRemoveBackground(checked);
+    markChangesPending();
 
     // Warm the model on first use instead of on every app visit — the
     // download is large and most sessions never touch background removal.
@@ -454,6 +530,8 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   }
 
   function handleUnitChange(newUnit: ResizeUnit): void {
+    if (newUnit === resizeUnit()) return;
+
     const img = currentImage();
 
     if (img) {
@@ -464,7 +542,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         newUnit,
         originalWidth: img.metadata.width,
         originalHeight: img.metadata.height,
-        dpi: dpiValue(),
       });
 
       setWidthValue(nextDimensions.widthValue);
@@ -472,38 +549,20 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     }
 
     setResizeUnit(newUnit);
-  }
-
-  function handleDpiChange(newDpi: number): void {
-    const img = currentImage();
-
-    if (img) {
-      const nextDimensions = getDimensionValuesForDpiChange({
-        widthValue: widthValue(),
-        heightValue: heightValue(),
-        resizeUnit: resizeUnit(),
-        originalWidth: img.metadata.width,
-        originalHeight: img.metadata.height,
-        previousDpi: dpiValue(),
-        nextDpi: newDpi,
-      });
-
-      setWidthValue(nextDimensions.widthValue);
-      setHeightValue(nextDimensions.heightValue);
-    }
-
-    setDpiValue(newDpi);
+    markChangesPending();
   }
 
   function handleWidthInput(val: string): void {
     if (!maintainAspectRatio()) {
       setWidthValue(val);
+      markChangesPending();
       return;
     }
 
     const img = currentImage();
     if (!img) {
       setWidthValue(val);
+      markChangesPending();
       return;
     }
 
@@ -511,29 +570,32 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       changedDimension: "width",
       value: val,
       resizeUnit: resizeUnit(),
-      dpi: dpiValue(),
       originalWidth: img.metadata.width,
       originalHeight: img.metadata.height,
     });
 
     if (!linkedDimensions) {
       setWidthValue(val);
+      markChangesPending();
       return;
     }
 
     setWidthValue(linkedDimensions.widthValue);
     setHeightValue(linkedDimensions.heightValue);
+    markChangesPending();
   }
 
   function handleHeightInput(val: string): void {
     if (!maintainAspectRatio()) {
       setHeightValue(val);
+      markChangesPending();
       return;
     }
 
     const img = currentImage();
     if (!img) {
       setHeightValue(val);
+      markChangesPending();
       return;
     }
 
@@ -541,29 +603,52 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       changedDimension: "height",
       value: val,
       resizeUnit: resizeUnit(),
-      dpi: dpiValue(),
       originalWidth: img.metadata.width,
       originalHeight: img.metadata.height,
     });
 
     if (!linkedDimensions) {
       setHeightValue(val);
+      markChangesPending();
       return;
     }
 
     setWidthValue(linkedDimensions.widthValue);
     setHeightValue(linkedDimensions.heightValue);
+    markChangesPending();
   }
 
   function handleAspectRatioChange(checked: boolean): void {
     setMaintainAspectRatio(checked);
-    if (checked) {
-      if (widthValue()) {
-        handleWidthInput(widthValue());
-      } else if (heightValue()) {
-        handleHeightInput(heightValue());
-      }
+    if (checked && widthValue()) {
+      handleWidthInput(widthValue());
+      return;
     }
+    if (checked && heightValue()) {
+      handleHeightInput(heightValue());
+      return;
+    }
+    markChangesPending();
+  }
+
+  function applyChanges(): void {
+    if (!currentImage() || isProcessing() || !hasPendingChanges()) return;
+    applyRequested = true;
+    setStatusMessage(null);
+    setHasPendingChanges(false);
+    void handleProcess();
+  }
+
+  function handleFormatChange(value: string): void {
+    if (value === formatValue()) return;
+    setFormatValue(value);
+    markChangesPending();
+  }
+
+  function handleQualityChange(value: number): void {
+    if (value === qualityValue()) return;
+    setQualityValue(value);
+    markChangesPending();
   }
 
   const state: AppState = {
@@ -571,11 +656,12 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     processResult,
     isProcessing,
     progressLabel,
+    statusMessage,
     error,
+    resizeError,
     validation,
     isDragOver,
     tooltipOpen,
-    dpiTooltipOpen,
     widthValue,
     heightValue,
     maintainAspectRatio,
@@ -584,14 +670,12 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     previousFormatValue,
     qualityValue,
     resizeUnit,
-    dpiValue,
     currentOutputFormat,
     qualityControlSupported,
     controlsActive,
     formatSelectDisabled,
     downloadActive,
-    widthPlaceholder,
-    heightPlaceholder,
+    hasPendingChanges,
     sizeDifference,
     formatNotice,
   };
@@ -601,15 +685,14 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     handleDownload,
     handleRemoveBackgroundChange,
     handleUnitChange,
-    handleDpiChange,
     handleWidthInput,
     handleHeightInput,
     handleAspectRatioChange,
+    applyChanges,
     setIsDragOver,
     setTooltipOpen,
-    setDpiTooltipOpen,
-    setFormatValue,
-    setQualityValue,
+    handleFormatChange,
+    handleQualityChange,
   };
 
   return (

@@ -91,9 +91,16 @@ export default function Select(props: SelectProps) {
   }
 
   function selectOption(value: string) {
+    if (props.disabled) return;
     props.onChange(value);
     closeDropdown();
   }
+
+  createEffect(() => {
+    if (props.disabled && open()) {
+      closeDropdown();
+    }
+  });
 
   // ── Scroll focused option into view ──────────────────────────────────────
   createEffect(() => {
@@ -149,6 +156,7 @@ export default function Select(props: SelectProps) {
 
   // ── Keyboard: listbox ─────────────────────────────────────────────────────
   function handleListKeyDown(e: KeyboardEvent) {
+    if (props.disabled) return;
     const enabled = enabledIndices();
     if (enabled.length === 0) return;
 
@@ -265,7 +273,7 @@ export default function Select(props: SelectProps) {
                   onMouseEnter={() => !option.disabled && setFocusedIndex(index())}
                   onMouseDown={(e) => {
                     e.preventDefault(); // keep focus on listbox
-                    if (!option.disabled) selectOption(option.value);
+                    if (!props.disabled && !option.disabled) selectOption(option.value);
                   }}
                 >
                   {option.label}

@@ -8,13 +8,13 @@ describe("InfoTooltip", () => {
     const onToggle = vi.fn();
     const { getByLabelText } = render(() => (
       <InfoTooltip
-        ariaLabel="DPI info"
-        content={<span>DPI tooltip content</span>}
+        ariaLabel="Help info"
+        content={<span>Help tooltip content</span>}
         open={false}
         onToggle={onToggle}
       />
     ));
-    const btn = getByLabelText("DPI info");
+    const btn = getByLabelText("Help info");
     fireEvent.click(btn);
     expect(onToggle).toHaveBeenCalledWith(true);
   });
@@ -23,13 +23,13 @@ describe("InfoTooltip", () => {
     const [open, setOpen] = createSignal(false);
     const { getByLabelText } = render(() => (
       <InfoTooltip
-        ariaLabel="DPI info"
-        content={<span>DPI tooltip content</span>}
+        ariaLabel="Help info"
+        content={<span>Help tooltip content</span>}
         open={open()}
         onToggle={setOpen}
       />
     ));
-    const btn = getByLabelText("DPI info");
+    const btn = getByLabelText("Help info");
 
     fireEvent.focus(btn);
     expect(open()).toBe(true);
@@ -41,22 +41,22 @@ describe("InfoTooltip", () => {
   it("renders content when open", () => {
     const { baseElement, getByLabelText } = render(() => (
       <InfoTooltip
-        ariaLabel="DPI info"
-        content={<span>DPI tooltip content</span>}
+        ariaLabel="Help info"
+        content={<span>Help tooltip content</span>}
         open={true}
         onToggle={() => {}}
       />
     ));
-    expect(baseElement.querySelector("[role='tooltip']")).toHaveTextContent("DPI tooltip content");
-    expect(getByLabelText("DPI info")).toBeInTheDocument();
+    expect(baseElement.querySelector("[role='tooltip']")).toHaveTextContent("Help tooltip content");
+    expect(getByLabelText("Help info")).toBeInTheDocument();
   });
 
   it("closes on click outside when open", () => {
     const onToggle = vi.fn();
     const { container } = render(() => (
       <InfoTooltip
-        ariaLabel="DPI info"
-        content={<span>DPI tooltip content</span>}
+        ariaLabel="Help info"
+        content={<span>Help tooltip content</span>}
         open={true}
         onToggle={onToggle}
       />
@@ -70,14 +70,14 @@ describe("InfoTooltip", () => {
     const onToggle = vi.fn();
     const { getByLabelText } = render(() => (
       <InfoTooltip
-        ariaLabel="DPI info"
-        content={<span>DPI tooltip content</span>}
+        ariaLabel="Help info"
+        content={<span>Help tooltip content</span>}
         open={true}
         onToggle={onToggle}
       />
     ));
     // Click the icon button inside the tooltip — this toggles it closed
-    const btn = getByLabelText("DPI info");
+    const btn = getByLabelText("Help info");
     fireEvent.click(btn);
     // Should be called exactly once (from the toggle, not from outside click)
     expect(onToggle).toHaveBeenCalledTimes(1);

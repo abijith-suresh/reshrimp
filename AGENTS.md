@@ -23,7 +23,7 @@ This section is the product source of truth. Update it before changing product s
 
 The active product supports:
 
-- image resizing and dimension changes
+- image resizing and dimension changes in pixels or percentages
 - compression through output quality controls
 - format conversion
 - background removal

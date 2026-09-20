@@ -8,7 +8,7 @@ Try it: https://reshrimp.vercel.app
 
 ## What It Does
 
-- Resize images by pixels, percentage, inches, or centimetres.
+- Resize images by pixels or percentage while keeping the aspect ratio locked by default.
 - Convert between common browser image formats such as JPEG, PNG, WebP, and AVIF when supported by your browser.
 - Reduce file size by adjusting output quality for supported formats.
 - Remove backgrounds locally in the browser and export PNG with transparency.
@@ -18,7 +18,7 @@ Try it: https://reshrimp.vercel.app
 
 Many upload portals ask for images with strict dimensions, file formats, or file-size limits. Existing online tools can be cluttered, confusing, ad-heavy, or unclear about whether your image is uploaded.
 
-Reshrimp is built to be a straightforward alternative: open the app, choose one image, make the needed changes, download the result, and leave.
+Reshrimp is built to be a straightforward alternative: open the app, choose one image, make the needed changes, apply them, review the result, download it, and leave.
 
 ## Privacy
 

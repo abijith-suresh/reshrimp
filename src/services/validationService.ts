@@ -6,8 +6,10 @@ import {
 } from "../config/constants";
 import { getSupportedImageFormatSummary, isAcceptedInputFormat } from "../config/imageFormats";
 import type { ImageFormat, ImageMetadata, ValidationResult } from "../types/image";
+import type { ResizeOptions } from "../types/processing";
 import { formatFileSize } from "../utils/imageUtils";
 import { isHeicBlob } from "./formatDetectionService";
+import { calculateDimensions } from "./imageWorkflowService";
 
 /**
  * Validate an image file for processing
@@ -88,6 +90,36 @@ export function validateImageDimensions(
   return {
     valid: true,
   };
+}
+
+/** Validate draft resize targets before starting a potentially heavy encode. */
+export function validateResizeOptions(
+  metadata: Pick<ImageMetadata, "width" | "height">,
+  resize: ResizeOptions | undefined
+): ValidationResult {
+  if (!resize) {
+    return { valid: true };
+  }
+
+  const targets: Array<["Width" | "Height", number | undefined]> = [
+    ["Width", resize.width],
+    ["Height", resize.height],
+  ];
+
+  for (const [label, value] of targets) {
+    if (value === undefined) continue;
+    if (!Number.isFinite(value) || value < 1) {
+      return { valid: false, error: `${label} must be at least 1px` };
+    }
+    if (value > MAX_PIXEL_DIMENSION) {
+      return {
+        valid: false,
+        error: `${label} (${value}px) exceeds the maximum of ${MAX_PIXEL_DIMENSION}px per side`,
+      };
+    }
+  }
+
+  return validateImageDimensions(calculateDimensions(metadata.width, metadata.height, resize));
 }
 
 /**

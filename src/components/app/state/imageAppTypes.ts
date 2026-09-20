@@ -12,11 +12,12 @@ export interface AppState {
   processResult: Accessor<ProcessResult | null>;
   isProcessing: Accessor<boolean>;
   progressLabel: Accessor<string | null>;
+  statusMessage: Accessor<string | null>;
   error: Accessor<string | null>;
+  resizeError: Accessor<string | null>;
   validation: Accessor<ValidationResult | null>;
   isDragOver: Accessor<boolean>;
   tooltipOpen: Accessor<boolean>;
-  dpiTooltipOpen: Accessor<boolean>;
   widthValue: Accessor<string>;
   heightValue: Accessor<string>;
   maintainAspectRatio: Accessor<boolean>;
@@ -25,14 +26,12 @@ export interface AppState {
   previousFormatValue: Accessor<string>;
   qualityValue: Accessor<number>;
   resizeUnit: Accessor<ResizeUnit>;
-  dpiValue: Accessor<number>;
   currentOutputFormat: Accessor<ImageFormat | null>;
   qualityControlSupported: Accessor<boolean>;
   controlsActive: Accessor<boolean>;
   formatSelectDisabled: Accessor<boolean>;
   downloadActive: Accessor<boolean>;
-  widthPlaceholder: Accessor<string>;
-  heightPlaceholder: Accessor<string>;
+  hasPendingChanges: Accessor<boolean>;
   sizeDifference: Accessor<SizeDiff | null>;
   formatNotice: Accessor<string | null>;
 }
@@ -42,15 +41,14 @@ export interface AppActions {
   handleDownload(): void;
   handleRemoveBackgroundChange(checked: boolean): void;
   handleUnitChange(unit: ResizeUnit): void;
-  handleDpiChange(dpi: number): void;
   handleWidthInput(val: string): void;
   handleHeightInput(val: string): void;
   handleAspectRatioChange(checked: boolean): void;
+  applyChanges(): void;
   setIsDragOver(v: boolean): void;
   setTooltipOpen(v: boolean): void;
-  setDpiTooltipOpen(v: boolean): void;
-  setFormatValue(v: string): void;
-  setQualityValue(v: number): void;
+  handleFormatChange(v: string): void;
+  handleQualityChange(v: number): void;
 }
 
 export interface ImageAppContextValue {

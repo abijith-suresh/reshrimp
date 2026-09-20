@@ -5,10 +5,8 @@ import Select from "@/components/ui/Select";
 import type { ResizeUnit } from "@/types/processing";
 
 const unitOptions: SelectOption[] = [
-  { value: "px", label: "px" },
-  { value: "%", label: "%" },
-  { value: "in", label: "in" },
-  { value: "cm", label: "cm" },
+  { value: "px", label: "Pixels" },
+  { value: "%", label: "Percent" },
 ];
 
 interface UnitSelectorProps {
@@ -23,7 +21,7 @@ export default function UnitSelector(props: UnitSelectorProps) {
     <Field label="Unit">
       <Select
         id={`${prefix}unit-select`}
-        ariaLabel={`Unit: ${state.resizeUnit()}`}
+        ariaLabel={`Unit: ${state.resizeUnit() === "px" ? "pixels" : "percent"}`}
         options={unitOptions}
         value={state.resizeUnit()}
         onChange={(v) => actions.handleUnitChange(v as ResizeUnit)}

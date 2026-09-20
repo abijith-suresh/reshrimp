@@ -1,4 +1,5 @@
 import { fireEvent, render } from "@solidjs/testing-library";
+import { createSignal } from "solid-js";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Select from "./Select";
 
@@ -61,5 +62,36 @@ describe("Select", () => {
     expect(document.querySelector('[role="listbox"]')).toBeNull();
     expect(document.activeElement).toBe(trigger);
     expect(trigger).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("closes an open list and ignores changes when disabled", async () => {
+    const onChange = vi.fn();
+    const [disabled, setDisabled] = createSignal(false);
+    const view = render(() => (
+      <Select
+        id="unit-select"
+        options={[
+          { value: "px", label: "Pixels" },
+          { value: "%", label: "Percent" },
+        ]}
+        value="px"
+        disabled={disabled()}
+        onChange={onChange}
+      />
+    ));
+
+    const trigger = view.container.querySelector("#unit-select") as HTMLButtonElement;
+    fireEvent.click(trigger);
+    await Promise.resolve();
+    expect(document.querySelector('[role="listbox"]')).not.toBeNull();
+    const option = document.querySelector('[role="option"]') as HTMLElement;
+
+    setDisabled(true);
+    await Promise.resolve();
+    fireEvent.mouseDown(option);
+
+    expect(document.querySelector('[role="listbox"]')).toBeNull();
+    expect(trigger).toBeDisabled();
+    expect(onChange).not.toHaveBeenCalled();
   });
 });

@@ -39,7 +39,7 @@ const BENTO_CARDS = [
     icon: Scaling,
     title: "Resize with precision",
     description:
-      "Scale to exact pixel dimensions. Aspect ratio lock keeps everything balanced. Works for uploads, websites, or sharing.",
+      "Scale to exact pixel dimensions or percentage targets. Aspect ratio lock keeps everything balanced. Works for uploads, websites, or sharing.",
   },
   {
     color: "mint",
@@ -47,7 +47,7 @@ const BENTO_CARDS = [
     icon: ArrowLeftRight,
     title: "Convert formats",
     description:
-      "Switch between JPEG, PNG, WebP, and AVIF in a click. Browser-native conversion with format-specific tradeoffs.",
+      "Select JPEG, PNG, WebP, or AVIF, apply the change, and review the result. Browser-native conversion with format-specific tradeoffs.",
   },
   {
     color: "lavender",
@@ -55,7 +55,7 @@ const BENTO_CARDS = [
     icon: Gauge,
     title: "Compress smartly",
     description:
-      "Fine-tune JPEG, WebP, and AVIF quality from 0-100%. PNG stays lossless. Preview updates after processing so you can review the result before downloading.",
+      "Fine-tune JPEG, WebP, and AVIF quality from 1-100%, apply the changes, and review the result before downloading. PNG stays lossless.",
   },
   {
     color: "yellow",
@@ -124,8 +124,8 @@ const BENTO_CARDS = [
         <StepItem
           number={3}
           color="lavender"
-          title="Download instantly"
-          description="Process it, then download the result."
+          title="Apply and download"
+          description="Apply all changes, then download the result."
           delay={400}
         />
       </StepSection>

@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import type { ResizeUnit } from "../types/processing";
 import {
   buildProcessOptions,
-  getDimensionValuesForDpiChange,
   getFormatStateForBackgroundRemoval,
   getLinkedDimensionValues,
   rebaseDimensionValues,
@@ -16,7 +15,6 @@ const baseInput = {
   formatValue: "",
   qualityValue: 92,
   resizeUnit: "px" as ResizeUnit,
-  dpi: 96,
 };
 
 describe("buildProcessOptions", () => {
@@ -111,11 +109,26 @@ describe("rebaseDimensionValues", () => {
         newUnit: "%",
         originalWidth: 1920,
         originalHeight: 1080,
-        dpi: 96,
       })
     ).toEqual({
       widthValue: "50",
       heightValue: "50",
+    });
+  });
+
+  it("converts percentage values back to pixels for both dimensions", () => {
+    expect(
+      rebaseDimensionValues({
+        widthValue: "50",
+        heightValue: "25",
+        oldUnit: "%",
+        newUnit: "px",
+        originalWidth: 1200,
+        originalHeight: 800,
+      })
+    ).toEqual({
+      widthValue: "600",
+      heightValue: "200",
     });
   });
 });
@@ -127,7 +140,21 @@ describe("getLinkedDimensionValues", () => {
         changedDimension: "width",
         value: "400",
         resizeUnit: "px",
-        dpi: 96,
+        originalWidth: 800,
+        originalHeight: 600,
+      })
+    ).toEqual({
+      widthValue: "400",
+      heightValue: "300",
+    });
+  });
+
+  it("derives the paired width when height changes in pixels", () => {
+    expect(
+      getLinkedDimensionValues({
+        changedDimension: "height",
+        value: "300",
+        resizeUnit: "px",
         originalWidth: 800,
         originalHeight: 600,
       })
@@ -143,7 +170,6 @@ describe("getLinkedDimensionValues", () => {
         changedDimension: "width",
         value: "1",
         resizeUnit: "px",
-        dpi: 96,
         originalWidth: 16384,
         originalHeight: 1,
       })
@@ -159,7 +185,6 @@ describe("getLinkedDimensionValues", () => {
         changedDimension: "height",
         value: "1",
         resizeUnit: "px",
-        dpi: 96,
         originalWidth: 1,
         originalHeight: 16384,
       })
@@ -169,46 +194,33 @@ describe("getLinkedDimensionValues", () => {
     });
   });
 
-  it("keeps a linked physical dimension positive at high DPI", () => {
-    const linked = getLinkedDimensionValues({
-      changedDimension: "width",
-      value: "1",
-      resizeUnit: "in",
-      dpi: 300,
-      originalWidth: 16384,
-      originalHeight: 1,
-    });
-
-    expect(linked).toEqual({ widthValue: "1", heightValue: "0.0033" });
+  it("keeps linked percentage values below one percent valid", () => {
     expect(
-      buildProcessOptions({
-        ...baseInput,
-        originalWidth: 16384,
-        originalHeight: 1,
-        widthValue: linked?.widthValue ?? "",
-        heightValue: linked?.heightValue ?? "",
-        resizeUnit: "in",
-        dpi: 300,
-      }).resize
-    ).toMatchObject({ width: 300, height: 1 });
-  });
-});
-
-describe("getDimensionValuesForDpiChange", () => {
-  it("recalculates physical-unit values against the new DPI", () => {
-    expect(
-      getDimensionValuesForDpiChange({
-        widthValue: "10",
-        heightValue: "5",
-        resizeUnit: "in",
+      getLinkedDimensionValues({
+        changedDimension: "width",
+        value: "0.083",
+        resizeUnit: "%",
         originalWidth: 1200,
-        originalHeight: 600,
-        previousDpi: 96,
-        nextDpi: 300,
+        originalHeight: 800,
       })
     ).toEqual({
-      widthValue: "3.2",
-      heightValue: "1.6",
+      widthValue: "0.083",
+      heightValue: "0.13",
+    });
+  });
+
+  it("derives fractional percentage width when height changes", () => {
+    expect(
+      getLinkedDimensionValues({
+        changedDimension: "height",
+        value: "0.125",
+        resizeUnit: "%",
+        originalWidth: 1200,
+        originalHeight: 800,
+      })
+    ).toEqual({
+      widthValue: "0.17",
+      heightValue: "0.125",
     });
   });
 });

@@ -25,7 +25,7 @@ export default function FormatSelect(props: FormatSelectProps) {
         id={formatId}
         options={formatOptions}
         value={state.formatValue()}
-        onChange={actions.setFormatValue}
+        onChange={actions.handleFormatChange}
         disabled={!state.controlsActive() || state.formatSelectDisabled()}
       />
     </>

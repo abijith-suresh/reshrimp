@@ -1,6 +1,5 @@
 import { Show } from "solid-js";
 import DimensionInputs from "@/components/app/controls/DimensionInputs";
-import DpiSelector from "@/components/app/controls/DpiSelector";
 import FormatSelect from "@/components/app/controls/FormatSelect";
 import InlineToggles from "@/components/app/controls/InlineToggles";
 import QualitySection from "@/components/app/controls/QualitySection";
@@ -8,6 +7,7 @@ import UnitSelector from "@/components/app/controls/UnitSelector";
 import DownloadSection from "@/components/app/preview/DownloadSection";
 import { useImageApp } from "@/components/app/state/ImageAppContext";
 import UploadArea from "@/components/app/UploadArea";
+import Button from "@/components/ui/Button";
 import SectionHeader from "@/components/ui/SectionHeader";
 
 interface ProcessPanelProps {
@@ -22,8 +22,7 @@ interface ProcessPanelProps {
 }
 
 export default function ProcessPanel(props: ProcessPanelProps) {
-  const { state } = useImageApp();
-  const showDpi = () => state.resizeUnit() === "in" || state.resizeUnit() === "cm";
+  const { state, actions } = useImageApp();
 
   const sourceSection = (
     <div class="flex flex-col gap-2 border-b border-border-light px-5 py-3 pt-5 pb-3">
@@ -38,17 +37,25 @@ export default function ProcessPanel(props: ProcessPanelProps) {
     <div class="flex flex-col gap-2 border-b border-border-light px-5 py-3">
       <SectionHeader>Geometry</SectionHeader>
       <DimensionInputs idPrefix={props.idPrefix} />
-      <div class="flex gap-2">
-        <div class="flex-1">
-          <UnitSelector idPrefix={props.idPrefix} />
-        </div>
-        <Show when={showDpi()}>
-          <div class="flex-1">
-            <DpiSelector idPrefix={props.idPrefix} />
-          </div>
-        </Show>
-      </div>
+      <UnitSelector idPrefix={props.idPrefix} />
       <InlineToggles idPrefix={props.idPrefix} />
+    </div>
+  );
+
+  const applySection = (
+    <div class="border-b border-border-light px-5 py-3">
+      <Button
+        id={`${props.idPrefix ?? ""}apply-changes-button`}
+        variant="secondary"
+        tone="coral"
+        fullWidth={true}
+        disabled={
+          !state.hasPendingChanges() || state.isProcessing() || state.resizeError() !== null
+        }
+        onClick={() => actions.applyChanges()}
+      >
+        {state.isProcessing() ? "Processing…" : "Apply all changes"}
+      </Button>
     </div>
   );
 
@@ -72,6 +79,7 @@ export default function ProcessPanel(props: ProcessPanelProps) {
           {geometrySection}
           {formatSection}
           {qualitySection}
+          {applySection}
           {sourceSection}
         </>
       ) : (
@@ -80,6 +88,7 @@ export default function ProcessPanel(props: ProcessPanelProps) {
           {geometrySection}
           {formatSection}
           {qualitySection}
+          {applySection}
         </>
       )}
 

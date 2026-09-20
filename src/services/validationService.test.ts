@@ -1,11 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { MAX_PIXEL_DIMENSION, MAX_TOTAL_PIXELS } from "../config/constants";
 import type { ImageFormat } from "../types/image";
+import { buildProcessOptions } from "./imageWorkflowService";
 import {
   generateDownloadFilename,
   getFileExtension,
   validateImageDimensions,
   validateImageFile,
+  validateResizeOptions,
 } from "./validationService";
 
 /**
@@ -165,6 +167,47 @@ describe("validateImageDimensions", () => {
 
     expect(result.valid).toBe(false);
     expect(result.error).toContain(String(MAX_TOTAL_PIXELS.toLocaleString()));
+  });
+});
+
+describe("validateResizeOptions", () => {
+  const source = { width: 1200, height: 800 };
+
+  it("rejects targets that convert below one pixel", () => {
+    const result = validateResizeOptions(source, {
+      width: 0,
+      maintainAspectRatio: true,
+    });
+
+    expect(result).toEqual({ valid: false, error: "Width must be at least 1px" });
+  });
+
+  it("rejects percentage targets beyond the canvas limits", () => {
+    const result = validateResizeOptions(source, {
+      width: 16800,
+      maintainAspectRatio: true,
+    });
+
+    expect(result.valid).toBe(false);
+    expect(result.error).toContain("maximum");
+  });
+
+  it("accepts fractional percentage targets that produce valid pixels", () => {
+    const options = buildProcessOptions({
+      originalWidth: source.width,
+      originalHeight: source.height,
+      widthValue: "0.083",
+      heightValue: "",
+      maintainAspectRatio: true,
+      removeBackground: false,
+      formatValue: "image/png",
+      qualityValue: 92,
+      resizeUnit: "%",
+    });
+    const result = validateResizeOptions(source, options.resize);
+
+    expect(result).toEqual({ valid: true });
+    expect(options.resize?.width).toBe(1);
   });
 });
 

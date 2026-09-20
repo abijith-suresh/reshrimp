@@ -23,7 +23,7 @@ export default function InlineToggles(props: InlineTogglesProps) {
       <div class="flex items-center gap-1.5">
         <Checkbox
           id={`${prefix}remove-background-checkbox`}
-          label="Remove bg"
+          label="Remove background"
           checked={state.removeBackground()}
           onChange={actions.handleRemoveBackgroundChange}
           disabled={!state.controlsActive()}

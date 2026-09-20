@@ -21,10 +21,6 @@ export const ROUTES = {
   FAQ: "/faq",
 } as const;
 
-// Resize unit DPI options (used when unit is 'in' or 'cm')
-export const DPI_OPTIONS = [72, 96, 150, 300] as const;
-export const DEFAULT_DPI = 96;
-
 // File size limits (in bytes)
 export const MAX_FILE_SIZE = 50 * 1024 * 1024;
 export const RECOMMENDED_MAX_SIZE = 10 * 1024 * 1024;

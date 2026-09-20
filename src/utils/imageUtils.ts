@@ -79,24 +79,17 @@ export function calculateWidthFromHeight(
  * Convert a value in display units to pixels.
  * - px: identity
  * - %: percentage of the original dimension in pixels
- * - in: inches × DPI
- * - cm: centimetres × DPI ÷ 2.54
  */
 export function convertToPx(
   value: number,
   unit: import("../types/processing").ResizeUnit,
-  originalPx: number,
-  dpi: number
+  originalPx: number
 ): number {
   switch (unit) {
     case "px":
       return Math.round(value);
     case "%":
       return Math.round((value / 100) * originalPx);
-    case "in":
-      return Math.round(value * dpi);
-    case "cm":
-      return Math.round((value * dpi) / 2.54);
   }
 }
 
@@ -108,17 +101,12 @@ export function convertToPx(
 export function convertFromPx(
   px: number,
   unit: import("../types/processing").ResizeUnit,
-  originalPx: number,
-  dpi: number
+  originalPx: number
 ): number {
   switch (unit) {
     case "px":
       return px;
     case "%":
       return originalPx === 0 ? 0 : (px / originalPx) * 100;
-    case "in":
-      return dpi === 0 ? 0 : px / dpi;
-    case "cm":
-      return dpi === 0 ? 0 : (px * 2.54) / dpi;
   }
 }

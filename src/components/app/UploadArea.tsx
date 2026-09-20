@@ -2,7 +2,7 @@ import { useImageApp } from "@/components/app/state/ImageAppContext";
 import UploadDropzone from "@/components/app/upload/UploadDropzone";
 import ValidationMessages from "@/components/app/upload/ValidationMessages";
 import { MAX_FILE_SIZE } from "@/config/constants";
-import { UPLOAD_ACCEPT_ATTRIBUTE } from "@/config/imageFormats";
+import { getSupportedImageFormatSummary, UPLOAD_ACCEPT_ATTRIBUTE } from "@/config/imageFormats";
 import { formatFileSize } from "@/utils/imageUtils";
 
 interface UploadAreaProps {
@@ -60,7 +60,7 @@ export default function UploadArea(props: UploadAreaProps) {
           onChange={handleFileInput}
         />
         <p class="text-xs text-soft-foreground m-0 mt-1">
-          JPEG, PNG, WebP · max {formatFileSize(MAX_FILE_SIZE)}
+          {getSupportedImageFormatSummary()} · max {formatFileSize(MAX_FILE_SIZE)}
         </p>
       </UploadDropzone>
       <ValidationMessages validation={state.validation()} />

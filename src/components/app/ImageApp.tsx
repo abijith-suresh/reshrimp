@@ -1,4 +1,4 @@
-import { createEffect, createSignal, on, Show } from "solid-js";
+import { createEffect, createSignal, on, onCleanup, onMount, Show } from "solid-js";
 import AppSidebar from "@/components/app/AppSidebar";
 import FloatingBackButton from "@/components/app/FloatingBackButton";
 import PreviewPanel from "@/components/app/PreviewPanel";
@@ -19,20 +19,21 @@ import { ImageAppProvider, useImageApp } from "@/components/app/state/ImageAppCo
 type SheetState = "hidden" | "peek" | "open";
 
 /** Total px of the sticky header visible in peek state.
- *  handle-bar (31) + info-row (28) + download-btn section (~89) = 148.
- *  Generous to ensure the download button is fully visible even with
- *  font scaling or padding variation across devices. */
+ *  Status text and the pending marker add a second line in the exceptional
+ *  states, so the sheet reserves extra room only while that information is
+ *  visible. */
 const PEEK_HEIGHT = 148;
+const PEEK_HEIGHT_WITH_STATUS = 220;
 
 const SPRING = "transform 0.5s cubic-bezier(0.32, 0.72, 0, 1)";
 
-function translateForState(s: SheetState): string {
+function translateForState(s: SheetState, peekHeight = PEEK_HEIGHT): string {
   switch (s) {
     case "hidden":
       return "translateY(100%)";
     case "peek":
       // env(safe-area-inset-bottom) lifts the peek above the iOS home indicator
-      return `translateY(calc(100% - ${PEEK_HEIGHT}px - env(safe-area-inset-bottom, 0px)))`;
+      return `translateY(calc(100% - ${peekHeight}px - env(safe-area-inset-bottom, 0px)))`;
     case "open":
       return "translateY(0%)";
   }
@@ -41,6 +42,23 @@ function translateForState(s: SheetState): string {
 function MobileSheet() {
   const { state } = useImageApp();
   const [sheetState, setSheetState] = createSignal<SheetState>("hidden");
+
+  onMount(() => {
+    function handleResizeFocusRequest(event: Event) {
+      const dimension = (event as CustomEvent<{ dimension?: string }>).detail?.dimension;
+      if (dimension !== "width" && dimension !== "height") return;
+
+      setSheetState("open");
+      queueMicrotask(() => {
+        document.getElementById(`mobile-${dimension}-input`)?.focus();
+      });
+    }
+
+    window.addEventListener("reshrimp:focus-resize-field", handleResizeFocusRequest);
+    onCleanup(() =>
+      window.removeEventListener("reshrimp:focus-resize-field", handleResizeFocusRequest)
+    );
+  });
 
   // Auto-transition only when an image is newly-loaded (null → image) or
   // cleared (image → null).  A processing completion replaces the currentImage
@@ -68,6 +86,13 @@ function MobileSheet() {
   const displayHeight = () => state.processResult()?.metadata.height ?? img()?.metadata.height ?? 0;
   const displayFileSize = () =>
     state.processResult()?.metadata.fileSize ?? img()?.metadata.fileSize ?? 0;
+  const peekHeight = () => {
+    const hasStatus =
+      state.formatNotice() ||
+      (state.hasPendingChanges() && !state.isProcessing()) ||
+      (state.error() && state.hasPendingChanges());
+    return hasStatus ? PEEK_HEIGHT_WITH_STATUS : PEEK_HEIGHT;
+  };
 
   return (
     <>
@@ -91,7 +116,7 @@ function MobileSheet() {
         inert={sheetState() === "hidden"}
         class="md:hidden fixed inset-x-0 bottom-0 z-40 flex flex-col bg-card rounded-t-[22px] mobile-sheet"
         style={{
-          transform: translateForState(sheetState()),
+          transform: translateForState(sheetState(), peekHeight()),
           transition: SPRING,
         }}
       >
@@ -124,7 +149,8 @@ function MobileSheet() {
                   width={displayWidth()}
                   height={displayHeight()}
                   fileSize={displayFileSize()}
-                  sizeDiff={state.sizeDifference()}
+                  sizeDiff={sheetState() === "open" ? state.sizeDifference() : null}
+                  isPending={state.hasPendingChanges() && state.processResult() !== null}
                 />
               </div>
             )}
@@ -132,7 +158,12 @@ function MobileSheet() {
 
           {/* Download button — primary CTA always reachable without opening */}
           <div class="px-4 pt-1 mobile-sheet-footer">
-            <DownloadSection idPrefix="mobile-" />
+            <DownloadSection
+              idPrefix="mobile-"
+              showStatusMessages={true}
+              showFormatNotice={true}
+              allowApplyAction={true}
+            />
           </div>
         </div>
 

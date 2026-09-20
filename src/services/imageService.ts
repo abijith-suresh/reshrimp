@@ -14,52 +14,7 @@ import type {
 import { removeBackground } from "./backgroundRemovalService";
 import { canvasToBlob, getBestFormat, loadImage, resizeOnCanvas } from "./canvasService";
 import { decodeHeicBlob, isHeicBlob } from "./formatDetectionService";
-
-/**
- * Calculate dimensions maintaining aspect ratio
- */
-export function calculateDimensions(
-  originalWidth: number,
-  originalHeight: number,
-  options: ResizeOptions
-): { width: number; height: number } {
-  if (!options.maintainAspectRatio) {
-    return {
-      width: options.width ?? originalWidth,
-      height: options.height ?? originalHeight,
-    };
-  }
-
-  const aspectRatio = originalWidth / originalHeight;
-
-  if (options.width && !options.height) {
-    return {
-      width: options.width,
-      height: Math.max(1, Math.round(options.width / aspectRatio)),
-    };
-  }
-
-  if (options.height && !options.width) {
-    return {
-      width: Math.max(1, Math.round(options.height * aspectRatio)),
-      height: options.height,
-    };
-  }
-
-  if (options.width && options.height) {
-    const widthScale = options.width / originalWidth;
-    const heightScale = options.height / originalHeight;
-    const scale = Math.min(widthScale, heightScale);
-
-    return {
-      width: Math.max(1, Math.round(originalWidth * scale)),
-      height: Math.max(1, Math.round(originalHeight * scale)),
-    };
-  }
-
-  // No dimensions specified, return original
-  return { width: originalWidth, height: originalHeight };
-}
+import { calculateDimensions } from "./imageWorkflowService";
 
 interface PreparedImageFile {
   file: File;

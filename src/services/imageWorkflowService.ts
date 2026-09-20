@@ -1,6 +1,6 @@
 import { isConvertibleOutputFormat } from "../config/imageFormats";
 import type { ImageFormat } from "../types/image";
-import type { ProcessOptions, ResizeUnit } from "../types/processing";
+import type { ProcessOptions, ResizeOptions, ResizeUnit } from "../types/processing";
 import {
   calculateHeightFromWidth,
   calculateWidthFromHeight,
@@ -18,7 +18,48 @@ interface BuildProcessOptionsInput {
   formatValue: string;
   qualityValue: number;
   resizeUnit: ResizeUnit;
-  dpi: number;
+}
+
+export function calculateDimensions(
+  originalWidth: number,
+  originalHeight: number,
+  options: ResizeOptions
+): { width: number; height: number } {
+  if (!options.maintainAspectRatio) {
+    return {
+      width: options.width ?? originalWidth,
+      height: options.height ?? originalHeight,
+    };
+  }
+
+  const aspectRatio = originalWidth / originalHeight;
+
+  if (options.width && !options.height) {
+    return {
+      width: options.width,
+      height: Math.max(1, Math.round(options.width / aspectRatio)),
+    };
+  }
+
+  if (options.height && !options.width) {
+    return {
+      width: Math.max(1, Math.round(options.height * aspectRatio)),
+      height: options.height,
+    };
+  }
+
+  if (options.width && options.height) {
+    const widthScale = options.width / originalWidth;
+    const heightScale = options.height / originalHeight;
+    const scale = Math.min(widthScale, heightScale);
+
+    return {
+      width: Math.max(1, Math.round(originalWidth * scale)),
+      height: Math.max(1, Math.round(originalHeight * scale)),
+    };
+  }
+
+  return { width: originalWidth, height: originalHeight };
 }
 
 export function formatResizeValue(value: number, unit: ResizeUnit): string {
@@ -39,7 +80,6 @@ function rebaseDimensionValue(input: {
   oldUnit: ResizeUnit;
   newUnit: ResizeUnit;
   originalPx: number;
-  dpi: number;
 }): string {
   if (!input.value) {
     return "";
@@ -50,8 +90,8 @@ function rebaseDimensionValue(input: {
     return "";
   }
 
-  const px = convertToPx(numericValue, input.oldUnit, input.originalPx, input.dpi);
-  const rebasedValue = convertFromPx(px, input.newUnit, input.originalPx, input.dpi);
+  const px = convertToPx(numericValue, input.oldUnit, input.originalPx);
+  const rebasedValue = convertFromPx(px, input.newUnit, input.originalPx);
   return formatResizeValue(rebasedValue, input.newUnit);
 }
 
@@ -60,10 +100,10 @@ export function buildProcessOptions(input: BuildProcessOptionsInput): ProcessOpt
   const heightNumber = input.heightValue ? parseFloat(input.heightValue) : NaN;
   const width = Number.isNaN(widthNumber)
     ? undefined
-    : convertToPx(widthNumber, input.resizeUnit, input.originalWidth, input.dpi);
+    : convertToPx(widthNumber, input.resizeUnit, input.originalWidth);
   const height = Number.isNaN(heightNumber)
     ? undefined
-    : convertToPx(heightNumber, input.resizeUnit, input.originalHeight, input.dpi);
+    : convertToPx(heightNumber, input.resizeUnit, input.originalHeight);
 
   return {
     // Explicit undefined checks instead of truthiness so that a "0" target
@@ -86,31 +126,10 @@ export function buildProcessOptions(input: BuildProcessOptionsInput): ProcessOpt
   };
 }
 
-function updateDimensionForDpi(
-  value: string,
-  unit: ResizeUnit,
-  originalPx: number,
-  previousDpi: number,
-  nextDpi: number
-): string {
-  if (!value) {
-    return "";
-  }
-
-  const numericValue = parseFloat(value);
-  if (Number.isNaN(numericValue)) {
-    return "";
-  }
-
-  const px = convertToPx(numericValue, unit, originalPx, previousDpi);
-  return formatResizeValue(convertFromPx(px, unit, originalPx, nextDpi), unit);
-}
-
 export function getLinkedDimensionValues(input: {
   changedDimension: "width" | "height";
   value: string;
   resizeUnit: ResizeUnit;
-  dpi: number;
   originalWidth: number;
   originalHeight: number;
 }): {
@@ -127,64 +146,27 @@ export function getLinkedDimensionValues(input: {
   }
 
   if (input.changedDimension === "width") {
-    const widthPx = convertToPx(numericValue, input.resizeUnit, input.originalWidth, input.dpi);
+    const widthPx = convertToPx(numericValue, input.resizeUnit, input.originalWidth);
     const heightPx = calculateHeightFromWidth(input.originalWidth, input.originalHeight, widthPx);
 
     return {
       widthValue: input.value,
       heightValue: formatResizeValue(
-        convertFromPx(heightPx, input.resizeUnit, input.originalHeight, input.dpi),
+        convertFromPx(heightPx, input.resizeUnit, input.originalHeight),
         input.resizeUnit
       ),
     };
   }
 
-  const heightPx = convertToPx(numericValue, input.resizeUnit, input.originalHeight, input.dpi);
+  const heightPx = convertToPx(numericValue, input.resizeUnit, input.originalHeight);
   const widthPx = calculateWidthFromHeight(input.originalWidth, input.originalHeight, heightPx);
 
   return {
     widthValue: formatResizeValue(
-      convertFromPx(widthPx, input.resizeUnit, input.originalWidth, input.dpi),
+      convertFromPx(widthPx, input.resizeUnit, input.originalWidth),
       input.resizeUnit
     ),
     heightValue: input.value,
-  };
-}
-
-export function getDimensionValuesForDpiChange(input: {
-  widthValue: string;
-  heightValue: string;
-  resizeUnit: ResizeUnit;
-  originalWidth: number;
-  originalHeight: number;
-  previousDpi: number;
-  nextDpi: number;
-}): {
-  widthValue: string;
-  heightValue: string;
-} {
-  if (input.resizeUnit === "px" || input.resizeUnit === "%") {
-    return {
-      widthValue: input.widthValue,
-      heightValue: input.heightValue,
-    };
-  }
-
-  return {
-    widthValue: updateDimensionForDpi(
-      input.widthValue,
-      input.resizeUnit,
-      input.originalWidth,
-      input.previousDpi,
-      input.nextDpi
-    ),
-    heightValue: updateDimensionForDpi(
-      input.heightValue,
-      input.resizeUnit,
-      input.originalHeight,
-      input.previousDpi,
-      input.nextDpi
-    ),
   };
 }
 
@@ -195,7 +177,6 @@ export function rebaseDimensionValues(input: {
   newUnit: ResizeUnit;
   originalWidth: number;
   originalHeight: number;
-  dpi: number;
 }): {
   widthValue: string;
   heightValue: string;
@@ -206,14 +187,12 @@ export function rebaseDimensionValues(input: {
       oldUnit: input.oldUnit,
       newUnit: input.newUnit,
       originalPx: input.originalWidth,
-      dpi: input.dpi,
     }),
     heightValue: rebaseDimensionValue({
       value: input.heightValue,
       oldUnit: input.oldUnit,
       newUnit: input.newUnit,
       originalPx: input.originalHeight,
-      dpi: input.dpi,
     }),
   };
 }

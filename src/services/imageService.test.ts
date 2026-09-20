@@ -1,12 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MAX_PIXEL_DIMENSION, MAX_TOTAL_PIXELS } from "../config/constants";
 import type { ProcessOptions, ResizeOptions } from "../types/processing";
-import {
-  calculateDimensions,
-  getImageMetadata,
-  prepareImageFile,
-  processImage,
-} from "./imageService";
+import { getImageMetadata, prepareImageFile, processImage } from "./imageService";
+import { calculateDimensions } from "./imageWorkflowService";
 
 const mockCanvas = {
   width: 0,

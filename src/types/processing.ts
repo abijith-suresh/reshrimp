@@ -3,7 +3,7 @@ import type { ImageFormat } from "./image";
 /**
  * Supported resize units
  */
-export type ResizeUnit = "px" | "%" | "in" | "cm";
+export type ResizeUnit = "px" | "%";
 
 /**
  * Options for resizing images
