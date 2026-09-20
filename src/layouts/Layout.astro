@@ -26,7 +26,7 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
     <meta name="generator" content={Astro.generator} />
 
@@ -80,6 +80,8 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
     const els = document.querySelectorAll<HTMLElement>("[data-reveal]");
     if (!els.length) return;
 
+    document.documentElement.classList.add("reveal-ready");
+
     // Apply staggered delays from data-reveal-delay attribute
     els.forEach((el) => {
       const delay = el.dataset.revealDelay;
@@ -100,7 +102,10 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
 
     els.forEach((el) => observer.observe(el));
 
-    return () => observer.disconnect();
+    return () => {
+      observer.disconnect();
+      document.documentElement.classList.remove("reveal-ready");
+    };
   }
 
   // ── Button ripple effect ─────────────────────────────────────────────

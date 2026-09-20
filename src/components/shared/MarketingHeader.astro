@@ -11,6 +11,7 @@ const { currentPath = "/" } = Astro.props;
 
 const headerLinks = [
   { label: "Features", href: ROUTES.FEATURES },
+  { label: "Privacy", href: ROUTES.PRIVACY },
   { label: "About", href: ROUTES.ABOUT },
 ];
 ---
@@ -43,13 +44,14 @@ const headerLinks = [
           ></path>
         </svg>
       </a>
+      <a href={makeHref(ROUTES.APP)} class="header-cta">Open app</a>
     </div>
 
     <button
       type="button"
       class="hamburger"
       id="mobile-menu-btn"
-      aria-label="Toggle menu"
+      aria-label="Open menu"
       aria-expanded="false"
       aria-controls="mobile-menu-panel"
     >
@@ -86,6 +88,7 @@ const headerLinks = [
       <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" class="mobile-link">
         GitHub
       </a>
+      <a href={makeHref(ROUTES.APP)} class="mobile-link mobile-link-cta">Open app</a>
     </div>
   </div>
 </header>
@@ -114,7 +117,7 @@ const headerLinks = [
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.85rem 2rem;
+    padding: 0.8rem 2rem;
   }
 
   .nav-desktop {
@@ -170,6 +173,36 @@ const headerLinks = [
     padding: 0.45rem;
   }
 
+  .header-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.35rem;
+    padding: 0 1rem;
+    border-radius: var(--radius-full);
+    background: var(--coral-500);
+    color: white;
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-decoration: none;
+    box-shadow: var(--shadow-coral);
+    transition:
+      background-color var(--duration-fast) ease,
+      box-shadow var(--duration-fast) ease,
+      transform var(--duration-fast) ease;
+  }
+
+  .header-cta:hover {
+    background: var(--coral-600);
+    box-shadow: var(--shadow-md);
+    transform: translateY(-1px);
+  }
+
+  .header-cta:focus-visible {
+    outline: 2px solid var(--lavender-500);
+    outline-offset: 3px;
+  }
+
   .hamburger {
     display: none;
     cursor: pointer;
@@ -202,17 +235,28 @@ const headerLinks = [
   }
 
   .mobile-panel {
-    max-height: 0;
-    overflow: hidden;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    visibility: hidden;
+    opacity: 0;
+    transform: translateY(-0.5rem);
+    pointer-events: none;
+    background: rgba(248, 247, 255, 0.96);
+    box-shadow: 0 16px 28px rgba(30, 27, 75, 0.08);
     transition:
-      max-height 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-      border-bottom-color 0.35s ease;
-    border-bottom: 1px solid transparent;
-  }
+      opacity var(--duration-normal) ease,
+      transform var(--duration-normal) ease,
+      visibility var(--duration-normal) ease;
+}
 
   .mobile-panel.mobile-open {
-    max-height: 400px;
-    border-bottom-color: var(--border-light);
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+    border-bottom: 1px solid var(--border-light);
   }
 
   .mobile-panel-inner {
@@ -245,6 +289,19 @@ const headerLinks = [
   .mobile-link-active {
     color: var(--coral-500);
     font-weight: 600;
+  }
+
+  .mobile-link-cta {
+    margin-top: 0.5rem;
+    border-radius: var(--radius-full);
+    background: var(--coral-500);
+    color: white;
+    text-align: center;
+  }
+
+  .mobile-link-cta:hover {
+    color: white;
+    background: var(--coral-600);
   }
 
   @media (max-width: 768px) {
@@ -284,6 +341,7 @@ const headerLinks = [
     const setMenuOpen = (open: boolean) => {
       panel.classList.toggle("mobile-open", open);
       btn.setAttribute("aria-expanded", String(open));
+      btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
       panel.setAttribute("aria-hidden", String(!open));
       if (open) {
         panel.removeAttribute("inert");
@@ -300,11 +358,20 @@ const headerLinks = [
       setMenuOpen(!panel.classList.contains("mobile-open"));
     };
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && panel.classList.contains("mobile-open")) {
+        closeMenu();
+        btn.focus();
+      }
+    };
+
     closeMenu();
     btn.addEventListener("click", toggleMenu);
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
       btn.removeEventListener("click", toggleMenu);
+      document.removeEventListener("keydown", handleKeyDown);
       closeMenu();
     };
   }

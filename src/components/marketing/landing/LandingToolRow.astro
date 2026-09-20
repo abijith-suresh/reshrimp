@@ -1,0 +1,138 @@
+---
+type IconComponent = (
+  props: astroHTML.JSX.SVGAttributes & { size?: number; strokeWidth?: number }
+) => unknown;
+
+interface Props {
+  icon: IconComponent;
+  number: string;
+  title: string;
+  description: string;
+  color: "coral" | "mint" | "lavender" | "yellow";
+}
+
+const { icon: Icon, number, title, description, color } = Astro.props;
+---
+
+<article class:list={["landing-tool-row", `landing-tool-${color}`]} data-reveal>
+  <span class="landing-tool-number">{number}</span>
+  <span class="landing-tool-icon">
+    <Icon size={25} strokeWidth={1.7} aria-hidden="true" />
+  </span>
+  <div class="landing-tool-copy">
+    <h3>{title}</h3>
+    <p>{description}</p>
+  </div>
+</article>
+
+<style>
+  .landing-tool-row {
+    --tool-color: var(--coral-500);
+    --tool-tint: var(--coral-50);
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: 2.25rem 3.5rem minmax(0, 1fr);
+    align-items: center;
+    gap: 1.5rem;
+    min-height: 8rem;
+    padding: 1.2rem 0.75rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .landing-tool-row::before {
+    position: absolute;
+    z-index: -1;
+    inset: 0.35rem 0;
+    border-radius: 1rem;
+    background: linear-gradient(90deg, transparent, var(--tool-tint), transparent);
+    content: "";
+    opacity: 0;
+    transform: scale(0.98);
+    transition:
+      opacity var(--duration-normal) ease,
+      transform var(--duration-normal) ease;
+  }
+
+  .landing-tool-row:last-child {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .landing-tool-row:hover {
+    border-color: var(--border);
+  }
+
+  .landing-tool-row:hover::before {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .landing-tool-mint {
+    --tool-color: var(--mint-600);
+    --tool-tint: var(--mint-50);
+  }
+
+  .landing-tool-lavender {
+    --tool-color: var(--lavender-600);
+    --tool-tint: var(--lavender-50);
+  }
+
+  .landing-tool-yellow {
+    --tool-color: var(--yellow-700);
+    --tool-tint: var(--yellow-50);
+  }
+
+  .landing-tool-number {
+    color: var(--soft-foreground);
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .landing-tool-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 1.15rem;
+    background: var(--tool-tint);
+    color: var(--tool-color);
+  }
+
+  .landing-tool-copy h3 {
+    margin: 0 0 0.3rem;
+    color: var(--foreground);
+    font-family: var(--font-display);
+    font-size: clamp(1.1rem, 2vw, 1.45rem);
+    letter-spacing: -0.035em;
+  }
+
+  .landing-tool-copy p {
+    max-width: 40rem;
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 560px) {
+    .landing-tool-row {
+      grid-template-columns: 1.75rem 3rem minmax(0, 1fr);
+      gap: 0.9rem;
+      min-height: 0;
+      padding: 1.15rem 0.25rem;
+    }
+
+    .landing-tool-icon {
+      width: 3rem;
+      height: 3rem;
+      border-radius: 1rem;
+    }
+
+    .landing-tool-copy p {
+      font-size: 0.78rem;
+    }
+
+  }
+</style>

@@ -1,0 +1,109 @@
+---
+import { ArrowLeftRight, Gauge, Scaling, Wand2 } from "lucide-astro";
+import LandingToolRow from "./LandingToolRow.astro";
+---
+
+<section class="landing-section landing-tools" id="tools">
+  <div class="landing-section-inner">
+    <div class="landing-section-heading" data-reveal>
+      <h2>The useful things, in one place.</h2>
+      <p>One focused workspace for the image you need to get ready.</p>
+    </div>
+
+    <div class="landing-tool-list">
+      <LandingToolRow
+        number="01"
+        icon={Scaling}
+        color="coral"
+        title="Resize"
+        description="Set a pixel size or percentage target. Keep the ratio when you want to."
+      />
+      <LandingToolRow
+        number="02"
+        icon={ArrowLeftRight}
+        color="mint"
+        title="Convert"
+        description="Choose JPEG, PNG, WebP, or AVIF, then review the result before downloading."
+      />
+      <LandingToolRow
+        number="03"
+        icon={Gauge}
+        color="lavender"
+        title="Compress"
+        description="Tune quality for supported formats without sending the file anywhere."
+      />
+      <LandingToolRow
+        number="04"
+        icon={Wand2}
+        color="yellow"
+        title="Remove a background"
+        description="Create a transparent PNG in the browser when the image needs a cleaner edge."
+      />
+    </div>
+  </div>
+</section>
+
+<style>
+  .landing-section {
+    position: relative;
+    z-index: 1;
+    padding: clamp(4.5rem, 9vw, 8rem) 2rem;
+  }
+
+  .landing-section-inner {
+    width: min(900px, 100%);
+    margin: 0 auto;
+  }
+
+  .landing-section-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 2.75rem;
+  }
+
+  .landing-section-heading h2,
+  .landing-section-heading p {
+    margin: 0;
+  }
+
+  .landing-section-heading h2 {
+    max-width: 30rem;
+    color: var(--foreground);
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4.2vw, 3.4rem);
+    line-height: 1;
+    letter-spacing: -0.06em;
+    text-wrap: balance;
+  }
+
+  .landing-section-heading p {
+    max-width: 15rem;
+    color: var(--muted-foreground);
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+
+  .landing-tool-list {
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media (max-width: 680px) {
+    .landing-section {
+      padding-right: 1rem;
+      padding-left: 1rem;
+    }
+
+    .landing-section-heading {
+      display: block;
+      margin-bottom: 2rem;
+    }
+
+    .landing-section-heading p {
+      max-width: 23rem;
+      margin-top: 1rem;
+    }
+  }
+</style>

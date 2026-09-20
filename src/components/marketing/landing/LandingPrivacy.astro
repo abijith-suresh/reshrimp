@@ -1,0 +1,119 @@
+---
+import { ArrowUpRight, ShieldCheck } from "lucide-astro";
+import { makeHref } from "../../../lib/utils";
+import { ROUTES } from "../../../config/constants";
+---
+
+<section class="landing-privacy" data-reveal>
+  <div class="landing-privacy-inner">
+    <div class="landing-privacy-icon">
+      <ShieldCheck size={31} strokeWidth={1.6} aria-hidden="true" />
+    </div>
+    <div class="landing-privacy-copy">
+      <h2>Your image stays with you.</h2>
+      <p>Processing happens in your browser. No uploads, accounts, or tracking.</p>
+    </div>
+    <a class="landing-privacy-link" href={makeHref(ROUTES.PRIVACY)}>
+      Read the privacy details
+      <ArrowUpRight size={16} strokeWidth={2} aria-hidden="true" />
+    </a>
+  </div>
+</section>
+
+<style>
+  .landing-privacy {
+    position: relative;
+    z-index: 1;
+    overflow: hidden;
+    padding: 1.25rem 2rem;
+    background:
+      radial-gradient(circle at 8% 20%, var(--mint-100), transparent 32%),
+      linear-gradient(100deg, var(--lavender-50), var(--warm));
+    border-block: 1px solid rgba(94, 78, 126, 0.1);
+  }
+
+  .landing-privacy-inner {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 1.35rem;
+    width: min(1080px, 100%);
+    min-height: 6.5rem;
+    margin: 0 auto;
+  }
+
+  .landing-privacy-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 1.2rem;
+    background: rgba(255, 255, 255, 0.68);
+    color: var(--mint-700);
+    box-shadow: 0 8px 20px rgba(46, 134, 120, 0.08);
+  }
+
+  .landing-privacy-copy h2,
+  .landing-privacy-copy p {
+    margin: 0;
+  }
+
+  .landing-privacy-copy h2 {
+    color: var(--foreground);
+    font-family: var(--font-display);
+    font-size: clamp(1.25rem, 2.4vw, 1.8rem);
+    letter-spacing: -0.045em;
+  }
+
+  .landing-privacy-copy p {
+    margin-top: 0.35rem;
+    color: var(--muted-foreground);
+    font-size: 0.82rem;
+  }
+
+  .landing-privacy-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    color: var(--foreground);
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+
+  .landing-privacy-link:hover {
+    color: var(--mint-700);
+  }
+
+  .landing-privacy-link:focus-visible {
+    outline: 2px solid var(--lavender-500);
+    outline-offset: 5px;
+    border-radius: 4px;
+  }
+
+  @media (max-width: 680px) {
+    .landing-privacy {
+      padding: 1.25rem 1rem;
+    }
+
+    .landing-privacy-inner {
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 1rem;
+      padding: 0.5rem 0;
+    }
+
+    .landing-privacy-icon {
+      width: 2.9rem;
+      height: 2.9rem;
+      border-radius: 1rem;
+    }
+
+    .landing-privacy-link {
+      grid-column: 2;
+      justify-self: start;
+      margin-top: -0.2rem;
+    }
+  }
+</style>

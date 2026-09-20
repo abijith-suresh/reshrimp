@@ -1,0 +1,167 @@
+---
+---
+
+<section class="landing-workflow" id="workflow">
+  <div class="landing-workflow-inner">
+    <div class="landing-workflow-heading" data-reveal>
+      <h2>From upload to ready.</h2>
+      <p>Make the change. See the result. Keep the file.</p>
+    </div>
+
+    <ol class="landing-steps">
+      <li data-reveal>
+        <span class="landing-step-number">01</span>
+        <div>
+          <h3>Bring one image</h3>
+          <p>Drop a file in or choose it from your device.</p>
+        </div>
+      </li>
+      <li data-reveal>
+        <span class="landing-step-number">02</span>
+        <div>
+          <h3>Set the result</h3>
+          <p>Choose dimensions, format, and quality in one place.</p>
+        </div>
+      </li>
+      <li data-reveal>
+        <span class="landing-step-number">03</span>
+        <div>
+          <h3>Apply, then download</h3>
+          <p>Review the processed image before it leaves the browser.</p>
+        </div>
+      </li>
+    </ol>
+
+  </div>
+</section>
+
+<style>
+  .landing-workflow {
+    position: relative;
+    z-index: 1;
+    scroll-margin-top: 5rem;
+    padding: clamp(4.5rem, 9vw, 8rem) 2rem;
+    background: rgba(255, 255, 255, 0.38);
+    border-block: 1px solid rgba(94, 78, 126, 0.1);
+  }
+
+  .landing-workflow-inner {
+    width: min(1080px, 100%);
+    margin: 0 auto;
+  }
+
+  .landing-workflow-heading {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 2rem;
+    margin-bottom: 3rem;
+  }
+
+  .landing-workflow-heading h2,
+  .landing-workflow-heading p {
+    margin: 0;
+  }
+
+  .landing-workflow-heading h2 {
+    color: var(--foreground);
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3.2rem);
+    line-height: 1;
+    letter-spacing: -0.06em;
+  }
+
+  .landing-workflow-heading p {
+    max-width: 14rem;
+    color: var(--muted-foreground);
+    font-size: 0.88rem;
+    line-height: 1.6;
+  }
+
+  .landing-steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .landing-steps li {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    min-height: 10rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .landing-step-number {
+    color: var(--coral-500);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .landing-steps h3 {
+    margin: 0 0 0.5rem;
+    color: var(--foreground);
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    letter-spacing: -0.035em;
+  }
+
+  .landing-steps p {
+    max-width: 15rem;
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: 0.82rem;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 680px) {
+    .landing-workflow {
+      padding-right: 1rem;
+      padding-left: 1rem;
+    }
+
+    .landing-workflow-heading {
+      display: block;
+      margin-bottom: 2rem;
+    }
+
+    .landing-workflow-heading p {
+      margin-top: 1rem;
+    }
+
+    .landing-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .landing-steps li {
+      display: grid;
+      grid-template-columns: 3rem minmax(0, 1fr);
+      gap: 1rem;
+      min-height: 0;
+      padding: 1.4rem 0;
+    }
+
+    .landing-steps li:not(:last-child)::after {
+      position: absolute;
+      bottom: -0.65rem;
+      left: 1.1rem;
+      width: 1px;
+      height: 1.3rem;
+      background: var(--border);
+      content: "";
+    }
+
+    .landing-steps p {
+      max-width: 20rem;
+    }
+
+  }
+</style>
