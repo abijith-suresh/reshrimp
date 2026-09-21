@@ -1,0 +1,58 @@
+---
+import { ArrowLeftRight, Gauge, Scaling, Wand2 } from "lucide-astro";
+import LandingToolRow from "./LandingToolRow.astro";
+import MarketingContainer from "../layout/MarketingContainer.astro";
+import MarketingSectionHeading from "../sections/MarketingSectionHeading.astro";
+---
+
+<section class="landing-section" id="tools">
+  <MarketingContainer>
+    <MarketingSectionHeading
+      title="What you can do."
+    />
+
+    <div class="landing-tool-list">
+      <LandingToolRow
+        number="01"
+        icon={Scaling}
+        color="coral"
+        title="Resize"
+        description="Set a new width or height. Keep the original ratio when you need to."
+      />
+      <LandingToolRow
+        number="02"
+        icon={ArrowLeftRight}
+        color="mint"
+        title="Convert"
+        description="Save as JPEG, PNG, WebP, or AVIF."
+      />
+      <LandingToolRow
+        number="03"
+        icon={Gauge}
+        color="lavender"
+        title="Compress"
+        description="Adjust quality to reduce the file size."
+      />
+      <LandingToolRow
+        number="04"
+        icon={Wand2}
+        color="yellow"
+        title="Remove a background"
+        description="Make a transparent PNG in your browser."
+      />
+    </div>
+  </MarketingContainer>
+</section>
+
+<style>
+  .landing-section {
+    position: relative;
+    z-index: 1;
+    padding: var(--marketing-section-space) var(--marketing-gutter);
+  }
+
+  .landing-tool-list {
+    display: flex;
+    flex-direction: column;
+  }
+</style>

@@ -1,6 +1,7 @@
 ---
-import { GITHUB_URL, ROUTES } from "../../config/constants";
+import { ROUTES } from "../../config/constants";
 import { makeHref } from "../../lib/utils";
+import MarketingContainer from "../marketing/layout/MarketingContainer.astro";
 import Logo from "./Logo.astro";
 
 interface Props {
@@ -9,14 +10,12 @@ interface Props {
 
 const { currentPath = "/" } = Astro.props;
 
-const headerLinks = [
-  { label: "Features", href: ROUTES.FEATURES },
-  { label: "About", href: ROUTES.ABOUT },
-];
+const headerLinks = [{ label: "About", href: ROUTES.ABOUT }];
 ---
 
 <header class="header" id="header" transition:animate="none">
-  <nav class="header-inner">
+  <MarketingContainer>
+    <nav class="header-inner">
     <Logo />
 
     <div class="nav-desktop">
@@ -30,26 +29,14 @@ const headerLinks = [
           </a>
         ))
       }
-      <a
-        href={GITHUB_URL}
-        target="_blank"
-        rel="noopener noreferrer"
-        class="nav-link nav-github"
-        aria-label="View on GitHub"
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-          <path
-            d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"
-          ></path>
-        </svg>
-      </a>
+      <a href={makeHref(ROUTES.APP)} class="header-cta">Use Reshrimp</a>
     </div>
 
     <button
       type="button"
       class="hamburger"
       id="mobile-menu-btn"
-      aria-label="Toggle menu"
+      aria-label="Open menu"
       aria-expanded="false"
       aria-controls="mobile-menu-panel"
     >
@@ -64,12 +51,27 @@ const headerLinks = [
         stroke-linecap="round"
         aria-hidden="true"
       >
-        <line class="ham-line-1" x1="3" y1="6" x2="21" y2="6"></line>
-        <line class="ham-line-2" x1="3" y1="12" x2="21" y2="12"></line>
-        <line class="ham-line-3" x1="3" y1="18" x2="21" y2="18"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+      <svg
+        class="close-icon"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+        <line x1="18" y1="6" x2="6" y2="18"></line>
       </svg>
     </button>
-  </nav>
+    </nav>
+  </MarketingContainer>
 
   <div class="mobile-panel" id="mobile-menu-panel" aria-hidden="true" inert>
     <div class="mobile-panel-inner">
@@ -83,9 +85,7 @@ const headerLinks = [
           </a>
         ))
       }
-      <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" class="mobile-link">
-        GitHub
-      </a>
+      <a href={makeHref(ROUTES.APP)} class="mobile-link mobile-link-cta">Use Reshrimp</a>
     </div>
   </div>
 </header>
@@ -95,45 +95,43 @@ const headerLinks = [
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(248, 247, 255, 0.85);
-    backdrop-filter: blur(16px);
+    background: var(--marketing-shell-surface);
     border-bottom: 1px solid var(--border-light);
     transition:
-      box-shadow 0.3s ease,
-      border-bottom-color 0.3s ease;
+      box-shadow var(--duration-fast) ease,
+      border-color var(--duration-fast) ease;
   }
 
   .header.scrolled {
-    box-shadow: 0 2px 20px rgba(30, 27, 75, 0.08);
+    box-shadow: var(--shadow-xs);
     border-bottom-color: var(--border);
   }
 
   .header-inner {
-    max-width: var(--content-max-width);
-    margin: 0 auto;
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.85rem 2rem;
+    padding: var(--space-3) var(--marketing-gutter);
   }
 
   .nav-desktop {
     display: flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: var(--space-2);
   }
 
   .nav-link {
-    font-size: 0.85rem;
+    font-size: var(--marketing-small-size);
     font-weight: 500;
     color: var(--muted-foreground);
     text-decoration: none;
-    padding: 0.45rem 0.85rem;
-    border-radius: var(--radius-full);
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
     transition:
       color 0.2s ease,
-      background 0.2s ease;
-    position: relative;
+      background-color 0.2s ease;
+    touch-action: manipulation;
   }
 
   .nav-link:hover {
@@ -147,93 +145,144 @@ const headerLinks = [
   }
 
   .nav-link-active {
-    color: var(--foreground);
+    color: var(--coral-700);
     font-weight: 600;
-    background: var(--border-light);
+    background: var(--coral-50);
   }
 
-  .nav-link-active::after {
-    content: "";
-    position: absolute;
-    bottom: 4px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 16px;
-    height: 2px;
-    background: var(--coral-500);
-    border-radius: 2px;
-  }
-
-  .nav-github {
-    display: flex;
+  .header-cta {
+    display: inline-flex;
     align-items: center;
-    padding: 0.45rem;
+    justify-content: center;
+    min-height: var(--space-10);
+    padding: 0 var(--space-4);
+    border-radius: var(--radius-md);
+    background: var(--coral-500);
+    color: white;
+    font-size: var(--marketing-small-size);
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: var(--shadow-sm);
+    transition:
+      background-color var(--duration-fast) ease,
+      box-shadow var(--duration-fast) ease,
+      transform var(--duration-fast) ease;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .header-cta:hover {
+    background: var(--coral-600);
+  }
+
+  .header-cta:active {
+    transform: scale(0.98);
+    box-shadow: var(--shadow-2xs);
+  }
+
+  .header-cta:focus-visible {
+    outline: 2px solid var(--lavender-500);
+    outline-offset: 3px;
   }
 
   .hamburger {
+    position: relative;
     display: none;
     cursor: pointer;
     color: var(--foreground);
     background: none;
     border: none;
-    padding: 0.25rem;
-  }
-
-  .ham-line-1,
-  .ham-line-2,
-  .ham-line-3 {
+    padding: var(--space-1);
+    border-radius: var(--radius-md);
     transition:
-      transform 0.25s ease,
-      opacity 0.25s ease;
-    transform-origin: center;
+      background-color var(--duration-fast) ease,
+      transform var(--duration-fast) ease;
+    -webkit-tap-highlight-color: transparent;
   }
 
-  .hamburger[aria-expanded="true"] .ham-line-1 {
-    transform: translateY(6px) rotate(45deg);
+  .hamburger:hover {
+    background: var(--card);
   }
 
-  .hamburger[aria-expanded="true"] .ham-line-2 {
+  .hamburger:active {
+    transform: scale(0.96);
+  }
+
+  .hamburger-icon,
+  .close-icon {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    transition:
+      opacity var(--duration-fast) ease,
+      transform var(--duration-fast) cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+
+  .close-icon {
     opacity: 0;
-    transform: scaleX(0);
+    transform: scale(0.7) rotate(-8deg);
   }
 
-  .hamburger[aria-expanded="true"] .ham-line-3 {
-    transform: translateY(-6px) rotate(-45deg);
+  .hamburger[aria-expanded="true"] .hamburger-icon {
+    opacity: 0;
+    transform: scale(0.7) rotate(8deg);
+  }
+
+  .hamburger[aria-expanded="true"] .close-icon {
+    opacity: 1;
+    transform: scale(1) rotate(0);
   }
 
   .mobile-panel {
-    max-height: 0;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    visibility: hidden;
     overflow: hidden;
+    pointer-events: none;
+    opacity: 0;
+    transform: translateY(-0.5rem);
+    background: var(--marketing-shell-surface);
+    border-bottom: 1px solid var(--border-light);
+    box-shadow: var(--shadow-sm);
     transition:
-      max-height 0.35s cubic-bezier(0.22, 1, 0.36, 1),
-      border-bottom-color 0.35s ease;
-    border-bottom: 1px solid transparent;
+      opacity var(--duration-normal) cubic-bezier(0.22, 1, 0.36, 1),
+      transform var(--duration-normal) cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0s linear var(--duration-normal);
   }
 
   .mobile-panel.mobile-open {
-    max-height: 400px;
-    border-bottom-color: var(--border-light);
+    visibility: visible;
+    pointer-events: auto;
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0s;
   }
 
   .mobile-panel-inner {
     display: flex;
     flex-direction: column;
-    gap: 0.25rem;
-    padding: 0.5rem 2rem 1.5rem;
+    gap: var(--space-1);
+    padding: var(--space-2) var(--marketing-gutter) var(--space-6);
   }
 
   .mobile-link {
-    font-size: 0.95rem;
+    font-size: var(--marketing-small-size);
     font-weight: 500;
     color: var(--muted-foreground);
     text-decoration: none;
-    padding: 0.6rem 0;
-    transition: color 0.2s;
-    border-bottom: 1px solid transparent;
+    padding: var(--space-2) var(--space-3);
+    border-radius: var(--radius-md);
+    transition:
+      color var(--duration-fast) ease,
+      background-color var(--duration-fast) ease;
+    touch-action: manipulation;
   }
 
   .mobile-link:hover {
     color: var(--foreground);
+    background: var(--card);
   }
 
   .mobile-link:focus-visible {
@@ -247,23 +296,34 @@ const headerLinks = [
     font-weight: 600;
   }
 
+  .mobile-link-cta {
+    margin-top: var(--space-2);
+    background: var(--coral-500);
+    color: white;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  .mobile-link-cta:hover {
+    color: white;
+    background: var(--coral-600);
+  }
+
   @media (max-width: 768px) {
+    .header-inner {
+      padding-right: var(--space-4);
+      padding-left: var(--space-4);
+    }
+
     .nav-desktop {
       display: none;
     }
 
     .hamburger {
-      display: flex;
       align-items: center;
       justify-content: center;
       width: 40px;
       height: 40px;
-      border: none;
-      background: none;
-      cursor: pointer;
-      border-radius: var(--radius-md);
-      padding: 4px;
-      color: var(--foreground);
     }
 
     .hamburger:focus-visible {
@@ -284,6 +344,7 @@ const headerLinks = [
     const setMenuOpen = (open: boolean) => {
       panel.classList.toggle("mobile-open", open);
       btn.setAttribute("aria-expanded", String(open));
+      btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
       panel.setAttribute("aria-hidden", String(!open));
       if (open) {
         panel.removeAttribute("inert");
@@ -300,11 +361,20 @@ const headerLinks = [
       setMenuOpen(!panel.classList.contains("mobile-open"));
     };
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape" && panel.classList.contains("mobile-open")) {
+        closeMenu();
+        btn.focus();
+      }
+    };
+
     closeMenu();
     btn.addEventListener("click", toggleMenu);
+    document.addEventListener("keydown", handleKeyDown);
 
     return () => {
       btn.removeEventListener("click", toggleMenu);
+      document.removeEventListener("keydown", handleKeyDown);
       closeMenu();
     };
   }

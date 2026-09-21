@@ -1,0 +1,117 @@
+---
+import MarketingSectionHeading from "../sections/MarketingSectionHeading.astro";
+import MarketingContainer from "../layout/MarketingContainer.astro";
+---
+
+<section class="landing-workflow" id="workflow">
+  <MarketingContainer>
+    <MarketingSectionHeading title="Upload. Change. Download." />
+
+    <ol class="landing-steps">
+      <li data-reveal>
+        <span class="landing-step-number">01</span>
+        <div>
+          <h3>Choose an image</h3>
+          <p>Drop a file in or choose one from your device.</p>
+        </div>
+      </li>
+      <li data-reveal>
+        <span class="landing-step-number">02</span>
+        <div>
+          <h3>Set the options</h3>
+          <p>Choose the size, format, and quality you need.</p>
+        </div>
+      </li>
+      <li data-reveal>
+        <span class="landing-step-number">03</span>
+        <div>
+          <h3>Download the result</h3>
+          <p>Apply your changes, then save the file.</p>
+        </div>
+      </li>
+    </ol>
+
+  </MarketingContainer>
+</section>
+
+<style>
+  .landing-workflow {
+    position: relative;
+    z-index: 1;
+    scroll-margin-top: var(--space-16);
+    padding: var(--marketing-section-space) var(--marketing-gutter);
+  }
+
+  .landing-steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--space-8);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .landing-steps li {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+    min-height: var(--space-20);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--border);
+  }
+
+  .landing-step-number {
+    color: var(--coral-500);
+    font-family: var(--font-mono);
+    font-size: var(--marketing-caption-size);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .landing-steps h3 {
+    margin: 0 0 var(--space-2);
+    color: var(--foreground);
+    font-family: var(--font-display);
+    font-size: var(--marketing-title-sm);
+    letter-spacing: -0.035em;
+  }
+
+  .landing-steps p {
+    max-width: 15rem;
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: var(--marketing-small-size);
+    line-height: var(--marketing-body-leading);
+  }
+
+  @media (max-width: 680px) {
+    .landing-steps {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .landing-steps li {
+      display: grid;
+      grid-template-columns: 3rem minmax(0, 1fr);
+      gap: var(--space-4);
+      min-height: 0;
+      padding: var(--space-5) 0;
+    }
+
+    .landing-steps li:not(:last-child)::after {
+      position: absolute;
+      bottom: calc(var(--space-2) * -1);
+      left: 1.1rem;
+      width: 1px;
+      height: var(--space-5);
+      background: var(--border);
+      content: "";
+    }
+
+    .landing-steps p {
+      max-width: var(--marketing-narrow-width);
+    }
+
+  }
+</style>

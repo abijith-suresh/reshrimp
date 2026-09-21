@@ -9,13 +9,12 @@ export const GITHUB_URL = "https://github.com/abijith-suresh/reshrimp";
 // Site metadata
 export const SITE_NAME = "Reshrimp";
 export const SITE_DESCRIPTION =
-  "Resize, convert, and compress images right in your browser. Nothing gets uploaded. Nothing gets tracked.";
+  "Resize, convert, compress, and remove backgrounds in your browser. Nothing gets uploaded. Nothing gets tracked.";
 
 // Navigation paths (relative to base URL)
 export const ROUTES = {
   HOME: "/",
   APP: "/app",
-  FEATURES: "/features",
   PRIVACY: "/privacy",
   ABOUT: "/about",
   FAQ: "/faq",

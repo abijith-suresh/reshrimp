@@ -1,0 +1,29 @@
+---
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<div class="marketing-section-heading" data-reveal>
+  <h2>{title}</h2>
+</div>
+
+<style>
+  .marketing-section-heading {
+    margin-bottom: var(--marketing-heading-gap);
+  }
+
+  .marketing-section-heading h2 {
+    margin: 0;
+    max-width: var(--marketing-narrow-width);
+    color: var(--foreground);
+    font-family: var(--font-display);
+    font-size: var(--marketing-title-lg);
+    line-height: var(--marketing-title-leading);
+    letter-spacing: var(--marketing-tight-tracking);
+    text-wrap: balance;
+  }
+
+</style>

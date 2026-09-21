@@ -123,10 +123,45 @@
   --duration-normal: 300ms;
   --duration-slow: 500ms;
 
+  /* Shared 4px spacing scale. Marketing layouts use these values instead of
+     accumulating one-off gaps and padding values. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+
+  --marketing-gutter: clamp(var(--space-4), 4vw, var(--space-8));
+  --marketing-wide-width: 72rem;
+  --marketing-content-width: 48rem;
+  --marketing-narrow-width: 32rem;
+  --marketing-shell-surface: var(--background);
+  --marketing-hero-space: clamp(var(--space-8), 4vw, var(--space-12));
+  --marketing-section-space: clamp(var(--space-10), 6vw, var(--space-20));
+  --marketing-section-space-compact: clamp(var(--space-8), 4vw, var(--space-12));
+  --marketing-heading-gap: clamp(var(--space-6), 3vw, var(--space-10));
+  --marketing-title-xl: clamp(2.75rem, 5vw, 4.8rem);
+  --marketing-title-lg: clamp(2rem, 4.2vw, 3.4rem);
+  --marketing-title-md: clamp(1.25rem, 2.4vw, 1.8rem);
+  --marketing-title-sm: clamp(1.125rem, 2vw, 1.5rem);
+  --marketing-title-mobile: clamp(2.4rem, 11vw, 3.25rem);
+  --marketing-body-size: 1rem;
+  --marketing-small-size: 0.875rem;
+  --marketing-caption-size: 0.75rem;
+  --marketing-title-leading: 1;
+  --marketing-body-leading: 1.6;
+  --marketing-tight-tracking: -0.06em;
+
   --font-title: clamp(1.8rem, 4vw, 2.5rem);
+  --marketing-section-size: var(--marketing-title-lg);
   --validation-warning: #d97706;
   --chip-yellow: #a16207;
-  --content-max-width: 1100px;
 }
 
 @theme {
@@ -272,6 +307,64 @@ h6 {
   text-wrap: pretty;
 }
 
+.marketing-content-block > h2 {
+  margin: 0 0 var(--space-4);
+  color: var(--foreground);
+  font-family: var(--font-display);
+  font-size: var(--marketing-title-sm);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.marketing-content-block {
+  padding-block: var(--space-8);
+  border-top: 1px solid var(--border);
+  margin-bottom: var(--space-6);
+}
+
+.marketing-content-block:last-child {
+  margin-bottom: 0;
+}
+
+.marketing-content-block > p {
+  max-width: var(--marketing-content-width);
+  margin: 0 0 var(--space-4);
+  color: var(--muted-foreground);
+  font-size: var(--marketing-small-size);
+  line-height: var(--marketing-body-leading);
+}
+
+.marketing-content-block > p:last-child {
+  margin-bottom: 0;
+}
+
+.marketing-bullet-list {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.marketing-bullet-list li {
+  position: relative;
+  padding-left: var(--space-6);
+  color: var(--muted-foreground);
+  font-size: var(--marketing-small-size);
+  line-height: var(--marketing-body-leading);
+}
+
+.marketing-bullet-list li::before {
+  position: absolute;
+  top: var(--space-2);
+  left: 0;
+  width: var(--space-2);
+  height: var(--space-2);
+  border-radius: 50%;
+  background: var(--mint-500);
+  content: "";
+}
+
 ::selection {
   background: var(--lavender-500);
   color: var(--card);
@@ -303,48 +396,15 @@ h6 {
   }
 }
 
-/* ===== View Transitions ===== */
-@keyframes pageEnter {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes pageExit {
-  from {
-    opacity: 1;
-    transform: translateY(0);
-  }
-  to {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-}
-
-::view-transition-old(root) {
-  animation: pageExit 0.2s ease forwards;
-}
-
-::view-transition-new(root) {
-  animation: pageEnter 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none;
-  }
-}
-
 /* ===== Scroll Reveal ===== */
 [data-reveal] {
+  opacity: 1;
+  transform: none;
+}
+
+.reveal-ready [data-reveal] {
   opacity: 0;
-  transform: translateY(28px) scale(0.98);
+  transform: translateY(20px);
   transition:
     opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.55s cubic-bezier(0.22, 1, 0.36, 1);
@@ -353,13 +413,4 @@ h6 {
 [data-reveal].revealed {
   opacity: 1;
   transform: translateY(0) scale(1);
-}
-
-/* ===== CTA Pop Arrow ===== */
-.cta-pop-arrow {
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-[data-ui-button]:hover .cta-pop-arrow {
-  transform: translateX(4px);
 }

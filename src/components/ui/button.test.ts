@@ -7,7 +7,7 @@ describe("buttonVariants", () => {
 
     expect(classes).toContain("bg-coral-500");
     expect(classes).toContain("text-white");
-    expect(classes).toContain("rounded-full");
+    expect(classes).toContain("rounded-md");
   });
 
   it("supports secondary buttons with a coral tone by default", () => {
@@ -15,7 +15,7 @@ describe("buttonVariants", () => {
 
     expect(classes).toContain("border-coral-200");
     expect(classes).toContain("bg-coral-50");
-    expect(classes).toContain("px-8");
+    expect(classes).toContain("px-6");
   });
 
   it("supports mint-toned primary buttons for success actions", () => {

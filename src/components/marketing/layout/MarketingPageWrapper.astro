@@ -1,10 +1,6 @@
 ---
-import FloatingShapes from "../../shared/FloatingShapes.astro";
 ---
 
 <div class="relative overflow-x-hidden min-h-screen">
-  <FloatingShapes />
-  <div transition:animate="fade">
-    <slot />
-  </div>
+  <slot />
 </div>

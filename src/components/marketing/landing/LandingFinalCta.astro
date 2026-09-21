@@ -1,0 +1,66 @@
+---
+import ButtonLink from "../../ui/ButtonLink.astro";
+import { makeHref } from "../../../lib/utils";
+import { ROUTES } from "../../../config/constants";
+import MarketingContainer from "../layout/MarketingContainer.astro";
+---
+
+<section class="landing-final-cta">
+  <MarketingContainer>
+    <div class="landing-final-inner" data-reveal>
+      <div>
+        <h2>Ready to change an image?</h2>
+        <p>Choose an image, make the change you need, and download the result.</p>
+      </div>
+      <ButtonLink href={makeHref(ROUTES.APP)} size="lg">
+        Choose an image
+      </ButtonLink>
+    </div>
+  </MarketingContainer>
+</section>
+
+<style>
+  .landing-final-cta {
+    position: relative;
+    z-index: 1;
+    padding: var(--marketing-section-space) var(--marketing-gutter) var(--space-16);
+  }
+
+  .landing-final-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: clamp(var(--space-8), 6vw, var(--space-16));
+    text-align: left;
+  }
+
+  .landing-final-inner h2 {
+    max-width: 32rem;
+    margin: 0;
+    color: var(--foreground);
+    font-family: var(--font-display);
+    font-size: var(--marketing-title-lg);
+    line-height: var(--marketing-title-leading);
+    letter-spacing: var(--marketing-tight-tracking);
+    text-wrap: balance;
+  }
+
+  .landing-final-inner p {
+    max-width: 32rem;
+    margin: var(--space-4) 0 0;
+    color: var(--muted-foreground);
+    font-size: var(--marketing-small-size);
+    line-height: var(--marketing-body-leading);
+  }
+
+  @media (max-width: 560px) {
+    .landing-final-inner {
+      grid-template-columns: 1fr;
+      gap: var(--space-8);
+    }
+
+    .landing-final-inner :global(a[data-ui-button]) {
+      width: 100%;
+    }
+  }
+</style>

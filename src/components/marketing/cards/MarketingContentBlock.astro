@@ -1,0 +1,11 @@
+---
+interface Props {
+  delay?: number;
+}
+
+const { delay = 0 } = Astro.props;
+---
+
+<div class="marketing-content-block" data-reveal data-reveal-delay={String(delay)}>
+  <slot />
+</div>

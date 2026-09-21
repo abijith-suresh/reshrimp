@@ -1,18 +1,11 @@
 ---
 import MarketingLayout from "../layouts/MarketingLayout.astro";
-import MarketingSectionHeader from "../components/shared/MarketingSectionHeader.astro";
 import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
-import HeroSection from "../components/marketing/hero/HeroSection.astro";
-import HeroCTA from "../components/marketing/hero/HeroCTA.astro";
-import BentoGrid from "../components/marketing/sections/BentoGrid.astro";
-import BentoCard from "../components/marketing/sections/BentoCard.astro";
-import StepSection from "../components/marketing/sections/StepSection.astro";
-import StepItem from "../components/marketing/sections/StepItem.astro";
-import StepArrow from "../components/marketing/sections/StepArrow.astro";
-import TrustBanner from "../components/marketing/sections/TrustBanner.astro";
-import CTACard from "../components/marketing/sections/CTACard.astro";
-import PageSection from "../components/ui/PageSection.astro";
-import { Scaling, ArrowLeftRight, Gauge, ShieldCheck } from "lucide-astro";
+import LandingFinalCta from "../components/marketing/landing/LandingFinalCta.astro";
+import LandingHero from "../components/marketing/landing/LandingHero.astro";
+import LandingPrivacy from "../components/marketing/landing/LandingPrivacy.astro";
+import LandingTools from "../components/marketing/landing/LandingTools.astro";
+import LandingWorkflow from "../components/marketing/landing/LandingWorkflow.astro";
 import { SITE_NAME, SITE_DESCRIPTION } from "../config/constants";
 
 const siteUrl = new URL(Astro.url.pathname, Astro.site).href;
@@ -29,110 +22,29 @@ const jsonLd = {
     price: "0",
     priceCurrency: "USD",
   },
-  featureList: ["Image resizing", "Format conversion", "Image compression", "Background removal"],
+  featureList: [
+    "Image resizing",
+    "Format conversion",
+    "Image compression",
+    "Background removal",
+    "Local browser processing",
+  ],
 };
-
-const BENTO_CARDS = [
-  {
-    color: "coral",
-    colSpan: true,
-    icon: Scaling,
-    title: "Resize with precision",
-    description:
-      "Scale to exact pixel dimensions. Aspect ratio lock keeps everything balanced. Works for uploads, websites, or sharing.",
-  },
-  {
-    color: "mint",
-    colSpan: false,
-    icon: ArrowLeftRight,
-    title: "Convert formats",
-    description:
-      "Switch between JPEG, PNG, WebP, and AVIF in a click. Browser-native conversion with format-specific tradeoffs.",
-  },
-  {
-    color: "lavender",
-    colSpan: false,
-    icon: Gauge,
-    title: "Compress smartly",
-    description:
-      "Fine-tune JPEG, WebP, and AVIF quality from 0-100%. PNG stays lossless. Preview updates after processing so you can review the result before downloading.",
-  },
-  {
-    color: "yellow",
-    colSpan: true,
-    icon: ShieldCheck,
-    title: "Completely private",
-    description:
-      "All processing happens locally via browser APIs. Images are not uploaded, and the source is open for inspection.",
-  },
-] as const;
 ---
 
-<MarketingLayout title="Reshrimp — Your Images Deserve Better" currentPath="/">
+<MarketingLayout
+  title="Reshrimp | Image tools in your browser"
+  description={SITE_DESCRIPTION}
+  currentPath="/"
+>
   <Fragment slot="head">
     <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </Fragment>
   <MarketingPageWrapper>
-    <HeroSection
-      chips={[
-        { label: "Free forever", variant: "mint" },
-        { label: "100% private", variant: "coral" },
-        { label: "Browser-local", variant: "lavender" },
-      ]}
-      title="Private image tools"
-      gradientTitle="that stay on your device."
-      subtitle="Resize, convert, and compress images right in your browser. Nothing gets uploaded. Nothing gets tracked."
-    >
-      <HeroCTA secondaryText="No sign-up · Runs in your browser" />
-    </HeroSection>
-
-    <PageSection sectionClass="px-8 py-16 relative z-10" containerClass="max-w-[1000px] mx-auto">
-      <MarketingSectionHeader label="What can you do?" title="Four focused tools for one image." />
-      <BentoGrid>
-        {
-          BENTO_CARDS.map((card) => (
-            <BentoCard
-              color={card.color}
-              colSpan={card.colSpan}
-              icon={card.icon}
-              title={card.title}
-              description={card.description}
-            />
-          ))
-        }
-      </BentoGrid>
-    </PageSection>
-
-    <PageSection sectionClass="px-8 py-16 relative z-10" containerClass="max-w-[900px] mx-auto">
-      <MarketingSectionHeader label="Dead simple" title="Three steps. Seriously." />
-      <StepSection>
-        <StepItem
-          number={1}
-          color="coral"
-          title="Drop your image"
-          description="Drag and drop or click to browse. Supports JPEG, PNG, WebP, AVIF, HEIC, and HEIF input."
-        />
-        <StepArrow delay={100} />
-        <StepItem
-          number={2}
-          color="mint"
-          title="Tweak the settings"
-          description="Set dimensions, pick a format, and adjust quality for the image you want to export."
-          delay={200}
-        />
-        <StepArrow delay={300} />
-        <StepItem
-          number={3}
-          color="lavender"
-          title="Download instantly"
-          description="Process it, then download the result."
-          delay={400}
-        />
-      </StepSection>
-    </PageSection>
-
-    <TrustBanner />
-
-    <CTACard />
+    <LandingHero />
+    <LandingTools />
+    <LandingWorkflow />
+    <LandingPrivacy />
+    <LandingFinalCta />
   </MarketingPageWrapper>
 </MarketingLayout>

@@ -10,21 +10,30 @@ const answerId = `faq-answer-${question
   .toLowerCase()
   .replace(/\s+/g, "-")
   .replace(/[^a-z0-9-]/g, "")}`;
+const questionId = `${answerId}-question`;
 ---
 
-<div class="faq-item group mb-3 overflow-hidden" data-reveal data-reveal-delay={String(delay)}>
+<div class="faq-item" data-reveal data-reveal-delay={String(delay)}>
   <button
-    class="faq-question w-full text-left font-display text-lg font-semibold py-5 px-6 flex items-center justify-between gap-4 transition-colors duration-200 hover:text-coral-500"
+    type="button"
+    class="faq-question"
+    id={questionId}
     aria-expanded="false"
     aria-controls={answerId}
-    style="touch-action: manipulation"
   >
     {question}
   </button>
-  <div class="faq-body" role="region" id={answerId}>
+  <div
+    class="faq-body"
+    role="region"
+    id={answerId}
+    aria-labelledby={questionId}
+    aria-hidden="true"
+    inert
+  >
     <div class="overflow-hidden">
       <p
-        class="faq-answer text-sm text-muted-foreground leading-[1.7] px-6 pb-5 m-0"
+        class="faq-answer"
         set:html={answer}
       />
     </div>
@@ -33,23 +42,50 @@ const answerId = `faq-answer-${question
 
 <style>
   .faq-item {
-    border: 1px solid var(--border);
-    border-radius: var(--radius-md);
-    background: var(--card);
-    box-shadow: var(--shadow-sm);
-    transition:
-      border-color 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-      box-shadow 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
-      transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-top: 1px solid var(--border);
+  }
+
+  .faq-item:last-child {
+    border-bottom: 1px solid var(--border);
+  }
+
+  .faq-question {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: var(--space-4);
+    padding: var(--space-5) 0;
+    border: 0;
+    background: transparent;
+    color: var(--foreground);
+    font-family: var(--font-display);
+    font-size: var(--marketing-small-size);
+    font-weight: 600;
+    line-height: 1.35;
+    text-align: left;
+    touch-action: manipulation;
+    transition: color var(--duration-fast) ease;
+    cursor: pointer;
+  }
+
+  .faq-question:hover {
+    color: var(--coral-600);
+  }
+
+  .faq-question:focus-visible {
+    outline: 2px solid var(--lavender-500);
+    outline-offset: -2px;
+    border-radius: 0.35rem;
   }
 
   .faq-question::after {
     content: "+";
-    font-size: 1.3rem;
+    font-size: var(--space-5);
     font-weight: 400;
     color: var(--coral-500);
     flex-shrink: 0;
-    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    transition: transform var(--duration-normal) var(--ease-pop);
   }
 
   .faq-item.faq-open .faq-question::after {
@@ -59,7 +95,7 @@ const answerId = `faq-answer-${question
   .faq-body {
     display: grid;
     grid-template-rows: 0fr;
-    transition: grid-template-rows 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: grid-template-rows var(--duration-normal) cubic-bezier(0.22, 1, 0.36, 1);
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -74,6 +110,12 @@ const answerId = `faq-answer-${question
 
   .faq-answer {
     opacity: 0;
+    max-width: 44rem;
+    padding: 0 0 var(--space-5);
+    margin: 0;
+    color: var(--muted-foreground);
+    font-size: var(--marketing-small-size);
+    line-height: var(--marketing-body-leading);
     transform: translateY(6px);
     transition:
       opacity 0.3s ease,
@@ -84,12 +126,6 @@ const answerId = `faq-answer-${question
   .faq-item.faq-open .faq-answer {
     opacity: 1;
     transform: translateY(0);
-  }
-
-  .faq-item.faq-open {
-    border-color: var(--lavender-500);
-    box-shadow: var(--shadow-glow);
-    transform: scale(1.008);
   }
 
   .faq-answer a {
@@ -106,15 +142,34 @@ const answerId = `faq-answer-${question
 </style>
 
 <script>
-  // Use event delegation so all FAQ items work regardless of how many component instances exist
-  function handleFaqClick(e: Event) {
-    const question = (e.target as HTMLElement).closest(".faq-question");
-    if (!question) return;
-    const item = question.closest(".faq-item");
-    if (!item) return;
-    const isOpen = item.classList.toggle("faq-open");
-    question.setAttribute("aria-expanded", String(isOpen));
+  import { registerPageInitializer } from "../../../lib/pageInitializer";
+
+  function initFaq() {
+    const questions = document.querySelectorAll<HTMLButtonElement>(".faq-question");
+    if (!questions.length) return;
+
+    const handleFaqClick = (event: Event) => {
+      const question = event.currentTarget as HTMLButtonElement;
+      const item = question.closest<HTMLElement>(".faq-item");
+      const body = item?.querySelector<HTMLElement>(".faq-body");
+      if (!item || !body) return;
+
+      const isOpen = item.classList.toggle("faq-open");
+      question.setAttribute("aria-expanded", String(isOpen));
+      body.setAttribute("aria-hidden", String(!isOpen));
+      if (isOpen) {
+        body.removeAttribute("inert");
+      } else {
+        body.setAttribute("inert", "");
+      }
+    };
+
+    questions.forEach((question) => question.addEventListener("click", handleFaqClick));
+
+    return () => {
+      questions.forEach((question) => question.removeEventListener("click", handleFaqClick));
+    };
   }
 
-  document.addEventListener("click", handleFaqClick);
+  registerPageInitializer("faq:interactions", () => initFaq());
 </script>

@@ -1,14 +1,14 @@
 ---
 import MarketingLayout from "../layouts/MarketingLayout.astro";
 import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
-import PageContainer from "../components/marketing/layout/PageContainer.astro";
+import MarketingContainer from "../components/marketing/layout/MarketingContainer.astro";
 import HeroSection from "../components/marketing/hero/HeroSection.astro";
-import AboutCard from "../components/marketing/cards/AboutCard.astro";
+import MarketingContentBlock from "../components/marketing/cards/MarketingContentBlock.astro";
 import TechStackGrid from "../components/marketing/cards/TechStackGrid.astro";
 import TechStackItem from "../components/marketing/cards/TechStackItem.astro";
 import ButtonLink from "../components/ui/ButtonLink.astro";
 import PageSection from "../components/ui/PageSection.astro";
-import { Github, ArrowRight } from "lucide-astro";
+import { Github } from "lucide-astro";
 import { makeHref } from "../lib/utils";
 import { GITHUB_URL, ROUTES } from "../config/constants";
 
@@ -17,32 +17,29 @@ const ABOUT_CARDS = [
     title: "Why I built this",
     delay: 0,
     paragraphs: [
-      "Most online image tools require uploading your photos to someone else's server. That means trusting a third party with your personal images, waiting for uploads and downloads, and dealing with file size limits and account requirements.",
-      "I built Reshrimp to prove that you don't need any of that. Modern browsers have everything needed to resize, convert, and compress images — Canvas API, Blob handling, and efficient JavaScript engines. Why send data across the internet when your computer can handle it locally in milliseconds?",
-      "Reshrimp stays intentionally small. It focuses on fast, private, browser-based work for one image at a time: resize, compress, convert, and background removal.",
+      "Most online image tools upload the file before they do the work. That adds waiting, file limits, and another service handling your image.",
+      "Reshrimp uses browser APIs instead. It stays focused on one image at a time: resize, convert, compress, or remove a background.",
     ],
   },
   {
     title: "The tech stack",
     delay: 100,
-    paragraphs: [
-      "I chose this stack intentionally — it's modern, type-safe, and performant. Each technology serves a specific purpose in building a privacy-first tool.",
-    ],
+    paragraphs: ["A small static site and browser app. Each part has one job."],
     hasTechStack: true,
   },
   {
     title: "Privacy by default",
     delay: 200,
     paragraphs: [
-      "I believe software should respect users by default, not as an afterthought. Every pixel of your image stays in your browser — it's never uploaded to a server, never tracked, and never logged. The Canvas API handles everything locally, from resizing to background removal.",
-      "Even AI background removal runs client-side using WebAssembly. Your images are processed on your own device, not on someone else's servers. You can verify this yourself — the code is open source under the MIT license.",
+      "Your image stays in the browser. Reshrimp does not upload it, track it, or log it.",
+      "Background removal also runs on your device when you use it. The code is open source, so you can check how it works.",
     ],
   },
   {
     title: "Open source",
     delay: 300,
     paragraphs: [
-      "Reshrimp is fully open source. You can read every line of code, fork it to self-host it, or contribute improvements. I welcome pull requests for bug fixes, new features, or documentation updates.",
+      "Read the code, run your own copy, or send a fix. Reshrimp is licensed under MIT.",
     ],
     hasButtons: true,
   },
@@ -50,52 +47,50 @@ const ABOUT_CARDS = [
 ---
 
 <MarketingLayout
-  title="Reshrimp — About"
-  description="Learn about the Reshrimp project — a free, open source, privacy-first image processing tool built for the browser."
+  title="Reshrimp | About"
+  description="Why Reshrimp is a small, open source image tool that runs in your browser."
   currentPath="/about"
 >
   <MarketingPageWrapper>
     <HeroSection
-      chip={{ label: "About", variant: "coral" }}
-      title="Built for privacy. Built to stay simple."
-      subtitle="Reshrimp is a free, open source image processing tool that runs entirely in your browser. No uploads. No tracking. Just your images, processed locally."
+      title="A small image tool that stays simple."
+      subtitle="Resize, convert, compress, and remove backgrounds in your browser."
     />
 
     <PageSection>
-      <PageContainer>
+      <MarketingContainer>
         {
           ABOUT_CARDS.map((card) => (
-            <AboutCard delay={card.delay}>
-              <h2 class="font-display text-xl font-bold mb-4 tracking-tight">{card.title}</h2>
+            <MarketingContentBlock delay={card.delay}>
+              <h2>{card.title}</h2>
               {card.paragraphs.map((p) => (
-                <p class="text-sm text-muted-foreground leading-[1.7] mb-4 last:mb-0">{p}</p>
+                <p>{p}</p>
               ))}
               {card.hasTechStack && (
                 <TechStackGrid>
-                  <TechStackItem name="Astro" description="Static site framework" />
-                  <TechStackItem name="Solid.js" description="Reactive interactive layer" />
-                  <TechStackItem name="TypeScript" description="Type-safe processing logic" />
-                  <TechStackItem name="Tailwind CSS" description="Utility-first styling" />
-                  <TechStackItem name="Vercel" description="Edge deployment platform" />
-                  <TechStackItem name="Vitest" description="Unit testing framework" />
+                  <TechStackItem name="Astro" description="Static site" />
+                  <TechStackItem name="Solid.js" description="Interactive app UI" />
+                  <TechStackItem name="TypeScript" description="Image processing" />
+                  <TechStackItem name="Tailwind CSS" description="Shared styles" />
+                  <TechStackItem name="Vercel" description="Deployment" />
+                  <TechStackItem name="Vitest" description="Tests" />
                 </TechStackGrid>
               )}
               {card.hasButtons && (
                 <div class="flex items-center gap-3 mt-5 flex-wrap">
                   <ButtonLink href={GITHUB_URL} variant="secondary" external={true}>
-                    <Github size={18} />
+                    <Github size={18} aria-hidden="true" />
                     View on GitHub
                   </ButtonLink>
                   <ButtonLink href={makeHref(ROUTES.APP)}>
-                    Try Reshrimp
-                    <ArrowRight size={18} strokeWidth={2} class="cta-pop-arrow" />
+                    Choose an image
                   </ButtonLink>
                 </div>
               )}
-            </AboutCard>
+            </MarketingContentBlock>
           ))
         }
-      </PageContainer>
+      </MarketingContainer>
     </PageSection>
   </MarketingPageWrapper>
 </MarketingLayout>

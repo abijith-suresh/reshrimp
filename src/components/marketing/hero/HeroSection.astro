@@ -1,97 +1,73 @@
 ---
-interface Chip {
-  label: string;
-  variant: "coral" | "mint" | "lavender" | "yellow";
-}
+import MarketingContainer from "../layout/MarketingContainer.astro";
 
 interface Props {
-  chip?: Chip;
-  chips?: Chip[];
   title: string;
   subtitle?: string;
-  gradientTitle?: string;
-  centered?: boolean;
 }
 
-const { chip, chips, title, subtitle, gradientTitle, centered = true } = Astro.props;
-const variantClasses: Record<string, string> = {
-  coral: "bg-coral-50 text-coral-600",
-  mint: "bg-mint-50 text-mint-600",
-  lavender: "bg-lavender-50 text-lavender-600",
-  yellow: "bg-yellow-50 text-yellow-700",
-};
+const { title, subtitle } = Astro.props;
 ---
 
-<section class:list={["px-8 py-20 relative z-10 md:px-5 md:py-12", { "text-center": centered }]}>
-  <div class:list={["mx-auto", centered ? "max-w-[700px]" : "max-w-[700px]"]}>
-    {
-      chips ? (
-        <div class="flex justify-center gap-2 mb-8 flex-wrap opacity-0 animate-hero-chip">
-          {chips.map((c) => (
-            <span
-              class:list={[
-                "inline-block text-xs font-semibold px-[0.9rem] py-[0.35rem] rounded-full tracking-[0.01em]",
-                variantClasses[c.variant],
-              ]}
-            >
-              {c.label}
-            </span>
-          ))}
-        </div>
-      ) : chip ? (
-        <span
-          class:list={[
-            "inline-block text-xs font-semibold px-[0.9rem] py-[0.35rem] rounded-full tracking-[0.01em]",
-            variantClasses[chip.variant],
-            "animate-hero-chip",
-          ]}
-        >
-          {chip.label}
-        </span>
-      ) : null
-    }
-    <h1
-      class="font-display font-extrabold leading-[1.15] mb-6 tracking-tight opacity-0 animate-hero-title"
-      style="font-size: clamp(2rem, 5vw, 3rem)"
-    >
-      {title}
-      {
-        gradientTitle ? (
-          <>
-            <br />
-            <span class="bg-linear-to-br from-[var(--coral-500)] to-[var(--lavender-600)] bg-clip-text text-transparent">
-              {gradientTitle}
-            </span>
-          </>
-        ) : null
-      }
-    </h1>
-    {
-      subtitle ? (
-        <p
-          class:list={[
-            "text-lg text-muted-foreground leading-[1.7] m-0 opacity-0 animate-hero-subtitle",
-            { "max-w-[520px] mx-auto": centered },
-          ]}
-        >
-          {subtitle}
-        </p>
-      ) : null
-    }
-    <div class="mt-8 flex justify-center">
-      <slot />
-    </div>
-  </div>
+<section class="marketing-page-hero">
+  <MarketingContainer>
+    <h1>{title}</h1>
+    {subtitle ? <p>{subtitle}</p> : null}
+  </MarketingContainer>
 </section>
 
 <style>
-  .animate-hero-chip {
-    animation: popBounceIn 0.6s 0.1s forwards;
+  .marketing-page-hero {
+    position: relative;
+    z-index: 1;
+    padding: var(--marketing-hero-space) var(--marketing-gutter) var(--space-8);
   }
-  .animate-hero-title {
-    animation: popBounceIn 0.6s 0.25s forwards;
+
+  .marketing-page-hero h1 {
+    max-width: 780px;
+    margin: 0;
+    color: var(--foreground);
+    font-family: var(--font-display);
+    font-size: var(--marketing-title-xl);
+    font-weight: 700;
+    line-height: var(--marketing-title-leading);
+    letter-spacing: var(--marketing-tight-tracking);
+    text-wrap: balance;
+    animation: marketing-hero-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
-  .animate-hero-subtitle {
-    animation: popBounceIn 0.6s 0.4s forwards;
+
+  .marketing-page-hero p {
+    max-width: 38rem;
+    margin: var(--space-6) 0 0;
+    color: var(--muted-foreground);
+    font-size: var(--marketing-body-size);
+    line-height: var(--marketing-body-leading);
+    animation: marketing-hero-in 700ms 100ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @keyframes marketing-hero-in {
+    from {
+      opacity: 0;
+      transform: translateY(1rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 560px) {
+    .marketing-page-hero {
+      padding: var(--space-8) var(--space-4) var(--space-6);
+    }
+
+    .marketing-page-hero h1 {
+      font-size: var(--marketing-title-mobile);
+      letter-spacing: -0.06em;
+    }
+
+    .marketing-page-hero p {
+      margin-top: var(--space-5);
+    }
   }
 </style>
