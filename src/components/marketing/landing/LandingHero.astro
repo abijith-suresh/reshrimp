@@ -2,10 +2,12 @@
 import ButtonLink from "../../ui/ButtonLink.astro";
 import { makeHref } from "../../../lib/utils";
 import { ROUTES } from "../../../config/constants";
+import MarketingContainer from "../layout/MarketingContainer.astro";
 ---
 
 <section class="landing-hero">
-  <div class="landing-hero-inner">
+  <MarketingContainer size="wide">
+    <div class="landing-hero-inner">
     <div class="landing-hero-copy">
       <h1>
         Resize an image.<br />
@@ -72,7 +74,8 @@ import { ROUTES } from "../../../config/constants";
         </div>
       </div>
     </figure>
-  </div>
+    </div>
+  </MarketingContainer>
 </section>
 
 <style>
@@ -84,8 +87,7 @@ import { ROUTES } from "../../../config/constants";
   }
 
   .landing-hero-inner {
-    width: min(var(--marketing-wide-width), 100%);
-    margin: 0 auto;
+    width: 100%;
     display: grid;
     grid-template-columns: minmax(0, 0.82fr) minmax(520px, 1.18fr);
     align-items: center;

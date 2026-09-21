@@ -1,17 +1,20 @@
 ---
 import { ShieldCheck } from "lucide-astro";
+import MarketingContainer from "../layout/MarketingContainer.astro";
 ---
 
 <section class="landing-privacy" data-reveal>
-  <div class="landing-privacy-inner">
-    <div class="landing-privacy-icon">
-      <ShieldCheck size={31} strokeWidth={1.6} aria-hidden="true" />
+  <MarketingContainer size="wide">
+    <div class="landing-privacy-inner">
+      <div class="landing-privacy-icon">
+        <ShieldCheck size={31} strokeWidth={1.6} aria-hidden="true" />
+      </div>
+      <div class="landing-privacy-copy">
+        <h2>Your image stays in your browser.</h2>
+        <p>Reshrimp does not upload images, require an account, or track you.</p>
+      </div>
     </div>
-    <div class="landing-privacy-copy">
-      <h2>Your image stays in your browser.</h2>
-      <p>Reshrimp does not upload images, require an account, or track you.</p>
-    </div>
-  </div>
+  </MarketingContainer>
 </section>
 
 <style>
@@ -26,8 +29,6 @@ import { ShieldCheck } from "lucide-astro";
     grid-template-columns: auto minmax(0, 1fr);
     align-items: center;
     gap: var(--space-5);
-    width: min(var(--marketing-wide-width), 100%);
-    margin: 0 auto;
   }
 
   .landing-privacy-icon {

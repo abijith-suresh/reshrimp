@@ -1,9 +1,10 @@
 ---
 import MarketingSectionHeading from "../sections/MarketingSectionHeading.astro";
+import MarketingContainer from "../layout/MarketingContainer.astro";
 ---
 
 <section class="landing-workflow" id="workflow">
-  <div class="landing-workflow-inner">
+  <MarketingContainer size="wide">
     <MarketingSectionHeading
       title="Upload. Change. Download."
       description="Everything happens in your browser."
@@ -33,7 +34,7 @@ import MarketingSectionHeading from "../sections/MarketingSectionHeading.astro";
       </li>
     </ol>
 
-  </div>
+  </MarketingContainer>
 </section>
 
 <style>
@@ -42,11 +43,6 @@ import MarketingSectionHeading from "../sections/MarketingSectionHeading.astro";
     z-index: 1;
     scroll-margin-top: var(--space-16);
     padding: var(--marketing-section-space) var(--marketing-gutter);
-  }
-
-  .landing-workflow-inner {
-    width: min(var(--marketing-wide-width), 100%);
-    margin: 0 auto;
   }
 
   .landing-steps {

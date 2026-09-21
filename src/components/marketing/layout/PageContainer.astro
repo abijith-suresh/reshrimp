@@ -1,21 +1,19 @@
 ---
+import MarketingContainer from "./MarketingContainer.astro";
+
+type Size = "wide" | "content" | "narrow";
+
 interface Props {
   class?: string;
-  children: unknown;
+  size?: Size;
 }
 
-const { class: className } = Astro.props;
+const { class: className, size = "content" } = Astro.props;
 ---
 
-<div class:list={["marketing-content-container", className]}>
+<MarketingContainer
+  size={size}
+  class={["marketing-content-container", className].filter(Boolean).join(" ")}
+>
   <slot />
-</div>
-
-<style>
-  .marketing-content-container {
-    position: relative;
-    z-index: 1;
-    width: min(var(--marketing-content-width), 100%);
-    margin: 0 auto;
-  }
-</style>
+</MarketingContainer>

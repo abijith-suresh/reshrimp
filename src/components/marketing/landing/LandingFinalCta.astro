@@ -2,16 +2,19 @@
 import ButtonLink from "../../ui/ButtonLink.astro";
 import { makeHref } from "../../../lib/utils";
 import { ROUTES } from "../../../config/constants";
+import MarketingContainer from "../layout/MarketingContainer.astro";
 ---
 
 <section class="landing-final-cta">
-  <div class="landing-final-inner" data-reveal>
-    <h2>Ready to change an image?</h2>
-    <p>Choose an image, make the change you need, and download the result.</p>
-    <ButtonLink href={makeHref(ROUTES.APP)} size="lg">
-      Choose an image
-    </ButtonLink>
-  </div>
+  <MarketingContainer size="narrow">
+    <div class="landing-final-inner" data-reveal>
+      <h2>Ready to change an image?</h2>
+      <p>Choose an image, make the change you need, and download the result.</p>
+      <ButtonLink href={makeHref(ROUTES.APP)} size="lg">
+        Choose an image
+      </ButtonLink>
+    </div>
+  </MarketingContainer>
 </section>
 
 <style>
@@ -23,8 +26,7 @@ import { ROUTES } from "../../../config/constants";
   }
 
   .landing-final-inner {
-    max-width: var(--marketing-narrow-width);
-    margin: 0 auto;
+    width: 100%;
   }
 
   .landing-final-inner h2,

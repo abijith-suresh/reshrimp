@@ -1,29 +1,44 @@
 ---
-import { SITE_NAME, ROUTES } from "../../config/constants";
+import { GITHUB_URL, SITE_NAME, ROUTES } from "../../config/constants";
 import { makeHref } from "../../lib/utils";
+import MarketingContainer from "../marketing/layout/MarketingContainer.astro";
 
-const footerLinks = [
-  { label: "Privacy", path: ROUTES.PRIVACY },
-  { label: "About", path: ROUTES.ABOUT },
-  { label: "FAQ", path: ROUTES.FAQ },
+interface FooterLink {
+  label: string;
+  href: string;
+  external?: boolean;
+}
+
+const footerLinks: FooterLink[] = [
+  { label: "Privacy", href: makeHref(ROUTES.PRIVACY) },
+  { label: "About", href: makeHref(ROUTES.ABOUT) },
+  { label: "FAQ", href: makeHref(ROUTES.FAQ) },
+  { label: "GitHub", href: GITHUB_URL, external: true },
 ];
 ---
 
 <footer class="footer">
-  <div class="footer-inner">
-    <nav class="footer-links" aria-label="Footer navigation">
-      {
-        footerLinks.map((link) => (
-          <a href={makeHref(link.path)} class="footer-link">
-            {link.label}
-          </a>
-        ))
-      }
-    </nav>
-    <div class="footer-bottom">
-      <span>&copy; {new Date().getFullYear()} {SITE_NAME}</span>
+  <MarketingContainer size="wide">
+    <div class="footer-inner">
+      <div class="footer-bottom">
+        <span>&copy; {new Date().getFullYear()} {SITE_NAME}</span>
+      </div>
+      <nav class="footer-links" aria-label="Footer navigation">
+        {
+          footerLinks.map((link) => (
+            <a
+              href={link.href}
+              target={link.external ? "_blank" : undefined}
+              rel={link.external ? "noopener noreferrer" : undefined}
+              class="footer-link"
+            >
+              {link.label}
+            </a>
+          ))
+        }
+      </nav>
     </div>
-  </div>
+  </MarketingContainer>
 </footer>
 
 <style>
@@ -35,27 +50,30 @@ const footerLinks = [
   }
 
   .footer-inner {
-    max-width: var(--content-max-width);
-    margin: 0 auto;
+    width: 100%;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: var(--space-4);
+    justify-content: space-between;
+    gap: var(--space-6);
   }
 
   .footer-links {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--space-2) var(--space-6);
+    justify-content: flex-end;
+    gap: var(--space-2) var(--space-5);
   }
 
   .footer-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--space-10);
     font-size: var(--marketing-small-size);
     font-weight: 500;
     color: var(--muted-foreground);
     text-decoration: none;
-    transition: color 0.2s;
+    transition: color var(--duration-fast) ease;
+    touch-action: manipulation;
   }
 
   .footer-link:hover {
@@ -73,5 +91,17 @@ const footerLinks = [
     align-items: center;
     font-size: var(--marketing-caption-size);
     color: var(--soft-foreground);
+  }
+
+  @media (max-width: 560px) {
+    .footer-inner {
+      align-items: flex-start;
+      flex-direction: column;
+      gap: var(--space-4);
+    }
+
+    .footer-links {
+      justify-content: flex-start;
+    }
   }
 </style>

@@ -1,11 +1,12 @@
 ---
 import { ArrowLeftRight, Gauge, Scaling, Wand2 } from "lucide-astro";
 import LandingToolRow from "./LandingToolRow.astro";
+import MarketingContainer from "../layout/MarketingContainer.astro";
 import MarketingSectionHeading from "../sections/MarketingSectionHeading.astro";
 ---
 
 <section class="landing-section landing-tools" id="tools">
-  <div class="landing-section-inner">
+  <MarketingContainer size="wide">
     <MarketingSectionHeading
       title="What you can do."
       description="Four useful image changes, in one small tool."
@@ -41,7 +42,7 @@ import MarketingSectionHeading from "../sections/MarketingSectionHeading.astro";
         description="Make a transparent PNG in your browser."
       />
     </div>
-  </div>
+  </MarketingContainer>
 </section>
 
 <style>
@@ -49,11 +50,6 @@ import MarketingSectionHeading from "../sections/MarketingSectionHeading.astro";
     position: relative;
     z-index: 1;
     padding: var(--marketing-section-space) var(--marketing-gutter);
-  }
-
-  .landing-section-inner {
-    width: min(var(--marketing-content-width), 100%);
-    margin: 0 auto;
   }
 
   .landing-tool-list {

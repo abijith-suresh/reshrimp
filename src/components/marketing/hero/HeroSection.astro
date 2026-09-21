@@ -1,4 +1,6 @@
 ---
+import MarketingContainer from "../layout/MarketingContainer.astro";
+
 interface Props {
   title: string;
   subtitle?: string;
@@ -8,10 +10,12 @@ const { title, subtitle } = Astro.props;
 ---
 
 <section class="marketing-page-hero">
-  <div class="marketing-page-hero-inner">
-    <h1>{title}</h1>
-    {subtitle ? <p>{subtitle}</p> : null}
-  </div>
+  <MarketingContainer size="content">
+    <div class="marketing-page-hero-inner">
+      <h1>{title}</h1>
+      {subtitle ? <p>{subtitle}</p> : null}
+    </div>
+  </MarketingContainer>
 </section>
 
 <style>
@@ -22,8 +26,7 @@ const { title, subtitle } = Astro.props;
   }
 
   .marketing-page-hero-inner {
-    width: min(var(--marketing-content-width), 100%);
-    margin: 0 auto;
+    width: 100%;
   }
 
   .marketing-page-hero h1 {

@@ -141,6 +141,7 @@
   --marketing-wide-width: 72rem;
   --marketing-content-width: 48rem;
   --marketing-narrow-width: 32rem;
+  --marketing-shell-surface: var(--background);
   --marketing-hero-space: clamp(var(--space-8), 4vw, var(--space-12));
   --marketing-section-space: clamp(var(--space-10), 5vw, var(--space-16));
   --marketing-section-space-compact: clamp(var(--space-6), 3vw, var(--space-10));
@@ -161,7 +162,6 @@
   --marketing-section-size: var(--marketing-title-lg);
   --validation-warning: #d97706;
   --chip-yellow: #a16207;
-  --content-max-width: var(--marketing-wide-width);
 }
 
 @theme {
