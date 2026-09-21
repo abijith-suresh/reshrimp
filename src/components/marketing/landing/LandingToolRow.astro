@@ -29,8 +29,6 @@ const { icon: Icon, number, title, description, color } = Astro.props;
   .landing-tool-row {
     --tool-color: var(--coral-500);
     --tool-tint: var(--coral-50);
-    position: relative;
-    isolation: isolate;
     display: grid;
     grid-template-columns: 2.25rem var(--space-12) minmax(0, 1fr);
     align-items: center;
@@ -100,8 +98,6 @@ const { icon: Icon, number, title, description, color } = Astro.props;
     }
 
     .landing-tool-icon {
-      width: var(--space-12);
-      height: var(--space-12);
       border-radius: var(--radius-md);
     }
 

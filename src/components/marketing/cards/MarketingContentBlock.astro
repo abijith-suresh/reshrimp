@@ -1,18 +1,11 @@
 ---
-import Card from "../../ui/Card.astro";
-
 interface Props {
   delay?: number;
-  class?: string;
 }
 
-const { delay = 0, class: className } = Astro.props;
+const { delay = 0 } = Astro.props;
 ---
 
-<Card
-  variant="soft"
-  class={["marketing-content-block", className].filter(Boolean).join(" ")}
-  delay={delay}
->
+<div class="marketing-content-block" data-reveal data-reveal-delay={String(delay)}>
   <slot />
-</Card>
+</div>

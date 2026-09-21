@@ -1,7 +1,7 @@
 ---
 import MarketingLayout from "../layouts/MarketingLayout.astro";
 import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
-import PageContainer from "../components/marketing/layout/PageContainer.astro";
+import MarketingContainer from "../components/marketing/layout/MarketingContainer.astro";
 import HeroSection from "../components/marketing/hero/HeroSection.astro";
 import FAQAccordion from "../components/marketing/sections/FAQAccordion.astro";
 import ButtonLink from "../components/ui/ButtonLink.astro";
@@ -59,13 +59,13 @@ const faqs = [
     />
 
     <PageSection>
-      <PageContainer>
+      <MarketingContainer>
         {
           faqs.map((faq, i) => (
             <FAQAccordion question={faq.question} answer={faq.answer} delay={i * 60} />
           ))
         }
-      </PageContainer>
+      </MarketingContainer>
     </PageSection>
 
     <PageSection

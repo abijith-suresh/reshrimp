@@ -1,7 +1,7 @@
 ---
 import MarketingLayout from "../layouts/MarketingLayout.astro";
 import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
-import PageContainer from "../components/marketing/layout/PageContainer.astro";
+import MarketingContainer from "../components/marketing/layout/MarketingContainer.astro";
 import HeroSection from "../components/marketing/hero/HeroSection.astro";
 import MarketingContentBlock from "../components/marketing/cards/MarketingContentBlock.astro";
 import TechStackGrid from "../components/marketing/cards/TechStackGrid.astro";
@@ -58,7 +58,7 @@ const ABOUT_CARDS = [
     />
 
     <PageSection>
-      <PageContainer>
+      <MarketingContainer>
         {
           ABOUT_CARDS.map((card) => (
             <MarketingContentBlock delay={card.delay}>
@@ -90,7 +90,7 @@ const ABOUT_CARDS = [
             </MarketingContentBlock>
           ))
         }
-      </PageContainer>
+      </MarketingContainer>
     </PageSection>
   </MarketingPageWrapper>
 </MarketingLayout>

@@ -2,7 +2,7 @@
 import MarketingLayout from "../layouts/MarketingLayout.astro";
 import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
 import PageSection from "../components/ui/PageSection.astro";
-import PageContainer from "../components/marketing/layout/PageContainer.astro";
+import MarketingContainer from "../components/marketing/layout/MarketingContainer.astro";
 import HeroSection from "../components/marketing/hero/HeroSection.astro";
 import MarketingContentBlock from "../components/marketing/cards/MarketingContentBlock.astro";
 import { GITHUB_URL } from "../config/constants";
@@ -52,7 +52,7 @@ const PRIVACY_CARDS = [
     />
 
     <PageSection>
-      <PageContainer>
+      <MarketingContainer>
         {
           PRIVACY_CARDS.map((card) => (
             <MarketingContentBlock>
@@ -69,7 +69,7 @@ const PRIVACY_CARDS = [
             </MarketingContentBlock>
           ))
         }
-      </PageContainer>
+      </MarketingContainer>
     </PageSection>
   </MarketingPageWrapper>
 </MarketingLayout>

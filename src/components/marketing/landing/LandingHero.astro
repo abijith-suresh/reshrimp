@@ -6,7 +6,7 @@ import MarketingContainer from "../layout/MarketingContainer.astro";
 ---
 
 <section class="landing-hero">
-  <MarketingContainer size="wide">
+  <MarketingContainer>
     <div class="landing-hero-inner">
     <div class="landing-hero-copy">
       <h1>
@@ -87,7 +87,6 @@ import MarketingContainer from "../layout/MarketingContainer.astro";
   }
 
   .landing-hero-inner {
-    width: 100%;
     display: grid;
     grid-template-columns: minmax(0, 0.82fr) minmax(520px, 1.18fr);
     align-items: center;
@@ -297,8 +296,6 @@ import MarketingContainer from "../layout/MarketingContainer.astro";
   }
 
   .workbench-control-heading {
-    display: flex;
-    justify-content: space-between;
     color: var(--foreground);
     font-size: 0.7rem;
     font-weight: 700;
@@ -362,7 +359,6 @@ import MarketingContainer from "../layout/MarketingContainer.astro";
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.35rem;
     min-height: 2.35rem;
     margin-top: auto;
     border-radius: 0.65rem;
@@ -401,9 +397,6 @@ import MarketingContainer from "../layout/MarketingContainer.astro";
       gap: var(--space-8);
     }
 
-    .landing-hero h1 {
-      font-size: var(--marketing-title-xl);
-    }
   }
 
   @media (max-width: 820px) {

@@ -4,7 +4,7 @@ import MarketingContainer from "../layout/MarketingContainer.astro";
 ---
 
 <section class="landing-privacy" data-reveal>
-  <MarketingContainer size="wide">
+  <MarketingContainer>
     <div class="landing-privacy-inner">
       <div class="landing-privacy-icon">
         <ShieldCheck size={31} strokeWidth={1.6} aria-hidden="true" />
@@ -65,7 +65,6 @@ import MarketingContainer from "../layout/MarketingContainer.astro";
   }
 
   .landing-privacy-copy p {
-    margin-top: 0;
     color: var(--muted-foreground);
     font-size: var(--marketing-small-size);
   }

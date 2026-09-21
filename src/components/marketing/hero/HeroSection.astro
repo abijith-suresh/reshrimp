@@ -10,11 +10,9 @@ const { title, subtitle } = Astro.props;
 ---
 
 <section class="marketing-page-hero">
-  <MarketingContainer size="wide">
-    <div class="marketing-page-hero-inner">
-      <h1>{title}</h1>
-      {subtitle ? <p>{subtitle}</p> : null}
-    </div>
+  <MarketingContainer>
+    <h1>{title}</h1>
+    {subtitle ? <p>{subtitle}</p> : null}
   </MarketingContainer>
 </section>
 
@@ -23,10 +21,6 @@ const { title, subtitle } = Astro.props;
     position: relative;
     z-index: 1;
     padding: var(--marketing-hero-space) var(--marketing-gutter) var(--space-8);
-  }
-
-  .marketing-page-hero-inner {
-    width: 100%;
   }
 
   .marketing-page-hero h1 {

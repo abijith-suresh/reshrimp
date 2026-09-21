@@ -1,15 +1,4 @@
----
-type Size = "wide" | "content" | "narrow";
-
-interface Props {
-  size?: Size;
-  class?: string;
-}
-
-const { size = "content", class: className } = Astro.props;
----
-
-<div class:list={["marketing-container", `marketing-container-${size}`, className]}>
+<div class="marketing-container">
   <slot />
 </div>
 
@@ -18,18 +7,7 @@ const { size = "content", class: className } = Astro.props;
     position: relative;
     z-index: 1;
     width: 100%;
-    margin-inline: auto;
-  }
-
-  .marketing-container-wide {
     max-width: var(--marketing-wide-width);
-  }
-
-  .marketing-container-content {
-    max-width: var(--marketing-content-width);
-  }
-
-  .marketing-container-narrow {
-    max-width: var(--marketing-narrow-width);
+    margin-inline: auto;
   }
 </style>
