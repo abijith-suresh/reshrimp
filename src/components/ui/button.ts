@@ -10,11 +10,11 @@ export interface ButtonVariantProps {
 }
 
 const BASE_BUTTON_CLASSES =
-  "relative inline-flex shrink-0 items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-full border-none font-body font-semibold no-underline transition-[transform,box-shadow,background-color] duration-300 ease-out will-change-transform outline-hidden hover:duration-150 focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:shrink-0";
+  "relative inline-flex shrink-0 touch-manipulation items-center justify-center gap-2 overflow-hidden whitespace-nowrap rounded-full border-none font-body font-semibold no-underline transition-[transform,box-shadow,background-color] duration-300 ease-out will-change-transform outline-hidden hover:duration-150 focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:shrink-0";
 
 const SIZE_CLASSES: Record<ButtonSize, string> = {
-  default: "px-6 py-3 text-lg",
-  lg: "px-8 py-4 text-xl",
+  default: "min-h-10 px-5 py-2.5 text-base leading-6",
+  lg: "min-h-11 px-6 py-3 text-lg leading-6",
   icon: "h-10 w-10 rounded-md",
 };
 

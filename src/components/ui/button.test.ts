@@ -15,7 +15,7 @@ describe("buttonVariants", () => {
 
     expect(classes).toContain("border-coral-200");
     expect(classes).toContain("bg-coral-50");
-    expect(classes).toContain("px-8");
+    expect(classes).toContain("px-6");
   });
 
   it("supports mint-toned primary buttons for success actions", () => {
