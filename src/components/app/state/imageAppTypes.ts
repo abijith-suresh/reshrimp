@@ -10,6 +10,7 @@ export interface SizeDiff {
 export interface AppState {
   currentImage: Accessor<ProcessedImage | null>;
   processResult: Accessor<ProcessResult | null>;
+  lastCompletedResult: Accessor<ProcessResult | null>;
   isProcessing: Accessor<boolean>;
   progressLabel: Accessor<string | null>;
   error: Accessor<string | null>;

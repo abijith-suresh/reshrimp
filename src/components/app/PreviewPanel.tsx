@@ -21,7 +21,7 @@ export default function PreviewPanel() {
   }
 
   return (
-    <div class="h-full flex flex-col bg-background overflow-hidden">
+    <div class="relative h-full flex flex-col bg-background overflow-hidden">
       {/* Hidden file input for the mobile EmptyState upload button */}
       <input
         ref={(el) => {
@@ -47,11 +47,12 @@ export default function PreviewPanel() {
 
       <Show when={state.currentImage()}>
         {(img) => {
-          const displayWidth = () => state.processResult()?.metadata.width ?? img().metadata.width;
+          const displayWidth = () =>
+            state.lastCompletedResult()?.metadata.width ?? img().metadata.width;
           const displayHeight = () =>
-            state.processResult()?.metadata.height ?? img().metadata.height;
+            state.lastCompletedResult()?.metadata.height ?? img().metadata.height;
           const displayFileSize = () =>
-            state.processResult()?.metadata.fileSize ?? img().metadata.fileSize;
+            state.lastCompletedResult()?.metadata.fileSize ?? img().metadata.fileSize;
           const previewUrl = () => img().processedUrl ?? img().originalUrl;
 
           return (
@@ -66,19 +67,6 @@ export default function PreviewPanel() {
                     height={displayHeight()}
                     class="max-w-full max-h-full object-contain"
                   />
-
-                  <Show when={state.isProcessing() && state.progressLabel()}>
-                    {(label) => (
-                      <div
-                        class="pointer-events-none absolute top-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-foreground px-3 py-1.5 text-card shadow-sm"
-                        role="status"
-                        aria-live="polite"
-                      >
-                        <span class="btn-spinner" aria-hidden="true" />
-                        <span class="text-xs font-medium whitespace-nowrap">{label()}</span>
-                      </div>
-                    )}
-                  </Show>
                 </div>
               </div>
 
@@ -103,6 +91,19 @@ export default function PreviewPanel() {
             </div>
           );
         }}
+      </Show>
+
+      <Show when={state.isProcessing() && state.progressLabel()}>
+        {(label) => (
+          <div
+            class="pointer-events-none absolute top-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border border-border-light bg-card px-3.5 py-2 text-foreground shadow-sm"
+            role="status"
+            aria-live="polite"
+          >
+            <span class="h-2 w-2 shrink-0 rounded-full bg-coral-500" aria-hidden="true" />
+            <span class="text-xs font-medium whitespace-nowrap">{label()}</span>
+          </div>
+        )}
       </Show>
     </div>
   );

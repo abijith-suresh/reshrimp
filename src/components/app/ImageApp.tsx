@@ -64,10 +64,12 @@ function MobileSheet() {
 
   // Derived values for the info bar
   const img = () => state.currentImage();
-  const displayWidth = () => state.processResult()?.metadata.width ?? img()?.metadata.width ?? 0;
-  const displayHeight = () => state.processResult()?.metadata.height ?? img()?.metadata.height ?? 0;
+  const displayWidth = () =>
+    state.lastCompletedResult()?.metadata.width ?? img()?.metadata.width ?? 0;
+  const displayHeight = () =>
+    state.lastCompletedResult()?.metadata.height ?? img()?.metadata.height ?? 0;
   const displayFileSize = () =>
-    state.processResult()?.metadata.fileSize ?? img()?.metadata.fileSize ?? 0;
+    state.lastCompletedResult()?.metadata.fileSize ?? img()?.metadata.fileSize ?? 0;
 
   return (
     <>
