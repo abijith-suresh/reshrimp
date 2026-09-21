@@ -66,9 +66,23 @@ const headerLinks = [
         stroke-linecap="round"
         aria-hidden="true"
       >
-        <line class="ham-line-1" x1="3" y1="6" x2="21" y2="6"></line>
-        <line class="ham-line-2" x1="3" y1="12" x2="21" y2="12"></line>
-        <line class="ham-line-3" x1="3" y1="18" x2="21" y2="18"></line>
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+      <svg
+        class="close-icon"
+        width="24"
+        height="24"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        stroke-width="1.8"
+        stroke-linecap="round"
+        aria-hidden="true"
+      >
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+        <line x1="18" y1="6" x2="6" y2="18"></line>
       </svg>
     </button>
   </nav>
@@ -198,35 +212,51 @@ const headerLinks = [
   }
 
   .hamburger {
+    position: relative;
     display: none;
     cursor: pointer;
     color: var(--foreground);
     background: none;
     border: none;
     padding: 0.25rem;
+    border-radius: var(--radius-md);
+    transition:
+      background-color var(--duration-fast) ease,
+      transform var(--duration-fast) ease;
     -webkit-tap-highlight-color: transparent;
   }
 
-  .ham-line-1,
-  .ham-line-2,
-  .ham-line-3 {
+  .hamburger:hover {
+    background: var(--background);
+  }
+
+  .hamburger:active {
+    transform: scale(0.96);
+  }
+
+  .hamburger-icon,
+  .close-icon {
+    position: absolute;
+    inset: 0;
+    margin: auto;
     transition:
-      transform var(--duration-fast) cubic-bezier(0.2, 0.8, 0.2, 1),
-      opacity var(--duration-fast) ease;
-    transform-origin: center;
+      opacity var(--duration-fast) ease,
+      transform var(--duration-fast) cubic-bezier(0.2, 0.8, 0.2, 1);
   }
 
-  .hamburger[aria-expanded="true"] .ham-line-1 {
-    transform: translateY(6px) rotate(45deg);
-  }
-
-  .hamburger[aria-expanded="true"] .ham-line-2 {
+  .close-icon {
     opacity: 0;
-    transform: scaleX(0);
+    transform: scale(0.7) rotate(-8deg);
   }
 
-  .hamburger[aria-expanded="true"] .ham-line-3 {
-    transform: translateY(-6px) rotate(-45deg);
+  .hamburger[aria-expanded="true"] .hamburger-icon {
+    opacity: 0;
+    transform: scale(0.7) rotate(8deg);
+  }
+
+  .hamburger[aria-expanded="true"] .close-icon {
+    opacity: 1;
+    transform: scale(1) rotate(0);
   }
 
   .mobile-panel {
