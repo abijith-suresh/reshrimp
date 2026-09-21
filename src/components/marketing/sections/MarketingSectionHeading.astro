@@ -1,32 +1,22 @@
 ---
 interface Props {
   title: string;
-  description?: string;
 }
 
-const { title, description } = Astro.props;
+const { title } = Astro.props;
 ---
 
 <div class="marketing-section-heading" data-reveal>
   <h2>{title}</h2>
-  {description ? <p>{description}</p> : null}
 </div>
 
 <style>
   .marketing-section-heading {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
-    gap: var(--space-8);
     margin-bottom: var(--marketing-heading-gap);
   }
 
-  .marketing-section-heading h2,
-  .marketing-section-heading p {
-    margin: 0;
-  }
-
   .marketing-section-heading h2 {
+    margin: 0;
     max-width: var(--marketing-narrow-width);
     color: var(--foreground);
     font-family: var(--font-display);
@@ -36,21 +26,4 @@ const { title, description } = Astro.props;
     text-wrap: balance;
   }
 
-  .marketing-section-heading p {
-    max-width: 16rem;
-    color: var(--muted-foreground);
-    font-size: var(--marketing-small-size);
-    line-height: var(--marketing-body-leading);
-  }
-
-  @media (max-width: 680px) {
-    .marketing-section-heading {
-      display: block;
-    }
-
-    .marketing-section-heading p {
-      max-width: 24rem;
-      margin-top: var(--space-4);
-    }
-  }
 </style>

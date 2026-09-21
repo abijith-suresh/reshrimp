@@ -29,6 +29,9 @@ import MarketingContainer from "../layout/MarketingContainer.astro";
     grid-template-columns: auto minmax(0, 1fr);
     align-items: center;
     gap: var(--space-5);
+    padding-block: var(--space-6);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
   }
 
   .landing-privacy-icon {
@@ -47,6 +50,13 @@ import MarketingContainer from "../layout/MarketingContainer.astro";
     margin: 0;
   }
 
+  .landing-privacy-copy {
+    display: grid;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+    align-items: center;
+    gap: var(--space-8);
+  }
+
   .landing-privacy-copy h2 {
     color: var(--foreground);
     font-family: var(--font-display);
@@ -55,7 +65,7 @@ import MarketingContainer from "../layout/MarketingContainer.astro";
   }
 
   .landing-privacy-copy p {
-    margin-top: var(--space-1);
+    margin-top: 0;
     color: var(--muted-foreground);
     font-size: var(--marketing-small-size);
   }
@@ -67,6 +77,15 @@ import MarketingContainer from "../layout/MarketingContainer.astro";
 
     .landing-privacy-inner {
       gap: var(--space-4);
+      padding-block: var(--space-5);
+    }
+
+    .landing-privacy-copy {
+      display: block;
+    }
+
+    .landing-privacy-copy p {
+      margin-top: var(--space-2);
     }
 
     .landing-privacy-icon {
