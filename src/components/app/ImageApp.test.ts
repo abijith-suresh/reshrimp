@@ -98,6 +98,15 @@ describe("ImageApp", () => {
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:pending-preview");
   });
 
+  it("revokes a preview URL when the browser cannot decode it", async () => {
+    vi.mocked(URL.createObjectURL).mockReturnValueOnce("blob:error-url");
+
+    const previewPromise = createDecodedObjectUrl(new Blob(["processed"], { type: "image/png" }));
+
+    await expect(previewPromise).rejects.toThrow("could not be decoded");
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:error-url");
+  });
+
   it("auto-processes after upload and allows download", async () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
     const processedBlob = new Blob(["processed"], { type: "image/png" });
@@ -269,7 +278,18 @@ describe("ImageApp", () => {
     class DeferredImage {
       onload: (() => void) | null = null;
       onerror: (() => void) | null = null;
-      src = "";
+      private currentSrc = "";
+
+      get src(): string {
+        return this.currentSrc;
+      }
+
+      set src(value: string) {
+        this.currentSrc = value;
+        // A browser may finish loading before decode() has settled. The
+        // preview must ignore this event while using the decode path.
+        this.onload?.();
+      }
 
       decode(): Promise<void> {
         return new Promise((resolve) => {
@@ -367,7 +387,7 @@ describe("ImageApp", () => {
     });
   });
 
-  it("revokes the previous processed URL before replacing it on reprocess", async () => {
+  it("keeps the previous processed URL until replacement is ready", async () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
     const firstBlob = new Blob(["first"], { type: "image/png" });
     const secondBlob = new Blob(["second"], { type: "image/png" });

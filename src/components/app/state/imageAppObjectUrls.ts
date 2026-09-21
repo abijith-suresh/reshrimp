@@ -40,7 +40,6 @@ export function createDecodedObjectUrl(blob: Blob, signal?: AbortSignal): Promis
       fail(new Error("Processed preview decoding was cancelled"));
     };
 
-    image.onload = finish;
     image.onerror = () => fail();
     signal?.addEventListener("abort", abort, { once: true });
 
@@ -49,13 +48,17 @@ export function createDecodedObjectUrl(blob: Blob, signal?: AbortSignal): Promis
       return;
     }
 
-    image.src = url;
-
     // `decode()` resolves after the full frame is decoded, which is the
     // stronger guarantee we want before swapping the visible preview. The
-    // load-event fallback keeps this compatible with older browsers.
+    // load-event fallback keeps this compatible with older browsers. Do not
+    // listen for load when decode() exists: load can fire before decoding is
+    // complete and would reintroduce the partial-frame swap.
     if (typeof image.decode === "function") {
+      image.src = url;
       void image.decode().then(finish, () => fail());
+    } else {
+      image.onload = finish;
+      image.src = url;
     }
   });
 }
