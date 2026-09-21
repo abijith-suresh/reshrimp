@@ -226,6 +226,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       }
       setProcessResult(null);
       setIsProcessing(true);
+      setProgressLabel("Updating preview\u2026");
       setError(null);
     });
 
@@ -392,8 +393,8 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         setProgressLabel(null);
 
         // Reset form controls to defaults
-        setWidthValue("");
-        setHeightValue("");
+        setWidthValue(String(metadata.width));
+        setHeightValue(String(metadata.height));
         setMaintainAspectRatio(true);
         setRemoveBackground(false);
         setFormatValue(getInitialOutputFormat(metadata.format));

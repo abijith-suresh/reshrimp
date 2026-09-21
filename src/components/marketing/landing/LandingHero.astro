@@ -26,7 +26,7 @@ import MarketingContainer from "../layout/MarketingContainer.astro";
     <figure
       class="landing-workbench"
       role="img"
-      aria-label="Preview of the Reshrimp image workspace with an image preview, resize controls, and an apply button"
+      aria-label="Preview of the Reshrimp image workspace with an image preview, resize controls, and output settings"
     >
       <div class="workbench-glow workbench-glow-coral"></div>
       <div class="workbench-glow workbench-glow-lavender"></div>
@@ -69,7 +69,6 @@ import MarketingContainer from "../layout/MarketingContainer.astro";
             </div>
             <div class="control-slider"><span></span></div>
 
-            <div class="control-apply">Apply</div>
           </div>
         </div>
       </div>
@@ -353,20 +352,6 @@ import MarketingContainer from "../layout/MarketingContainer.astro";
     height: 100%;
     border-radius: inherit;
     background: linear-gradient(90deg, var(--coral-400), var(--coral-500));
-  }
-
-  .control-apply {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 2.35rem;
-    margin-top: auto;
-    border-radius: 0.65rem;
-    background: var(--coral-500);
-    color: white;
-    font-size: 0.68rem;
-    font-weight: 700;
-    box-shadow: var(--shadow-coral);
   }
 
   @keyframes landing-copy-in {

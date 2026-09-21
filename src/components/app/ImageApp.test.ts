@@ -127,6 +127,8 @@ describe("ImageApp", () => {
         "src",
         "blob:original"
       );
+      expect((view.container.querySelector("#width-input") as HTMLInputElement).value).toBe("1200");
+      expect((view.container.querySelector("#height-input") as HTMLInputElement).value).toBe("800");
     });
 
     // Info strip should show filename and original metadata
@@ -612,6 +614,7 @@ describe("ImageApp", () => {
 
     await vi.waitFor(() => {
       expect(mockProcessImage).toHaveBeenCalledTimes(1);
+      expect(view.container).toHaveTextContent("Updating preview…");
     });
 
     view.unmount();
