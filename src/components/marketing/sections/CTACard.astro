@@ -1,5 +1,4 @@
 ---
-import { ArrowUpRight } from "lucide-astro";
 import ButtonLink from "../../ui/ButtonLink.astro";
 import { makeHref } from "../../../lib/utils";
 import { ROUTES } from "../../../config/constants";
@@ -13,9 +12,9 @@ interface Props {
 }
 
 const {
-  title = "Try the tool.",
-  subtitle = "Choose an image and make the change you need.",
-  ctaLabel = "Open the tool",
+  title = "Ready to change an image?",
+  subtitle = "Choose an image, make the change you need, and download the result.",
+  ctaLabel = "Choose an image",
   ctaHref = makeHref(ROUTES.APP),
   size = "lg",
 } = Astro.props;
@@ -27,7 +26,6 @@ const {
     <p>{subtitle}</p>
     <ButtonLink href={ctaHref} size={size}>
       {ctaLabel}
-      <ArrowUpRight size={19} strokeWidth={2} aria-hidden="true" />
     </ButtonLink>
   </div>
 </section>

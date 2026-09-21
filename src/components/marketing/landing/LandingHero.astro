@@ -1,5 +1,4 @@
 ---
-import { ArrowUpRight } from "lucide-astro";
 import ButtonLink from "../../ui/ButtonLink.astro";
 import { makeHref } from "../../../lib/utils";
 import { ROUTES } from "../../../config/constants";
@@ -9,16 +8,15 @@ import { ROUTES } from "../../../config/constants";
   <div class="landing-hero-inner">
     <div class="landing-hero-copy">
       <h1>
-        Resize and convert<br />
-        <span>images in your browser.</span>
+        Resize an image.<br />
+        <span>Keep it private.</span>
       </h1>
       <p class="landing-hero-description">
-        Compress images and remove backgrounds too. Everything runs in your browser.
+        Resize, convert, compress, or remove a background. Your image stays in your browser.
       </p>
       <div class="landing-hero-actions">
         <ButtonLink href={makeHref(ROUTES.APP)} size="lg">
-          Open the tool
-          <ArrowUpRight size={19} strokeWidth={2} aria-hidden="true" />
+          Choose an image
         </ButtonLink>
       </div>
     </div>
@@ -69,7 +67,7 @@ import { ROUTES } from "../../../config/constants";
             </div>
             <div class="control-slider"><span></span></div>
 
-            <div class="control-apply">Apply <ArrowUpRight size={14} aria-hidden="true" /></div>
+            <div class="control-apply">Apply</div>
           </div>
         </div>
       </div>

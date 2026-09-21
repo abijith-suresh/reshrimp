@@ -65,7 +65,7 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
       Skip to main content
     </a>
     <slot name="before-main" />
-    <main id="main-content">
+    <main id="main-content" transition:animate="fade">
       <slot />
     </main>
     <slot name="after-main" />
@@ -76,11 +76,16 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
   import { registerPageInitializer } from "../lib/pageInitializer";
 
   // ── Scroll reveal via Intersection Observer ──────────────────────────
-  function initReveal() {
+  function initReveal(isSpaNavigation: boolean) {
     const els = document.querySelectorAll<HTMLElement>("[data-reveal]");
     if (!els.length) return;
 
-    document.documentElement.classList.add("reveal-ready");
+    // Scroll reveals add a useful first-load rhythm, but hiding freshly swapped
+    // content makes client-side navigation feel broken. Keep them for the
+    // initial visit and let later pages arrive immediately.
+    if (!isSpaNavigation) {
+      document.documentElement.classList.add("reveal-ready");
+    }
 
     // Apply staggered delays from data-reveal-delay attribute
     els.forEach((el) => {
@@ -108,29 +113,8 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
     };
   }
 
-  // ── Button ripple effect ─────────────────────────────────────────────
-  function initRipple() {
-    const handlePointerDown = (e: PointerEvent) => {
-      const target = e.target as HTMLElement;
-      const btn = target.closest<HTMLElement>("[data-ui-button]");
-      if (!btn || btn.hasAttribute("disabled")) return;
-
-      const ripple = document.createElement("span");
-      ripple.className = "ui-ripple";
-      const rect = btn.getBoundingClientRect();
-      ripple.style.left = `${e.clientX - rect.left}px`;
-      ripple.style.top = `${e.clientY - rect.top}px`;
-      btn.appendChild(ripple);
-      ripple.addEventListener("animationend", () => ripple.remove());
-    };
-
-    document.addEventListener("pointerdown", handlePointerDown);
-
-    return () => document.removeEventListener("pointerdown", handlePointerDown);
-  }
-
-  registerPageInitializer("layout:interactions", () => {
-    const cleanups = [initReveal(), initRipple()].filter(
+  registerPageInitializer("layout:interactions", (isSpaNavigation) => {
+    const cleanups = [initReveal(isSpaNavigation)].filter(
       (cleanup): cleanup is () => void => typeof cleanup === "function"
     );
 
@@ -139,23 +123,3 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
     };
   });
 </script>
-
-<style>
-  .ui-ripple {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.35);
-    width: 40px;
-    height: 40px;
-    margin-top: -20px;
-    margin-left: -20px;
-    pointer-events: none;
-    animation: rippleEffect 0.55s ease-out forwards;
-  }
-  @keyframes rippleEffect {
-    to {
-      transform: scale(4);
-      opacity: 0;
-    }
-  }
-</style>

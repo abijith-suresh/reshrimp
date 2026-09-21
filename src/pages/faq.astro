@@ -6,7 +6,7 @@ import HeroSection from "../components/marketing/hero/HeroSection.astro";
 import FAQAccordion from "../components/marketing/sections/FAQAccordion.astro";
 import ButtonLink from "../components/ui/ButtonLink.astro";
 import PageSection from "../components/ui/PageSection.astro";
-import { ArrowUpRight, Github } from "lucide-astro";
+import { Github } from "lucide-astro";
 import { makeHref } from "../lib/utils";
 import { GITHUB_URL, ROUTES } from "../config/constants";
 
@@ -72,14 +72,13 @@ const faqs = [
       sectionClass="marketing-section-faq-cta"
       containerClass="marketing-narrow-cta"
     >
-      <h2 class="marketing-faq-cta-title" data-reveal data-reveal-delay="0">Need more detail?</h2>
+      <h2 class="marketing-faq-cta-title" data-reveal data-reveal-delay="0">Still have a question?</h2>
       <p class="marketing-faq-cta-copy" data-reveal data-reveal-delay="80">
-        Read the source or open the tool.
+        Read the source or try the tool.
       </p>
       <div class="marketing-faq-cta-actions" data-reveal data-reveal-delay="160">
         <ButtonLink href={makeHref(ROUTES.APP)}>
-          Open the tool
-          <ArrowUpRight size={19} strokeWidth={2} aria-hidden="true" />
+          Choose an image
         </ButtonLink>
         <ButtonLink href={GITHUB_URL} variant="secondary" external={true}>
           <Github size={18} aria-hidden="true" />

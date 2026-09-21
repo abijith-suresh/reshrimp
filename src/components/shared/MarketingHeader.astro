@@ -44,7 +44,7 @@ const headerLinks = [
           ></path>
         </svg>
       </a>
-      <a href={makeHref(ROUTES.APP)} class="header-cta">Open app</a>
+      <a href={makeHref(ROUTES.APP)} class="header-cta">Use Reshrimp</a>
     </div>
 
     <button
@@ -88,7 +88,7 @@ const headerLinks = [
       <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" class="mobile-link">
         GitHub
       </a>
-      <a href={makeHref(ROUTES.APP)} class="mobile-link mobile-link-cta">Open app</a>
+      <a href={makeHref(ROUTES.APP)} class="mobile-link mobile-link-cta">Use Reshrimp</a>
     </div>
   </div>
 </header>
@@ -98,16 +98,15 @@ const headerLinks = [
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(248, 247, 255, 0.85);
-    backdrop-filter: blur(16px);
+    background: var(--card);
     border-bottom: 1px solid var(--border-light);
     transition:
-      box-shadow 0.3s ease,
-      border-bottom-color 0.3s ease;
+      box-shadow var(--duration-fast) ease,
+      border-color var(--duration-fast) ease;
   }
 
   .header.scrolled {
-    box-shadow: 0 2px 20px rgba(30, 27, 75, 0.08);
+    box-shadow: var(--shadow-xs);
     border-bottom-color: var(--border);
   }
 
@@ -117,7 +116,7 @@ const headerLinks = [
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 0.8rem 2rem;
+    padding: 0.75rem 2rem;
   }
 
   .nav-desktop {
@@ -131,12 +130,13 @@ const headerLinks = [
     font-weight: 500;
     color: var(--muted-foreground);
     text-decoration: none;
-    padding: 0.45rem 0.85rem;
-    border-radius: var(--radius-full);
+    padding: 0.5rem 0.75rem;
+    border-radius: var(--radius-md);
     transition:
       color 0.2s ease,
-      background 0.2s ease;
+      background-color 0.2s ease;
     position: relative;
+    touch-action: manipulation;
   }
 
   .nav-link:hover {
@@ -150,52 +150,46 @@ const headerLinks = [
   }
 
   .nav-link-active {
-    color: var(--foreground);
+    color: var(--coral-700);
     font-weight: 600;
-    background: var(--border-light);
-  }
-
-  .nav-link-active::after {
-    content: "";
-    position: absolute;
-    bottom: 4px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 16px;
-    height: 2px;
-    background: var(--coral-500);
-    border-radius: 2px;
+    background: var(--coral-50);
   }
 
   .nav-github {
     display: flex;
     align-items: center;
-    padding: 0.45rem;
+    padding: 0.5rem;
   }
 
   .header-cta {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    min-height: 2.35rem;
+    min-height: 2.5rem;
     padding: 0 1rem;
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-md);
     background: var(--coral-500);
     color: white;
-    font-size: 0.78rem;
-    font-weight: 700;
+    font-size: 0.82rem;
+    font-weight: 600;
     text-decoration: none;
-    box-shadow: var(--shadow-coral);
+    box-shadow: var(--shadow-sm);
     transition:
       background-color var(--duration-fast) ease,
       box-shadow var(--duration-fast) ease,
       transform var(--duration-fast) ease;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .header-cta:hover {
     background: var(--coral-600);
-    box-shadow: var(--shadow-md);
-    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+
+  .header-cta:active {
+    transform: scale(0.98);
+    box-shadow: var(--shadow-2xs);
   }
 
   .header-cta:focus-visible {
@@ -210,14 +204,15 @@ const headerLinks = [
     background: none;
     border: none;
     padding: 0.25rem;
+    -webkit-tap-highlight-color: transparent;
   }
 
   .ham-line-1,
   .ham-line-2,
   .ham-line-3 {
     transition:
-      transform 0.25s ease,
-      opacity 0.25s ease;
+      transform var(--duration-fast) cubic-bezier(0.2, 0.8, 0.2, 1),
+      opacity var(--duration-fast) ease;
     transform-origin: center;
   }
 
@@ -235,35 +230,34 @@ const headerLinks = [
   }
 
   .mobile-panel {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    left: 0;
-    visibility: hidden;
-    opacity: 0;
-    transform: translateY(-0.5rem);
-    pointer-events: none;
-    background: rgba(248, 247, 255, 0.96);
-    box-shadow: 0 16px 28px rgba(30, 27, 75, 0.08);
+    display: grid;
+    grid-template-rows: 0fr;
+    overflow: hidden;
+    background: var(--card);
+    border-bottom: 1px solid transparent;
     transition:
-      opacity var(--duration-normal) ease,
-      transform var(--duration-normal) ease,
-      visibility var(--duration-normal) ease;
-}
+      grid-template-rows var(--duration-normal) cubic-bezier(0.22, 1, 0.36, 1),
+      border-color var(--duration-fast) ease;
+  }
 
   .mobile-panel.mobile-open {
-    visibility: visible;
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-    border-bottom: 1px solid var(--border-light);
+    grid-template-rows: 1fr;
+    border-bottom-color: var(--border-light);
   }
 
   .mobile-panel-inner {
     display: flex;
+    min-height: 0;
     flex-direction: column;
     gap: 0.25rem;
-    padding: 0.5rem 2rem 1.5rem;
+    overflow: hidden;
+    padding: 0 2rem;
+    transition: padding var(--duration-normal) cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .mobile-panel.mobile-open .mobile-panel-inner {
+    padding-top: 0.5rem;
+    padding-bottom: 1.5rem;
   }
 
   .mobile-link {
@@ -271,13 +265,17 @@ const headerLinks = [
     font-weight: 500;
     color: var(--muted-foreground);
     text-decoration: none;
-    padding: 0.6rem 0;
-    transition: color 0.2s;
-    border-bottom: 1px solid transparent;
+    padding: 0.6rem 0.75rem;
+    border-radius: var(--radius-md);
+    transition:
+      color var(--duration-fast) ease,
+      background-color var(--duration-fast) ease;
+    touch-action: manipulation;
   }
 
   .mobile-link:hover {
     color: var(--foreground);
+    background: var(--background);
   }
 
   .mobile-link:focus-visible {
@@ -293,10 +291,11 @@ const headerLinks = [
 
   .mobile-link-cta {
     margin-top: 0.5rem;
-    border-radius: var(--radius-full);
+    border-radius: var(--radius-md);
     background: var(--coral-500);
     color: white;
     text-align: center;
+    font-weight: 600;
   }
 
   .mobile-link-cta:hover {
@@ -305,6 +304,11 @@ const headerLinks = [
   }
 
   @media (max-width: 768px) {
+    .header-inner {
+      padding-right: 1rem;
+      padding-left: 1rem;
+    }
+
     .nav-desktop {
       display: none;
     }
@@ -321,6 +325,7 @@ const headerLinks = [
       border-radius: var(--radius-md);
       padding: 4px;
       color: var(--foreground);
+      touch-action: manipulation;
     }
 
     .hamburger:focus-visible {

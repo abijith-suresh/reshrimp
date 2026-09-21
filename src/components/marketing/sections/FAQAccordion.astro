@@ -10,18 +10,27 @@ const answerId = `faq-answer-${question
   .toLowerCase()
   .replace(/\s+/g, "-")
   .replace(/[^a-z0-9-]/g, "")}`;
+const questionId = `${answerId}-question`;
 ---
 
 <div class="faq-item" data-reveal data-reveal-delay={String(delay)}>
   <button
     type="button"
     class="faq-question"
+    id={questionId}
     aria-expanded="false"
     aria-controls={answerId}
   >
     {question}
   </button>
-  <div class="faq-body" role="region" id={answerId}>
+  <div
+    class="faq-body"
+    role="region"
+    id={answerId}
+    aria-labelledby={questionId}
+    aria-hidden="true"
+    inert
+  >
     <div class="overflow-hidden">
       <p
         class="faq-answer"
@@ -133,15 +142,34 @@ const answerId = `faq-answer-${question
 </style>
 
 <script>
-  // Use event delegation so all FAQ items work regardless of how many component instances exist
-  function handleFaqClick(e: Event) {
-    const question = (e.target as HTMLElement).closest(".faq-question");
-    if (!question) return;
-    const item = question.closest(".faq-item");
-    if (!item) return;
-    const isOpen = item.classList.toggle("faq-open");
-    question.setAttribute("aria-expanded", String(isOpen));
+  import { registerPageInitializer } from "../../../lib/pageInitializer";
+
+  function initFaq() {
+    const questions = document.querySelectorAll<HTMLButtonElement>(".faq-question");
+    if (!questions.length) return;
+
+    const handleFaqClick = (event: Event) => {
+      const question = event.currentTarget as HTMLButtonElement;
+      const item = question.closest<HTMLElement>(".faq-item");
+      const body = item?.querySelector<HTMLElement>(".faq-body");
+      if (!item || !body) return;
+
+      const isOpen = item.classList.toggle("faq-open");
+      question.setAttribute("aria-expanded", String(isOpen));
+      body.setAttribute("aria-hidden", String(!isOpen));
+      if (isOpen) {
+        body.removeAttribute("inert");
+      } else {
+        body.setAttribute("inert", "");
+      }
+    };
+
+    questions.forEach((question) => question.addEventListener("click", handleFaqClick));
+
+    return () => {
+      questions.forEach((question) => question.removeEventListener("click", handleFaqClick));
+    };
   }
 
-  document.addEventListener("click", handleFaqClick);
+  registerPageInitializer("faq:interactions", () => initFaq());
 </script>

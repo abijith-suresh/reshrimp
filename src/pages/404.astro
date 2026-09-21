@@ -2,7 +2,6 @@
 import ButtonLink from "../components/ui/ButtonLink.astro";
 import MarketingLayout from "../layouts/MarketingLayout.astro";
 import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
-import { ArrowRight } from "lucide-astro";
 import { makeHref } from "../lib/utils";
 import { ROUTES } from "../config/constants";
 ---
@@ -24,11 +23,10 @@ import { ROUTES } from "../config/constants";
             Page not found
           </h1>
           <p class="text-lg text-muted-foreground leading-[1.7] m-0 mb-10 max-w-[360px] mx-auto">
-            Looks like this page drifted off into the void. Let's get you back on track.
+            That page does not exist.
           </p>
           <ButtonLink href={makeHref(ROUTES.HOME)}>
-            Back to Home
-            <ArrowRight size={18} strokeWidth={2} class="cta-pop-arrow" />
+            Back home
           </ButtonLink>
         </div>
       </div>
