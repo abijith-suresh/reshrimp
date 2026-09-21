@@ -69,9 +69,13 @@ export default function PreviewPanel() {
 
                   <Show when={state.isProcessing() && state.progressLabel()}>
                     {(label) => (
-                      <div class="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-background/80 rounded-md">
+                      <div
+                        class="pointer-events-none absolute top-3 left-1/2 z-10 flex -translate-x-1/2 items-center gap-2 rounded-full bg-foreground px-3 py-1.5 text-card shadow-sm"
+                        role="status"
+                        aria-live="polite"
+                      >
                         <span class="btn-spinner" aria-hidden="true" />
-                        <span class="text-xs text-muted-foreground font-medium">{label()}</span>
+                        <span class="text-xs font-medium whitespace-nowrap">{label()}</span>
                       </div>
                     )}
                   </Show>

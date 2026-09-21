@@ -308,7 +308,11 @@ describe("ImageApp", () => {
     const widthInput = view.container.querySelector("#width-input") as HTMLInputElement;
     fireEvent.input(widthInput, { target: { value: "400" } });
 
-    expect(view.container.querySelector("#preview-image")).toHaveAttribute("src", "blob:original");
+    expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      "src",
+      "blob:first-processed"
+    );
+    expect(URL.revokeObjectURL).not.toHaveBeenCalledWith("blob:first-processed");
     expect(view.container.querySelector("#download-button")).toBeDisabled();
 
     await vi.waitFor(() => {
@@ -536,7 +540,7 @@ describe("ImageApp", () => {
     });
   });
 
-  it("clears the previous output when a reprocess fails", async () => {
+  it("keeps the previous output visible when a reprocess fails", async () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
     const firstBlob = new Blob(["first"], { type: "image/png" });
 
@@ -579,11 +583,9 @@ describe("ImageApp", () => {
       expect(view.container.querySelector("#download-button")).toBeDisabled();
       expect(view.container.querySelector("#preview-image")).toHaveAttribute(
         "src",
-        "blob:original"
+        "blob:first-processed"
       );
     });
-
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:first-processed");
   });
 
   it("does not create a processed URL after unmounting during processing", async () => {

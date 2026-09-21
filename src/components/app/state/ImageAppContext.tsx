@@ -216,14 +216,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       processingRevision === runRevision;
 
     batch(() => {
-      if (img.processedUrl) {
-        revokeProcessedObjectUrl(img.processedUrl);
-        setCurrentImage((previousImage) =>
-          previousImage?.processedUrl === img.processedUrl
-            ? { ...previousImage, processedUrl: null }
-            : previousImage
-        );
-      }
       setProcessResult(null);
       setIsProcessing(true);
       setProgressLabel("Updating preview\u2026");
@@ -251,6 +243,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       // flight — discard the result instead of stamping it onto the new image.
       if (!isCurrentRun()) return;
 
+      const previousProcessedUrl = img.processedUrl;
       const processedUrl = replaceProcessedObjectUrl(null, result.blob);
 
       // Batch result updates into a single DOM update
@@ -258,6 +251,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         setCurrentImage((prev) => (prev ? { ...prev, processedUrl } : null));
         setProcessResult(result);
       });
+      revokeProcessedObjectUrl(previousProcessedUrl);
     } catch (err) {
       if (isCurrentRun()) {
         setError(err instanceof Error ? err.message : "Processing failed");
@@ -303,14 +297,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
         processingRevision += 1;
 
-        if (img.processedUrl) {
-          revokeProcessedObjectUrl(img.processedUrl);
-          setCurrentImage((previousImage) =>
-            previousImage?.processedUrl === img.processedUrl
-              ? { ...previousImage, processedUrl: null }
-              : previousImage
-          );
-        }
         setProcessResult(null);
 
         if (removeBackground()) {
