@@ -15,7 +15,6 @@ export const SITE_DESCRIPTION =
 export const ROUTES = {
   HOME: "/",
   APP: "/app",
-  FEATURES: "/features",
   PRIVACY: "/privacy",
   ABOUT: "/about",
   FAQ: "/faq",

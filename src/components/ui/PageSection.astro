@@ -23,16 +23,8 @@ const { sectionClass = "", containerClass } = Astro.props;
   .marketing-section {
     position: relative;
     z-index: 1;
-    padding: clamp(4.5rem, 9vw, 8rem) 2rem;
-  }
-
-  .marketing-section-feature-list {
-    padding-top: clamp(2.5rem, 5vw, 4rem);
-  }
-
-  .marketing-section-faq {
-    padding-top: clamp(2.5rem, 5vw, 4rem);
-    padding-bottom: clamp(4rem, 8vw, 7rem);
+    padding: var(--marketing-section-space-compact) var(--marketing-gutter)
+      var(--marketing-section-space);
   }
 
   .marketing-section-faq-cta {
@@ -40,20 +32,8 @@ const { sectionClass = "", containerClass } = Astro.props;
     text-align: center;
   }
 
-  .marketing-feature-list {
-    width: min(900px, 100%);
-    margin: 0 auto;
-  }
-
   .marketing-narrow-cta {
-    width: min(500px, 100%);
+    width: min(var(--marketing-narrow-width), 100%);
     margin: 0 auto;
-  }
-
-  @media (max-width: 680px) {
-    .marketing-section {
-      padding-right: 1rem;
-      padding-left: 1rem;
-    }
   }
 </style>

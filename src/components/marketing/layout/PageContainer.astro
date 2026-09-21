@@ -15,7 +15,7 @@ const { class: className } = Astro.props;
   .marketing-content-container {
     position: relative;
     z-index: 1;
-    width: min(760px, 100%);
+    width: min(var(--marketing-content-width), 100%);
     margin: 0 auto;
   }
 </style>

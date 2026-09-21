@@ -18,12 +18,12 @@ import { ROUTES } from "../../../config/constants";
   .landing-final-cta {
     position: relative;
     z-index: 1;
-    padding: clamp(5.5rem, 11vw, 10rem) 2rem clamp(6rem, 12vw, 11rem);
+    padding: var(--marketing-section-space) var(--marketing-gutter) var(--space-16);
     text-align: center;
   }
 
   .landing-final-inner {
-    max-width: 38rem;
+    max-width: var(--marketing-narrow-width);
     margin: 0 auto;
   }
 
@@ -36,27 +36,22 @@ import { ROUTES } from "../../../config/constants";
   .landing-final-inner h2 {
     color: var(--foreground);
     font-family: var(--font-display);
-    font-size: clamp(2rem, 4.2vw, 3.4rem);
-    line-height: 1;
-    letter-spacing: -0.06em;
+    font-size: var(--marketing-title-lg);
+    line-height: var(--marketing-title-leading);
+    letter-spacing: var(--marketing-tight-tracking);
     text-wrap: balance;
   }
 
   .landing-final-inner p {
     max-width: 26rem;
-    margin-top: 1.25rem;
-    margin-bottom: 2rem;
+    margin-top: var(--space-5);
+    margin-bottom: var(--space-8);
     color: var(--muted-foreground);
-    font-size: 0.95rem;
-    line-height: 1.65;
+    font-size: var(--marketing-small-size);
+    line-height: var(--marketing-body-leading);
   }
 
   @media (max-width: 560px) {
-    .landing-final-cta {
-      padding-right: 1rem;
-      padding-left: 1rem;
-    }
-
     .landing-final-inner :global(a[data-ui-button]) {
       width: 100%;
     }

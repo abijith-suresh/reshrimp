@@ -3,7 +3,7 @@ import MarketingLayout from "../layouts/MarketingLayout.astro";
 import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
 import PageContainer from "../components/marketing/layout/PageContainer.astro";
 import HeroSection from "../components/marketing/hero/HeroSection.astro";
-import AboutCard from "../components/marketing/cards/AboutCard.astro";
+import MarketingContentBlock from "../components/marketing/cards/MarketingContentBlock.astro";
 import TechStackGrid from "../components/marketing/cards/TechStackGrid.astro";
 import TechStackItem from "../components/marketing/cards/TechStackItem.astro";
 import ButtonLink from "../components/ui/ButtonLink.astro";
@@ -61,7 +61,7 @@ const ABOUT_CARDS = [
       <PageContainer>
         {
           ABOUT_CARDS.map((card) => (
-            <AboutCard delay={card.delay}>
+            <MarketingContentBlock delay={card.delay}>
               <h2>{card.title}</h2>
               {card.paragraphs.map((p) => (
                 <p>{p}</p>
@@ -87,7 +87,7 @@ const ABOUT_CARDS = [
                   </ButtonLink>
                 </div>
               )}
-            </AboutCard>
+            </MarketingContentBlock>
           ))
         }
       </PageContainer>

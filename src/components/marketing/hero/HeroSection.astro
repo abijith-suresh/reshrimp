@@ -18,11 +18,11 @@ const { title, subtitle } = Astro.props;
   .marketing-page-hero {
     position: relative;
     z-index: 1;
-    padding: clamp(3rem, 6vw, 5rem) 2rem clamp(2.5rem, 5vw, 4rem);
+    padding: var(--marketing-hero-space) var(--marketing-gutter) var(--space-8);
   }
 
   .marketing-page-hero-inner {
-    width: min(900px, 100%);
+    width: min(var(--marketing-content-width), 100%);
     margin: 0 auto;
   }
 
@@ -31,20 +31,20 @@ const { title, subtitle } = Astro.props;
     margin: 0;
     color: var(--foreground);
     font-family: var(--font-display);
-    font-size: var(--marketing-display-size);
+    font-size: var(--marketing-title-xl);
     font-weight: 700;
-    line-height: 1;
-    letter-spacing: -0.065em;
+    line-height: var(--marketing-title-leading);
+    letter-spacing: var(--marketing-tight-tracking);
     text-wrap: balance;
     animation: marketing-hero-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
   .marketing-page-hero p {
     max-width: 38rem;
-    margin: 1.5rem 0 0;
+    margin: var(--space-6) 0 0;
     color: var(--muted-foreground);
-    font-size: 1rem;
-    line-height: 1.65;
+    font-size: var(--marketing-body-size);
+    line-height: var(--marketing-body-leading);
     animation: marketing-hero-in 700ms 100ms cubic-bezier(0.22, 1, 0.36, 1) both;
   }
 
@@ -61,16 +61,16 @@ const { title, subtitle } = Astro.props;
 
   @media (max-width: 560px) {
     .marketing-page-hero {
-      padding: 2.5rem 1rem 2rem;
+      padding: var(--space-8) var(--space-4) var(--space-6);
     }
 
     .marketing-page-hero h1 {
-      font-size: clamp(2.4rem, 11vw, 3.25rem);
+      font-size: var(--marketing-title-mobile);
       letter-spacing: -0.06em;
     }
 
     .marketing-page-hero p {
-      margin-top: 1.25rem;
+      margin-top: var(--space-5);
     }
   }
 </style>

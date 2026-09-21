@@ -123,12 +123,45 @@
   --duration-normal: 300ms;
   --duration-slow: 500ms;
 
+  /* Shared 4px spacing scale. Marketing layouts use these values instead of
+     accumulating one-off gaps and padding values. */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+
+  --marketing-gutter: clamp(var(--space-4), 4vw, var(--space-8));
+  --marketing-wide-width: 72rem;
+  --marketing-content-width: 48rem;
+  --marketing-narrow-width: 32rem;
+  --marketing-hero-space: clamp(var(--space-8), 4vw, var(--space-12));
+  --marketing-section-space: clamp(var(--space-10), 5vw, var(--space-16));
+  --marketing-section-space-compact: clamp(var(--space-6), 3vw, var(--space-10));
+  --marketing-title-xl: clamp(2.75rem, 5vw, 4.8rem);
+  --marketing-title-lg: clamp(2rem, 4.2vw, 3.4rem);
+  --marketing-title-md: clamp(1.25rem, 2.4vw, 1.8rem);
+  --marketing-title-sm: clamp(1.125rem, 2vw, 1.5rem);
+  --marketing-title-mobile: clamp(2.4rem, 11vw, 3.25rem);
+  --marketing-body-size: 1rem;
+  --marketing-small-size: 0.875rem;
+  --marketing-caption-size: 0.75rem;
+  --marketing-title-leading: 1;
+  --marketing-body-leading: 1.6;
+  --marketing-tight-tracking: -0.06em;
+
   --font-title: clamp(1.8rem, 4vw, 2.5rem);
-  --marketing-display-size: clamp(2.75rem, 5vw, 4.8rem);
-  --marketing-section-size: clamp(2rem, 4.2vw, 3.4rem);
+  --marketing-display-size: var(--marketing-title-xl);
+  --marketing-section-size: var(--marketing-title-lg);
   --validation-warning: #d97706;
   --chip-yellow: #a16207;
-  --content-max-width: 1100px;
+  --content-max-width: var(--marketing-wide-width);
 }
 
 @theme {
@@ -275,19 +308,27 @@ h6 {
 }
 
 .marketing-content-block > h2 {
-  margin: 0 0 1rem;
+  margin: 0 0 var(--space-4);
   color: var(--foreground);
   font-family: var(--font-display);
-  font-size: 1.45rem;
+  font-size: var(--marketing-title-sm);
   font-weight: 700;
   letter-spacing: -0.04em;
 }
 
+.marketing-content-block {
+  margin-bottom: var(--space-6);
+}
+
+.marketing-content-block:last-child {
+  margin-bottom: 0;
+}
+
 .marketing-content-block > p {
-  margin: 0 0 1rem;
+  margin: 0 0 var(--space-4);
   color: var(--muted-foreground);
-  font-size: 0.92rem;
-  line-height: 1.7;
+  font-size: var(--marketing-small-size);
+  line-height: var(--marketing-body-leading);
 }
 
 .marketing-content-block > p:last-child {
@@ -296,7 +337,7 @@ h6 {
 
 .marketing-bullet-list {
   display: grid;
-  gap: 0.7rem;
+  gap: var(--space-3);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -304,18 +345,18 @@ h6 {
 
 .marketing-bullet-list li {
   position: relative;
-  padding-left: 1.4rem;
+  padding-left: var(--space-6);
   color: var(--muted-foreground);
-  font-size: 0.92rem;
-  line-height: 1.6;
+  font-size: var(--marketing-small-size);
+  line-height: var(--marketing-body-leading);
 }
 
 .marketing-bullet-list li::before {
   position: absolute;
-  top: 0.6rem;
+  top: var(--space-2);
   left: 0;
-  width: 0.45rem;
-  height: 0.45rem;
+  width: var(--space-2);
+  height: var(--space-2);
   border-radius: 50%;
   background: var(--mint-500);
   content: "";

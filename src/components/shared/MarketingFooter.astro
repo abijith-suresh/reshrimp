@@ -3,7 +3,6 @@ import { SITE_NAME, ROUTES } from "../../config/constants";
 import { makeHref } from "../../lib/utils";
 
 const footerLinks = [
-  { label: "Features", path: ROUTES.FEATURES },
   { label: "Privacy", path: ROUTES.PRIVACY },
   { label: "About", path: ROUTES.ABOUT },
   { label: "FAQ", path: ROUTES.FAQ },
@@ -30,7 +29,7 @@ const footerLinks = [
 <style>
   .footer {
     border-top: 1px solid var(--border-light);
-    padding: 2rem;
+    padding: var(--space-8) var(--marketing-gutter);
     position: relative;
     z-index: 1;
   }
@@ -41,18 +40,18 @@ const footerLinks = [
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    gap: var(--space-4);
   }
 
   .footer-links {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
-    gap: 0.5rem 1.5rem;
+    gap: var(--space-2) var(--space-6);
   }
 
   .footer-link {
-    font-size: 0.85rem;
+    font-size: var(--marketing-small-size);
     font-weight: 500;
     color: var(--muted-foreground);
     text-decoration: none;
@@ -72,7 +71,7 @@ const footerLinks = [
   .footer-bottom {
     display: flex;
     align-items: center;
-    font-size: 0.8rem;
+    font-size: var(--marketing-caption-size);
     color: var(--soft-foreground);
   }
 </style>

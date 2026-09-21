@@ -1,14 +1,15 @@
 ---
 import { ArrowLeftRight, Gauge, Scaling, Wand2 } from "lucide-astro";
 import LandingToolRow from "./LandingToolRow.astro";
+import MarketingSectionHeading from "../sections/MarketingSectionHeading.astro";
 ---
 
 <section class="landing-section landing-tools" id="tools">
   <div class="landing-section-inner">
-    <div class="landing-section-heading" data-reveal>
-      <h2>What you can do.</h2>
-      <p>Four useful image changes, in one small tool.</p>
-    </div>
+    <MarketingSectionHeading
+      title="What you can do."
+      description="Four useful image changes, in one small tool."
+    />
 
     <div class="landing-tool-list">
       <LandingToolRow
@@ -47,63 +48,16 @@ import LandingToolRow from "./LandingToolRow.astro";
   .landing-section {
     position: relative;
     z-index: 1;
-    padding: clamp(4.5rem, 9vw, 8rem) 2rem;
+    padding: var(--marketing-section-space) var(--marketing-gutter);
   }
 
   .landing-section-inner {
-    width: min(900px, 100%);
+    width: min(var(--marketing-content-width), 100%);
     margin: 0 auto;
-  }
-
-  .landing-section-heading {
-    display: flex;
-    align-items: end;
-    justify-content: space-between;
-    gap: 2rem;
-    margin-bottom: 2.75rem;
-  }
-
-  .landing-section-heading h2,
-  .landing-section-heading p {
-    margin: 0;
-  }
-
-  .landing-section-heading h2 {
-    max-width: 30rem;
-    color: var(--foreground);
-    font-family: var(--font-display);
-    font-size: clamp(2rem, 4.2vw, 3.4rem);
-    line-height: 1;
-    letter-spacing: -0.06em;
-    text-wrap: balance;
-  }
-
-  .landing-section-heading p {
-    max-width: 15rem;
-    color: var(--muted-foreground);
-    font-size: 0.88rem;
-    line-height: 1.6;
   }
 
   .landing-tool-list {
     display: flex;
     flex-direction: column;
-  }
-
-  @media (max-width: 680px) {
-    .landing-section {
-      padding-right: 1rem;
-      padding-left: 1rem;
-    }
-
-    .landing-section-heading {
-      display: block;
-      margin-bottom: 2rem;
-    }
-
-    .landing-section-heading p {
-      max-width: 23rem;
-      margin-top: 1rem;
-    }
   }
 </style>

@@ -4,7 +4,7 @@ import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWr
 import PageSection from "../components/ui/PageSection.astro";
 import PageContainer from "../components/marketing/layout/PageContainer.astro";
 import HeroSection from "../components/marketing/hero/HeroSection.astro";
-import PrivacyCard from "../components/marketing/cards/PrivacyCard.astro";
+import MarketingContentBlock from "../components/marketing/cards/MarketingContentBlock.astro";
 import { GITHUB_URL } from "../config/constants";
 
 const PRIVACY_CARDS = [
@@ -55,7 +55,7 @@ const PRIVACY_CARDS = [
       <PageContainer>
         {
           PRIVACY_CARDS.map((card) => (
-            <PrivacyCard>
+            <MarketingContentBlock>
               <h2>{card.title}</h2>
               {card.paragraphs &&
                 card.paragraphs.map((p) => (
@@ -66,7 +66,7 @@ const PRIVACY_CARDS = [
                   {card.listItems.map((item) => <li>{item}</li>)}
                 </ul>
               )}
-            </PrivacyCard>
+            </MarketingContentBlock>
           ))
         }
       </PageContainer>

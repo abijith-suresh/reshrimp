@@ -32,26 +32,11 @@ const { icon: Icon, number, title, description, color } = Astro.props;
     position: relative;
     isolation: isolate;
     display: grid;
-    grid-template-columns: 2.25rem 3.5rem minmax(0, 1fr);
+    grid-template-columns: 2.25rem var(--space-12) minmax(0, 1fr);
     align-items: center;
-    gap: 1.5rem;
-    min-height: 8rem;
-    padding: 1.2rem 0.75rem;
+    gap: var(--space-6);
+    padding: var(--space-6) var(--space-3);
     border-top: 1px solid var(--border);
-  }
-
-  .landing-tool-row::before {
-    position: absolute;
-    z-index: -1;
-    inset: 0.35rem 0;
-    border-radius: 1rem;
-    background: linear-gradient(90deg, transparent, var(--tool-tint), transparent);
-    content: "";
-    opacity: 0;
-    transform: scale(0.98);
-    transition:
-      opacity var(--duration-normal) ease,
-      transform var(--duration-normal) ease;
   }
 
   .landing-tool-row:last-child {
@@ -59,12 +44,8 @@ const { icon: Icon, number, title, description, color } = Astro.props;
   }
 
   .landing-tool-row:hover {
+    background: var(--tool-tint);
     border-color: var(--border);
-  }
-
-  .landing-tool-row:hover::before {
-    opacity: 1;
-    transform: scale(1);
   }
 
   .landing-tool-mint {
@@ -85,7 +66,7 @@ const { icon: Icon, number, title, description, color } = Astro.props;
   .landing-tool-number {
     color: var(--soft-foreground);
     font-family: var(--font-mono);
-    font-size: 0.7rem;
+    font-size: var(--marketing-caption-size);
     font-variant-numeric: tabular-nums;
   }
 
@@ -93,18 +74,18 @@ const { icon: Icon, number, title, description, color } = Astro.props;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 3.5rem;
-    height: 3.5rem;
-    border-radius: 1.15rem;
+    width: var(--space-12);
+    height: var(--space-12);
+    border-radius: var(--radius-lg);
     background: var(--tool-tint);
     color: var(--tool-color);
   }
 
   .landing-tool-copy h3 {
-    margin: 0 0 0.3rem;
+    margin: 0 0 var(--space-1);
     color: var(--foreground);
     font-family: var(--font-display);
-    font-size: clamp(1.1rem, 2vw, 1.45rem);
+    font-size: var(--marketing-title-sm);
     letter-spacing: -0.035em;
   }
 
@@ -112,26 +93,21 @@ const { icon: Icon, number, title, description, color } = Astro.props;
     max-width: 40rem;
     margin: 0;
     color: var(--muted-foreground);
-    font-size: 0.88rem;
-    line-height: 1.6;
+    font-size: var(--marketing-small-size);
+    line-height: var(--marketing-body-leading);
   }
 
   @media (max-width: 560px) {
     .landing-tool-row {
-      grid-template-columns: 1.75rem 3rem minmax(0, 1fr);
-      gap: 0.9rem;
-      min-height: 0;
-      padding: 1.15rem 0.25rem;
+      grid-template-columns: 1.75rem var(--space-12) minmax(0, 1fr);
+      gap: var(--space-4);
+      padding: var(--space-5) var(--space-1);
     }
 
     .landing-tool-icon {
-      width: 3rem;
-      height: 3rem;
-      border-radius: 1rem;
-    }
-
-    .landing-tool-copy p {
-      font-size: 0.78rem;
+      width: var(--space-12);
+      height: var(--space-12);
+      border-radius: var(--radius-md);
     }
 
   }

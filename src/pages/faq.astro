@@ -58,7 +58,7 @@ const faqs = [
       subtitle="Privacy, formats, file limits, and processing."
     />
 
-    <PageSection sectionClass="marketing-section-faq">
+    <PageSection>
       <PageContainer>
         {
           faqs.map((faq, i) => (
@@ -100,17 +100,17 @@ const faqs = [
   }
 
   .marketing-faq-cta-copy {
-    margin: 1.25rem 0 2rem;
+    margin: var(--space-5) 0 var(--space-8);
     color: var(--muted-foreground);
-    font-size: 1rem;
-    line-height: 1.65;
+    font-size: var(--marketing-body-size);
+    line-height: var(--marketing-body-leading);
   }
 
   .marketing-faq-cta-actions {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.75rem;
+    gap: var(--space-3);
     flex-wrap: wrap;
   }
 
