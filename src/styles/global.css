@@ -124,6 +124,8 @@
   --duration-slow: 500ms;
 
   --font-title: clamp(1.8rem, 4vw, 2.5rem);
+  --marketing-display-size: clamp(2.75rem, 5vw, 4.8rem);
+  --marketing-section-size: clamp(2rem, 4.2vw, 3.4rem);
   --validation-warning: #d97706;
   --chip-yellow: #a16207;
   --content-max-width: 1100px;
@@ -270,6 +272,53 @@ h4,
 h5,
 h6 {
   text-wrap: pretty;
+}
+
+.marketing-content-block > h2 {
+  margin: 0 0 1rem;
+  color: var(--foreground);
+  font-family: var(--font-display);
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+.marketing-content-block > p {
+  margin: 0 0 1rem;
+  color: var(--muted-foreground);
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+.marketing-content-block > p:last-child {
+  margin-bottom: 0;
+}
+
+.marketing-bullet-list {
+  display: grid;
+  gap: 0.7rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.marketing-bullet-list li {
+  position: relative;
+  padding-left: 1.4rem;
+  color: var(--muted-foreground);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.marketing-bullet-list li::before {
+  position: absolute;
+  top: 0.6rem;
+  left: 0;
+  width: 0.45rem;
+  height: 0.45rem;
+  border-radius: 50%;
+  background: var(--mint-500);
+  content: "";
 }
 
 ::selection {

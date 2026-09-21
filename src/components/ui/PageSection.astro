@@ -4,10 +4,10 @@ interface Props {
   containerClass?: string;
 }
 
-const { sectionClass = "px-8 py-8 pb-20 relative z-10", containerClass } = Astro.props;
+const { sectionClass = "", containerClass } = Astro.props;
 ---
 
-<section class={sectionClass}>
+<section class:list={["marketing-section", sectionClass]}>
   {
     containerClass ? (
       <div class={containerClass}>
@@ -18,3 +18,42 @@ const { sectionClass = "px-8 py-8 pb-20 relative z-10", containerClass } = Astro
     )
   }
 </section>
+
+<style>
+  .marketing-section {
+    position: relative;
+    z-index: 1;
+    padding: clamp(4.5rem, 9vw, 8rem) 2rem;
+  }
+
+  .marketing-section-feature-list {
+    padding-top: clamp(2.5rem, 5vw, 4rem);
+  }
+
+  .marketing-section-faq {
+    padding-top: clamp(2.5rem, 5vw, 4rem);
+    padding-bottom: clamp(4rem, 8vw, 7rem);
+  }
+
+  .marketing-section-faq-cta {
+    padding-top: 0;
+    text-align: center;
+  }
+
+  .marketing-feature-list {
+    width: min(900px, 100%);
+    margin: 0 auto;
+  }
+
+  .marketing-narrow-cta {
+    width: min(500px, 100%);
+    margin: 0 auto;
+  }
+
+  @media (max-width: 680px) {
+    .marketing-section {
+      padding-right: 1rem;
+      padding-left: 1rem;
+    }
+  }
+</style>

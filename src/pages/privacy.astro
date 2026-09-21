@@ -9,50 +9,46 @@ import { GITHUB_URL } from "../config/constants";
 
 const PRIVACY_CARDS = [
   {
-    title: "How it works technically",
+    title: "How processing works",
     paragraphs: [
-      "When you select an image, it stays entirely in your browser's memory. Reshrimp uses browser APIs to read, manipulate, and re-encode your image inside a single browser tab. No image data is sent to any server during processing.",
-      "The processed image is generated as a Blob URL, which exists only in your browser's memory. Background removal loads its model and runtime assets from the app origin when you use it.",
+      "When you choose an image, the browser reads and changes it in memory. Reshrimp re-encodes the result before download, so uploaded metadata does not carry into the output.",
+      "Background removal loads its model and runtime from this app when you use it. Your image stays in the browser.",
     ],
   },
   {
     title: "What we don't do",
     listItems: [
-      "We don't upload your images anywhere",
-      "We don't use cookies or local storage for tracking",
-      "We don't run analytics scripts (no Google Analytics, no Plausible, nothing)",
-      "We don't require accounts or collect personal information",
-      "We don't upload your image data for processing",
-      "We don't fingerprint your browser or device",
+      "Upload images for processing",
+      "Use analytics, tracking cookies, or fingerprinting",
+      "Require accounts or collect personal information",
     ],
   },
   {
     title: "Open source verification",
     paragraphs: [
-      "Don't take our word for it — read the source code. Reshrimp is fully open source under the MIT license. Every line of code is available for inspection.",
-      `The image-processing logic lives in TypeScript services that you can inspect directly. Check the <a href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer" class="text-coral-500 underline underline-offset-2 decoration-[rgba(242,90,90,0.3)] hover:decoration-coral-500 transition-[text-decoration-color]">GitHub repository</a> to verify our claims.`,
+      "Reshrimp is open source under the MIT license. You can inspect the code instead of taking our word for it.",
+      `The image-processing code lives in TypeScript services. Read it in the <a href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer" class="text-coral-500 underline underline-offset-2 decoration-[rgba(242,90,90,0.3)] hover:decoration-coral-500 transition-[text-decoration-color]">GitHub repository</a>.`,
     ],
   },
   {
     title: "Third-party services",
     paragraphs: [
-      "Reshrimp is deployed as a static site. The first visit needs a network connection to load the app shell.",
-      "Background removal may request model and runtime assets from the app origin. Those requests are for app assets, not for uploading your images.",
+      "The site is static, so the first visit needs a network connection to load the app.",
+      "Background removal may load model and runtime files from this app. Those are app assets, not image uploads.",
     ],
   },
 ];
 ---
 
 <MarketingLayout
-  title="Reshrimp — Privacy"
-  description="Reshrimp processes all images locally in your browser. No servers, no uploads, no tracking. Learn how it works."
+  title="Reshrimp | Privacy"
+  description="How Reshrimp processes images in your browser without uploads or tracking."
   currentPath="/privacy"
 >
   <MarketingPageWrapper>
     <HeroSection
-      chip={{ label: "Privacy", variant: "mint" }}
-      title="Your images never leave your device."
-      subtitle="Reshrimp is built around local processing, minimal network use, and no image uploads."
+      title="Your image stays in your browser."
+      subtitle="Reshrimp processes images locally. It does not upload them or track you."
     />
 
     <PageSection>
@@ -60,21 +56,14 @@ const PRIVACY_CARDS = [
         {
           PRIVACY_CARDS.map((card) => (
             <PrivacyCard>
-              <h2 class="font-display text-xl font-bold mb-4 tracking-tight">{card.title}</h2>
+              <h2>{card.title}</h2>
               {card.paragraphs &&
                 card.paragraphs.map((p) => (
-                  <p
-                    class="text-sm text-muted-foreground leading-[1.7] mb-4 last:mb-0"
-                    set:html={p}
-                  />
+                  <p set:html={p} />
                 ))}
               {card.listItems && (
-                <ul class="list-none p-0 m-0 flex flex-col gap-[0.6rem]">
-                  {card.listItems.map((item) => (
-                    <li class="text-sm text-muted-foreground leading-relaxed pl-6 relative before:content-[''] before:absolute before:left-0 before:top-[0.55rem] before:w-2 before:h-2 before:rounded-full before:bg-mint-500">
-                      {item}
-                    </li>
-                  ))}
+                <ul class="marketing-bullet-list">
+                  {card.listItems.map((item) => <li>{item}</li>)}
                 </ul>
               )}
             </PrivacyCard>

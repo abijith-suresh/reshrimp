@@ -5,79 +5,50 @@ import PageSection from "../components/ui/PageSection.astro";
 import HeroSection from "../components/marketing/hero/HeroSection.astro";
 import FeatureSection from "../components/marketing/sections/FeatureSection.astro";
 import CTACard from "../components/marketing/sections/CTACard.astro";
-import { Scaling, ArrowLeftRight, Gauge, ShieldCheck, Monitor, Code, Wand2 } from "lucide-astro";
+import { ArrowLeftRight, Gauge, Scaling, Wand2 } from "lucide-astro";
 
 const features = [
   {
     icon: Scaling,
-    title: "Resize with precision",
+    title: "Resize",
     color: "coral",
-    description:
-      "Scale images to exact pixel dimensions with aspect ratio lock. Perfect for uploads, websites, or sharing. Set width, height, or both — the calculator handles the math.",
+    description: "Set a width, height, or percentage. Keep the original ratio when you need to.",
   },
   {
     icon: ArrowLeftRight,
-    title: "Convert between formats",
+    title: "Convert",
     color: "mint",
-    description:
-      "Switch between JPEG, PNG, WebP, and AVIF with a single click. Browser-native conversion gives you format-specific tradeoffs, so you can pick WebP for the web, PNG for transparency, AVIF for dense delivery, or JPEG for photos.",
+    description: "Save as JPEG, PNG, WebP, or AVIF.",
   },
   {
     icon: Gauge,
-    title: "Smart compression",
+    title: "Compress",
     color: "lavender",
-    description:
-      "Fine-tune quality for JPEG, WebP, and AVIF before processing, then review the updated preview before downloading. PNG stays lossless.",
-  },
-  {
-    icon: ShieldCheck,
-    title: "Complete privacy",
-    color: "yellow",
-    description:
-      "Every pixel is processed locally in your browser. No servers, no uploads, no tracking, no cookies, no accounts. Your images never leave your device. Verify it yourself — the source code is open.",
-  },
-  {
-    icon: Monitor,
-    title: "Runs in your browser",
-    color: "coral",
-    description:
-      "Core image processing uses browser APIs and keeps your image on your device. Background removal loads its model and runtime assets from the app when you use it.",
-  },
-  {
-    icon: Code,
-    title: "Open source",
-    color: "mint",
-    description:
-      "Built with Astro and TypeScript, licensed under MIT. Read the code, fork it, improve it, self-host it. Contributions are welcome — check the GitHub repository for open issues.",
+    description: "Adjust quality to reduce the file size. PNG stays lossless.",
   },
   {
     icon: Wand2,
-    title: "Remove background",
-    color: "lavender",
-    description:
-      "Browser-based background removal using WebAssembly. The model and runtime assets are served from the app origin when needed. Exports PNG to preserve transparency.",
+    title: "Remove a background",
+    color: "yellow",
+    description: "Create a transparent PNG in your browser.",
   },
 ] as const;
 ---
 
 <MarketingLayout
-  title="Reshrimp — Features"
-  description="Resize, convert, compress, and process images privately in your browser. Explore all features of Reshrimp."
+  title="Reshrimp | Features"
+  description="Resize, convert, compress, and remove backgrounds in your browser."
   currentPath="/features"
 >
   <MarketingPageWrapper>
-    <!-- Hero -->
     <HeroSection
-      chip={{ label: "Features", variant: "lavender" }}
-      title="Four focused tools."
-      gradientTitle="One image at a time."
-      subtitle="Reshrimp is a private browser utility for resize, compression, format conversion, and background removal."
+      title="Image tools for one image."
+      subtitle="Resize, convert, compress, or remove a background in your browser."
     />
 
-    <!-- Feature sections -->
     <PageSection
-      sectionClass="px-8 py-8 pb-16 relative z-10"
-      containerClass="max-w-[900px] mx-auto flex flex-col gap-12"
+      sectionClass="marketing-section-feature-list"
+      containerClass="marketing-feature-list"
     >
       {
         features.map((feature, i) => (
@@ -92,10 +63,6 @@ const features = [
       }
     </PageSection>
 
-    <!-- CTA -->
-    <CTACard
-      title="Ready to try it?"
-      subtitle="Free, open source, and private by design."
-    />
+    <CTACard />
   </MarketingPageWrapper>
 </MarketingLayout>

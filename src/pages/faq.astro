@@ -6,61 +6,59 @@ import HeroSection from "../components/marketing/hero/HeroSection.astro";
 import FAQAccordion from "../components/marketing/sections/FAQAccordion.astro";
 import ButtonLink from "../components/ui/ButtonLink.astro";
 import PageSection from "../components/ui/PageSection.astro";
-import { ArrowRight, Github } from "lucide-astro";
+import { ArrowUpRight, Github } from "lucide-astro";
 import { makeHref } from "../lib/utils";
 import { GITHUB_URL, ROUTES } from "../config/constants";
 
 const faqs = [
   {
-    question: "Is Reshrimp really free?",
-    answer:
-      "Yes. Reshrimp is free to use, with no accounts or premium tiers. It is open source under the MIT license.",
+    question: "Is Reshrimp free?",
+    answer: "Yes. It has no account or paid tier. The code is open source under the MIT license.",
   },
   {
     question: "How does privacy work?",
     answer:
-      "All image processing happens in your browser. Your images are never uploaded to any server. Background removal loads its model and runtime assets from the app origin when you use it. There are no analytics, no cookies, and no tracking.",
+      "All image processing happens in your browser. Reshrimp does not upload your image, use analytics, or track you. Background removal loads its model and runtime from this app when you use it.",
   },
   {
     question: "What image formats are supported?",
     answer:
-      "Reshrimp can read JPEG, PNG, WebP, AVIF, HEIC, and HEIF images. Output formats are JPEG, PNG, WebP, and AVIF using your browser's built-in encoding capabilities.",
+      "Reshrimp reads JPEG, PNG, WebP, AVIF, HEIC, and HEIF. You can export JPEG, PNG, WebP, or AVIF.",
   },
   {
     question: "What's the maximum file size?",
     answer:
-      "The upload limit is 50MB per image. In practice, the actual limit depends on your device's available memory since processing happens locally. Most devices handle images up to 50MB without issues.",
+      "The limit is 50MB per image. Your device's available memory can reduce the practical limit because processing happens locally.",
   },
   {
     question: "Where's the source code?",
-    answer: `The entire project is open source on <a href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer">GitHub</a>. You can read, fork, or contribute to the code. The image-processing logic lives in TypeScript services that you can inspect directly.`,
+    answer: `The project is open source on <a href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer">GitHub</a>. The image-processing code lives in TypeScript services.`,
   },
   {
     question: "Can I use it for commercial purposes?",
     answer:
-      "Absolutely. There are no restrictions on how you use Reshrimp or the images you process with it. The tool itself is MIT-licensed, meaning you can even modify and redistribute it.",
+      "Yes. You can use Reshrimp and the images you process with it for commercial work. The tool is MIT-licensed.",
   },
   {
     question: "How do the quality settings work?",
     answer:
-      "The quality slider controls JPEG, WebP, and AVIF output (0-100%) through your browser's built-in encoding. PNG export stays lossless. The preview updates after processing so you can review the result before downloading.",
+      "The quality slider controls JPEG, WebP, and AVIF output from 0 to 100%. PNG export stays lossless. The preview updates after processing so you can review the result before downloading.",
   },
 ];
 ---
 
 <MarketingLayout
-  title="Reshrimp — FAQ"
-  description="Frequently asked questions about Reshrimp — a free, private, browser-based image processing tool."
+  title="Reshrimp | FAQ"
+  description="Answers about Reshrimp, including privacy, formats, file limits, and processing."
   currentPath="/faq"
 >
   <MarketingPageWrapper>
     <HeroSection
-      chip={{ label: "FAQ", variant: "yellow" }}
-      title="Frequently asked questions"
-      subtitle="Quick answers about privacy, formats, and local processing."
+      title="Questions about Reshrimp."
+      subtitle="Privacy, formats, file limits, and processing."
     />
 
-    <PageSection sectionClass="px-8 py-8 pb-12 relative z-10">
+    <PageSection sectionClass="marketing-section-faq">
       <PageContainer>
         {
           faqs.map((faq, i) => (
@@ -71,33 +69,55 @@ const faqs = [
     </PageSection>
 
     <PageSection
-      sectionClass="px-8 py-8 pb-20 text-center relative z-10"
-      containerClass="max-w-[500px] mx-auto"
+      sectionClass="marketing-section-faq-cta"
+      containerClass="marketing-narrow-cta"
     >
-      <h2 class="font-display text-2xl font-bold mb-3" data-reveal data-reveal-delay="0">
-        Still have questions?
-      </h2>
-      <p
-        class="text-base text-muted-foreground leading-relaxed m-0"
-        data-reveal
-        data-reveal-delay="80"
-      >
-        Check out the source code or just try the app — it's the best way to see how it works.
+      <h2 class="marketing-faq-cta-title" data-reveal data-reveal-delay="0">Need more detail?</h2>
+      <p class="marketing-faq-cta-copy" data-reveal data-reveal-delay="80">
+        Read the source or open the tool.
       </p>
-      <div
-        class="flex items-center justify-center gap-3 mt-6 flex-wrap"
-        data-reveal
-        data-reveal-delay="160"
-      >
+      <div class="marketing-faq-cta-actions" data-reveal data-reveal-delay="160">
         <ButtonLink href={makeHref(ROUTES.APP)}>
-          Try Reshrimp
-          <ArrowRight size={18} strokeWidth={2} class="cta-pop-arrow" />
+          Open the tool
+          <ArrowUpRight size={19} strokeWidth={2} aria-hidden="true" />
         </ButtonLink>
         <ButtonLink href={GITHUB_URL} variant="secondary" external={true}>
-          <Github size={18} />
-          GitHub
+          <Github size={18} aria-hidden="true" />
+          View on GitHub
         </ButtonLink>
       </div>
     </PageSection>
   </MarketingPageWrapper>
 </MarketingLayout>
+
+<style>
+  .marketing-faq-cta-title {
+    margin: 0;
+    color: var(--foreground);
+    font-family: var(--font-display);
+    font-size: var(--marketing-section-size);
+    line-height: 1;
+    letter-spacing: -0.06em;
+  }
+
+  .marketing-faq-cta-copy {
+    margin: 1.25rem 0 2rem;
+    color: var(--muted-foreground);
+    font-size: 1rem;
+    line-height: 1.65;
+  }
+
+  .marketing-faq-cta-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  @media (max-width: 560px) {
+    .marketing-faq-cta-actions :global(a[data-ui-button]) {
+      width: 100%;
+    }
+  }
+</style>

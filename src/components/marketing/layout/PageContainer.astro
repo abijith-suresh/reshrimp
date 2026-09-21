@@ -7,6 +7,15 @@ interface Props {
 const { class: className } = Astro.props;
 ---
 
-<div class:list={["max-w-[700px] mx-auto px-8 relative z-10 md:px-5", className]}>
+<div class:list={["marketing-content-container", className]}>
   <slot />
 </div>
+
+<style>
+  .marketing-content-container {
+    position: relative;
+    z-index: 1;
+    width: min(760px, 100%);
+    margin: 0 auto;
+  }
+</style>

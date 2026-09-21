@@ -9,6 +9,10 @@ interface Props {
 const { delay = 0, class: className } = Astro.props;
 ---
 
-<Card variant="soft" class={["mb-6", className].filter(Boolean).join(" ")} delay={delay}>
+<Card
+  variant="soft"
+  class={["marketing-content-block mb-6", className].filter(Boolean).join(" ")}
+  delay={delay}
+>
   <slot />
 </Card>

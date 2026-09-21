@@ -6,7 +6,29 @@ interface Props {
 const { name, description } = Astro.props;
 ---
 
-<div class="bg-background border border-border-light rounded-md p-4 flex flex-col gap-1">
-  <span class="font-display font-semibold text-sm">{name}</span>
-  <span class="text-xs text-soft-foreground">{description}</span>
+<div class="marketing-tech-item">
+  <span class="marketing-tech-name">{name}</span>
+  <span class="marketing-tech-description">{description}</span>
 </div>
+
+<style>
+  .marketing-tech-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    padding: 0.9rem 0;
+    border-top: 1px solid var(--border);
+  }
+
+  .marketing-tech-name {
+    color: var(--foreground);
+    font-family: var(--font-display);
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .marketing-tech-description {
+    color: var(--soft-foreground);
+    font-size: 0.78rem;
+  }
+</style>
