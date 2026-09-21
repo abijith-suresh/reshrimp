@@ -143,8 +143,9 @@
   --marketing-narrow-width: 32rem;
   --marketing-shell-surface: var(--background);
   --marketing-hero-space: clamp(var(--space-8), 4vw, var(--space-12));
-  --marketing-section-space: clamp(var(--space-10), 5vw, var(--space-16));
-  --marketing-section-space-compact: clamp(var(--space-6), 3vw, var(--space-10));
+  --marketing-section-space: clamp(var(--space-10), 6vw, var(--space-20));
+  --marketing-section-space-compact: clamp(var(--space-8), 4vw, var(--space-12));
+  --marketing-heading-gap: clamp(var(--space-6), 3vw, var(--space-10));
   --marketing-title-xl: clamp(2.75rem, 5vw, 4.8rem);
   --marketing-title-lg: clamp(2rem, 4.2vw, 3.4rem);
   --marketing-title-md: clamp(1.25rem, 2.4vw, 1.8rem);

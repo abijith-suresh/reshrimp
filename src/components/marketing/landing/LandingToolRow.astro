@@ -35,17 +35,12 @@ const { icon: Icon, number, title, description, color } = Astro.props;
     grid-template-columns: 2.25rem var(--space-12) minmax(0, 1fr);
     align-items: center;
     gap: var(--space-6);
-    padding: var(--space-6) var(--space-3);
+    padding: var(--space-8) var(--space-3);
     border-top: 1px solid var(--border);
   }
 
   .landing-tool-row:last-child {
     border-bottom: 1px solid var(--border);
-  }
-
-  .landing-tool-row:hover {
-    background: var(--tool-tint);
-    border-color: var(--border);
   }
 
   .landing-tool-mint {
@@ -101,7 +96,7 @@ const { icon: Icon, number, title, description, color } = Astro.props;
     .landing-tool-row {
       grid-template-columns: 1.75rem var(--space-12) minmax(0, 1fr);
       gap: var(--space-4);
-      padding: var(--space-5) var(--space-1);
+      padding: var(--space-6) var(--space-1);
     }
 
     .landing-tool-icon {
