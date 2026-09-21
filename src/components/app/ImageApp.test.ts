@@ -32,6 +32,7 @@ import { preloadBackgroundRemoval } from "@/services/backgroundRemovalService";
 import { getImageMetadata, prepareImageFile, processImage } from "@/services/imageService";
 import { createDownloadLink, formatFileSize } from "@/utils/imageUtils";
 import ImageApp from "./ImageApp";
+import { createDecodedObjectUrl } from "./state/imageAppObjectUrls";
 
 const mockGetImageMetadata = vi.mocked(getImageMetadata);
 const mockPrepareImageFile = vi.mocked(prepareImageFile);
@@ -83,6 +84,29 @@ describe("ImageApp", () => {
     restoreMocks();
   });
 
+  it("revokes a preview URL when its decode is cancelled", async () => {
+    const controller = new AbortController();
+    vi.mocked(URL.createObjectURL).mockReturnValueOnce("blob:pending-preview");
+
+    const previewPromise = createDecodedObjectUrl(
+      new Blob(["processed"], { type: "image/png" }),
+      controller.signal
+    );
+    controller.abort();
+
+    await expect(previewPromise).rejects.toThrow("decoding was cancelled");
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:pending-preview");
+  });
+
+  it("revokes a preview URL when the browser cannot decode it", async () => {
+    vi.mocked(URL.createObjectURL).mockReturnValueOnce("blob:error-url");
+
+    const previewPromise = createDecodedObjectUrl(new Blob(["processed"], { type: "image/png" }));
+
+    await expect(previewPromise).rejects.toThrow("could not be decoded");
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:error-url");
+  });
+
   it("auto-processes after upload and allows download", async () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
     const processedBlob = new Blob(["processed"], { type: "image/png" });
@@ -127,6 +151,8 @@ describe("ImageApp", () => {
         "src",
         "blob:original"
       );
+      expect((view.container.querySelector("#width-input") as HTMLInputElement).value).toBe("1200");
+      expect((view.container.querySelector("#height-input") as HTMLInputElement).value).toBe("800");
     });
 
     // Info strip should show filename and original metadata
@@ -243,7 +269,125 @@ describe("ImageApp", () => {
     expect(info).toHaveTextContent(formatFileSize(sourceFile.size));
   });
 
-  it("revokes the previous processed URL before replacing it on reprocess", async () => {
+  it("keeps the current preview until the replacement is fully decoded", async () => {
+    const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
+    const firstBlob = new Blob(["first"], { type: "image/png" });
+    const secondBlob = new Blob(["second"], { type: "image/png" });
+    const decodeResolvers: Array<() => void> = [];
+
+    class DeferredImage {
+      onload: (() => void) | null = null;
+      onerror: (() => void) | null = null;
+      private currentSrc = "";
+
+      get src(): string {
+        return this.currentSrc;
+      }
+
+      set src(value: string) {
+        this.currentSrc = value;
+        // A browser may finish loading before decode() has settled. The
+        // preview must ignore this event while using the decode path.
+        this.onload?.();
+      }
+
+      decode(): Promise<void> {
+        return new Promise((resolve) => {
+          decodeResolvers.push(resolve);
+        });
+      }
+    }
+
+    vi.stubGlobal("Image", DeferredImage);
+
+    mockGetImageMetadata.mockResolvedValue({
+      width: 1200,
+      height: 800,
+      format: "image/png",
+      fileSize: sourceFile.size,
+      fileName: sourceFile.name,
+    });
+    mockProcessImage
+      .mockResolvedValueOnce({
+        blob: firstBlob,
+        requestedFormat: "image/png",
+        metadata: {
+          width: 1200,
+          height: 800,
+          format: "image/png",
+          fileSize: firstBlob.size,
+        },
+      })
+      .mockResolvedValueOnce({
+        blob: secondBlob,
+        requestedFormat: "image/png",
+        metadata: {
+          width: 600,
+          height: 400,
+          format: "image/png",
+          fileSize: secondBlob.size,
+        },
+      });
+
+    vi.mocked(URL.createObjectURL)
+      .mockReturnValueOnce("blob:original")
+      .mockReturnValueOnce("blob:first-processed")
+      .mockReturnValueOnce("blob:second-processed");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(mockProcessImage).toHaveBeenCalledTimes(1);
+      expect(decodeResolvers).toHaveLength(1);
+      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+        "src",
+        "blob:original"
+      );
+    });
+
+    decodeResolvers.shift()?.();
+
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+        "src",
+        "blob:first-processed"
+      );
+    });
+
+    const widthInput = view.container.querySelector("#width-input") as HTMLInputElement;
+    fireEvent.input(widthInput, { target: { value: "600" } });
+
+    await vi.waitFor(() => {
+      expect(mockProcessImage).toHaveBeenCalledTimes(2);
+      expect(decodeResolvers).toHaveLength(1);
+      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+        "src",
+        "blob:first-processed"
+      );
+      expect(view.container.querySelector("[data-testid='info-strip']")).toHaveTextContent(
+        "1200 × 800px"
+      );
+    });
+
+    decodeResolvers.shift()?.();
+
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+        "src",
+        "blob:second-processed"
+      );
+      expect(view.container.querySelector("[data-testid='info-strip']")).toHaveTextContent(
+        "600 × 400px"
+      );
+    });
+  });
+
+  it("keeps the previous processed URL until replacement is ready", async () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
     const firstBlob = new Blob(["first"], { type: "image/png" });
     const secondBlob = new Blob(["second"], { type: "image/png" });
@@ -306,7 +450,11 @@ describe("ImageApp", () => {
     const widthInput = view.container.querySelector("#width-input") as HTMLInputElement;
     fireEvent.input(widthInput, { target: { value: "400" } });
 
-    expect(view.container.querySelector("#preview-image")).toHaveAttribute("src", "blob:original");
+    expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      "src",
+      "blob:first-processed"
+    );
+    expect(URL.revokeObjectURL).not.toHaveBeenCalledWith("blob:first-processed");
     expect(view.container.querySelector("#download-button")).toBeDisabled();
 
     await vi.waitFor(() => {
@@ -534,7 +682,7 @@ describe("ImageApp", () => {
     });
   });
 
-  it("clears the previous output when a reprocess fails", async () => {
+  it("keeps the previous output visible when a reprocess fails", async () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
     const firstBlob = new Blob(["first"], { type: "image/png" });
 
@@ -577,11 +725,9 @@ describe("ImageApp", () => {
       expect(view.container.querySelector("#download-button")).toBeDisabled();
       expect(view.container.querySelector("#preview-image")).toHaveAttribute(
         "src",
-        "blob:original"
+        "blob:first-processed"
       );
     });
-
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:first-processed");
   });
 
   it("does not create a processed URL after unmounting during processing", async () => {
@@ -612,6 +758,7 @@ describe("ImageApp", () => {
 
     await vi.waitFor(() => {
       expect(mockProcessImage).toHaveBeenCalledTimes(1);
+      expect(view.container).toHaveTextContent("Updating preview…");
     });
 
     view.unmount();

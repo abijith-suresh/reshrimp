@@ -34,7 +34,7 @@ import type { ImageFormat, ProcessedImage, ValidationResult } from "@/types/imag
 import type { ProcessResult, ResizeUnit } from "@/types/processing";
 import { convertFromPx, createDownloadLink, formatFileSize } from "@/utils/imageUtils";
 import {
-  replaceProcessedObjectUrl,
+  createDecodedObjectUrl,
   revokeImageSessionUrls,
   revokeProcessedObjectUrl,
 } from "./imageAppObjectUrls";
@@ -61,6 +61,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   // ── Core image state ──────────────────────────────────────────────────────
   const [currentImage, setCurrentImage] = createSignal<ProcessedImage | null>(null);
   const [processResult, setProcessResult] = createSignal<ProcessResult | null>(null);
+  const [lastCompletedResult, setLastCompletedResult] = createSignal<ProcessResult | null>(null);
 
   // ── Session identity ──────────────────────────────────────────────────────
   // Bumped on every successful upload. Processing is keyed off this id, never
@@ -73,6 +74,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   // clobbering the state of a newer run.
   let activeRunSession: number | null = null;
   let activeRunId: number | null = null;
+  let pendingPreviewAbort: AbortController | null = null;
   let nextRunId = 0;
   let uploadRequestId = 0;
   let disposed = false;
@@ -113,6 +115,8 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   onCleanup(() => {
     disposed = true;
     debouncedProcess.cancel();
+    pendingPreviewAbort?.abort();
+    pendingPreviewAbort = null;
     revokeImageSessionUrls(currentImage());
   });
 
@@ -155,7 +159,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
   const sizeDifference = createMemo<SizeDiff | null>(() => {
     const img = currentImage();
-    const result = processResult();
+    const result = lastCompletedResult();
     if (!img || !result) return null;
     const diff = result.metadata.fileSize - img.metadata.fileSize;
     const pct = ((diff / img.metadata.fileSize) * 100).toFixed(1);
@@ -216,22 +220,17 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       processingRevision === runRevision;
 
     batch(() => {
-      if (img.processedUrl) {
-        revokeProcessedObjectUrl(img.processedUrl);
-        setCurrentImage((previousImage) =>
-          previousImage?.processedUrl === img.processedUrl
-            ? { ...previousImage, processedUrl: null }
-            : previousImage
-        );
-      }
       setProcessResult(null);
       setIsProcessing(true);
+      setProgressLabel("Updating preview\u2026");
       setError(null);
     });
 
     if (options.removeBackground) {
       setProgressLabel("Removing background\u2026");
     }
+
+    let previewAbortController: AbortController | null = null;
 
     try {
       const result = await processImage(
@@ -250,19 +249,38 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       // flight — discard the result instead of stamping it onto the new image.
       if (!isCurrentRun()) return;
 
-      const processedUrl = replaceProcessedObjectUrl(null, result.blob);
+      // Decode the new output off-screen first. The currently visible output
+      // remains untouched until this resolves, so the browser cannot paint a
+      // partially decoded frame during the update.
+      previewAbortController = new AbortController();
+      pendingPreviewAbort = previewAbortController;
+      const processedUrl = await createDecodedObjectUrl(result.blob, previewAbortController.signal);
+
+      // Inputs or the active image may have changed while the browser was
+      // decoding the result. Do not attach a stale URL to the new session.
+      if (!isCurrentRun()) {
+        revokeProcessedObjectUrl(processedUrl);
+        return;
+      }
+
+      const previousProcessedUrl = img.processedUrl;
 
       // Batch result updates into a single DOM update
       batch(() => {
         setCurrentImage((prev) => (prev ? { ...prev, processedUrl } : null));
         setProcessResult(result);
+        setLastCompletedResult(result);
       });
+      revokeProcessedObjectUrl(previousProcessedUrl);
     } catch (err) {
       if (isCurrentRun()) {
         setError(err instanceof Error ? err.message : "Processing failed");
         console.error("Error processing image:", err);
       }
     } finally {
+      if (pendingPreviewAbort === previewAbortController) {
+        pendingPreviewAbort = null;
+      }
       const ownsRun = activeRunSession === session && activeRunId === runId;
       if (ownsRun) activeRunSession = null;
       if (ownsRun) activeRunId = null;
@@ -302,14 +320,8 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
         processingRevision += 1;
 
-        if (img.processedUrl) {
-          revokeProcessedObjectUrl(img.processedUrl);
-          setCurrentImage((previousImage) =>
-            previousImage?.processedUrl === img.processedUrl
-              ? { ...previousImage, processedUrl: null }
-              : previousImage
-          );
-        }
+        pendingPreviewAbort?.abort();
+        pendingPreviewAbort = null;
         setProcessResult(null);
 
         if (removeBackground()) {
@@ -377,6 +389,8 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         // waiting for an active run that belongs to the old image.
         activeRunSession = null;
         activeRunId = null;
+        pendingPreviewAbort?.abort();
+        pendingPreviewAbort = null;
         debouncedProcess.cancel();
         setIsProcessing(false);
         setCurrentImage((previousImage) => {
@@ -388,12 +402,13 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         pendingReprocess = false;
         setSessionId((id) => id + 1);
         setProcessResult(null);
+        setLastCompletedResult(null);
         setError(null);
         setProgressLabel(null);
 
         // Reset form controls to defaults
-        setWidthValue("");
-        setHeightValue("");
+        setWidthValue(String(metadata.width));
+        setHeightValue(String(metadata.height));
         setMaintainAspectRatio(true);
         setRemoveBackground(false);
         setFormatValue(getInitialOutputFormat(metadata.format));
@@ -569,6 +584,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   const state: AppState = {
     currentImage,
     processResult,
+    lastCompletedResult,
     isProcessing,
     progressLabel,
     error,
