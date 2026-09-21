@@ -76,16 +76,14 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
   import { registerPageInitializer } from "../lib/pageInitializer";
 
   // ── Scroll reveal via Intersection Observer ──────────────────────────
-  function initReveal(isSpaNavigation: boolean) {
+  function initReveal() {
     const els = document.querySelectorAll<HTMLElement>("[data-reveal]");
     if (!els.length) return;
 
-    // Scroll reveals add a useful first-load rhythm, but hiding freshly swapped
-    // content makes client-side navigation feel broken. Keep them for the
-    // initial visit and let later pages arrive immediately.
-    if (!isSpaNavigation) {
-      document.documentElement.classList.add("reveal-ready");
-    }
+    // Use the same viewport reveal on first loads and SPA navigation. This
+    // keeps content visible on arrival while preserving the page's first-view
+    // rhythm below the hero.
+    document.documentElement.classList.add("reveal-ready");
 
     // Apply staggered delays from data-reveal-delay attribute
     els.forEach((el) => {
@@ -102,7 +100,7 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
           }
         });
       },
-      { threshold: 0.1, rootMargin: "0px 0px -40px 0px" }
+      { threshold: 0.1, rootMargin: "0px" }
     );
 
     els.forEach((el) => observer.observe(el));
@@ -113,8 +111,8 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
     };
   }
 
-  registerPageInitializer("layout:interactions", (isSpaNavigation) => {
-    const cleanups = [initReveal(isSpaNavigation)].filter(
+  registerPageInitializer("layout:interactions", () => {
+    const cleanups = [initReveal()].filter(
       (cleanup): cleanup is () => void => typeof cleanup === "function"
     );
 
