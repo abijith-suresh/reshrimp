@@ -228,12 +228,38 @@
 
 /* ===== Mobile Sheet ===== */
 .mobile-sheet {
-  height: 80dvh;
+  height: var(--app-sheet-height);
+  border-top: 1px solid var(--border);
   box-shadow:
     0 -4px 24px rgba(30, 27, 75, 0.1),
     0 -1px 0 rgba(224, 222, 255, 0.9);
   will-change: transform;
   overscroll-behavior: contain;
+}
+
+.mobile-sheet-content {
+  overscroll-behavior: contain;
+  padding-bottom: max(1rem, env(safe-area-inset-bottom));
+}
+
+.app-sidebar {
+  width: var(--app-sidebar-width);
+}
+
+.app-control-panel {
+  width: var(--app-panel-width);
+}
+
+.app-preview-media {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: var(--app-preview-gutter) var(--app-preview-gutter) 0;
+}
+
+.app-preview-info {
+  flex-shrink: 0;
+  padding: 0.75rem var(--app-preview-gutter);
 }
 
 .mobile-sheet-handle {

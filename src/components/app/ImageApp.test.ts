@@ -178,6 +178,12 @@ describe("ImageApp", () => {
       expect(view.container.querySelector("#download-button")).toBeEnabled();
     });
 
+    const renderedIds = Array.from(
+      view.container.querySelectorAll<HTMLElement>("[id]"),
+      (element) => element.id
+    );
+    expect(new Set(renderedIds).size).toBe(renderedIds.length);
+
     // Download should work
     const downloadBtn = view.container.querySelector("#download-button") as HTMLButtonElement;
     triggerDelegatedClick(downloadBtn);
@@ -843,6 +849,26 @@ describe("ImageApp", () => {
     const openButton = sheet.querySelector(
       'button[aria-label="Open controls"]'
     ) as HTMLButtonElement;
+    triggerDelegatedClick(openButton);
+
+    expect(sheet).toHaveAttribute("role", "dialog");
+    expect(sheet).toHaveAttribute("aria-modal", "true");
+    expect(openButton).toHaveAttribute("aria-expanded", "true");
+    expect(view.container.querySelector("[data-app-shell]")).toHaveAttribute("inert", "");
+    await vi.waitFor(() => {
+      expect(document.activeElement).toBe(view.container.querySelector("#mobile-width-input"));
+    });
+
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+
+    await vi.waitFor(() => {
+      expect(sheet).toHaveAttribute("role", "region");
+      expect(sheet).not.toHaveAttribute("aria-modal");
+      expect(openButton).toHaveAttribute("aria-expanded", "false");
+      expect(view.container.querySelector("[data-app-shell]")).not.toHaveAttribute("inert");
+      expect(document.activeElement).toBe(openButton);
+    });
+
     triggerDelegatedClick(openButton);
 
     expect(settings).toHaveAttribute("aria-hidden", "false");

@@ -62,4 +62,62 @@ describe("Select", () => {
     expect(document.activeElement).toBe(trigger);
     expect(trigger).toHaveAttribute("aria-expanded", "false");
   });
+
+  it("moves focus to the adjacent control when tabbing out of the listbox", async () => {
+    const view = render(() => (
+      <div>
+        <button type="button" id="before-format">
+          Before
+        </button>
+        <Select
+          id="format-select"
+          options={[
+            { value: "image/png", label: "PNG" },
+            { value: "image/webp", label: "WebP" },
+          ]}
+          value="image/png"
+          onChange={() => {}}
+        />
+        <button type="button" id="after-format">
+          After
+        </button>
+      </div>
+    ));
+
+    const trigger = view.container.querySelector("#format-select") as HTMLButtonElement;
+    fireEvent.keyDown(trigger, { key: "ArrowDown" });
+    await Promise.resolve();
+
+    const listbox = document.querySelector('[role="listbox"]') as HTMLDivElement;
+    fireEvent.keyDown(listbox, { key: "Tab" });
+    await Promise.resolve();
+
+    expect(document.querySelector('[role="listbox"]')).toBeNull();
+    expect(document.activeElement).toBe(view.container.querySelector("#after-format"));
+  });
+
+  it("exposes the keyboard-highlighted option to assistive technology", async () => {
+    const view = render(() => (
+      <Select
+        id="format-select"
+        options={[
+          { value: "image/png", label: "PNG" },
+          { value: "image/webp", label: "WebP" },
+        ]}
+        value="image/png"
+        onChange={() => {}}
+      />
+    ));
+
+    const trigger = view.container.querySelector("#format-select") as HTMLButtonElement;
+    fireEvent.keyDown(trigger, { key: "ArrowDown" });
+    await Promise.resolve();
+
+    const listbox = document.querySelector('[role="listbox"]') as HTMLDivElement;
+    fireEvent.keyDown(listbox, { key: "ArrowDown" });
+
+    const focusedOption = listbox.querySelector(".select-option-focused") as HTMLElement;
+    expect(focusedOption).not.toBeNull();
+    expect(listbox).toHaveAttribute("aria-activedescendant", focusedOption.id);
+  });
 });

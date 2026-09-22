@@ -16,8 +16,6 @@ export interface AppState {
   error: Accessor<string | null>;
   validation: Accessor<ValidationResult | null>;
   isDragOver: Accessor<boolean>;
-  tooltipOpen: Accessor<boolean>;
-  dpiTooltipOpen: Accessor<boolean>;
   widthValue: Accessor<string>;
   heightValue: Accessor<string>;
   maintainAspectRatio: Accessor<boolean>;
@@ -48,8 +46,6 @@ export interface AppActions {
   handleHeightInput(val: string): void;
   handleAspectRatioChange(checked: boolean): void;
   setIsDragOver(v: boolean): void;
-  setTooltipOpen(v: boolean): void;
-  setDpiTooltipOpen(v: boolean): void;
   setFormatValue(v: string): void;
   setQualityValue(v: number): void;
 }

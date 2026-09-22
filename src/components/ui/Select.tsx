@@ -84,10 +84,31 @@ export default function Select(props: SelectProps) {
     queueMicrotask(() => listboxRef?.focus());
   }
 
-  function closeDropdown() {
+  function closeDropdown(restoreFocus = true) {
     setOpen(false);
     setFocusedIndex(-1);
-    triggerRef?.focus();
+    if (restoreFocus) triggerRef?.focus();
+  }
+
+  const focusableSelector =
+    'button:not([disabled]), input:not([disabled]):not([type="hidden"]):not([type="file"]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
+
+  function focusAdjacentControl(backward: boolean) {
+    const trigger = triggerRef;
+    if (!trigger) return;
+
+    const dialog = trigger.closest<HTMLElement>('[role="dialog"]');
+    const scope = dialog ?? document.body;
+    const focusableElements = Array.from(
+      scope.querySelectorAll<HTMLElement>(focusableSelector)
+    ).filter((element) => {
+      if (element.closest('[inert], [aria-hidden="true"], [role="listbox"]')) return false;
+      const styles = window.getComputedStyle(element);
+      return styles.display !== "none" && styles.visibility !== "hidden";
+    });
+    const triggerIndex = focusableElements.indexOf(trigger);
+    const nextIndex = triggerIndex + (backward ? -1 : 1);
+    (focusableElements[nextIndex] ?? trigger).focus();
   }
 
   function selectOption(value: string) {
@@ -185,8 +206,15 @@ export default function Select(props: SelectProps) {
         break;
       }
       case "Escape":
-      case "Tab":
+        e.preventDefault();
+        e.stopPropagation();
         closeDropdown();
+        break;
+      case "Tab":
+        e.preventDefault();
+        e.stopPropagation();
+        closeDropdown(false);
+        queueMicrotask(() => focusAdjacentControl(e.shiftKey));
         break;
     }
   }
@@ -237,6 +265,9 @@ export default function Select(props: SelectProps) {
             id={listboxId}
             role="listbox"
             aria-labelledby={props.id ?? triggerId}
+            aria-activedescendant={
+              focusedIndex() >= 0 ? `${listboxId}-option-${focusedIndex()}` : undefined
+            }
             tabIndex={-1}
             class="select-listbox select-listbox-portaled"
             classList={{ "select-listbox-upward": pos().openUpward }}
@@ -252,6 +283,7 @@ export default function Select(props: SelectProps) {
             <For each={props.options}>
               {(option, index) => (
                 <div
+                  id={`${listboxId}-option-${index()}`}
                   role="option"
                   aria-selected={option.value === props.value}
                   aria-disabled={option.disabled}
