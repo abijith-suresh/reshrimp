@@ -846,6 +846,45 @@ describe("ImageApp", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
+  it("moves focus from the mobile back link to desktop navigation at the editor breakpoint", async () => {
+    const listeners = new Set<(event: MediaQueryListEvent) => void>();
+    const mediaQueryList = {
+      matches: false,
+      media: "(min-width: 56rem)",
+      addEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => {
+        listeners.add(listener);
+      },
+      removeEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => {
+        listeners.delete(listener);
+      },
+    } as unknown as MediaQueryList;
+    vi.stubGlobal(
+      "matchMedia",
+      vi.fn(() => mediaQueryList)
+    );
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const mobileBackButton = view.container.querySelector(
+      "[data-mobile-back-button]"
+    ) as HTMLAnchorElement;
+    const desktopBackButton = view.container.querySelector(
+      '[aria-label="App navigation"] a[aria-label="Back to home"]'
+    ) as HTMLAnchorElement;
+
+    mobileBackButton.focus();
+    expect(document.activeElement).toBe(mobileBackButton);
+
+    for (const listener of listeners) {
+      listener({ matches: true, media: mediaQueryList.media } as MediaQueryListEvent);
+    }
+
+    await vi.waitFor(() => {
+      expect(document.activeElement).toBe(desktopBackButton);
+    });
+  });
+
   it("keeps peeked mobile settings inert until the sheet is opened", async () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
 

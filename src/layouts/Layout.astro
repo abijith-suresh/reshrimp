@@ -75,6 +75,14 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
       href="#main-content"
       data-global-skip-link
       class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 p-2 bg-coral-500 text-white rounded-md font-semibold"
+      style={
+        viewportFitCover
+          ? {
+              top: "calc(env(safe-area-inset-top, 0px) + 1rem)",
+              left: "calc(env(safe-area-inset-left, 0px) + 1rem)",
+            }
+          : undefined
+      }
     >
       Skip to main content
     </a>

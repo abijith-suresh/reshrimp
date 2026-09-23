@@ -137,11 +137,23 @@ function MobileSheet() {
       const activeElement = document.activeElement;
       if (event.matches) {
         const hadSheetFocus = !!sheetRef?.contains(activeElement);
+        const hadMobileBackFocus = !!(activeElement as HTMLElement | null)?.closest?.(
+          "[data-mobile-back-button]"
+        );
         setSheetState("hidden");
         if (hadSheetFocus) {
           queueMicrotask(() => {
             if (disposed) return;
             document.querySelector<HTMLElement>("#width-input:not([disabled])")?.focus();
+          });
+        } else if (hadMobileBackFocus) {
+          queueMicrotask(() => {
+            if (disposed) return;
+            document
+              .querySelector<HTMLElement>(
+                '[aria-label="App navigation"] a[aria-label="Back to home"]'
+              )
+              ?.focus();
           });
         }
       } else if (state.currentImage()) {

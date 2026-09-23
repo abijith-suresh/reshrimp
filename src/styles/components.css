@@ -153,7 +153,7 @@
   content: "";
   position: absolute;
   top: 100%;
-  left: 50%;
+  left: var(--tooltip-arrow-left, 50%);
   transform: translateX(-50%);
   border: 5px solid transparent;
   border-top-color: var(--border);
@@ -242,6 +242,7 @@
 
 /* ===== Mobile Sheet ===== */
 .app-safe-area {
+  padding-top: env(safe-area-inset-top, 0px);
   padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
 }
 

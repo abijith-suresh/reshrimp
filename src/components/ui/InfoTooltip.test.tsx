@@ -152,6 +152,7 @@ describe("InfoTooltip", () => {
 
       const tooltip = document.querySelector('[role="tooltip"]') as HTMLElement;
       expect(tooltip).toHaveStyle({ left: "202px", width: "220px" });
+      expect(tooltip.style.getPropertyValue("--tooltip-arrow-left")).toBe("206px");
       expect(Number.parseFloat(tooltip.style.left) - 110).toBeGreaterThanOrEqual(8);
       expect(Number.parseFloat(tooltip.style.left) + 110).toBeLessThanOrEqual(312);
     } finally {

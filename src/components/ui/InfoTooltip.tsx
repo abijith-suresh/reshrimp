@@ -13,6 +13,7 @@ interface InfoTooltipProps {
 interface TooltipPos {
   left: number;
   width: number;
+  arrowLeft: number;
   placement: "above" | "below";
   top?: number;
   bottom?: number;
@@ -20,6 +21,7 @@ interface TooltipPos {
 
 const TOOLTIP_MAX_WIDTH = 220;
 const TOOLTIP_VIEWPORT_GUTTER = 8;
+const TOOLTIP_ARROW_INSET = 12;
 const TOOLTIP_GAP = 8;
 
 export default function InfoTooltip(props: InfoTooltipProps) {
@@ -31,13 +33,22 @@ export default function InfoTooltip(props: InfoTooltipProps) {
     bottom: 0,
     left: 0,
     width: TOOLTIP_MAX_WIDTH,
+    arrowLeft: TOOLTIP_MAX_WIDTH / 2,
     placement: "above",
   });
   let tooltipEl: HTMLSpanElement | undefined;
 
   function calcPos(): TooltipPos {
     const el = triggerEl();
-    if (!el) return { bottom: 0, left: 0, width: TOOLTIP_MAX_WIDTH, placement: "above" };
+    if (!el) {
+      return {
+        bottom: 0,
+        left: 0,
+        width: TOOLTIP_MAX_WIDTH,
+        arrowLeft: TOOLTIP_MAX_WIDTH / 2,
+        placement: "above",
+      };
+    }
     const r = el.getBoundingClientRect();
     const dialog = el.closest<HTMLElement>('[role="dialog"]');
     const dialogRect = dialog?.getBoundingClientRect();
@@ -71,6 +82,11 @@ export default function InfoTooltip(props: InfoTooltipProps) {
       availableLeft + gutter,
       Math.min(r.left + r.width / 2 - width / 2, availableRight - width - gutter)
     );
+    const arrowInset = Math.min(TOOLTIP_ARROW_INSET, width / 2);
+    const arrowLeft = Math.max(
+      arrowInset,
+      Math.min(r.left + r.width / 2 - tooltipLeft, width - arrowInset)
+    );
     const tooltipHeight = tooltipEl?.getBoundingClientRect().height ?? 0;
     const spaceAbove = Math.max(0, r.top - availableTop - TOOLTIP_GAP);
     const spaceBelow = Math.max(0, availableBottom - r.bottom - TOOLTIP_GAP);
@@ -87,6 +103,7 @@ export default function InfoTooltip(props: InfoTooltipProps) {
         top: r.bottom + TOOLTIP_GAP - (dialogRect?.top ?? 0),
         left: tooltipLeft + width / 2 - (dialogRect?.left ?? 0),
         width,
+        arrowLeft,
         placement,
       };
     }
@@ -95,6 +112,7 @@ export default function InfoTooltip(props: InfoTooltipProps) {
       bottom: (dialogRect?.bottom ?? window.innerHeight) - r.top + TOOLTIP_GAP,
       left: tooltipLeft + width / 2 - (dialogRect?.left ?? 0),
       width,
+      arrowLeft,
       placement,
     };
   }
@@ -207,6 +225,7 @@ export default function InfoTooltip(props: InfoTooltipProps) {
             class={`info-tooltip active info-tooltip-portaled text-xs leading-[1.4] text-foreground ${pos().placement === "below" ? "info-tooltip-below" : ""}`}
             role="tooltip"
             style={{
+              "--tooltip-arrow-left": `${pos().arrowLeft}px`,
               top: pos().top === undefined ? undefined : `${pos().top}px`,
               bottom: pos().bottom === undefined ? undefined : `${pos().bottom}px`,
               left: `${pos().left}px`,
