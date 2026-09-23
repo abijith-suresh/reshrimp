@@ -95,7 +95,72 @@ describe("InfoTooltip", () => {
     const tooltip = document.querySelector('[role="tooltip"]') as HTMLElement;
     expect(dialog.contains(tooltip)).toBe(true);
     expect(trigger).toHaveAttribute("aria-describedby", "modal-dpi-info-tooltip");
-    expect(tooltip).toHaveStyle({ bottom: "188px", left: "90px" });
+    expect(tooltip).toHaveStyle({ bottom: "188px", left: "118px", width: "220px" });
+  });
+
+  it("closes an open tooltip on Escape before the dialog receives it", () => {
+    const [open, setOpen] = createSignal(false);
+    const onDialogKeyDown = vi.fn();
+    const view = render(() => (
+      <section role="dialog" onKeyDown={onDialogKeyDown}>
+        <InfoTooltip
+          ariaLabel="DPI info"
+          content={<span>DPI tooltip content</span>}
+          open={open()}
+          onToggle={setOpen}
+        />
+      </section>
+    ));
+
+    const trigger = view.getByLabelText("DPI info");
+    fireEvent.focus(trigger);
+    expect(open()).toBe(true);
+
+    fireEvent.keyDown(trigger, { key: "Escape" });
+    expect(open()).toBe(false);
+    expect(onDialogKeyDown).not.toHaveBeenCalled();
+  });
+
+  it("keeps the tooltip inside narrow viewport edges", () => {
+    const innerWidthDescriptor = Object.getOwnPropertyDescriptor(window, "innerWidth");
+    Object.defineProperty(window, "innerWidth", { configurable: true, value: 320 });
+
+    try {
+      const [open, setOpen] = createSignal(false);
+      const view = render(() => (
+        <InfoTooltip
+          ariaLabel="DPI info"
+          content={<span>DPI tooltip content</span>}
+          open={open()}
+          onToggle={setOpen}
+        />
+      ));
+      const trigger = view.getByLabelText("DPI info");
+      vi.spyOn(trigger, "getBoundingClientRect").mockReturnValue({
+        x: 288,
+        y: 200,
+        top: 200,
+        right: 308,
+        bottom: 220,
+        left: 288,
+        width: 20,
+        height: 20,
+        toJSON: () => ({}),
+      });
+
+      fireEvent.focus(trigger);
+
+      const tooltip = document.querySelector('[role="tooltip"]') as HTMLElement;
+      expect(tooltip).toHaveStyle({ left: "202px", width: "220px" });
+      expect(Number.parseFloat(tooltip.style.left) - 110).toBeGreaterThanOrEqual(8);
+      expect(Number.parseFloat(tooltip.style.left) + 110).toBeLessThanOrEqual(312);
+    } finally {
+      if (innerWidthDescriptor) {
+        Object.defineProperty(window, "innerWidth", innerWidthDescriptor);
+      } else {
+        Reflect.deleteProperty(window, "innerWidth");
+      }
+    }
   });
 
   it("closes on click outside when open", () => {

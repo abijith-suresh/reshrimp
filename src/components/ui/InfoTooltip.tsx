@@ -13,24 +13,41 @@ interface InfoTooltipProps {
 interface TooltipPos {
   bottom: number;
   left: number;
+  width: number;
 }
+
+const TOOLTIP_MAX_WIDTH = 220;
+const TOOLTIP_VIEWPORT_GUTTER = 8;
 
 export default function InfoTooltip(props: InfoTooltipProps) {
   const [triggerEl, setTriggerEl] = createSignal<HTMLButtonElement | null>(null);
   let pointerInside = false;
   let openedByFocus = false;
 
-  const [pos, setPos] = createSignal<TooltipPos>({ bottom: 0, left: 0 });
+  const [pos, setPos] = createSignal<TooltipPos>({ bottom: 0, left: 0, width: TOOLTIP_MAX_WIDTH });
 
   function calcPos(): TooltipPos {
     const el = triggerEl();
-    if (!el) return { bottom: 0, left: 0 };
+    if (!el) return { bottom: 0, left: 0, width: TOOLTIP_MAX_WIDTH };
     const r = el.getBoundingClientRect();
     const dialog = el.closest<HTMLElement>('[role="dialog"]');
     const dialogRect = dialog?.getBoundingClientRect();
+    const dialogStyle = dialog ? window.getComputedStyle(dialog) : null;
+    const dialogPaddingLeft = Number.parseFloat(dialogStyle?.paddingLeft ?? "") || 0;
+    const dialogPaddingRight = Number.parseFloat(dialogStyle?.paddingRight ?? "") || 0;
+    const availableLeft = (dialogRect?.left ?? 0) + dialogPaddingLeft;
+    const availableRight = (dialogRect?.right ?? window.innerWidth) - dialogPaddingRight;
+    const availableWidth = Math.max(0, availableRight - availableLeft);
+    const width = Math.min(TOOLTIP_MAX_WIDTH, Math.max(0, availableWidth - 16));
+    const gutter = Math.min(TOOLTIP_VIEWPORT_GUTTER, (availableWidth - width) / 2);
+    const tooltipLeft = Math.max(
+      availableLeft + gutter,
+      Math.min(r.left + r.width / 2 - width / 2, availableRight - width - gutter)
+    );
     return {
       bottom: dialogRect ? dialogRect.bottom - r.top + 8 : window.innerHeight - r.top + 8,
-      left: r.left - (dialogRect?.left ?? 0) + r.width / 2,
+      left: tooltipLeft + width / 2 - (dialogRect?.left ?? 0),
+      width,
     };
   }
 
@@ -68,6 +85,23 @@ export default function InfoTooltip(props: InfoTooltipProps) {
 
     document.addEventListener("click", handler);
     onCleanup(() => document.removeEventListener("click", handler));
+  });
+
+  createEffect(() => {
+    if (!props.open) return;
+
+    const handler = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      event.preventDefault();
+      event.stopPropagation();
+      pointerInside = false;
+      openedByFocus = false;
+      props.onToggle(false);
+    };
+
+    // Close the tooltip before Escape reaches the enclosing mobile dialog.
+    document.addEventListener("keydown", handler, true);
+    onCleanup(() => document.removeEventListener("keydown", handler, true));
   });
 
   function handleFocus() {
@@ -124,6 +158,7 @@ export default function InfoTooltip(props: InfoTooltipProps) {
             style={{
               bottom: `${pos().bottom}px`,
               left: `${pos().left}px`,
+              width: `${pos().width}px`,
             }}
           >
             {props.content}
