@@ -37,6 +37,31 @@ describe("Select", () => {
     expect(document.activeElement).toBe(listbox);
   });
 
+  it("keeps its portaled listbox inside an open modal dialog", async () => {
+    const view = render(() => (
+      <section role="dialog" aria-modal="true">
+        <Select
+          id="modal-format-select"
+          options={[
+            { value: "image/png", label: "PNG" },
+            { value: "image/webp", label: "WebP" },
+          ]}
+          value="image/png"
+          onChange={() => {}}
+        />
+      </section>
+    ));
+
+    const dialog = view.container.querySelector('[role="dialog"]') as HTMLElement;
+    const trigger = view.container.querySelector("#modal-format-select") as HTMLButtonElement;
+    fireEvent.keyDown(trigger, { key: "ArrowDown" });
+    await Promise.resolve();
+
+    const listbox = document.querySelector('[role="listbox"]') as HTMLElement;
+    expect(dialog.contains(listbox)).toBe(true);
+    expect(document.activeElement).toBe(listbox);
+  });
+
   it("closes on escape and returns focus to the trigger", async () => {
     const view = render(() => (
       <Select

@@ -191,6 +191,48 @@ describe("ImageApp", () => {
     expect(mockCreateDownloadLink).toHaveBeenCalledWith(processedBlob, "photo-processed.png");
   });
 
+  it("preserves the width caret while aspect-ratio lock updates height", async () => {
+    const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
+    const processedBlob = new Blob(["processed"], { type: "image/png" });
+
+    mockGetImageMetadata.mockResolvedValue({
+      width: 500,
+      height: 400,
+      format: "image/png",
+      fileSize: sourceFile.size,
+      fileName: sourceFile.name,
+    });
+    mockProcessImage.mockResolvedValue({
+      blob: processedBlob,
+      requestedFormat: "image/png",
+      metadata: { width: 500, height: 400, format: "image/png", fileSize: processedBlob.size },
+    });
+    vi.mocked(URL.createObjectURL)
+      .mockReturnValueOnce("blob:original")
+      .mockReturnValueOnce("blob:processed");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#download-button")).toBeEnabled();
+    });
+
+    const widthInput = view.container.querySelector("#width-input") as HTMLInputElement;
+    const heightInput = view.container.querySelector("#height-input") as HTMLInputElement;
+    widthInput.value = "40";
+    widthInput.setSelectionRange(1, 1);
+    fireEvent.input(widthInput);
+
+    expect(widthInput.value).toBe("40");
+    expect(widthInput.selectionStart).toBe(1);
+    expect(heightInput.value).toBe("32");
+  });
+
   it("does not re-process once a run settles without new input", async () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
     const processedBlob = new Blob(["processed"], { type: "image/png" });
@@ -859,6 +901,16 @@ describe("ImageApp", () => {
       expect(document.activeElement).toBe(sheet);
     });
     expect(document.activeElement).not.toBe(view.container.querySelector("#mobile-width-input"));
+
+    fireEvent.keyDown(sheet, { key: "Tab", shiftKey: true });
+    const sheetFocusable = Array.from(
+      sheet.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), input:not([disabled]):not([type="hidden"]):not([type="file"]), select:not([disabled]), textarea:not([disabled]), a[href], [role="button"][tabindex]:not([tabindex="-1"])'
+      )
+    ).filter(
+      (element) => !element.closest("[inert]") && element.getAttribute("aria-hidden") !== "true"
+    );
+    expect(document.activeElement).toBe(sheetFocusable[sheetFocusable.length - 1]);
 
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
 
