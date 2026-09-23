@@ -227,8 +227,13 @@
 }
 
 /* ===== Mobile Sheet ===== */
+.app-safe-area {
+  padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
+}
+
 .mobile-sheet {
   height: var(--app-sheet-height);
+  padding-inline: env(safe-area-inset-left, 0px) env(safe-area-inset-right, 0px);
   border-top: 1px solid var(--border);
   box-shadow:
     0 -4px 24px rgba(30, 27, 75, 0.1),

@@ -317,7 +317,7 @@ function MobileSheet() {
 export default function ImageApp() {
   return (
     <ImageAppProvider>
-      <div data-app-shell class="h-dvh overflow-hidden flex flex-row bg-background">
+      <div data-app-shell class="app-safe-area h-dvh overflow-hidden flex flex-row bg-background">
         {/* Desktop icon dock */}
         <AppSidebar />
 
