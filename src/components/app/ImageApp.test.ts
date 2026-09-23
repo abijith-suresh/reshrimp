@@ -885,6 +885,9 @@ describe("ImageApp", () => {
 
     mobileBackButton.focus();
     expect(document.activeElement).toBe(mobileBackButton);
+    mobileBackButton.style.display = "none";
+    mobileBackButton.blur();
+    expect(document.activeElement).toBe(document.body);
 
     changeBreakpoint(true);
 
@@ -907,12 +910,70 @@ describe("ImageApp", () => {
 
     mobileUploadButton.focus();
     expect(document.activeElement).toBe(mobileUploadButton);
+    mobileUploadButton.style.display = "none";
+    mobileUploadButton.blur();
+    expect(document.activeElement).toBe(document.body);
 
     changeBreakpoint(true);
 
     await vi.waitFor(() => {
       expect(document.activeElement).toBe(desktopUploadControl);
     });
+  });
+
+  it("closes a desktop Select portal and returns focus to the mobile sheet at the breakpoint", async () => {
+    const changeBreakpoint = mockEditorBreakpoint();
+    const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
+
+    mockGetImageMetadata.mockResolvedValue({
+      width: 1200,
+      height: 800,
+      format: "image/png",
+      fileSize: sourceFile.size,
+      fileName: sourceFile.name,
+    });
+    mockProcessImage.mockResolvedValue({
+      blob: new Blob(["processed"], { type: "image/png" }),
+      requestedFormat: "image/png",
+      metadata: { width: 1200, height: 800, format: "image/png", fileSize: 9 },
+    });
+    vi.mocked(URL.createObjectURL)
+      .mockReturnValueOnce("blob:original")
+      .mockReturnValueOnce("blob:processed");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#mobile-width-input")).toBeEnabled();
+    });
+
+    const desktopUnitSelect = view.container.querySelector("#unit-select") as HTMLButtonElement;
+    triggerDelegatedClick(desktopUnitSelect);
+
+    await vi.waitFor(() => {
+      const listbox = document.querySelector('[role="listbox"]');
+      expect(listbox).not.toBeNull();
+      expect(document.activeElement).toBe(listbox);
+    });
+    const listbox = document.querySelector('[role="listbox"]') as HTMLElement;
+    expect(view.container.querySelector("[data-app-shell]")).not.toContainElement(listbox);
+
+    const desktopPanel = view.container.querySelector(".app-control-panel") as HTMLElement;
+    desktopPanel.style.display = "none";
+    changeBreakpoint(false);
+
+    await vi.waitFor(() => {
+      expect(document.querySelector('[role="listbox"]')).toBeNull();
+      expect(document.activeElement).toBe(
+        view.container.querySelector('button[aria-label="Open controls"]')
+      );
+    });
+    expect(desktopUnitSelect).toHaveAttribute("aria-expanded", "false");
   });
 
   it("keeps peeked mobile settings inert until the sheet is opened", async () => {

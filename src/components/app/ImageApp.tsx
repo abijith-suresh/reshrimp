@@ -40,6 +40,7 @@ function MobileSheet() {
   let sheetHeaderRef: HTMLDivElement | undefined;
   let handleRef: HTMLButtonElement | undefined;
   let disposed = false;
+  let lastFocusedElement: HTMLElement | null = null;
 
   // Auto-transition only when an image is newly-loaded (null → image) or
   // cleared (image → null).  A processing completion replaces the currentImage
@@ -88,6 +89,24 @@ function MobileSheet() {
     });
   }
 
+  function isHidden(element: HTMLElement): boolean {
+    let current: HTMLElement | null = element;
+    while (current) {
+      const styles = window.getComputedStyle(current);
+      if (styles.display === "none" || styles.visibility === "hidden") return true;
+      current = current.parentElement;
+    }
+    return false;
+  }
+
+  function findSelectListbox(element: HTMLElement | null): HTMLElement | null {
+    if (!element) return null;
+    const nestedListbox = element.closest<HTMLElement>('[role="listbox"]');
+    if (nestedListbox) return nestedListbox;
+    const controlledId = element.getAttribute("aria-controls");
+    return controlledId ? document.getElementById(controlledId) : null;
+  }
+
   function handleSheetKeyDown(event: KeyboardEvent) {
     if (event.key === "Escape" && sheetState() === "open") {
       event.preventDefault();
@@ -122,6 +141,17 @@ function MobileSheet() {
   }
 
   onMount(() => {
+    const handleFocusIn = (event: FocusEvent) => {
+      if (event.target instanceof HTMLElement && event.target !== document.body) {
+        lastFocusedElement = event.target;
+      }
+    };
+    const clearFocusedElement = () => {
+      lastFocusedElement = null;
+    };
+    document.addEventListener("focusin", handleFocusIn, true);
+    window.addEventListener("blur", clearFocusedElement);
+
     const handleDocumentKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && sheetState() === "open") {
         event.preventDefault();
@@ -135,10 +165,29 @@ function MobileSheet() {
       typeof window.matchMedia === "function" ? window.matchMedia(EDITOR_BREAKPOINT_QUERY) : null;
     const handleBreakpointChange = (event: MediaQueryListEvent) => {
       const activeElement = document.activeElement;
+      const activeHtmlElement = activeElement instanceof HTMLElement ? activeElement : null;
+      const focusOrigin =
+        activeHtmlElement && activeHtmlElement !== document.body
+          ? activeHtmlElement
+          : lastFocusedElement && isHidden(lastFocusedElement)
+            ? lastFocusedElement
+            : activeHtmlElement;
+      const focusedListbox = findSelectListbox(focusOrigin);
+      const listboxTriggerId = focusedListbox?.getAttribute("aria-labelledby");
+      const listboxTrigger = listboxTriggerId
+        ? document.getElementById(listboxTriggerId)
+        : focusOrigin?.matches('button[aria-haspopup="listbox"]')
+          ? focusOrigin
+          : null;
+      const appShell = document.querySelector<HTMLElement>("[data-app-shell]");
       if (event.matches) {
-        const hadSheetFocus = !!sheetRef?.contains(activeElement);
-        const hadMobileBackFocus = !!activeElement?.closest("[data-mobile-back-button]");
-        const hadMobileUploadFocus = !!activeElement?.closest("[data-mobile-empty-state-upload]");
+        const hadSheetFocus = !!focusOrigin && !!sheetRef?.contains(focusOrigin);
+        const hadMobileBackFocus = !!focusOrigin?.closest("[data-mobile-back-button]");
+        const hadMobileUploadFocus = !!focusOrigin?.closest("[data-mobile-empty-state-upload]");
+        lastFocusedElement = null;
+        focusedListbox?.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true })
+        );
         setSheetState("hidden");
         if (hadSheetFocus) {
           queueMicrotask(() => {
@@ -165,10 +214,23 @@ function MobileSheet() {
           });
         }
       } else if (state.currentImage()) {
-        const hadAppFocus = !!document.querySelector("[data-app-shell]")?.contains(activeElement);
+        const hadAppFocus =
+          (!!focusOrigin && !!appShell?.contains(focusOrigin)) ||
+          (!!listboxTrigger && !!appShell?.contains(listboxTrigger));
+        lastFocusedElement = null;
+        focusedListbox?.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true })
+        );
         setSheetState("peek");
         if (hadAppFocus) queueMicrotask(() => !disposed && handleRef?.focus());
-      } else if (document.querySelector("[data-app-shell]")?.contains(activeElement)) {
+      } else if (
+        (!!focusOrigin && !!appShell?.contains(focusOrigin)) ||
+        (!!listboxTrigger && !!appShell?.contains(listboxTrigger))
+      ) {
+        lastFocusedElement = null;
+        focusedListbox?.dispatchEvent(
+          new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true })
+        );
         queueMicrotask(() => {
           if (disposed) return;
           document.querySelector<HTMLElement>("#sbs-empty-state button:not([disabled])")?.focus();
@@ -192,6 +254,8 @@ function MobileSheet() {
 
     onCleanup(() => {
       document.removeEventListener("keydown", handleDocumentKeyDown);
+      document.removeEventListener("focusin", handleFocusIn, true);
+      window.removeEventListener("blur", clearFocusedElement);
       editorBreakpoint?.removeEventListener("change", handleBreakpointChange);
       resizeObserver?.disconnect();
     });
