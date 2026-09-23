@@ -84,9 +84,15 @@ function mockEditorBreakpoint() {
 
 describe("ImageApp", () => {
   let dispose: (() => void) | undefined;
+  let idleCallbackDescriptor: PropertyDescriptor | undefined;
+  let cancelIdleCallbackDescriptor: PropertyDescriptor | undefined;
+  let connectionDescriptor: PropertyDescriptor | undefined;
 
   beforeEach(() => {
     setupBrowserMocks();
+    idleCallbackDescriptor = Object.getOwnPropertyDescriptor(window, "requestIdleCallback");
+    cancelIdleCallbackDescriptor = Object.getOwnPropertyDescriptor(window, "cancelIdleCallback");
+    connectionDescriptor = Object.getOwnPropertyDescriptor(navigator, "connection");
     mockGetImageMetadata.mockReset();
     mockPrepareImageFile.mockReset();
     mockPrepareImageFile.mockImplementation(async (file) => ({ file, format: file.type }));
@@ -106,6 +112,21 @@ describe("ImageApp", () => {
     dispose?.();
     document.body.innerHTML = "";
     restoreMocks();
+    if (idleCallbackDescriptor) {
+      Object.defineProperty(window, "requestIdleCallback", idleCallbackDescriptor);
+    } else {
+      Reflect.deleteProperty(window, "requestIdleCallback");
+    }
+    if (cancelIdleCallbackDescriptor) {
+      Object.defineProperty(window, "cancelIdleCallback", cancelIdleCallbackDescriptor);
+    } else {
+      Reflect.deleteProperty(window, "cancelIdleCallback");
+    }
+    if (connectionDescriptor) {
+      Object.defineProperty(navigator, "connection", connectionDescriptor);
+    } else {
+      Reflect.deleteProperty(navigator, "connection");
+    }
   });
 
   it("revokes a preview URL when its decode is cancelled", async () => {
@@ -1720,7 +1741,24 @@ describe("ImageApp", () => {
     expect(mockCreateDownloadLink).toHaveBeenCalledWith(processedBlob, "photo-processed.png");
   });
 
-  it("preloads the background-removal model on first toggle instead of on mount", async () => {
+  it("preloads background removal in idle time and only once", async () => {
+    Object.defineProperty(navigator, "connection", {
+      configurable: true,
+      value: { saveData: false, effectiveType: "4g", downlink: 9 },
+    });
+    const idleCallbacks: Array<{ callback: () => void; timeout?: number }> = [];
+    Object.defineProperty(window, "requestIdleCallback", {
+      configurable: true,
+      value: (callback: () => void, options?: { timeout: number }) => {
+        idleCallbacks.push({ callback, timeout: options?.timeout });
+        return idleCallbacks.length;
+      },
+    });
+    Object.defineProperty(window, "cancelIdleCallback", {
+      configurable: true,
+      value: vi.fn(),
+    });
+
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
     const processedBlob = new Blob(["processed"], { type: "image/png" });
 
@@ -1755,21 +1793,103 @@ describe("ImageApp", () => {
       );
     });
 
-    // Uploading and processing must not download the ~100 MB model
+    // The large model stays idle until the browser reaches an idle period.
     expect(mockPreloadBackgroundRemoval).not.toHaveBeenCalled();
+    expect(idleCallbacks).toHaveLength(1);
+    expect(idleCallbacks[0]?.timeout).toBe(2000);
+    idleCallbacks[0]?.callback();
+
+    await vi.waitFor(() => {
+      expect(mockPreloadBackgroundRemoval).toHaveBeenCalledTimes(1);
+    });
 
     const bgCheckbox = view.container.querySelector(
       "#remove-background-checkbox"
     ) as HTMLInputElement;
     fireEvent.click(bgCheckbox);
 
-    await vi.waitFor(() => {
-      expect(mockPreloadBackgroundRemoval).toHaveBeenCalledTimes(1);
-    });
-
-    // Toggling off and on again must not re-request the preload
+    // Toggling off and on again must reuse the idle preload.
     fireEvent.click(bgCheckbox);
     fireEvent.click(bgCheckbox);
     expect(mockPreloadBackgroundRemoval).toHaveBeenCalledTimes(1);
+  });
+
+  it("warms the model when connection status is unavailable", async () => {
+    Object.defineProperty(navigator, "connection", {
+      configurable: true,
+      value: undefined,
+    });
+    const idleCallbacks: Array<() => void> = [];
+    Object.defineProperty(window, "requestIdleCallback", {
+      configurable: true,
+      value: (callback: () => void) => {
+        idleCallbacks.push(callback);
+        return idleCallbacks.length;
+      },
+    });
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    expect(idleCallbacks).toHaveLength(1);
+    expect(mockPreloadBackgroundRemoval).not.toHaveBeenCalled();
+
+    idleCallbacks[0]?.();
+    await vi.waitFor(() => {
+      expect(mockPreloadBackgroundRemoval).toHaveBeenCalledTimes(1);
+    });
+  });
+
+  it("skips automatic model downloads on slow or data-saving connections", () => {
+    Object.defineProperty(window, "requestIdleCallback", {
+      configurable: true,
+      value: undefined,
+    });
+    const setTimeoutSpy = vi.spyOn(window, "setTimeout");
+    const preloadTimeoutCount = () =>
+      setTimeoutSpy.mock.calls.filter(([, delay]) => delay === 2000).length;
+
+    for (const connection of [
+      { saveData: false, effectiveType: "4g", downlink: 3 },
+      { saveData: true, effectiveType: "4g", downlink: 10 },
+    ]) {
+      Object.defineProperty(navigator, "connection", {
+        configurable: true,
+        value: connection,
+      });
+      const previousTimeoutCount = preloadTimeoutCount();
+
+      const view = render(() => ImageApp());
+      dispose = view.unmount;
+
+      expect(preloadTimeoutCount()).toBe(previousTimeoutCount);
+      expect(mockPreloadBackgroundRemoval).not.toHaveBeenCalled();
+      view.unmount();
+    }
+  });
+
+  it("falls back to a delay when idle callbacks are unavailable", async () => {
+    Object.defineProperty(navigator, "connection", {
+      configurable: true,
+      value: { saveData: false, effectiveType: "4g", downlink: 9 },
+    });
+    Object.defineProperty(window, "requestIdleCallback", {
+      configurable: true,
+      value: undefined,
+    });
+    const setTimeoutSpy = vi.spyOn(window, "setTimeout");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const preloadTimeout = setTimeoutSpy.mock.calls.find(([, delay]) => delay === 2000);
+    expect(preloadTimeout).toBeDefined();
+    expect(mockPreloadBackgroundRemoval).not.toHaveBeenCalled();
+    const callback = preloadTimeout?.[0];
+    if (typeof callback === "function") callback();
+    await vi.waitFor(() => {
+      expect(mockPreloadBackgroundRemoval).toHaveBeenCalledTimes(1);
+    });
+    setTimeoutSpy.mockRestore();
   });
 });

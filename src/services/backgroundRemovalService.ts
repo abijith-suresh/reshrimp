@@ -6,6 +6,40 @@ import type { BackgroundRemovalProgressCallback } from "../types/processing";
 
 let backgroundRemovalModulePromise: Promise<typeof import("@imgly/background-removal")> | undefined;
 
+type BackgroundRemovalConfig = {
+  model: typeof BACKGROUND_REMOVAL_MODEL;
+  publicPath: string;
+  device: "cpu";
+  fetchArgs?: RequestInit;
+  progress?: (key: string, current: number, total: number) => void;
+};
+
+let initializationRetryAttempt = 0;
+
+function getBackgroundRemovalConfig(): BackgroundRemovalConfig {
+  return {
+    model: BACKGROUND_REMOVAL_MODEL,
+    publicPath: getBackgroundRemovalPublicPath(window.location.origin),
+    // Pinned so the WebGPU onnxruntime stays unreachable — the build excludes
+    // its ~24 MB jsep wasm, and the self-hosted mirror carries CPU assets only.
+    device: "cpu",
+    ...(initializationRetryAttempt > 0
+      ? {
+          // The library memoizes initialization by the serialized config and
+          // retains rejected promises. A unique same-origin header gives a
+          // later attempt a fresh cache key without changing model behavior.
+          fetchArgs: {
+            headers: { "X-Reshrimp-Initialization-Attempt": String(initializationRetryAttempt) },
+          },
+        }
+      : {}),
+  };
+}
+
+function advanceInitializationRetry(): void {
+  initializationRetryAttempt += 1;
+}
+
 function loadBackgroundRemovalModule() {
   backgroundRemovalModulePromise ??= import("@imgly/background-removal").catch((err: unknown) => {
     // A rejected import must not stay cached — a single transient failure
@@ -17,14 +51,17 @@ function loadBackgroundRemovalModule() {
 }
 
 /**
- * Preloads the WASM runtime and ML model in the background.
- * Call this when the user first enables background removal, never on app
- * mount — the model assets are large (~100 MB) and most visits never use it.
+ * Preloads the WASM runtime and ML model in the background. Call from an idle
+ * callback after the app has rendered so it never delays the initial bundle.
  */
 export async function preloadBackgroundRemoval(): Promise<void> {
-  const publicPath = getBackgroundRemovalPublicPath(window.location.origin);
   const { preload } = await loadBackgroundRemovalModule();
-  await preload({ publicPath });
+  try {
+    await preload(getBackgroundRemovalConfig());
+  } catch (error) {
+    advanceInitializationRetry();
+    throw error;
+  }
 }
 
 /**
@@ -39,12 +76,7 @@ export async function removeBackground(
   imageFile: File,
   onProgress?: BackgroundRemovalProgressCallback
 ): Promise<Blob> {
-  const config: {
-    progress?: (key: string, current: number, total: number) => void;
-    model?: "isnet" | "isnet_fp16" | "isnet_quint8";
-    publicPath?: string;
-    device?: "cpu" | "gpu";
-  } = {};
+  const config = getBackgroundRemovalConfig();
 
   if (onProgress) {
     config.progress = (_key: string, current: number, total: number) => {
@@ -54,15 +86,16 @@ export async function removeBackground(
     };
   }
 
-  config.model = BACKGROUND_REMOVAL_MODEL;
-  config.publicPath = getBackgroundRemovalPublicPath(window.location.origin);
-  // Pinned so the WebGPU onnxruntime stays unreachable — the build excludes
-  // its ~24 MB jsep wasm (see excludeOnnxruntimeWebGpu in astro.config.ts),
-  // and the self-hosted mirror only carries the CPU runtime assets.
-  config.device = "cpu";
+  const { preload, removeBackground: imglyRemoveBackground } = await loadBackgroundRemovalModule();
+  try {
+    // Separate runtime/model initialization from per-image inference. A bad
+    // image or canvas failure must not invalidate the library's shared model
+    // session and force another large model initialization on the next run.
+    await preload(config);
+  } catch (error) {
+    advanceInitializationRetry();
+    throw error;
+  }
 
-  const { removeBackground: imglyRemoveBackground } = await loadBackgroundRemovalModule();
-  const blob = await imglyRemoveBackground(imageFile, config);
-
-  return blob;
+  return imglyRemoveBackground(imageFile, config);
 }
