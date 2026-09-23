@@ -59,29 +59,35 @@ function createDebouncedTask(fn: () => void, ms: number) {
 type NetworkInformation = {
   saveData?: boolean;
   effectiveType?: string;
+  downlink?: number;
 };
 
 type IdleWindow = Window & {
-  requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
+  requestIdleCallback?: (callback: () => void) => number;
   cancelIdleCallback?: (handle: number) => void;
 };
 
 function scheduleBackgroundRemovalPreload(callback: () => void): () => void {
   const network = (navigator as Navigator & { connection?: NetworkInformation }).connection;
   // The model is about 96 MiB. Only warm it automatically when the browser
-  // confirms a fast connection and the user has not requested data savings.
-  if (!network || network.saveData || network.effectiveType !== "4g") {
+  // reports a fast enough connection and the user has not requested data
+  // savings. Unknown or constrained connections load only after user intent.
+  if (
+    !network ||
+    network.saveData ||
+    network.effectiveType !== "4g" ||
+    (network.downlink ?? 0) < 8
+  ) {
     return () => {};
   }
 
   const idleWindow = window as IdleWindow;
-  if (idleWindow.requestIdleCallback) {
-    const handle = idleWindow.requestIdleCallback(callback, { timeout: 5000 });
-    return () => idleWindow.cancelIdleCallback?.(handle);
+  if (!idleWindow.requestIdleCallback) {
+    return () => {};
   }
 
-  const handle = window.setTimeout(callback, 1500);
-  return () => window.clearTimeout(handle);
+  const handle = idleWindow.requestIdleCallback(callback);
+  return () => idleWindow.cancelIdleCallback?.(handle);
 }
 
 const ImageAppContext = createContext<ImageAppContextValue>();

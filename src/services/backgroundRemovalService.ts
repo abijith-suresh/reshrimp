@@ -86,11 +86,16 @@ export async function removeBackground(
     };
   }
 
-  const { removeBackground: imglyRemoveBackground } = await loadBackgroundRemovalModule();
+  const { preload, removeBackground: imglyRemoveBackground } = await loadBackgroundRemovalModule();
   try {
-    return await imglyRemoveBackground(imageFile, config);
+    // Separate runtime/model initialization from per-image inference. A bad
+    // image or canvas failure must not invalidate the library's shared model
+    // session and force another large model initialization on the next run.
+    await preload(config);
   } catch (error) {
     advanceInitializationRetry();
     throw error;
   }
+
+  return imglyRemoveBackground(imageFile, config);
 }

@@ -58,6 +58,19 @@ describe("removeBackground", () => {
     });
   });
 
+  it("does not replace the initialized model key after an image processing failure", async () => {
+    const file = new File([], "photo.jpg", { type: "image/jpeg" });
+    mockImglyRemoveBackground.mockRejectedValueOnce(new Error("invalid image"));
+
+    await expect(removeBackground(file)).rejects.toThrow("invalid image");
+    await removeBackground(file);
+
+    const firstConfig = mockImglyPreload.mock.calls[0]?.[0];
+    const secondConfig = mockImglyPreload.mock.calls[1]?.[0];
+    expect(secondConfig).toEqual(firstConfig);
+    expect(mockImglyPreload).toHaveBeenCalledTimes(2);
+  });
+
   it("forwards the shared model and public path configuration", async () => {
     const file = new File([], "photo.jpg", { type: "image/jpeg" });
 

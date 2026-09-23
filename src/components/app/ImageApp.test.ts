@@ -1744,7 +1744,7 @@ describe("ImageApp", () => {
   it("preloads background removal in idle time and only once", async () => {
     Object.defineProperty(navigator, "connection", {
       configurable: true,
-      value: { saveData: false, effectiveType: "4g" },
+      value: { saveData: false, effectiveType: "4g", downlink: 9 },
     });
     const idleCallbacks: Array<() => void> = [];
     Object.defineProperty(window, "requestIdleCallback", {
@@ -1829,5 +1829,48 @@ describe("ImageApp", () => {
 
     expect(idleCallback).not.toHaveBeenCalled();
     expect(mockPreloadBackgroundRemoval).not.toHaveBeenCalled();
+  });
+
+  it("skips automatic model downloads on slow or data-saving connections", () => {
+    const idleCallback = vi.fn();
+    Object.defineProperty(window, "requestIdleCallback", {
+      configurable: true,
+      value: idleCallback,
+    });
+
+    for (const connection of [
+      { saveData: false, effectiveType: "4g", downlink: 3 },
+      { saveData: true, effectiveType: "4g", downlink: 10 },
+    ]) {
+      Object.defineProperty(navigator, "connection", {
+        configurable: true,
+        value: connection,
+      });
+
+      const view = render(() => ImageApp());
+      dispose = view.unmount;
+      expect(idleCallback).not.toHaveBeenCalled();
+      expect(mockPreloadBackgroundRemoval).not.toHaveBeenCalled();
+      view.unmount();
+    }
+  });
+
+  it("does not auto-preload when idle callbacks are unavailable", () => {
+    Object.defineProperty(navigator, "connection", {
+      configurable: true,
+      value: { saveData: false, effectiveType: "4g", downlink: 9 },
+    });
+    Object.defineProperty(window, "requestIdleCallback", {
+      configurable: true,
+      value: undefined,
+    });
+    const setTimeoutSpy = vi.spyOn(window, "setTimeout");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    expect(mockPreloadBackgroundRemoval).not.toHaveBeenCalled();
+    expect(setTimeoutSpy).not.toHaveBeenCalled();
+    setTimeoutSpy.mockRestore();
   });
 });
