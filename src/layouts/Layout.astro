@@ -35,6 +35,9 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <link rel="preload" href={displayFontUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={bodyFontUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={bodySemiboldFontUrl} as="font" type="font/woff2" crossorigin />
     <meta
       name="viewport"
       content={
@@ -43,9 +46,6 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
           : "width=device-width, initial-scale=1"
       }
     />
-    <link rel="preload" href={displayFontUrl} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={bodyFontUrl} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={bodySemiboldFontUrl} as="font" type="font/woff2" crossorigin />
     <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
     <meta name="generator" content={Astro.generator} />
 
