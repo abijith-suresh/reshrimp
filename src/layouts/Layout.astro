@@ -2,12 +2,16 @@
 import { ClientRouter } from "astro:transitions";
 import { SITE_NAME, SITE_DESCRIPTION } from "../config/constants";
 import "../styles/global.css";
+import displayFontUrl from "../assets/fonts/BricolageGrotesque-Bold.woff2?url";
+import bodyFontUrl from "../assets/fonts/PlusJakartaSans-Regular.woff2?url";
+import bodySemiboldFontUrl from "../assets/fonts/PlusJakartaSans-SemiBold.woff2?url";
 
 interface Props {
   title: string;
   description?: string;
   ogImagePath?: string;
   viewportFitCover?: boolean;
+  preloadDisplayFont?: boolean;
 }
 
 const {
@@ -15,6 +19,7 @@ const {
   description = SITE_DESCRIPTION,
   ogImagePath,
   viewportFitCover = false,
+  preloadDisplayFont = true,
 } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
@@ -48,6 +53,12 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
     <meta name="theme-color" content="#f8f7ff" />
+
+    {preloadDisplayFont && (
+      <link rel="preload" href={displayFontUrl} as="font" type="font/woff2" crossorigin />
+    )}
+    <link rel="preload" href={bodyFontUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={bodySemiboldFontUrl} as="font" type="font/woff2" crossorigin />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
@@ -102,9 +113,17 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
     const els = document.querySelectorAll<HTMLElement>("[data-reveal]");
     if (!els.length) return;
 
-    // Use the same viewport reveal on first loads and SPA navigation. This
-    // keeps content visible on arrival while preserving the page's first-view
-    // rhythm below the hero.
+    // If a script starts after the browser has painted, don't hide visible
+    // content and then reveal it again. Keep the first viewport settled while
+    // retaining scroll reveals for content farther down the page.
+    const viewportHeight = window.innerHeight;
+    els.forEach((el) => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < viewportHeight && rect.bottom > 0) {
+        el.classList.add("revealed");
+      }
+    });
+
     document.documentElement.classList.add("reveal-ready");
 
     // Apply staggered delays from data-reveal-delay attribute
