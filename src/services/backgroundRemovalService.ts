@@ -10,8 +10,11 @@ type BackgroundRemovalConfig = {
   model: typeof BACKGROUND_REMOVAL_MODEL;
   publicPath: string;
   device: "cpu";
+  fetchArgs?: RequestInit;
   progress?: (key: string, current: number, total: number) => void;
 };
+
+let initializationRetryAttempt = 0;
 
 function getBackgroundRemovalConfig(): BackgroundRemovalConfig {
   return {
@@ -20,7 +23,21 @@ function getBackgroundRemovalConfig(): BackgroundRemovalConfig {
     // Pinned so the WebGPU onnxruntime stays unreachable — the build excludes
     // its ~24 MB jsep wasm, and the self-hosted mirror carries CPU assets only.
     device: "cpu",
+    ...(initializationRetryAttempt > 0
+      ? {
+          // The library memoizes initialization by the serialized config and
+          // retains rejected promises. A unique same-origin header gives a
+          // later attempt a fresh cache key without changing model behavior.
+          fetchArgs: {
+            headers: { "X-Reshrimp-Initialization-Attempt": String(initializationRetryAttempt) },
+          },
+        }
+      : {}),
   };
+}
+
+function advanceInitializationRetry(): void {
+  initializationRetryAttempt += 1;
 }
 
 function loadBackgroundRemovalModule() {
@@ -39,7 +56,12 @@ function loadBackgroundRemovalModule() {
  */
 export async function preloadBackgroundRemoval(): Promise<void> {
   const { preload } = await loadBackgroundRemovalModule();
-  await preload(getBackgroundRemovalConfig());
+  try {
+    await preload(getBackgroundRemovalConfig());
+  } catch (error) {
+    advanceInitializationRetry();
+    throw error;
+  }
 }
 
 /**
@@ -65,7 +87,10 @@ export async function removeBackground(
   }
 
   const { removeBackground: imglyRemoveBackground } = await loadBackgroundRemovalModule();
-  const blob = await imglyRemoveBackground(imageFile, config);
-
-  return blob;
+  try {
+    return await imglyRemoveBackground(imageFile, config);
+  } catch (error) {
+    advanceInitializationRetry();
+    throw error;
+  }
 }

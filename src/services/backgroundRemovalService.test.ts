@@ -40,6 +40,24 @@ describe("removeBackground", () => {
     });
   });
 
+  it("uses a fresh initialization key after a failed preload", async () => {
+    mockImglyPreload.mockRejectedValueOnce(new Error("temporary asset failure"));
+
+    await expect(preloadBackgroundRemoval()).rejects.toThrow("temporary asset failure");
+
+    const file = new File([], "photo.jpg", { type: "image/jpeg" });
+    await removeBackground(file);
+
+    const preloadConfig = mockImglyPreload.mock.calls[0]?.[0] as Record<string, unknown>;
+    const retryConfig = mockImglyRemoveBackground.mock.calls[0]?.[1] as {
+      fetchArgs?: RequestInit;
+    };
+    expect(preloadConfig).not.toHaveProperty("fetchArgs");
+    expect(retryConfig.fetchArgs?.headers).toEqual({
+      "X-Reshrimp-Initialization-Attempt": expect.any(String),
+    });
+  });
+
   it("forwards the shared model and public path configuration", async () => {
     const file = new File([], "photo.jpg", { type: "image/jpeg" });
 

@@ -86,11 +86,13 @@ describe("ImageApp", () => {
   let dispose: (() => void) | undefined;
   let idleCallbackDescriptor: PropertyDescriptor | undefined;
   let cancelIdleCallbackDescriptor: PropertyDescriptor | undefined;
+  let connectionDescriptor: PropertyDescriptor | undefined;
 
   beforeEach(() => {
     setupBrowserMocks();
     idleCallbackDescriptor = Object.getOwnPropertyDescriptor(window, "requestIdleCallback");
     cancelIdleCallbackDescriptor = Object.getOwnPropertyDescriptor(window, "cancelIdleCallback");
+    connectionDescriptor = Object.getOwnPropertyDescriptor(navigator, "connection");
     mockGetImageMetadata.mockReset();
     mockPrepareImageFile.mockReset();
     mockPrepareImageFile.mockImplementation(async (file) => ({ file, format: file.type }));
@@ -119,6 +121,11 @@ describe("ImageApp", () => {
       Object.defineProperty(window, "cancelIdleCallback", cancelIdleCallbackDescriptor);
     } else {
       Reflect.deleteProperty(window, "cancelIdleCallback");
+    }
+    if (connectionDescriptor) {
+      Object.defineProperty(navigator, "connection", connectionDescriptor);
+    } else {
+      Reflect.deleteProperty(navigator, "connection");
     }
   });
 
@@ -1735,6 +1742,10 @@ describe("ImageApp", () => {
   });
 
   it("preloads background removal in idle time and only once", async () => {
+    Object.defineProperty(navigator, "connection", {
+      configurable: true,
+      value: { saveData: false, effectiveType: "4g" },
+    });
     const idleCallbacks: Array<() => void> = [];
     Object.defineProperty(window, "requestIdleCallback", {
       configurable: true,
@@ -1800,5 +1811,23 @@ describe("ImageApp", () => {
     fireEvent.click(bgCheckbox);
     fireEvent.click(bgCheckbox);
     expect(mockPreloadBackgroundRemoval).toHaveBeenCalledTimes(1);
+  });
+
+  it("skips automatic model downloads when connection status is unavailable", () => {
+    Object.defineProperty(navigator, "connection", {
+      configurable: true,
+      value: undefined,
+    });
+    const idleCallback = vi.fn();
+    Object.defineProperty(window, "requestIdleCallback", {
+      configurable: true,
+      value: idleCallback,
+    });
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    expect(idleCallback).not.toHaveBeenCalled();
+    expect(mockPreloadBackgroundRemoval).not.toHaveBeenCalled();
   });
 });

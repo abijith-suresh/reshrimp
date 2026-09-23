@@ -68,11 +68,9 @@ type IdleWindow = Window & {
 
 function scheduleBackgroundRemovalPreload(callback: () => void): () => void {
   const network = (navigator as Navigator & { connection?: NetworkInformation }).connection;
-  if (
-    network?.saveData ||
-    network?.effectiveType === "slow-2g" ||
-    network?.effectiveType === "2g"
-  ) {
+  // The model is about 96 MiB. Only warm it automatically when the browser
+  // confirms a fast connection and the user has not requested data savings.
+  if (!network || network.saveData || network.effectiveType !== "4g") {
     return () => {};
   }
 
@@ -158,7 +156,8 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     cancelScheduledPreload?.();
     cancelScheduledPreload = undefined;
     void preloadBackgroundRemoval().catch(() => {
-      // Non-fatal: the removeBackground call loads the module on use.
+      // The processing path can retry with a fresh library initialization key.
+      preloadRequested = false;
     });
   }
 
