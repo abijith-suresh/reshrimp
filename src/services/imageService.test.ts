@@ -54,6 +54,7 @@ beforeEach(() => {
   mockResizeOnCanvas.mockReturnValue(mockCanvas);
   mockCanvasToBlob.mockResolvedValue(new Blob([], { type: "image/png" }));
   mockGetBestFormat.mockImplementation((f: string) => f);
+  mockRemoveBackground.mockResolvedValue(new Blob([], { type: "image/png" }));
   mockDecodeHeicBlob.mockResolvedValue(new Blob([], { type: "image/png" }));
   mockIsHeicBlob.mockResolvedValue(false);
 });
@@ -203,6 +204,33 @@ describe("processImage", () => {
     await processImage(file, opts, onProgress);
 
     expect(mockRemoveBackground).toHaveBeenCalledWith(file, onProgress);
+  });
+
+  it("reuses the background-removed source when output controls change", async () => {
+    const file = new File([], "test.jpg", { type: "image/jpeg" });
+
+    await processImage(file, { removeBackground: true });
+    await processImage(file, {
+      removeBackground: true,
+      resize: { width: 400, maintainAspectRatio: true },
+      format: "image/png",
+    });
+
+    expect(mockRemoveBackground).toHaveBeenCalledTimes(1);
+  });
+
+  it("retries background removal after a failed result", async () => {
+    const file = new File([], "test.jpg", { type: "image/jpeg" });
+    mockRemoveBackground.mockRejectedValueOnce(new Error("temporary failure"));
+
+    await expect(processImage(file, { removeBackground: true })).rejects.toThrow(
+      "temporary failure"
+    );
+    await expect(processImage(file, { removeBackground: true })).resolves.toMatchObject({
+      metadata: { format: "image/png" },
+    });
+
+    expect(mockRemoveBackground).toHaveBeenCalledTimes(2);
   });
 
   it("runs background removal against the decoded png for heic uploads", async () => {

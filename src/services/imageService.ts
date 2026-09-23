@@ -15,6 +15,28 @@ import { removeBackground } from "./backgroundRemovalService";
 import { canvasToBlob, getBestFormat, loadImage, resizeOnCanvas } from "./canvasService";
 import { decodeHeicBlob, isHeicBlob } from "./formatDetectionService";
 
+const backgroundRemovalResults = new WeakMap<File, Promise<Blob>>();
+
+async function getBackgroundRemovedBlob(
+  file: File,
+  onProgress?: BackgroundRemovalProgressCallback
+): Promise<Blob> {
+  let result = backgroundRemovalResults.get(file);
+  if (!result) {
+    result = removeBackground(file, onProgress);
+    backgroundRemovalResults.set(file, result);
+  }
+
+  try {
+    return await result;
+  } catch (error) {
+    if (backgroundRemovalResults.get(file) === result) {
+      backgroundRemovalResults.delete(file);
+    }
+    throw error;
+  }
+}
+
 /**
  * Calculate dimensions maintaining aspect ratio
  */
@@ -149,7 +171,10 @@ export async function processImage(
 
   // Step 2: Remove background if requested
   if (options.removeBackground) {
-    const transparentBlob = await removeBackground(currentFile, onBackgroundRemovalProgress);
+    const transparentBlob = await getBackgroundRemovedBlob(
+      currentFile,
+      onBackgroundRemovalProgress
+    );
     currentFile = new File([transparentBlob], currentFile.name, { type: "image/png" });
   }
 
