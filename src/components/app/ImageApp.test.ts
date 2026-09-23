@@ -738,7 +738,69 @@ describe("ImageApp", () => {
 
     await vi.waitFor(() => {
       expect(view.container.querySelector("#quality-slider")).toBeDisabled();
+      expect(view.container.querySelector("#target-file-size")).toBeDisabled();
       expect(view.container).not.toHaveTextContent("Fixed");
+    });
+  });
+
+  it("targets output size for JPEG and disables manual quality while searching", async () => {
+    const sourceFile = new File(["source"], "photo.jpg", { type: "image/jpeg" });
+    const firstBlob = new Blob(["first"], { type: "image/jpeg" });
+    const targetedBlob = new Blob(["targeted"], { type: "image/jpeg" });
+    const metadata = {
+      width: 1200,
+      height: 800,
+      format: "image/jpeg" as const,
+      fileSize: sourceFile.size,
+      fileName: sourceFile.name,
+    };
+
+    mockGetImageMetadata.mockResolvedValue(metadata);
+    mockProcessImage
+      .mockResolvedValueOnce({
+        blob: firstBlob,
+        requestedFormat: "image/jpeg",
+        metadata: { ...metadata, fileSize: firstBlob.size },
+      })
+      .mockResolvedValue({
+        blob: targetedBlob,
+        requestedFormat: "image/jpeg",
+        metadata: {
+          ...metadata,
+          fileSize: targetedBlob.size,
+          targetFileSizeBytes: 500 * 1024,
+          targetFileSizeStatus: "met",
+        },
+      });
+
+    vi.mocked(URL.createObjectURL)
+      .mockReturnValueOnce("blob:original")
+      .mockReturnValueOnce("blob:first")
+      .mockReturnValueOnce("blob:targeted");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(mockProcessImage).toHaveBeenCalledTimes(1);
+    });
+
+    const targetInput = view.container.querySelector("#target-file-size") as HTMLInputElement;
+    expect(targetInput).toHaveAttribute("inputmode", "decimal");
+    expect(targetInput).toHaveClass("text-base");
+    fireEvent.input(targetInput, { target: { value: "500" } });
+
+    await vi.waitFor(() => {
+      expect(mockProcessImage).toHaveBeenCalledTimes(2);
+      expect(mockProcessImage.mock.calls[1]?.[1]).toMatchObject({
+        targetFileSizeBytes: 500 * 1024,
+      });
+      expect(view.container.querySelector("#quality-slider")).toBeDisabled();
+      expect(view.container).toHaveTextContent("Output fits within 500.0 KB.");
     });
   });
 

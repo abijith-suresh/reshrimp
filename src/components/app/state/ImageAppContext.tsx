@@ -24,6 +24,7 @@ import {
   getDimensionValuesForDpiChange,
   getFormatStateForBackgroundRemoval,
   getLinkedDimensionValues,
+  parseTargetFileSizeKilobytes,
   rebaseDimensionValues,
 } from "@/services/imageWorkflowService";
 import {
@@ -141,6 +142,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   const [formatValue, setFormatValue] = createSignal("");
   const [previousFormatValue, setPreviousFormatValue] = createSignal("");
   const [qualityValue, setQualityValue] = createSignal(92);
+  const [targetFileSizeValue, setTargetFileSizeValue] = createSignal("");
 
   // ── Resize unit controls ──────────────────────────────────────────────────
   const [resizeUnit, setResizeUnit] = createSignal<ResizeUnit>("px");
@@ -196,6 +198,16 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     return format !== null && supportsBrowserQualityControl(format);
   });
 
+  const targetFileSizeBytes = createMemo(() => {
+    if (!qualityControlSupported()) return null;
+    return parseTargetFileSizeKilobytes(targetFileSizeValue());
+  });
+
+  const targetFileSizeInputInvalid = createMemo(() => {
+    const value = targetFileSizeValue().trim();
+    return qualityControlSupported() && value !== "" && targetFileSizeBytes() === null;
+  });
+
   const widthPlaceholder = createMemo(() => {
     const img = currentImage();
     if (!img) return "Original";
@@ -235,6 +247,22 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     return `Your browser could not export ${getImageFormatLabel(requestedFormat)}. Downloaded as ${getImageFormatLabel(result.metadata.format)} instead.`;
   });
 
+  const targetFileSizeNotice = createMemo<string | null>(() => {
+    const metadata = processResult()?.metadata;
+    if (!metadata) return null;
+    const targetBytes = metadata.targetFileSizeBytes;
+    const status = metadata.targetFileSizeStatus;
+    if (targetBytes === undefined || status === undefined) return null;
+
+    if (status === "met") {
+      return `Output fits within ${formatFileSize(targetBytes)}.`;
+    }
+    if (status === "unmet") {
+      return `Could not meet ${formatFileSize(targetBytes)}. Smallest result: ${formatFileSize(metadata.fileSize)}.`;
+    }
+    return "This browser could not apply a size target to the output format.";
+  });
+
   // ── Core processing (internal) ────────────────────────────────────────────
   async function handleProcess(): Promise<void> {
     if (disposed) return;
@@ -260,6 +288,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       removeBackground: removeBackground(),
       formatValue: formatValue(),
       qualityValue: qualityValue(),
+      targetFileSizeBytes: targetFileSizeBytes() ?? undefined,
       resizeUnit: resizeUnit(),
       dpi: dpiValue(),
     });
@@ -283,6 +312,8 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
     if (options.removeBackground) {
       setProgressLabel("Removing background\u2026");
+    } else if (options.targetFileSizeBytes !== undefined) {
+      setProgressLabel("Adjusting quality for size target\u2026");
     }
 
     let previewAbortController: AbortController | null = null;
@@ -364,6 +395,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         heightValue,
         formatValue,
         () => (qualityControlSupported() ? qualityValue() : null),
+        () => (qualityControlSupported() ? targetFileSizeValue() : null),
         resizeUnit,
         dpiValue,
         maintainAspectRatio,
@@ -378,6 +410,11 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         pendingPreviewAbort?.abort();
         pendingPreviewAbort = null;
         setProcessResult(null);
+
+        if (targetFileSizeInputInvalid()) {
+          debouncedProcess.cancel();
+          return;
+        }
 
         if (removeBackground()) {
           void handleProcess();
@@ -469,6 +506,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         setFormatValue(getInitialOutputFormat(metadata.format));
         setPreviousFormatValue("");
         setQualityValue(92);
+        setTargetFileSizeValue("");
 
         // Reset unit controls
         setResizeUnit("px");
@@ -643,6 +681,9 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     formatValue,
     previousFormatValue,
     qualityValue,
+    targetFileSizeValue,
+    targetFileSizeBytes,
+    targetFileSizeInputInvalid,
     resizeUnit,
     dpiValue,
     currentOutputFormat,
@@ -654,6 +695,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     heightPlaceholder,
     sizeDifference,
     formatNotice,
+    targetFileSizeNotice,
   };
 
   const actions: AppActions = {
@@ -668,6 +710,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     setIsDragOver,
     setFormatValue,
     setQualityValue,
+    setTargetFileSizeValue,
   };
 
   return (

@@ -5,6 +5,7 @@ import {
   getDimensionValuesForDpiChange,
   getFormatStateForBackgroundRemoval,
   getLinkedDimensionValues,
+  parseTargetFileSizeKilobytes,
   rebaseDimensionValues,
 } from "./imageWorkflowService";
 
@@ -90,6 +91,32 @@ describe("buildProcessOptions", () => {
     });
     expect(options.resize?.width).toBe(16800);
   });
+
+  it("passes a validated file-size target through to processing", () => {
+    const options = buildProcessOptions({
+      ...baseInput,
+      widthValue: "",
+      heightValue: "",
+      targetFileSizeBytes: 512_000,
+    });
+
+    expect(options.targetFileSizeBytes).toBe(512_000);
+  });
+});
+
+describe("parseTargetFileSizeKilobytes", () => {
+  it("converts decimal kilobytes to a safe byte limit", () => {
+    expect(parseTargetFileSizeKilobytes("500")).toBe(512_000);
+    expect(parseTargetFileSizeKilobytes("1.5")).toBe(1536);
+    expect(parseTargetFileSizeKilobytes("1,5")).toBe(1536);
+  });
+
+  it.each(["", "0", "-1", "1 KB", "1.2.3", "1e3", "9007199254740992"])(
+    "rejects invalid target value %s",
+    (value) => {
+      expect(parseTargetFileSizeKilobytes(value)).toBeNull();
+    }
+  );
 });
 
 describe("getFormatStateForBackgroundRemoval", () => {

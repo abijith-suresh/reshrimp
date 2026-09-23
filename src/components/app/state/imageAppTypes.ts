@@ -23,6 +23,9 @@ export interface AppState {
   formatValue: Accessor<string>;
   previousFormatValue: Accessor<string>;
   qualityValue: Accessor<number>;
+  targetFileSizeValue: Accessor<string>;
+  targetFileSizeBytes: Accessor<number | null>;
+  targetFileSizeInputInvalid: Accessor<boolean>;
   resizeUnit: Accessor<ResizeUnit>;
   dpiValue: Accessor<number>;
   currentOutputFormat: Accessor<ImageFormat | null>;
@@ -34,6 +37,7 @@ export interface AppState {
   heightPlaceholder: Accessor<string>;
   sizeDifference: Accessor<SizeDiff | null>;
   formatNotice: Accessor<string | null>;
+  targetFileSizeNotice: Accessor<string | null>;
 }
 
 export interface AppActions {
@@ -48,6 +52,7 @@ export interface AppActions {
   setIsDragOver(v: boolean): void;
   setFormatValue(v: string): void;
   setQualityValue(v: number): void;
+  setTargetFileSizeValue(v: string): void;
 }
 
 export interface ImageAppContextValue {

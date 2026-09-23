@@ -17,8 +17,23 @@ interface BuildProcessOptionsInput {
   removeBackground: boolean;
   formatValue: string;
   qualityValue: number;
+  targetFileSizeBytes?: number;
   resizeUnit: ResizeUnit;
   dpi: number;
+}
+
+export function parseTargetFileSizeKilobytes(value: string): number | null {
+  const normalized = value.trim().replace(",", ".");
+  if (!normalized || !/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(normalized)) {
+    return null;
+  }
+
+  const targetBytes = Math.round(Number(normalized) * 1024);
+  if (!Number.isSafeInteger(targetBytes) || targetBytes < 1) {
+    return null;
+  }
+
+  return targetBytes;
 }
 
 export function formatResizeValue(value: number, unit: ResizeUnit): string {
@@ -95,6 +110,9 @@ export function buildProcessOptions(input: BuildProcessOptionsInput): ProcessOpt
       : {}),
     quality: input.qualityValue / 100,
     removeBackground: input.removeBackground,
+    ...(input.targetFileSizeBytes !== undefined
+      ? { targetFileSizeBytes: input.targetFileSizeBytes }
+      : {}),
   };
 }
 

@@ -23,6 +23,8 @@ export interface ProcessOptions {
   format?: ImageFormat;
   quality?: number; // 0-1 range for compression quality
   removeBackground?: boolean;
+  /** Best-effort output ceiling in bytes for quality-adjustable formats. */
+  targetFileSizeBytes?: number;
 }
 
 /**
@@ -42,5 +44,7 @@ export interface ProcessResult {
     height: number;
     format: ImageFormat;
     fileSize: number;
+    targetFileSizeBytes?: number;
+    targetFileSizeStatus?: "met" | "unmet" | "unsupported";
   };
 }
