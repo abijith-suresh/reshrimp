@@ -67,27 +67,29 @@ type IdleWindow = Window & {
   cancelIdleCallback?: (handle: number) => void;
 };
 
+const PRELOAD_FALLBACK_DELAY_MS = 2000;
+
 function scheduleBackgroundRemovalPreload(callback: () => void): () => void {
   const network = (navigator as Navigator & { connection?: NetworkInformation }).connection;
   // The model is about 96 MiB. Only warm it automatically when the browser
-  // reports a fast enough connection and the user has not requested data
-  // savings. Unknown or constrained connections load only after user intent.
+  // reports a constrained connection and the user has not requested data
+  // savings. Unknown connection capabilities do not suppress the warm-up.
   if (
-    !network ||
-    network.saveData ||
-    network.effectiveType !== "4g" ||
-    (network.downlink ?? 0) < 8
+    network?.saveData ||
+    (network?.effectiveType !== undefined && network.effectiveType !== "4g") ||
+    (network?.downlink !== undefined && network.downlink < 8)
   ) {
     return () => {};
   }
 
   const idleWindow = window as IdleWindow;
-  if (!idleWindow.requestIdleCallback) {
-    return () => {};
+  if (idleWindow.requestIdleCallback) {
+    const handle = idleWindow.requestIdleCallback(callback);
+    return () => idleWindow.cancelIdleCallback?.(handle);
   }
 
-  const handle = idleWindow.requestIdleCallback(callback);
-  return () => idleWindow.cancelIdleCallback?.(handle);
+  const timeout = window.setTimeout(callback, PRELOAD_FALLBACK_DELAY_MS);
+  return () => window.clearTimeout(timeout);
 }
 
 const ImageAppContext = createContext<ImageAppContextValue>();
