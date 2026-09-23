@@ -26,10 +26,16 @@ export default function InfoTooltip(props: InfoTooltipProps) {
     const el = triggerEl();
     if (!el) return { bottom: 0, left: 0 };
     const r = el.getBoundingClientRect();
+    const dialog = el.closest<HTMLElement>('[role="dialog"]');
+    const dialogRect = dialog?.getBoundingClientRect();
     return {
-      bottom: window.innerHeight - r.top + 8,
-      left: r.left + r.width / 2,
+      bottom: dialogRect ? dialogRect.bottom - r.top + 8 : window.innerHeight - r.top + 8,
+      left: r.left - (dialogRect?.left ?? 0) + r.width / 2,
     };
+  }
+
+  function getPortalTarget(): HTMLElement {
+    return triggerEl()?.closest<HTMLElement>('[role="dialog"]') ?? document.body;
   }
 
   createEffect(() => {
@@ -105,11 +111,12 @@ export default function InfoTooltip(props: InfoTooltipProps) {
           if (pointerInside || openedByFocus) return;
           props.onToggle(!props.open);
         }}
+        aria-describedby={props.open && props.id ? `${props.id}-tooltip` : undefined}
       >
         <Info size={14} aria-hidden="true" />
       </button>
       <Show when={props.open}>
-        <Portal>
+        <Portal mount={getPortalTarget()}>
           <span
             id={props.id ? `${props.id}-tooltip` : undefined}
             class="info-tooltip active info-tooltip-portaled text-xs leading-[1.4] text-foreground"
