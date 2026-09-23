@@ -18,20 +18,21 @@ import { decodeHeicBlob, isHeicBlob } from "./formatDetectionService";
 const backgroundRemovalResults = new WeakMap<File, Promise<Blob>>();
 
 async function getBackgroundRemovedBlob(
-  file: File,
+  cacheKeyFile: File,
+  imageFile: File,
   onProgress?: BackgroundRemovalProgressCallback
 ): Promise<Blob> {
-  let result = backgroundRemovalResults.get(file);
+  let result = backgroundRemovalResults.get(cacheKeyFile);
   if (!result) {
-    result = removeBackground(file, onProgress);
-    backgroundRemovalResults.set(file, result);
+    result = removeBackground(imageFile, onProgress);
+    backgroundRemovalResults.set(cacheKeyFile, result);
   }
 
   try {
     return await result;
   } catch (error) {
-    if (backgroundRemovalResults.get(file) === result) {
-      backgroundRemovalResults.delete(file);
+    if (backgroundRemovalResults.get(cacheKeyFile) === result) {
+      backgroundRemovalResults.delete(cacheKeyFile);
     }
     throw error;
   }
@@ -172,6 +173,7 @@ export async function processImage(
   // Step 2: Remove background if requested
   if (options.removeBackground) {
     const transparentBlob = await getBackgroundRemovedBlob(
+      file,
       currentFile,
       onBackgroundRemovalProgress
     );

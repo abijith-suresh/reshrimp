@@ -250,6 +250,23 @@ describe("processImage", () => {
     );
   });
 
+  it("reuses the background-removed result for repeated HEIC edits", async () => {
+    const file = new File(["heic"], "test.heic", { type: "image/heic" });
+    mockDecodeHeicBlob.mockResolvedValue(new Blob(["decoded"], { type: "image/png" }));
+
+    await processImage(file, { removeBackground: true });
+    await processImage(file, {
+      removeBackground: true,
+      resize: { width: 400, maintainAspectRatio: true },
+    });
+
+    expect(mockRemoveBackground).toHaveBeenCalledTimes(1);
+    expect(mockRemoveBackground).toHaveBeenCalledWith(
+      expect.objectContaining({ name: "test.png", type: "image/png" }),
+      undefined
+    );
+  });
+
   it("decodes heic content that ships with an empty mime type", async () => {
     const bytes = new Uint8Array(12);
     for (let i = 0; i < 4; i += 1) {
