@@ -137,6 +137,13 @@
   --space-16: 4rem;
   --space-20: 5rem;
 
+  /* Editor layout tokens are shared by the desktop rail and mobile sheet. */
+  --app-sidebar-width: 3rem;
+  --app-panel-width: clamp(18rem, 24vw, 22rem);
+  --app-preview-gutter: clamp(0.75rem, 1.5vw, 1.5rem);
+  --app-sheet-height: min(80dvh, 42rem);
+  --app-sheet-peek-height: 9.25rem;
+
   --marketing-gutter: clamp(var(--space-4), 4vw, var(--space-8));
   --marketing-wide-width: 72rem;
   --marketing-content-width: 48rem;
@@ -165,6 +172,7 @@
 }
 
 @theme {
+  --breakpoint-editor: 56rem;
   --color-background: oklch(0.9792 0.0106 291.96);
   --color-card: oklch(1 0 0);
   --color-warm: oklch(0.9843 0.0096 72.66);

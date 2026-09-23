@@ -1,3 +1,4 @@
+import { createSignal } from "solid-js";
 import { useImageApp } from "@/components/app/state/ImageAppContext";
 import Field from "@/components/ui/Field";
 import InfoTooltip from "@/components/ui/InfoTooltip";
@@ -16,6 +17,7 @@ interface DpiSelectorProps {
 
 export default function DpiSelector(props: DpiSelectorProps) {
   const { state, actions } = useImageApp();
+  const [tooltipOpen, setTooltipOpen] = createSignal(false);
   const prefix = props.idPrefix ?? "";
 
   return (
@@ -31,8 +33,8 @@ export default function DpiSelector(props: DpiSelectorProps) {
               screen or digital exports, <strong>300</strong> for print-quality output.
             </>
           }
-          open={state.dpiTooltipOpen()}
-          onToggle={actions.setDpiTooltipOpen}
+          open={tooltipOpen()}
+          onToggle={setTooltipOpen}
         />
       }
     >

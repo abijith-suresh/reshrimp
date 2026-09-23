@@ -92,8 +92,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   const [error, setError] = createSignal<string | null>(null);
   const [validation, setValidation] = createSignal<ValidationResult | null>(null);
   const [isDragOver, setIsDragOver] = createSignal(false);
-  const [tooltipOpen, setTooltipOpen] = createSignal(false);
-  const [dpiTooltipOpen, setDpiTooltipOpen] = createSignal(false);
 
   // ── Form controls ─────────────────────────────────────────────────────────
   const [widthValue, setWidthValue] = createSignal("");
@@ -414,12 +412,10 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         setFormatValue(getInitialOutputFormat(metadata.format));
         setPreviousFormatValue("");
         setQualityValue(92);
-        setTooltipOpen(false);
 
         // Reset unit controls
         setResizeUnit("px");
         setDpiValue(DEFAULT_DPI);
-        setDpiTooltipOpen(false);
       });
     } catch (err) {
       if (!disposed && requestId === uploadRequestId) {
@@ -590,8 +586,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     error,
     validation,
     isDragOver,
-    tooltipOpen,
-    dpiTooltipOpen,
     widthValue,
     heightValue,
     maintainAspectRatio,
@@ -622,8 +616,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     handleHeightInput,
     handleAspectRatioChange,
     setIsDragOver,
-    setTooltipOpen,
-    setDpiTooltipOpen,
     setFormatValue,
     setQualityValue,
   };

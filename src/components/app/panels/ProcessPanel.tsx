@@ -34,9 +34,9 @@ export default function ProcessPanel(props: ProcessPanelProps) {
     </div>
   );
 
-  const geometrySection = (
+  const resizeSection = (
     <div class="flex flex-col gap-2 border-b border-border-light px-5 py-3">
-      <SectionHeader>Geometry</SectionHeader>
+      <SectionHeader>Resize</SectionHeader>
       <DimensionInputs idPrefix={props.idPrefix} />
       <div class="flex gap-2">
         <div class="flex-1">
@@ -48,20 +48,25 @@ export default function ProcessPanel(props: ProcessPanelProps) {
           </div>
         </Show>
       </div>
-      <InlineToggles idPrefix={props.idPrefix} />
+      <InlineToggles idPrefix={props.idPrefix} showAspectRatio showBackground={false} />
     </div>
   );
 
-  const formatSection = (
-    <div class="flex flex-col gap-2 border-b border-border-light px-5 py-3">
-      <SectionHeader>Format</SectionHeader>
-      <FormatSelect idPrefix={props.idPrefix} />
-    </div>
-  );
-
-  const qualitySection = (
+  const outputSection = (
     <div class="flex flex-col gap-3 border-b border-border-light px-5 py-3">
+      <SectionHeader>Output</SectionHeader>
+      <div class="flex flex-col gap-1.5">
+        <span class="text-xs font-medium text-muted-foreground">Format</span>
+        <FormatSelect idPrefix={props.idPrefix} />
+      </div>
       <QualitySection idPrefix={props.idPrefix} />
+    </div>
+  );
+
+  const backgroundSection = (
+    <div class="flex flex-col gap-2 border-b border-border-light px-5 py-3">
+      <SectionHeader>Background</SectionHeader>
+      <InlineToggles idPrefix={props.idPrefix} showAspectRatio={false} showBackground />
     </div>
   );
 
@@ -69,23 +74,23 @@ export default function ProcessPanel(props: ProcessPanelProps) {
     <div class="flex flex-col flex-1 overflow-y-auto min-h-0">
       {props.sourceAtBottom ? (
         <>
-          {geometrySection}
-          {formatSection}
-          {qualitySection}
+          {resizeSection}
+          {outputSection}
+          {backgroundSection}
           {sourceSection}
         </>
       ) : (
         <>
           {sourceSection}
-          {geometrySection}
-          {formatSection}
-          {qualitySection}
+          {resizeSection}
+          {outputSection}
+          {backgroundSection}
         </>
       )}
 
       {/* Desktop only — on mobile the Download button lives in the snap-sheet mini header */}
       <Show when={props.showDownload !== false}>
-        <div class="mt-auto px-5 py-4 hidden md:block">
+        <div class="mt-auto px-5 py-4 hidden editor:block">
           <DownloadSection idPrefix={props.idPrefix} />
         </div>
       </Show>

@@ -58,6 +58,30 @@ function triggerDelegatedMouseDown(element: HTMLElement): void {
   delegatedElement.$$mousedown?.(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
 }
 
+function mockEditorBreakpoint() {
+  const listeners = new Set<(event: MediaQueryListEvent) => void>();
+  const mediaQueryList = {
+    matches: false,
+    media: "(min-width: 56rem)",
+    addEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => {
+      listeners.add(listener);
+    },
+    removeEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => {
+      listeners.delete(listener);
+    },
+  } as unknown as MediaQueryList;
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn(() => mediaQueryList)
+  );
+
+  return (matches: boolean) => {
+    for (const listener of listeners) {
+      listener({ matches, media: mediaQueryList.media } as MediaQueryListEvent);
+    }
+  };
+}
+
 describe("ImageApp", () => {
   let dispose: (() => void) | undefined;
 
@@ -178,11 +202,59 @@ describe("ImageApp", () => {
       expect(view.container.querySelector("#download-button")).toBeEnabled();
     });
 
+    const renderedIds = Array.from(
+      view.container.querySelectorAll<HTMLElement>("[id]"),
+      (element) => element.id
+    );
+    expect(new Set(renderedIds).size).toBe(renderedIds.length);
+
     // Download should work
     const downloadBtn = view.container.querySelector("#download-button") as HTMLButtonElement;
     triggerDelegatedClick(downloadBtn);
 
     expect(mockCreateDownloadLink).toHaveBeenCalledWith(processedBlob, "photo-processed.png");
+  });
+
+  it("preserves the width caret while aspect-ratio lock updates height", async () => {
+    const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
+    const processedBlob = new Blob(["processed"], { type: "image/png" });
+
+    mockGetImageMetadata.mockResolvedValue({
+      width: 500,
+      height: 400,
+      format: "image/png",
+      fileSize: sourceFile.size,
+      fileName: sourceFile.name,
+    });
+    mockProcessImage.mockResolvedValue({
+      blob: processedBlob,
+      requestedFormat: "image/png",
+      metadata: { width: 500, height: 400, format: "image/png", fileSize: processedBlob.size },
+    });
+    vi.mocked(URL.createObjectURL)
+      .mockReturnValueOnce("blob:original")
+      .mockReturnValueOnce("blob:processed");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#download-button")).toBeEnabled();
+    });
+
+    const widthInput = view.container.querySelector("#width-input") as HTMLInputElement;
+    const heightInput = view.container.querySelector("#height-input") as HTMLInputElement;
+    widthInput.value = "40";
+    widthInput.setSelectionRange(1, 1);
+    fireEvent.input(widthInput);
+
+    expect(widthInput.value).toBe("40");
+    expect(widthInput.selectionStart).toBe(1);
+    expect(heightInput.value).toBe("32");
   });
 
   it("does not re-process once a run settles without new input", async () => {
@@ -798,6 +870,177 @@ describe("ImageApp", () => {
     expect(new Set(ids).size).toBe(ids.length);
   });
 
+  it("moves focus from the mobile back link to desktop navigation at the editor breakpoint", async () => {
+    const changeBreakpoint = mockEditorBreakpoint();
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const mobileBackButton = view.container.querySelector(
+      "[data-mobile-back-button]"
+    ) as HTMLAnchorElement;
+    const desktopBackButton = view.container.querySelector(
+      '[aria-label="App navigation"] a[aria-label="Back to home"]'
+    ) as HTMLAnchorElement;
+
+    mobileBackButton.focus();
+    expect(document.activeElement).toBe(mobileBackButton);
+    mobileBackButton.style.display = "none";
+    mobileBackButton.blur();
+    expect(document.activeElement).toBe(document.body);
+
+    changeBreakpoint(true);
+
+    await vi.waitFor(() => {
+      expect(document.activeElement).toBe(desktopBackButton);
+    });
+  });
+
+  it("moves focus from the mobile empty-state upload button to desktop upload at the breakpoint", async () => {
+    const changeBreakpoint = mockEditorBreakpoint();
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const mobileUploadButton = view.container.querySelector(
+      "[data-mobile-empty-state-upload]"
+    ) as HTMLButtonElement;
+    const desktopUploadControl = view.container.querySelector(
+      '.app-control-panel [aria-label="Upload image or drag and drop"]'
+    ) as HTMLDivElement;
+
+    mobileUploadButton.focus();
+    expect(document.activeElement).toBe(mobileUploadButton);
+    mobileUploadButton.style.display = "none";
+    mobileUploadButton.blur();
+    expect(document.activeElement).toBe(document.body);
+
+    changeBreakpoint(true);
+
+    await vi.waitFor(() => {
+      expect(document.activeElement).toBe(desktopUploadControl);
+    });
+  });
+
+  it("closes a desktop Select portal and returns focus to the mobile sheet at the breakpoint", async () => {
+    const changeBreakpoint = mockEditorBreakpoint();
+    const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
+
+    mockGetImageMetadata.mockResolvedValue({
+      width: 1200,
+      height: 800,
+      format: "image/png",
+      fileSize: sourceFile.size,
+      fileName: sourceFile.name,
+    });
+    mockProcessImage.mockResolvedValue({
+      blob: new Blob(["processed"], { type: "image/png" }),
+      requestedFormat: "image/png",
+      metadata: { width: 1200, height: 800, format: "image/png", fileSize: 9 },
+    });
+    vi.mocked(URL.createObjectURL)
+      .mockReturnValueOnce("blob:original")
+      .mockReturnValueOnce("blob:processed");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#mobile-width-input")).toBeEnabled();
+    });
+
+    const desktopUnitSelect = view.container.querySelector("#unit-select") as HTMLButtonElement;
+    triggerDelegatedClick(desktopUnitSelect);
+
+    await vi.waitFor(() => {
+      const listbox = document.querySelector('[role="listbox"]');
+      expect(listbox).not.toBeNull();
+      expect(document.activeElement).toBe(listbox);
+    });
+    const listbox = document.querySelector('[role="listbox"]') as HTMLElement;
+    expect(view.container.querySelector("[data-app-shell]")).not.toContainElement(listbox);
+
+    const desktopPanel = view.container.querySelector(".app-control-panel") as HTMLElement;
+    desktopPanel.style.display = "none";
+    changeBreakpoint(false);
+
+    await vi.waitFor(() => {
+      expect(document.querySelector('[role="listbox"]')).toBeNull();
+      expect(document.activeElement).toBe(
+        view.container.querySelector('button[aria-label="Open controls"]')
+      );
+    });
+    expect(desktopUnitSelect).toHaveAttribute("aria-expanded", "false");
+  });
+
+  it("lets Escape close a mobile Select before collapsing its sheet", async () => {
+    const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
+
+    mockGetImageMetadata.mockResolvedValue({
+      width: 1200,
+      height: 800,
+      format: "image/png",
+      fileSize: sourceFile.size,
+      fileName: sourceFile.name,
+    });
+    mockProcessImage.mockResolvedValue({
+      blob: new Blob(["processed"], { type: "image/png" }),
+      requestedFormat: "image/png",
+      metadata: { width: 1200, height: 800, format: "image/png", fileSize: 9 },
+    });
+    vi.mocked(URL.createObjectURL)
+      .mockReturnValueOnce("blob:original")
+      .mockReturnValueOnce("blob:processed");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#mobile-width-input")).toBeEnabled();
+    });
+
+    const sheet = view.container.querySelector('[aria-label="Image controls"]') as HTMLElement;
+    const openButton = sheet.querySelector(
+      'button[aria-label="Open controls"]'
+    ) as HTMLButtonElement;
+    triggerDelegatedClick(openButton);
+    await vi.waitFor(() => expect(sheet).toHaveAttribute("role", "dialog"));
+
+    const mobileUnitSelect = view.container.querySelector(
+      "#mobile-unit-select"
+    ) as HTMLButtonElement;
+    triggerDelegatedClick(mobileUnitSelect);
+
+    await vi.waitFor(() => {
+      const listbox = document.querySelector('[role="listbox"]');
+      expect(listbox).not.toBeNull();
+      expect(document.activeElement).toBe(listbox);
+    });
+    const listbox = document.querySelector('[role="listbox"]');
+    if (!listbox) throw new Error("Expected the mobile Unit listbox to open");
+
+    fireEvent.keyDown(listbox, { key: "Escape" });
+
+    await vi.waitFor(() => {
+      expect(document.querySelector('[role="listbox"]')).toBeNull();
+      expect(sheet).toHaveAttribute("role", "dialog");
+      expect(sheet).toHaveAttribute("aria-modal", "true");
+    });
+
+    fireEvent.keyDown(mobileUnitSelect, { key: "Escape" });
+    await vi.waitFor(() => {
+      expect(sheet).toHaveAttribute("role", "region");
+      expect(sheet).not.toHaveAttribute("aria-modal");
+    });
+  });
+
   it("keeps peeked mobile settings inert until the sheet is opened", async () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
 
@@ -843,6 +1086,37 @@ describe("ImageApp", () => {
     const openButton = sheet.querySelector(
       'button[aria-label="Open controls"]'
     ) as HTMLButtonElement;
+    triggerDelegatedClick(openButton);
+
+    expect(sheet).toHaveAttribute("role", "dialog");
+    expect(sheet).toHaveAttribute("aria-modal", "true");
+    expect(openButton).toHaveAttribute("aria-expanded", "true");
+    expect(view.container.querySelector("[data-app-shell]")).toHaveAttribute("inert", "");
+    await vi.waitFor(() => {
+      expect(document.activeElement).toBe(sheet);
+    });
+    expect(document.activeElement).not.toBe(view.container.querySelector("#mobile-width-input"));
+
+    fireEvent.keyDown(sheet, { key: "Tab", shiftKey: true });
+    const sheetFocusable = Array.from(
+      sheet.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), input:not([disabled]):not([type="hidden"]):not([type="file"]), select:not([disabled]), textarea:not([disabled]), a[href], [role="button"][tabindex]:not([tabindex="-1"])'
+      )
+    ).filter(
+      (element) => !element.closest("[inert]") && element.getAttribute("aria-hidden") !== "true"
+    );
+    expect(document.activeElement).toBe(sheetFocusable[sheetFocusable.length - 1]);
+
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+
+    await vi.waitFor(() => {
+      expect(sheet).toHaveAttribute("role", "region");
+      expect(sheet).not.toHaveAttribute("aria-modal");
+      expect(openButton).toHaveAttribute("aria-expanded", "false");
+      expect(view.container.querySelector("[data-app-shell]")).not.toHaveAttribute("inert");
+      expect(document.activeElement).toBe(openButton);
+    });
+
     triggerDelegatedClick(openButton);
 
     expect(settings).toHaveAttribute("aria-hidden", "false");

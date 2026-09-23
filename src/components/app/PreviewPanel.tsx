@@ -57,7 +57,7 @@ export default function PreviewPanel() {
 
           return (
             <div class="flex-1 flex flex-col min-h-0">
-              <div class="flex-1 relative min-h-0 m-3 mb-0">
+              <div class="app-preview-media">
                 <div class="absolute inset-0 preview-frame">
                   <img
                     id="preview-image"
@@ -71,8 +71,9 @@ export default function PreviewPanel() {
               </div>
 
               {/* Info strip — desktop only; on mobile it lives in the snap-sheet mini header */}
-              <div class="shrink-0 px-4 py-3 hidden md:block">
+              <div class="app-preview-info hidden editor:block">
                 <ImageInfoBar
+                  idPrefix="desktop-"
                   fileName={img().metadata.fileName}
                   width={displayWidth()}
                   height={displayHeight()}

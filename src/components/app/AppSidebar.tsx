@@ -5,7 +5,7 @@ import { makeHref } from "@/lib/utils";
 export default function AppSidebar() {
   return (
     <nav
-      class="hidden md:flex flex-col items-center w-12 bg-card border-r border-border py-4 gap-1 shrink-0"
+      class="hidden editor:flex app-sidebar flex-col items-center bg-card border-r border-border py-4 gap-1 shrink-0"
       aria-label="App navigation"
     >
       <a

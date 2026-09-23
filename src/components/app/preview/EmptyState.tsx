@@ -24,7 +24,7 @@ export default function EmptyState(props: EmptyStateProps) {
 
       <Show when={props.validationError}>
         {(message) => (
-          <p class="mt-3 text-sm text-coral-500 md:hidden" role="status">
+          <p class="mt-3 text-sm text-coral-500 editor:hidden" role="status">
             {message()}
           </p>
         )}
@@ -32,7 +32,7 @@ export default function EmptyState(props: EmptyStateProps) {
 
       <Show when={props.validationWarning}>
         {(message) => (
-          <p class="mt-3 text-sm text-yellow-600 md:hidden" role="status">
+          <p class="mt-3 text-sm text-yellow-600 editor:hidden" role="status">
             {message()}
           </p>
         )}
@@ -41,8 +41,9 @@ export default function EmptyState(props: EmptyStateProps) {
       <Show when={props.onUploadClick}>
         {/* Mobile-only upload CTA — on desktop the sidebar UploadArea is always visible */}
         <button
+          data-mobile-empty-state-upload
           type="button"
-          class="mt-6 md:hidden inline-flex items-center gap-2 px-5 py-2.5 bg-coral-500 text-white text-sm font-semibold rounded-full shadow-[0_4px_14px_rgba(242,90,90,0.3)] hover:bg-coral-600 active:scale-95 transition-[background-color,transform] duration-200 focus-visible:ring-2 focus-visible:ring-lavender-500 focus-visible:ring-offset-2"
+          class="mt-6 editor:hidden inline-flex items-center gap-2 px-5 py-2.5 bg-coral-500 text-white text-sm font-semibold rounded-full shadow-[0_4px_14px_rgba(242,90,90,0.3)] hover:bg-coral-600 active:scale-95 transition-[background-color,transform] duration-200 focus-visible:ring-2 focus-visible:ring-lavender-500 focus-visible:ring-offset-2"
           onClick={() => props.onUploadClick?.()}
         >
           <Upload class="w-4 h-4" aria-hidden="true" />

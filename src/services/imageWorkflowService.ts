@@ -34,6 +34,16 @@ export function formatResizeValue(value: number, unit: ResizeUnit): string {
   return String(rounded);
 }
 
+function parseDimensionInput(value: string): number | undefined {
+  const trimmedValue = value.trim();
+  if (!trimmedValue) return undefined;
+
+  // Decimal keyboards may provide a comma depending on the device locale.
+  // Number() validates the entire entry, unlike parseFloat() which accepts a
+  // valid numeric prefix and silently ignores trailing text.
+  return Number(trimmedValue.replace(",", "."));
+}
+
 function rebaseDimensionValue(input: {
   value: string;
   oldUnit: ResizeUnit;
@@ -45,8 +55,8 @@ function rebaseDimensionValue(input: {
     return "";
   }
 
-  const numericValue = parseFloat(input.value);
-  if (Number.isNaN(numericValue)) {
+  const numericValue = parseDimensionInput(input.value);
+  if (numericValue === undefined || !Number.isFinite(numericValue)) {
     return "";
   }
 
@@ -56,14 +66,16 @@ function rebaseDimensionValue(input: {
 }
 
 export function buildProcessOptions(input: BuildProcessOptionsInput): ProcessOptions {
-  const widthNumber = input.widthValue ? parseFloat(input.widthValue) : NaN;
-  const heightNumber = input.heightValue ? parseFloat(input.heightValue) : NaN;
-  const width = Number.isNaN(widthNumber)
-    ? undefined
-    : convertToPx(widthNumber, input.resizeUnit, input.originalWidth, input.dpi);
-  const height = Number.isNaN(heightNumber)
-    ? undefined
-    : convertToPx(heightNumber, input.resizeUnit, input.originalHeight, input.dpi);
+  const widthNumber = parseDimensionInput(input.widthValue);
+  const heightNumber = parseDimensionInput(input.heightValue);
+  const width =
+    widthNumber === undefined
+      ? undefined
+      : convertToPx(widthNumber, input.resizeUnit, input.originalWidth, input.dpi);
+  const height =
+    heightNumber === undefined
+      ? undefined
+      : convertToPx(heightNumber, input.resizeUnit, input.originalHeight, input.dpi);
 
   return {
     // Explicit undefined checks instead of truthiness so that a "0" target
@@ -97,8 +109,8 @@ function updateDimensionForDpi(
     return "";
   }
 
-  const numericValue = parseFloat(value);
-  if (Number.isNaN(numericValue)) {
+  const numericValue = parseDimensionInput(value);
+  if (numericValue === undefined || !Number.isFinite(numericValue)) {
     return "";
   }
 
@@ -121,8 +133,8 @@ export function getLinkedDimensionValues(input: {
     return null;
   }
 
-  const numericValue = parseFloat(input.value);
-  if (Number.isNaN(numericValue)) {
+  const numericValue = parseDimensionInput(input.value);
+  if (numericValue === undefined || !Number.isFinite(numericValue)) {
     return null;
   }
 

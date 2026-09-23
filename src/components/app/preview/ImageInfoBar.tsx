@@ -3,6 +3,7 @@ import type { SizeDiff } from "@/components/app/state/imageAppTypes";
 import { formatFileSize } from "@/utils/imageUtils";
 
 interface ImageInfoBarProps {
+  idPrefix?: string;
   fileName: string;
   width: number;
   height: number;
@@ -11,6 +12,8 @@ interface ImageInfoBarProps {
 }
 
 export default function ImageInfoBar(props: ImageInfoBarProps) {
+  const prefix = props.idPrefix ?? "";
+
   return (
     <div
       data-testid="info-strip"
@@ -33,7 +36,7 @@ export default function ImageInfoBar(props: ImageInfoBarProps) {
             <span class="text-border" aria-hidden="true">
               ·
             </span>
-            <span id="size-difference" class={diff().className}>
+            <span id={`${prefix}size-difference`} class={diff().className}>
               {diff().text}
             </span>
           </>
