@@ -35,9 +35,6 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="preload" href={displayFontUrl} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={bodyFontUrl} as="font" type="font/woff2" crossorigin />
-    <link rel="preload" href={bodySemiboldFontUrl} as="font" type="font/woff2" crossorigin />
     <meta
       name="viewport"
       content={
@@ -54,6 +51,10 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
     <meta name="theme-color" content="#f8f7ff" />
+
+    <link rel="preload" href={displayFontUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={bodyFontUrl} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={bodySemiboldFontUrl} as="font" type="font/woff2" crossorigin />
 
     <!-- Open Graph -->
     <meta property="og:type" content="website" />
