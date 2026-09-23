@@ -84,9 +84,13 @@ function mockEditorBreakpoint() {
 
 describe("ImageApp", () => {
   let dispose: (() => void) | undefined;
+  let idleCallbackDescriptor: PropertyDescriptor | undefined;
+  let cancelIdleCallbackDescriptor: PropertyDescriptor | undefined;
 
   beforeEach(() => {
     setupBrowserMocks();
+    idleCallbackDescriptor = Object.getOwnPropertyDescriptor(window, "requestIdleCallback");
+    cancelIdleCallbackDescriptor = Object.getOwnPropertyDescriptor(window, "cancelIdleCallback");
     mockGetImageMetadata.mockReset();
     mockPrepareImageFile.mockReset();
     mockPrepareImageFile.mockImplementation(async (file) => ({ file, format: file.type }));
@@ -106,6 +110,16 @@ describe("ImageApp", () => {
     dispose?.();
     document.body.innerHTML = "";
     restoreMocks();
+    if (idleCallbackDescriptor) {
+      Object.defineProperty(window, "requestIdleCallback", idleCallbackDescriptor);
+    } else {
+      Reflect.deleteProperty(window, "requestIdleCallback");
+    }
+    if (cancelIdleCallbackDescriptor) {
+      Object.defineProperty(window, "cancelIdleCallback", cancelIdleCallbackDescriptor);
+    } else {
+      Reflect.deleteProperty(window, "cancelIdleCallback");
+    }
   });
 
   it("revokes a preview URL when its decode is cancelled", async () => {
@@ -1720,7 +1734,20 @@ describe("ImageApp", () => {
     expect(mockCreateDownloadLink).toHaveBeenCalledWith(processedBlob, "photo-processed.png");
   });
 
-  it("preloads the background-removal model on first toggle instead of on mount", async () => {
+  it("preloads background removal in idle time and only once", async () => {
+    const idleCallbacks: Array<() => void> = [];
+    Object.defineProperty(window, "requestIdleCallback", {
+      configurable: true,
+      value: (callback: () => void) => {
+        idleCallbacks.push(callback);
+        return idleCallbacks.length;
+      },
+    });
+    Object.defineProperty(window, "cancelIdleCallback", {
+      configurable: true,
+      value: vi.fn(),
+    });
+
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
     const processedBlob = new Blob(["processed"], { type: "image/png" });
 
@@ -1755,19 +1782,21 @@ describe("ImageApp", () => {
       );
     });
 
-    // Uploading and processing must not download the ~100 MB model
+    // The large model stays idle until the browser reaches an idle period.
     expect(mockPreloadBackgroundRemoval).not.toHaveBeenCalled();
+    expect(idleCallbacks).toHaveLength(1);
+    idleCallbacks[0]?.();
+
+    await vi.waitFor(() => {
+      expect(mockPreloadBackgroundRemoval).toHaveBeenCalledTimes(1);
+    });
 
     const bgCheckbox = view.container.querySelector(
       "#remove-background-checkbox"
     ) as HTMLInputElement;
     fireEvent.click(bgCheckbox);
 
-    await vi.waitFor(() => {
-      expect(mockPreloadBackgroundRemoval).toHaveBeenCalledTimes(1);
-    });
-
-    // Toggling off and on again must not re-request the preload
+    // Toggling off and on again must reuse the idle preload.
     fireEvent.click(bgCheckbox);
     fireEvent.click(bgCheckbox);
     expect(mockPreloadBackgroundRemoval).toHaveBeenCalledTimes(1);

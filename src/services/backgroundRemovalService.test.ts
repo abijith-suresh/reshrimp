@@ -30,11 +30,13 @@ describe("removeBackground", () => {
     );
   });
 
-  it("preloads the runtime with the mirrored public path", async () => {
+  it("preloads with the same model configuration used for processing", async () => {
     await preloadBackgroundRemoval();
 
     expect(mockImglyPreload).toHaveBeenCalledWith({
+      model: BACKGROUND_REMOVAL_MODEL,
       publicPath: getBackgroundRemovalPublicPath(window.location.origin),
+      device: "cpu",
     });
   });
 

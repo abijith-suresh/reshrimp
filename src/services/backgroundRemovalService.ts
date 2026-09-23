@@ -6,6 +6,23 @@ import type { BackgroundRemovalProgressCallback } from "../types/processing";
 
 let backgroundRemovalModulePromise: Promise<typeof import("@imgly/background-removal")> | undefined;
 
+type BackgroundRemovalConfig = {
+  model: typeof BACKGROUND_REMOVAL_MODEL;
+  publicPath: string;
+  device: "cpu";
+  progress?: (key: string, current: number, total: number) => void;
+};
+
+function getBackgroundRemovalConfig(): BackgroundRemovalConfig {
+  return {
+    model: BACKGROUND_REMOVAL_MODEL,
+    publicPath: getBackgroundRemovalPublicPath(window.location.origin),
+    // Pinned so the WebGPU onnxruntime stays unreachable — the build excludes
+    // its ~24 MB jsep wasm, and the self-hosted mirror carries CPU assets only.
+    device: "cpu",
+  };
+}
+
 function loadBackgroundRemovalModule() {
   backgroundRemovalModulePromise ??= import("@imgly/background-removal").catch((err: unknown) => {
     // A rejected import must not stay cached — a single transient failure
@@ -17,14 +34,12 @@ function loadBackgroundRemovalModule() {
 }
 
 /**
- * Preloads the WASM runtime and ML model in the background.
- * Call this when the user first enables background removal, never on app
- * mount — the model assets are large (~100 MB) and most visits never use it.
+ * Preloads the WASM runtime and ML model in the background. Call from an idle
+ * callback after the app has rendered so it never delays the initial bundle.
  */
 export async function preloadBackgroundRemoval(): Promise<void> {
-  const publicPath = getBackgroundRemovalPublicPath(window.location.origin);
   const { preload } = await loadBackgroundRemovalModule();
-  await preload({ publicPath });
+  await preload(getBackgroundRemovalConfig());
 }
 
 /**
@@ -39,12 +54,7 @@ export async function removeBackground(
   imageFile: File,
   onProgress?: BackgroundRemovalProgressCallback
 ): Promise<Blob> {
-  const config: {
-    progress?: (key: string, current: number, total: number) => void;
-    model?: "isnet" | "isnet_fp16" | "isnet_quint8";
-    publicPath?: string;
-    device?: "cpu" | "gpu";
-  } = {};
+  const config = getBackgroundRemovalConfig();
 
   if (onProgress) {
     config.progress = (_key: string, current: number, total: number) => {
@@ -53,13 +63,6 @@ export async function removeBackground(
       onProgress(progress);
     };
   }
-
-  config.model = BACKGROUND_REMOVAL_MODEL;
-  config.publicPath = getBackgroundRemovalPublicPath(window.location.origin);
-  // Pinned so the WebGPU onnxruntime stays unreachable — the build excludes
-  // its ~24 MB jsep wasm (see excludeOnnxruntimeWebGpu in astro.config.ts),
-  // and the self-hosted mirror only carries the CPU runtime assets.
-  config.device = "cpu";
 
   const { removeBackground: imglyRemoveBackground } = await loadBackgroundRemovalModule();
   const blob = await imglyRemoveBackground(imageFile, config);

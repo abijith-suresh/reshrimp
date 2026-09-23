@@ -7,6 +7,7 @@ import {
   type JSX,
   on,
   onCleanup,
+  onMount,
   useContext,
 } from "solid-js";
 import { DEFAULT_DPI } from "@/config/constants";
@@ -55,6 +56,36 @@ function createDebouncedTask(fn: () => void, ms: number) {
   };
 }
 
+type NetworkInformation = {
+  saveData?: boolean;
+  effectiveType?: string;
+};
+
+type IdleWindow = Window & {
+  requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
+  cancelIdleCallback?: (handle: number) => void;
+};
+
+function scheduleBackgroundRemovalPreload(callback: () => void): () => void {
+  const network = (navigator as Navigator & { connection?: NetworkInformation }).connection;
+  if (
+    network?.saveData ||
+    network?.effectiveType === "slow-2g" ||
+    network?.effectiveType === "2g"
+  ) {
+    return () => {};
+  }
+
+  const idleWindow = window as IdleWindow;
+  if (idleWindow.requestIdleCallback) {
+    const handle = idleWindow.requestIdleCallback(callback, { timeout: 5000 });
+    return () => idleWindow.cancelIdleCallback?.(handle);
+  }
+
+  const handle = window.setTimeout(callback, 1500);
+  return () => window.clearTimeout(handle);
+}
+
 const ImageAppContext = createContext<ImageAppContextValue>();
 
 export function ImageAppProvider(props: { children: JSX.Element }) {
@@ -83,6 +114,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   // is re-processed instead of silently dropped.
   let pendingReprocess = false;
   let preloadRequested = false;
+  let cancelScheduledPreload: (() => void) | undefined;
 
   // ── Async / loading state ─────────────────────────────────────────────────
   const [isProcessing, setIsProcessing] = createSignal(false);
@@ -112,10 +144,26 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
   onCleanup(() => {
     disposed = true;
+    cancelScheduledPreload?.();
+    cancelScheduledPreload = undefined;
     debouncedProcess.cancel();
     pendingPreviewAbort?.abort();
     pendingPreviewAbort = null;
     revokeImageSessionUrls(currentImage());
+  });
+
+  function warmBackgroundRemoval(): void {
+    if (preloadRequested) return;
+    preloadRequested = true;
+    cancelScheduledPreload?.();
+    cancelScheduledPreload = undefined;
+    void preloadBackgroundRemoval().catch(() => {
+      // Non-fatal: the removeBackground call loads the module on use.
+    });
+  }
+
+  onMount(() => {
+    cancelScheduledPreload = scheduleBackgroundRemovalPreload(warmBackgroundRemoval);
   });
 
   // ── Derived signals ───────────────────────────────────────────────────────
@@ -454,14 +502,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     setFormatValue(nextFormatState.formatValue);
     setRemoveBackground(checked);
 
-    // Warm the model on first use instead of on every app visit — the
-    // download is large and most sessions never touch background removal.
-    if (checked && !preloadRequested) {
-      preloadRequested = true;
-      void preloadBackgroundRemoval().catch(() => {
-        // Non-fatal: the removeBackground call loads the module on use.
-      });
-    }
+    if (checked) warmBackgroundRemoval();
   }
 
   function handleUnitChange(newUnit: ResizeUnit): void {
