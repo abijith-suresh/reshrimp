@@ -108,7 +108,7 @@ function MobileSheet() {
   }
 
   function handleSheetKeyDown(event: KeyboardEvent) {
-    if (event.key === "Escape" && sheetState() === "open") {
+    if (event.key === "Escape" && !event.defaultPrevented && sheetState() === "open") {
       event.preventDefault();
       event.stopPropagation();
       collapseSheet();
@@ -153,7 +153,7 @@ function MobileSheet() {
     window.addEventListener("blur", clearFocusedElement);
 
     const handleDocumentKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && sheetState() === "open") {
+      if (event.key === "Escape" && !event.defaultPrevented && sheetState() === "open") {
         event.preventDefault();
         collapseSheet();
       }

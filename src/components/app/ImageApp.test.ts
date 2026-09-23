@@ -976,6 +976,71 @@ describe("ImageApp", () => {
     expect(desktopUnitSelect).toHaveAttribute("aria-expanded", "false");
   });
 
+  it("lets Escape close a mobile Select before collapsing its sheet", async () => {
+    const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
+
+    mockGetImageMetadata.mockResolvedValue({
+      width: 1200,
+      height: 800,
+      format: "image/png",
+      fileSize: sourceFile.size,
+      fileName: sourceFile.name,
+    });
+    mockProcessImage.mockResolvedValue({
+      blob: new Blob(["processed"], { type: "image/png" }),
+      requestedFormat: "image/png",
+      metadata: { width: 1200, height: 800, format: "image/png", fileSize: 9 },
+    });
+    vi.mocked(URL.createObjectURL)
+      .mockReturnValueOnce("blob:original")
+      .mockReturnValueOnce("blob:processed");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(view.container.querySelector("#mobile-width-input")).toBeEnabled();
+    });
+
+    const sheet = view.container.querySelector('[aria-label="Image controls"]') as HTMLElement;
+    const openButton = sheet.querySelector(
+      'button[aria-label="Open controls"]'
+    ) as HTMLButtonElement;
+    triggerDelegatedClick(openButton);
+    await vi.waitFor(() => expect(sheet).toHaveAttribute("role", "dialog"));
+
+    const mobileUnitSelect = view.container.querySelector(
+      "#mobile-unit-select"
+    ) as HTMLButtonElement;
+    triggerDelegatedClick(mobileUnitSelect);
+
+    await vi.waitFor(() => {
+      const listbox = document.querySelector('[role="listbox"]');
+      expect(listbox).not.toBeNull();
+      expect(document.activeElement).toBe(listbox);
+    });
+    const listbox = document.querySelector('[role="listbox"]');
+    if (!listbox) throw new Error("Expected the mobile Unit listbox to open");
+
+    fireEvent.keyDown(listbox, { key: "Escape" });
+
+    await vi.waitFor(() => {
+      expect(document.querySelector('[role="listbox"]')).toBeNull();
+      expect(sheet).toHaveAttribute("role", "dialog");
+      expect(sheet).toHaveAttribute("aria-modal", "true");
+    });
+
+    fireEvent.keyDown(mobileUnitSelect, { key: "Escape" });
+    await vi.waitFor(() => {
+      expect(sheet).toHaveAttribute("role", "region");
+      expect(sheet).not.toHaveAttribute("aria-modal");
+    });
+  });
+
   it("keeps peeked mobile settings inert until the sheet is opened", async () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
 
