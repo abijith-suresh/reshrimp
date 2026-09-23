@@ -497,6 +497,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         setLastCompletedResult(null);
         setError(null);
         setProgressLabel(null);
+        setTargetFileSizeValue("");
 
         // Reset form controls to defaults
         setWidthValue(String(metadata.width));
@@ -506,7 +507,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         setFormatValue(getInitialOutputFormat(metadata.format));
         setPreviousFormatValue("");
         setQualityValue(92);
-        setTargetFileSizeValue("");
 
         // Reset unit controls
         setResizeUnit("px");
