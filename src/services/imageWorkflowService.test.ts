@@ -46,9 +46,24 @@ describe("buildProcessOptions", () => {
     expect(options.resize).toBeUndefined();
   });
 
-  it("omits resize when dimensions are not numeric", () => {
+  it("keeps malformed dimensions invalid so processing can reject them", () => {
     const options = buildProcessOptions({ ...baseInput, widthValue: "abc", heightValue: "" });
-    expect(options.resize).toBeUndefined();
+    expect(options.resize?.width).toBeNaN();
+  });
+
+  it("accepts decimal commas from mobile keyboards", () => {
+    const options = buildProcessOptions({
+      ...baseInput,
+      widthValue: "12,5",
+      heightValue: "",
+      resizeUnit: "%",
+    });
+    expect(options.resize?.width).toBe(150);
+  });
+
+  it("rejects valid numeric prefixes followed by text", () => {
+    const options = buildProcessOptions({ ...baseInput, widthValue: "40px", heightValue: "" });
+    expect(options.resize?.width).toBeNaN();
   });
 
   it("keeps zero-width targets so processing can reject them", () => {

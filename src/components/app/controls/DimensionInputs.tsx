@@ -14,6 +14,8 @@ export default function DimensionInputs(props: DimensionInputsProps) {
       <Input
         id={`${prefix}width-input`}
         label="Width"
+        type="text"
+        inputMode={state.resizeUnit() === "px" ? "numeric" : "decimal"}
         value={state.widthValue()}
         onInput={actions.handleWidthInput}
         placeholder={state.widthPlaceholder()}
@@ -22,6 +24,8 @@ export default function DimensionInputs(props: DimensionInputsProps) {
       <Input
         id={`${prefix}height-input`}
         label="Height"
+        type="text"
+        inputMode={state.resizeUnit() === "px" ? "numeric" : "decimal"}
         value={state.heightValue()}
         onInput={actions.handleHeightInput}
         placeholder={state.heightPlaceholder()}

@@ -82,15 +82,9 @@ function MobileSheet() {
     );
   }
 
-  function focusFirstControl() {
+  function focusSheet() {
     queueMicrotask(() => {
-      if (disposed || sheetState() !== "open") return;
-
-      const firstControl = sheetRef?.querySelector<HTMLElement>(
-        '[data-sheet-content] input:not([disabled]):not([type="file"]), [data-sheet-content] button:not([disabled]), [data-sheet-content] select:not([disabled]), [data-sheet-content] a[href], [data-sheet-content] [role="button"][tabindex]:not([tabindex="-1"])'
-      );
-      const focusTarget = firstControl ?? handleRef;
-      if (focusTarget?.isConnected) focusTarget.focus();
+      if (!disposed && sheetState() === "open" && sheetRef?.isConnected) sheetRef.focus();
     });
   }
 
@@ -193,7 +187,7 @@ function MobileSheet() {
       if (nextState === "open") {
         appShell?.setAttribute("inert", "");
         skipLink?.setAttribute("inert", "");
-        focusFirstControl();
+        focusSheet();
       } else {
         appShell?.removeAttribute("inert");
         skipLink?.removeAttribute("inert");
@@ -232,6 +226,7 @@ function MobileSheet() {
         ref={(element) => {
           sheetRef = element;
         }}
+        tabIndex={-1}
         aria-label="Image controls"
         aria-hidden={sheetState() === "hidden" ? "true" : "false"}
         inert={sheetState() === "hidden"}

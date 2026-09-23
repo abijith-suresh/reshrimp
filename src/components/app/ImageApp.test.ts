@@ -856,8 +856,9 @@ describe("ImageApp", () => {
     expect(openButton).toHaveAttribute("aria-expanded", "true");
     expect(view.container.querySelector("[data-app-shell]")).toHaveAttribute("inert", "");
     await vi.waitFor(() => {
-      expect(document.activeElement).toBe(view.container.querySelector("#mobile-width-input"));
+      expect(document.activeElement).toBe(sheet);
     });
+    expect(document.activeElement).not.toBe(view.container.querySelector("#mobile-width-input"));
 
     document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
 
