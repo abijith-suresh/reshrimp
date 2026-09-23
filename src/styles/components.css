@@ -1,5 +1,12 @@
 /* SolidJS component primitives — loaded only on the /app route */
 
+:root {
+  --safe-area-inset-top: env(safe-area-inset-top, 0px);
+  --safe-area-inset-right: env(safe-area-inset-right, 0px);
+  --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-inset-left: env(safe-area-inset-left, 0px);
+}
+
 /* ===== Slider ===== */
 .slider {
   width: 100%;
@@ -150,6 +157,13 @@
   transform: translateX(-50%);
   border: 5px solid transparent;
   border-top-color: var(--border);
+}
+
+.info-tooltip-below::after {
+  top: auto;
+  bottom: 100%;
+  border-top-color: transparent;
+  border-bottom-color: var(--border);
 }
 
 /* ===== Button Spinner ===== */

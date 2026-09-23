@@ -163,6 +163,87 @@ describe("InfoTooltip", () => {
     }
   });
 
+  it("flips the tooltip below its trigger when the safe top edge is near", () => {
+    const root = document.documentElement;
+    const previousSafeTop = root.style.getPropertyValue("--safe-area-inset-top");
+    root.style.setProperty("--safe-area-inset-top", "150px");
+
+    try {
+      const [open, setOpen] = createSignal(false);
+      const view = render(() => (
+        <section role="dialog" aria-modal="true">
+          <InfoTooltip
+            ariaLabel="DPI info"
+            content={<span>DPI tooltip content</span>}
+            open={open()}
+            onToggle={setOpen}
+          />
+        </section>
+      ));
+      const dialog = view.container.querySelector('[role="dialog"]') as HTMLElement;
+      const trigger = view.getByLabelText("DPI info");
+      vi.spyOn(dialog, "getBoundingClientRect").mockReturnValue({
+        x: 0,
+        y: 100,
+        top: 100,
+        right: 400,
+        bottom: 700,
+        left: 0,
+        width: 400,
+        height: 600,
+        toJSON: () => ({}),
+      });
+      vi.spyOn(trigger, "getBoundingClientRect").mockReturnValue({
+        x: 100,
+        y: 200,
+        top: 200,
+        right: 120,
+        bottom: 220,
+        left: 100,
+        width: 20,
+        height: 20,
+        toJSON: () => ({}),
+      });
+      vi.spyOn(HTMLElement.prototype, "getBoundingClientRect").mockImplementation(function (
+        this: HTMLElement
+      ) {
+        if (this.getAttribute("role") === "tooltip") {
+          return {
+            x: 0,
+            y: 0,
+            top: 0,
+            right: 220,
+            bottom: 60,
+            left: 0,
+            width: 220,
+            height: 60,
+            toJSON: () => ({}),
+          };
+        }
+        return {
+          x: 0,
+          y: 0,
+          top: 0,
+          right: 0,
+          bottom: 0,
+          left: 0,
+          width: 0,
+          height: 0,
+          toJSON: () => ({}),
+        };
+      });
+
+      fireEvent.focus(trigger);
+
+      const tooltip = document.querySelector('[role="tooltip"]') as HTMLElement;
+      expect(tooltip).toHaveClass("info-tooltip-below");
+      expect(tooltip).toHaveStyle({ top: "128px" });
+    } finally {
+      if (previousSafeTop) root.style.setProperty("--safe-area-inset-top", previousSafeTop);
+      else root.style.removeProperty("--safe-area-inset-top");
+    }
+  });
+
   it("closes on click outside when open", () => {
     const onToggle = vi.fn();
     const { container } = render(() => (
