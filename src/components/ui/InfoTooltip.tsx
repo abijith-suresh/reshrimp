@@ -121,11 +121,28 @@ export default function InfoTooltip(props: InfoTooltipProps) {
     return triggerEl()?.closest<HTMLElement>('[role="dialog"]') ?? document.body;
   }
 
+  function isTriggerHidden(element: HTMLElement): boolean {
+    let current: HTMLElement | null = element;
+    while (current) {
+      const styles = window.getComputedStyle(current);
+      if (styles.display === "none" || styles.visibility === "hidden") return true;
+      current = current.parentElement;
+    }
+    return false;
+  }
+
   createEffect(() => {
     if (!props.open) return;
     setPos(calcPos());
 
     function update() {
+      const trigger = triggerEl();
+      if (trigger && isTriggerHidden(trigger)) {
+        pointerInside = false;
+        openedByFocus = false;
+        props.onToggle(false);
+        return;
+      }
       setPos(calcPos());
     }
 

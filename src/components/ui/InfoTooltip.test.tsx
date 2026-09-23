@@ -245,6 +245,28 @@ describe("InfoTooltip", () => {
     }
   });
 
+  it("closes when a responsive parent hides its trigger", () => {
+    const [open, setOpen] = createSignal(true);
+    const [visible, setVisible] = createSignal(true);
+    const view = render(() => (
+      <div style={{ display: visible() ? "block" : "none" }}>
+        <InfoTooltip
+          ariaLabel="DPI info"
+          content={<span>DPI tooltip content</span>}
+          open={open()}
+          onToggle={setOpen}
+        />
+      </div>
+    ));
+
+    expect(open()).toBe(true);
+    setVisible(false);
+    fireEvent(window, new Event("resize"));
+
+    expect(open()).toBe(false);
+    expect(view.queryByRole("tooltip")).not.toBeInTheDocument();
+  });
+
   it("closes on click outside when open", () => {
     const onToggle = vi.fn();
     const { container } = render(() => (
