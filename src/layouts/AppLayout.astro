@@ -11,7 +11,7 @@ interface Props {
 const { title, description, ogImagePath } = Astro.props;
 ---
 
-<Layout title={title} description={description} ogImagePath={ogImagePath}>
+<Layout title={title} description={description} ogImagePath={ogImagePath} viewportFitCover>
   <Fragment slot="head">
     <slot name="head" />
   </Fragment>

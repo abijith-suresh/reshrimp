@@ -7,9 +7,15 @@ interface Props {
   title: string;
   description?: string;
   ogImagePath?: string;
+  viewportFitCover?: boolean;
 }
 
-const { title, description = SITE_DESCRIPTION, ogImagePath } = Astro.props;
+const {
+  title,
+  description = SITE_DESCRIPTION,
+  ogImagePath,
+  viewportFitCover = false,
+} = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
 
@@ -26,7 +32,14 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta
+      name="viewport"
+      content={
+        viewportFitCover
+          ? "width=device-width, initial-scale=1, viewport-fit=cover"
+          : "width=device-width, initial-scale=1"
+      }
+    />
     <link rel="icon" type="image/svg+xml" href={`${base}/favicon.svg`} />
     <meta name="generator" content={Astro.generator} />
 
