@@ -58,6 +58,30 @@ function triggerDelegatedMouseDown(element: HTMLElement): void {
   delegatedElement.$$mousedown?.(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
 }
 
+function mockEditorBreakpoint() {
+  const listeners = new Set<(event: MediaQueryListEvent) => void>();
+  const mediaQueryList = {
+    matches: false,
+    media: "(min-width: 56rem)",
+    addEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => {
+      listeners.add(listener);
+    },
+    removeEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => {
+      listeners.delete(listener);
+    },
+  } as unknown as MediaQueryList;
+  vi.stubGlobal(
+    "matchMedia",
+    vi.fn(() => mediaQueryList)
+  );
+
+  return (matches: boolean) => {
+    for (const listener of listeners) {
+      listener({ matches, media: mediaQueryList.media } as MediaQueryListEvent);
+    }
+  };
+}
+
 describe("ImageApp", () => {
   let dispose: (() => void) | undefined;
 
@@ -847,21 +871,7 @@ describe("ImageApp", () => {
   });
 
   it("moves focus from the mobile back link to desktop navigation at the editor breakpoint", async () => {
-    const listeners = new Set<(event: MediaQueryListEvent) => void>();
-    const mediaQueryList = {
-      matches: false,
-      media: "(min-width: 56rem)",
-      addEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => {
-        listeners.add(listener);
-      },
-      removeEventListener: (_type: string, listener: (event: MediaQueryListEvent) => void) => {
-        listeners.delete(listener);
-      },
-    } as unknown as MediaQueryList;
-    vi.stubGlobal(
-      "matchMedia",
-      vi.fn(() => mediaQueryList)
-    );
+    const changeBreakpoint = mockEditorBreakpoint();
 
     const view = render(() => ImageApp());
     dispose = view.unmount;
@@ -876,12 +886,32 @@ describe("ImageApp", () => {
     mobileBackButton.focus();
     expect(document.activeElement).toBe(mobileBackButton);
 
-    for (const listener of listeners) {
-      listener({ matches: true, media: mediaQueryList.media } as MediaQueryListEvent);
-    }
+    changeBreakpoint(true);
 
     await vi.waitFor(() => {
       expect(document.activeElement).toBe(desktopBackButton);
+    });
+  });
+
+  it("moves focus from the mobile empty-state upload button to desktop upload at the breakpoint", async () => {
+    const changeBreakpoint = mockEditorBreakpoint();
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const mobileUploadButton = view.container.querySelector(
+      "[data-mobile-empty-state-upload]"
+    ) as HTMLButtonElement;
+    const desktopUploadControl = view.container.querySelector(
+      '.app-control-panel [aria-label="Upload image or drag and drop"]'
+    ) as HTMLDivElement;
+
+    mobileUploadButton.focus();
+    expect(document.activeElement).toBe(mobileUploadButton);
+
+    changeBreakpoint(true);
+
+    await vi.waitFor(() => {
+      expect(document.activeElement).toBe(desktopUploadControl);
     });
   });
 

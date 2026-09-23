@@ -137,9 +137,8 @@ function MobileSheet() {
       const activeElement = document.activeElement;
       if (event.matches) {
         const hadSheetFocus = !!sheetRef?.contains(activeElement);
-        const hadMobileBackFocus = !!(activeElement as HTMLElement | null)?.closest?.(
-          "[data-mobile-back-button]"
-        );
+        const hadMobileBackFocus = !!activeElement?.closest("[data-mobile-back-button]");
+        const hadMobileUploadFocus = !!activeElement?.closest("[data-mobile-empty-state-upload]");
         setSheetState("hidden");
         if (hadSheetFocus) {
           queueMicrotask(() => {
@@ -152,6 +151,15 @@ function MobileSheet() {
             document
               .querySelector<HTMLElement>(
                 '[aria-label="App navigation"] a[aria-label="Back to home"]'
+              )
+              ?.focus();
+          });
+        } else if (hadMobileUploadFocus) {
+          queueMicrotask(() => {
+            if (disposed) return;
+            document
+              .querySelector<HTMLElement>(
+                '.app-control-panel [aria-label="Upload image or drag and drop"]'
               )
               ?.focus();
           });
