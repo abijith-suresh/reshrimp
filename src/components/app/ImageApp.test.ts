@@ -1746,11 +1746,11 @@ describe("ImageApp", () => {
       configurable: true,
       value: { saveData: false, effectiveType: "4g", downlink: 9 },
     });
-    const idleCallbacks: Array<() => void> = [];
+    const idleCallbacks: Array<{ callback: () => void; timeout?: number }> = [];
     Object.defineProperty(window, "requestIdleCallback", {
       configurable: true,
-      value: (callback: () => void) => {
-        idleCallbacks.push(callback);
+      value: (callback: () => void, options?: { timeout: number }) => {
+        idleCallbacks.push({ callback, timeout: options?.timeout });
         return idleCallbacks.length;
       },
     });
@@ -1796,7 +1796,8 @@ describe("ImageApp", () => {
     // The large model stays idle until the browser reaches an idle period.
     expect(mockPreloadBackgroundRemoval).not.toHaveBeenCalled();
     expect(idleCallbacks).toHaveLength(1);
-    idleCallbacks[0]?.();
+    expect(idleCallbacks[0]?.timeout).toBe(2000);
+    idleCallbacks[0]?.callback();
 
     await vi.waitFor(() => {
       expect(mockPreloadBackgroundRemoval).toHaveBeenCalledTimes(1);

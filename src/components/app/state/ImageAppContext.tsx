@@ -63,7 +63,7 @@ type NetworkInformation = {
 };
 
 type IdleWindow = Window & {
-  requestIdleCallback?: (callback: () => void) => number;
+  requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
   cancelIdleCallback?: (handle: number) => void;
 };
 
@@ -84,7 +84,9 @@ function scheduleBackgroundRemovalPreload(callback: () => void): () => void {
 
   const idleWindow = window as IdleWindow;
   if (idleWindow.requestIdleCallback) {
-    const handle = idleWindow.requestIdleCallback(callback);
+    const handle = idleWindow.requestIdleCallback(callback, {
+      timeout: PRELOAD_FALLBACK_DELAY_MS,
+    });
     return () => idleWindow.cancelIdleCallback?.(handle);
   }
 
