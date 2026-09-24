@@ -241,6 +241,7 @@ function MobileSheet() {
     editorBreakpoint?.addEventListener("change", handleBreakpointChange);
 
     const updatePeekHeight = () => {
+      if (sheetState() === "open") return;
       const height = sheetHeaderRef?.getBoundingClientRect().height;
       if (height && sheetRef) {
         sheetRef.style.setProperty("--app-sheet-peek-height", `${height}px`);
@@ -282,6 +283,11 @@ function MobileSheet() {
       } else {
         appShell?.removeAttribute("inert");
         skipLink?.removeAttribute("inert");
+        // Keep the measured peek height current when returning to peek
+        const height = sheetHeaderRef?.getBoundingClientRect().height;
+        if (height && sheetRef) {
+          sheetRef.style.setProperty("--app-sheet-peek-height", `${height}px`);
+        }
       }
     })
   );
@@ -328,7 +334,7 @@ function MobileSheet() {
           transition: SPRING,
         }}
       >
-        {/* ── Sticky header — always visible in peek ── */}
+        {/* ── Sticky header: transitions between collapsed peek controls and a standard modal header ── */}
         <div
           ref={(element) => {
             sheetHeaderRef = element;
@@ -336,65 +342,107 @@ function MobileSheet() {
           class="shrink-0"
         >
           {/* Drag affordance */}
-          <div class="flex justify-center pt-3" aria-hidden="true">
+          <div
+            class="flex justify-center pt-2.5 pb-1 cursor-pointer select-none"
+            aria-hidden="true"
+            onClick={toggleSheet}
+          >
             <div
               class="rounded-full transition-[width,background] duration-300 mobile-sheet-handle"
               style={{
-                width: sheetState() === "open" ? "28px" : "40px",
+                width: sheetState() === "open" ? "32px" : "40px",
                 background: sheetState() === "open" ? "var(--lavender-500)" : "var(--border)",
               }}
             />
           </div>
 
-          {/* A visible action makes the collapsed sheet's purpose clear. */}
-          <div class="mx-4 mt-2 mb-2">
+          {/* Action header: when open, renders a clean standard modal title bar with Done CTA */}
+          <div
+            class={
+              sheetState() === "open"
+                ? "flex items-center justify-between px-4 py-2 min-h-12 border-b border-border-light"
+                : "mx-4 mt-1 mb-2"
+            }
+          >
+            <Show when={sheetState() === "open"}>
+              <div class="flex flex-col min-w-0 pr-3">
+                <div class="flex items-center gap-2">
+                  <SlidersHorizontal
+                    size={16}
+                    class="text-lavender-600 shrink-0"
+                    aria-hidden="true"
+                  />
+                  <h2 class="text-base font-semibold text-foreground tracking-tight">Edit image</h2>
+                </div>
+                <Show when={img()}>
+                  {(currentImg) => (
+                    <p class="text-xs text-muted-foreground truncate mt-0.5">
+                      {currentImg().metadata.fileName} · {displayWidth()} × {displayHeight()} px
+                    </p>
+                  )}
+                </Show>
+              </div>
+            </Show>
+
             <button
               ref={(element) => {
                 controlsToggleRef = element;
               }}
               type="button"
-              class="flex w-full min-h-11 items-center justify-between rounded-xl border border-lavender-200 bg-lavender-50 px-4 text-sm font-semibold text-lavender-700 shadow-sm transition-[background-color,border-color,box-shadow,transform] duration-200 hover:bg-lavender-100 active:scale-[0.99] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-lavender-500/40"
+              class={
+                sheetState() === "open"
+                  ? "flex items-center justify-center shrink-0 min-h-9 px-4 py-1.5 rounded-full bg-lavender-600 text-white font-semibold text-sm shadow-xs hover:bg-lavender-700 active:scale-95 transition-all duration-150 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-lavender-500/40"
+                  : "flex w-full min-h-11 items-center justify-between rounded-xl border border-lavender-200 bg-lavender-50 px-4 text-sm font-semibold text-lavender-700 shadow-sm transition-[background-color,border-color,box-shadow,transform] duration-200 hover:bg-lavender-100 active:scale-[0.99] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-lavender-500/40"
+              }
               style={{ "touch-action": "manipulation" }}
               onClick={toggleSheet}
               aria-controls="mobile-controls-content"
               aria-expanded={sheetState() === "open"}
             >
-              <span class="flex items-center gap-2">
-                <SlidersHorizontal size={17} aria-hidden="true" />
-                <span>{sheetState() === "open" ? "Done" : "Edit image"}</span>
-              </span>
-              <ChevronUp
-                size={18}
-                aria-hidden="true"
-                class={`transition-transform duration-300 ${sheetState() === "open" ? "rotate-180" : ""}`}
-              />
+              <Show
+                when={sheetState() === "open"}
+                fallback={
+                  <>
+                    <span class="flex items-center gap-2">
+                      <SlidersHorizontal size={17} aria-hidden="true" />
+                      <span>Edit image</span>
+                    </span>
+                    <ChevronUp
+                      size={18}
+                      aria-hidden="true"
+                      class="transition-transform duration-300"
+                    />
+                  </>
+                }
+              >
+                <span>Done</span>
+              </Show>
             </button>
           </div>
 
-          {/* File info row */}
-          <Show when={img()}>
-            {(currentImg) => (
-              <div class="px-4 pb-1.5">
-                <ImageInfoBar
-                  idPrefix="mobile-"
-                  fileName={currentImg().metadata.fileName}
-                  width={displayWidth()}
-                  height={displayHeight()}
-                  fileSize={displayFileSize()}
-                  sizeDiff={state.sizeDifference()}
-                />
-              </div>
-            )}
+          {/* Peek-only header elements: file metadata & instant download CTA */}
+          <Show when={sheetState() !== "open"}>
+            <Show when={img()}>
+              {(currentImg) => (
+                <div class="px-4 pb-1.5">
+                  <ImageInfoBar
+                    idPrefix="mobile-"
+                    fileName={currentImg().metadata.fileName}
+                    width={displayWidth()}
+                    height={displayHeight()}
+                    fileSize={displayFileSize()}
+                    sizeDiff={state.sizeDifference()}
+                  />
+                </div>
+              )}
+            </Show>
+
+            {/* Download button — primary CTA reachable directly in peek mode */}
+            <div class="px-4 pt-1 mobile-sheet-footer">
+              <DownloadSection idPrefix="mobile-" />
+            </div>
           </Show>
-
-          {/* Download button — primary CTA always reachable without opening */}
-          <div class="px-4 pt-1 mobile-sheet-footer">
-            <DownloadSection idPrefix="mobile-" />
-          </div>
         </div>
-
-        {/* Hairline divider between header and content */}
-        <div class="mx-4 h-px bg-border-light shrink-0" />
 
         {/* Scrollable settings content */}
         <div
@@ -405,6 +453,10 @@ function MobileSheet() {
           inert={sheetState() !== "open"}
         >
           <ProcessPanel sourceAtBottom idPrefix="mobile-" showDownload={false} />
+          {/* In open modal mode, primary download is available at the end of configurations */}
+          <div class="px-5 py-4 border-t border-border-light">
+            <DownloadSection idPrefix="mobile-modal-" />
+          </div>
         </div>
       </section>
     </>
