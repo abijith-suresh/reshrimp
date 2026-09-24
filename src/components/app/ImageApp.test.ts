@@ -1101,7 +1101,7 @@ describe("ImageApp", () => {
     await vi.waitFor(() => {
       expect(document.querySelector('[role="listbox"]')).toBeNull();
       expect(document.activeElement).toBe(
-        view.container.querySelector('button[aria-label="Open controls"]')
+        view.container.querySelector('button[aria-controls="mobile-controls-content"]')
       );
     });
     expect(desktopUnitSelect).toHaveAttribute("aria-expanded", "false");
@@ -1139,7 +1139,7 @@ describe("ImageApp", () => {
 
     const sheet = view.container.querySelector('[aria-label="Image controls"]') as HTMLElement;
     const openButton = sheet.querySelector(
-      'button[aria-label="Open controls"]'
+      'button[aria-controls="mobile-controls-content"]'
     ) as HTMLButtonElement;
     triggerDelegatedClick(openButton);
     await vi.waitFor(() => expect(sheet).toHaveAttribute("role", "dialog"));
@@ -1215,14 +1215,17 @@ describe("ImageApp", () => {
     expect(view.container.querySelector("#mobile-unit-select")).toHaveAccessibleName("Unit: px");
 
     const openButton = sheet.querySelector(
-      'button[aria-label="Open controls"]'
+      'button[aria-controls="mobile-controls-content"]'
     ) as HTMLButtonElement;
+    expect(openButton).toHaveAccessibleName("Edit image");
+    expect(openButton).toHaveAttribute("aria-expanded", "false");
     triggerDelegatedClick(openButton);
 
     expect(sheet).toHaveAttribute("role", "dialog");
     expect(sheet).toHaveAttribute("aria-modal", "true");
     expect(openButton).toHaveAttribute("aria-expanded", "true");
     expect(view.container.querySelector("[data-app-shell]")).toHaveAttribute("inert", "");
+    expect(openButton).toHaveAccessibleName("Done");
     await vi.waitFor(() => {
       expect(document.activeElement).toBe(sheet);
     });
@@ -1244,6 +1247,7 @@ describe("ImageApp", () => {
       expect(sheet).toHaveAttribute("role", "region");
       expect(sheet).not.toHaveAttribute("aria-modal");
       expect(openButton).toHaveAttribute("aria-expanded", "false");
+      expect(openButton).toHaveAccessibleName("Edit image");
       expect(view.container.querySelector("[data-app-shell]")).not.toHaveAttribute("inert");
       expect(document.activeElement).toBe(openButton);
     });

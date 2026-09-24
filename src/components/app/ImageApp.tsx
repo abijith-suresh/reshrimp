@@ -1,3 +1,4 @@
+import { ChevronUp, SlidersHorizontal } from "lucide-solid";
 import { createEffect, createSignal, on, onCleanup, onMount, Show } from "solid-js";
 import AppSidebar from "@/components/app/AppSidebar";
 import FloatingBackButton from "@/components/app/FloatingBackButton";
@@ -38,7 +39,7 @@ function MobileSheet() {
   const [sheetState, setSheetState] = createSignal<SheetState>("hidden");
   let sheetRef: HTMLElement | undefined;
   let sheetHeaderRef: HTMLDivElement | undefined;
-  let handleRef: HTMLButtonElement | undefined;
+  let controlsToggleRef: HTMLButtonElement | undefined;
   let disposed = false;
   let lastFocusedElement: HTMLElement | null = null;
 
@@ -61,7 +62,7 @@ function MobileSheet() {
   function collapseSheet() {
     setSheetState("peek");
     queueMicrotask(() => {
-      if (!disposed && handleRef?.isConnected) handleRef.focus();
+      if (!disposed && controlsToggleRef?.isConnected) controlsToggleRef.focus();
     });
   }
 
@@ -222,7 +223,7 @@ function MobileSheet() {
           new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true })
         );
         setSheetState("peek");
-        if (hadAppFocus) queueMicrotask(() => !disposed && handleRef?.focus());
+        if (hadAppFocus) queueMicrotask(() => !disposed && controlsToggleRef?.focus());
       } else if (
         (!!focusOrigin && !!appShell?.contains(focusOrigin)) ||
         (!!listboxTrigger && !!appShell?.contains(listboxTrigger))
@@ -334,26 +335,37 @@ function MobileSheet() {
           }}
           class="shrink-0"
         >
-          {/* Handle pill — tap to toggle between peek and open */}
-          <button
-            ref={(element) => {
-              handleRef = element;
-            }}
-            type="button"
-            class="w-full pt-3 pb-2 flex flex-col items-center cursor-pointer active:opacity-60 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-lavender-500/40 rounded-t-[22px] transition-opacity duration-150"
-            style={{ "touch-action": "manipulation" }}
-            onClick={toggleSheet}
-            aria-controls="mobile-controls-content"
-            aria-expanded={sheetState() === "open"}
-            aria-label={sheetState() === "open" ? "Minimise controls" : "Open controls"}
-          >
-            {/* Pill — widens and turns lavender when open as a state hint */}
+          {/* Drag affordance */}
+          <div class="flex justify-center pt-3" aria-hidden="true">
             <div
               class="rounded-full transition-[width,background] duration-300 mobile-sheet-handle"
               style={{
                 width: sheetState() === "open" ? "28px" : "40px",
                 background: sheetState() === "open" ? "var(--lavender-500)" : "var(--border)",
               }}
+            />
+          </div>
+
+          {/* A visible action makes the collapsed sheet's purpose clear. */}
+          <button
+            ref={(element) => {
+              controlsToggleRef = element;
+            }}
+            type="button"
+            class="mx-4 mt-2 mb-2 flex min-h-11 items-center justify-between rounded-xl border border-lavender-200 bg-lavender-50 px-4 text-sm font-semibold text-lavender-700 shadow-sm transition-[background-color,border-color,box-shadow,transform] duration-200 hover:bg-lavender-100 active:scale-[0.99] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-lavender-500/40"
+            style={{ "touch-action": "manipulation" }}
+            onClick={toggleSheet}
+            aria-controls="mobile-controls-content"
+            aria-expanded={sheetState() === "open"}
+          >
+            <span class="flex items-center gap-2">
+              <SlidersHorizontal size={17} aria-hidden="true" />
+              <span>{sheetState() === "open" ? "Done" : "Edit image"}</span>
+            </span>
+            <ChevronUp
+              size={18}
+              aria-hidden="true"
+              class={`transition-transform duration-300 ${sheetState() === "open" ? "rotate-180" : ""}`}
             />
           </button>
 
