@@ -347,27 +347,29 @@ function MobileSheet() {
           </div>
 
           {/* A visible action makes the collapsed sheet's purpose clear. */}
-          <button
-            ref={(element) => {
-              controlsToggleRef = element;
-            }}
-            type="button"
-            class="mx-4 mt-2 mb-2 flex min-h-11 items-center justify-between rounded-xl border border-lavender-200 bg-lavender-50 px-4 text-sm font-semibold text-lavender-700 shadow-sm transition-[background-color,border-color,box-shadow,transform] duration-200 hover:bg-lavender-100 active:scale-[0.99] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-lavender-500/40"
-            style={{ "touch-action": "manipulation" }}
-            onClick={toggleSheet}
-            aria-controls="mobile-controls-content"
-            aria-expanded={sheetState() === "open"}
-          >
-            <span class="flex items-center gap-2">
-              <SlidersHorizontal size={17} aria-hidden="true" />
-              <span>{sheetState() === "open" ? "Done" : "Edit image"}</span>
-            </span>
-            <ChevronUp
-              size={18}
-              aria-hidden="true"
-              class={`transition-transform duration-300 ${sheetState() === "open" ? "rotate-180" : ""}`}
-            />
-          </button>
+          <div class="mx-4 mt-2 mb-2">
+            <button
+              ref={(element) => {
+                controlsToggleRef = element;
+              }}
+              type="button"
+              class="flex w-full min-h-11 items-center justify-between rounded-xl border border-lavender-200 bg-lavender-50 px-4 text-sm font-semibold text-lavender-700 shadow-sm transition-[background-color,border-color,box-shadow,transform] duration-200 hover:bg-lavender-100 active:scale-[0.99] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-lavender-500/40"
+              style={{ "touch-action": "manipulation" }}
+              onClick={toggleSheet}
+              aria-controls="mobile-controls-content"
+              aria-expanded={sheetState() === "open"}
+            >
+              <span class="flex items-center gap-2">
+                <SlidersHorizontal size={17} aria-hidden="true" />
+                <span>{sheetState() === "open" ? "Done" : "Edit image"}</span>
+              </span>
+              <ChevronUp
+                size={18}
+                aria-hidden="true"
+                class={`transition-transform duration-300 ${sheetState() === "open" ? "rotate-180" : ""}`}
+              />
+            </button>
+          </div>
 
           {/* File info row */}
           <Show when={img()}>

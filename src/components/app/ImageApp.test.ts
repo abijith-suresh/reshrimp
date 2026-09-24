@@ -1218,6 +1218,7 @@ describe("ImageApp", () => {
       'button[aria-controls="mobile-controls-content"]'
     ) as HTMLButtonElement;
     expect(openButton).toHaveAccessibleName("Edit image");
+    expect(openButton).toHaveClass("w-full");
     expect(openButton).toHaveAttribute("aria-expanded", "false");
     triggerDelegatedClick(openButton);
 
