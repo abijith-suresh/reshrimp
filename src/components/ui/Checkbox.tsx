@@ -9,7 +9,7 @@ interface CheckboxProps {
 export default function Checkbox(props: CheckboxProps) {
   return (
     <label
-      class="flex items-center gap-2 text-sm text-foreground cursor-pointer select-none"
+      class="flex items-center gap-2 text-sm text-foreground cursor-pointer select-none transition-opacity duration-200"
       classList={{ "opacity-40 cursor-not-allowed": props.disabled }}
     >
       <span class="relative flex items-center justify-center w-[18px] h-[18px] shrink-0">
@@ -23,7 +23,7 @@ export default function Checkbox(props: CheckboxProps) {
           style={{ "touch-action": "manipulation" }}
         />
         <span
-          class="absolute inset-0 rounded-sm border-[1.5px] transition-[background-color,border-color] duration-200 pointer-events-none focus-within:ring-2 focus-within:ring-lavender-500 focus-within:ring-offset-2"
+          class="absolute inset-0 rounded-sm border-[1.5px] transition-[background-color,border-color,box-shadow] duration-200 pointer-events-none focus-within:ring-2 focus-within:ring-lavender-500 focus-within:ring-offset-2"
           classList={{
             "bg-lavender-500 border-lavender-500": props.checked,
             "bg-white border-border": !props.checked,
@@ -31,10 +31,10 @@ export default function Checkbox(props: CheckboxProps) {
         >
           <svg
             aria-hidden="true"
-            class="w-3 h-3 text-white transition-transform duration-150 absolute inset-0 m-auto"
+            class="absolute inset-0 m-auto h-3 w-3 text-white transition-[opacity,scale] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
             classList={{
-              "scale-100": props.checked,
-              "scale-0": !props.checked,
+              "scale-100 opacity-100": props.checked,
+              "scale-75 opacity-0": !props.checked,
             }}
             viewBox="0 0 12 12"
             fill="none"
