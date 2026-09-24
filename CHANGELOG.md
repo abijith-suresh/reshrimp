@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.0.4](https://github.com/abijith-suresh/reshrimp/compare/v0.0.3...v0.0.4) (2026-09-24)
+
+
+### Features
+
+* add best-effort file size targeting ([#224](https://github.com/abijith-suresh/reshrimp/issues/224)) ([230b1cb](https://github.com/abijith-suresh/reshrimp/commit/230b1cbb2a71cd9a7073953efb43c89f12b86d23))
+* improve responsive editor shell ([#220](https://github.com/abijith-suresh/reshrimp/issues/220)) ([035c251](https://github.com/abijith-suresh/reshrimp/commit/035c251070fb76a427f5e17352bcb16b3504225e))
+* redesign marketing landing page ([29330da](https://github.com/abijith-suresh/reshrimp/commit/29330da62ebd5fa6b9256432ed05c786b8009cd2))
+
+
+### Bug Fixes
+
+* clarify automatic preview flow ([#219](https://github.com/abijith-suresh/reshrimp/issues/219)) ([85c1832](https://github.com/abijith-suresh/reshrimp/commit/85c183275de2cd58a313575161665214d720ccec))
+* polish control interaction animations ([#225](https://github.com/abijith-suresh/reshrimp/issues/225)) ([165df4f](https://github.com/abijith-suresh/reshrimp/commit/165df4f238cefab2468d3405a0129d690ee716ef))
+* reduce first paint shifts ([#221](https://github.com/abijith-suresh/reshrimp/issues/221)) ([91c5c49](https://github.com/abijith-suresh/reshrimp/commit/91c5c49f7eef0c5605915cf134d78e8faeb59828))
+* reuse background removal result during edits ([#223](https://github.com/abijith-suresh/reshrimp/issues/223)) ([e282cd5](https://github.com/abijith-suresh/reshrimp/commit/e282cd5d7b9bfa86849d625ac904ddf1e4f8eda7))
+* warm background removal in idle time ([#222](https://github.com/abijith-suresh/reshrimp/issues/222)) ([8441ab8](https://github.com/abijith-suresh/reshrimp/commit/8441ab87aefb6a66540a911d70d4865db0eae8f2))
+
 ## [0.0.3](https://github.com/abijith-suresh/reshrimp/compare/v0.0.2...v0.0.3) (2026-09-18)
 
 
