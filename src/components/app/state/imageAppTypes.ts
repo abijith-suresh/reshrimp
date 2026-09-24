@@ -7,6 +7,8 @@ export interface SizeDiff {
   className: string;
 }
 
+export type CompressionMode = "quality" | "size";
+
 export interface AppState {
   currentImage: Accessor<ProcessedImage | null>;
   processResult: Accessor<ProcessResult | null>;
@@ -23,6 +25,10 @@ export interface AppState {
   formatValue: Accessor<string>;
   previousFormatValue: Accessor<string>;
   qualityValue: Accessor<number>;
+  compressionMode: Accessor<CompressionMode>;
+  targetFileSizeValue: Accessor<string>;
+  targetFileSizeBytes: Accessor<number | null>;
+  targetFileSizeInputInvalid: Accessor<boolean>;
   resizeUnit: Accessor<ResizeUnit>;
   dpiValue: Accessor<number>;
   currentOutputFormat: Accessor<ImageFormat | null>;
@@ -34,6 +40,7 @@ export interface AppState {
   heightPlaceholder: Accessor<string>;
   sizeDifference: Accessor<SizeDiff | null>;
   formatNotice: Accessor<string | null>;
+  targetFileSizeNotice: Accessor<string | null>;
 }
 
 export interface AppActions {
@@ -48,6 +55,8 @@ export interface AppActions {
   setIsDragOver(v: boolean): void;
   setFormatValue(v: string): void;
   setQualityValue(v: number): void;
+  setCompressionMode(v: CompressionMode): void;
+  setTargetFileSizeValue(v: string): void;
 }
 
 export interface ImageAppContextValue {

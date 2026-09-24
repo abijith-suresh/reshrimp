@@ -28,7 +28,7 @@ const faqs = [
   {
     question: "What's the maximum file size?",
     answer:
-      "The limit is 50MB per image. Your device's available memory can reduce the practical limit because processing happens locally.",
+      "The upload limit is 50MB per image. For JPEG, WebP, and AVIF output, you can also set a maximum file size in the editor. Reshrimp adjusts quality to try to meet it, but the target is best effort; your device's available memory can also reduce the practical upload limit.",
   },
   {
     question: "Where's the source code?",
@@ -42,7 +42,7 @@ const faqs = [
   {
     question: "How do the quality settings work?",
     answer:
-      "The quality slider controls JPEG, WebP, and AVIF output from 0 to 100%. PNG export stays lossless. The preview updates after processing so you can review the result before downloading.",
+      "The quality slider controls JPEG, WebP, and AVIF output from 0 to 100%. Or set a maximum output size and let Reshrimp adjust quality for you. It may not be possible to meet every target; the editor reports when the smallest result is still over the limit. PNG and transparent background-removal exports stay lossless. The preview updates after processing so you can review the result before downloading.",
   },
 ];
 ---

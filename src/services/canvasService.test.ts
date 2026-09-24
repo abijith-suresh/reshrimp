@@ -3,6 +3,7 @@ import { makeCanvasMock, restoreMocks, setupBrowserMocks } from "../test/mocks";
 import type { ImageFormat } from "../types/image";
 import {
   canvasToBlob,
+  canvasToBlobAtFileSizeTarget,
   getBestFormat,
   loadImage,
   resizeOnCanvas,
@@ -126,6 +127,70 @@ describe("canvasToBlob", () => {
     const { canvas } = makeCanvasMock();
     await canvasToBlob(canvas, "image/jpeg", 0.7);
     expect(canvas.toBlob).toHaveBeenCalledWith(expect.any(Function), "image/jpeg", 0.7);
+  });
+});
+
+describe("canvasToBlobAtFileSizeTarget", () => {
+  beforeEach(() => {
+    setupBrowserMocks();
+  });
+
+  afterEach(() => {
+    restoreMocks();
+  });
+
+  function setEncodedSizeByQuality(canvas: HTMLCanvasElement): number[] {
+    const qualities: number[] = [];
+    (canvas.toBlob as ReturnType<typeof vi.fn>).mockImplementation(
+      (callback: BlobCallback, format: string, quality: number) => {
+        qualities.push(quality);
+        const byteCount = Math.round(100 + quality * 900);
+        callback(new Blob([new Uint8Array(byteCount)], { type: format }));
+      }
+    );
+    return qualities;
+  }
+
+  it("returns the highest-quality sample found within the target", async () => {
+    const { canvas } = makeCanvasMock();
+    const qualities = setEncodedSizeByQuality(canvas);
+
+    const result = await canvasToBlobAtFileSizeTarget(canvas, "image/jpeg", 600);
+
+    expect(result.targetReached).toBe(true);
+    expect(result.blob.size).toBeLessThanOrEqual(600);
+    expect(qualities).toHaveLength(8);
+    expect(qualities.at(-1)).toBeGreaterThan(0.5);
+  });
+
+  it("returns the smallest attempt and reports an unreachable target", async () => {
+    const { canvas } = makeCanvasMock();
+    const qualities = setEncodedSizeByQuality(canvas);
+
+    const result = await canvasToBlobAtFileSizeTarget(canvas, "image/webp", 50);
+
+    expect(result).toEqual({ blob: expect.any(Blob), targetReached: false });
+    expect(result.blob.size).toBe(109);
+    expect(qualities).toEqual([1, 0.01]);
+  });
+
+  it("uses maximum quality when it already fits", async () => {
+    const { canvas } = makeCanvasMock();
+    const qualities = setEncodedSizeByQuality(canvas);
+
+    const result = await canvasToBlobAtFileSizeTarget(canvas, "image/avif", 1000);
+
+    expect(result.targetReached).toBe(true);
+    expect(result.blob.size).toBe(1000);
+    expect(qualities).toEqual([1]);
+  });
+
+  it("rejects invalid byte limits", async () => {
+    const { canvas } = makeCanvasMock();
+
+    await expect(canvasToBlobAtFileSizeTarget(canvas, "image/jpeg", 0)).rejects.toThrow(
+      "Maximum file size must be a positive whole number of bytes"
+    );
   });
 });
 

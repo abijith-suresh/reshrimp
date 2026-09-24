@@ -24,6 +24,7 @@ import {
   getDimensionValuesForDpiChange,
   getFormatStateForBackgroundRemoval,
   getLinkedDimensionValues,
+  parseTargetFileSizeKilobytes,
   rebaseDimensionValues,
 } from "@/services/imageWorkflowService";
 import {
@@ -39,7 +40,13 @@ import {
   revokeImageSessionUrls,
   revokeProcessedObjectUrl,
 } from "./imageAppObjectUrls";
-import type { AppActions, AppState, ImageAppContextValue, SizeDiff } from "./imageAppTypes";
+import type {
+  AppActions,
+  AppState,
+  CompressionMode,
+  ImageAppContextValue,
+  SizeDiff,
+} from "./imageAppTypes";
 
 function createDebouncedTask(fn: () => void, ms: number) {
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -141,6 +148,8 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   const [formatValue, setFormatValue] = createSignal("");
   const [previousFormatValue, setPreviousFormatValue] = createSignal("");
   const [qualityValue, setQualityValue] = createSignal(92);
+  const [compressionMode, setCompressionMode] = createSignal<CompressionMode>("quality");
+  const [targetFileSizeValue, setTargetFileSizeValue] = createSignal("");
 
   // ── Resize unit controls ──────────────────────────────────────────────────
   const [resizeUnit, setResizeUnit] = createSignal<ResizeUnit>("px");
@@ -196,6 +205,21 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     return format !== null && supportsBrowserQualityControl(format);
   });
 
+  const targetFileSizeBytes = createMemo(() => {
+    if (!qualityControlSupported() || compressionMode() !== "size") return null;
+    return parseTargetFileSizeKilobytes(targetFileSizeValue());
+  });
+
+  const targetFileSizeInputInvalid = createMemo(() => {
+    const value = targetFileSizeValue().trim();
+    return (
+      compressionMode() === "size" &&
+      qualityControlSupported() &&
+      value !== "" &&
+      targetFileSizeBytes() === null
+    );
+  });
+
   const widthPlaceholder = createMemo(() => {
     const img = currentImage();
     if (!img) return "Original";
@@ -235,6 +259,22 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     return `Your browser could not export ${getImageFormatLabel(requestedFormat)}. Downloaded as ${getImageFormatLabel(result.metadata.format)} instead.`;
   });
 
+  const targetFileSizeNotice = createMemo<string | null>(() => {
+    const metadata = processResult()?.metadata;
+    if (!metadata) return null;
+    const targetBytes = metadata.targetFileSizeBytes;
+    const status = metadata.targetFileSizeStatus;
+    if (targetBytes === undefined || status === undefined) return null;
+
+    if (status === "met") {
+      return `Output fits within ${formatFileSize(targetBytes)}.`;
+    }
+    if (status === "unmet") {
+      return `Could not meet ${formatFileSize(targetBytes)}. Smallest result: ${formatFileSize(metadata.fileSize)}.`;
+    }
+    return "This browser could not apply a size target to the output format.";
+  });
+
   // ── Core processing (internal) ────────────────────────────────────────────
   async function handleProcess(): Promise<void> {
     if (disposed) return;
@@ -260,6 +300,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       removeBackground: removeBackground(),
       formatValue: formatValue(),
       qualityValue: qualityValue(),
+      targetFileSizeBytes: targetFileSizeBytes() ?? undefined,
       resizeUnit: resizeUnit(),
       dpi: dpiValue(),
     });
@@ -283,6 +324,8 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
     if (options.removeBackground) {
       setProgressLabel("Removing background\u2026");
+    } else if (options.targetFileSizeBytes !== undefined) {
+      setProgressLabel("Adjusting quality for size target\u2026");
     }
 
     let previewAbortController: AbortController | null = null;
@@ -363,7 +406,11 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         widthValue,
         heightValue,
         formatValue,
-        () => (qualityControlSupported() ? qualityValue() : null),
+        compressionMode,
+        () =>
+          qualityControlSupported() && compressionMode() === "quality" ? qualityValue() : null,
+        () =>
+          qualityControlSupported() && compressionMode() === "size" ? targetFileSizeValue() : null,
         resizeUnit,
         dpiValue,
         maintainAspectRatio,
@@ -378,6 +425,16 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         pendingPreviewAbort?.abort();
         pendingPreviewAbort = null;
         setProcessResult(null);
+
+        if (targetFileSizeInputInvalid()) {
+          debouncedProcess.cancel();
+          return;
+        }
+
+        if (compressionMode() === "size" && !targetFileSizeValue().trim()) {
+          debouncedProcess.cancel();
+          return;
+        }
 
         if (removeBackground()) {
           void handleProcess();
@@ -460,6 +517,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         setLastCompletedResult(null);
         setError(null);
         setProgressLabel(null);
+        setTargetFileSizeValue("");
 
         // Reset form controls to defaults
         setWidthValue(String(metadata.width));
@@ -469,6 +527,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         setFormatValue(getInitialOutputFormat(metadata.format));
         setPreviousFormatValue("");
         setQualityValue(92);
+        setCompressionMode("quality");
 
         // Reset unit controls
         setResizeUnit("px");
@@ -643,6 +702,10 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     formatValue,
     previousFormatValue,
     qualityValue,
+    compressionMode,
+    targetFileSizeValue,
+    targetFileSizeBytes,
+    targetFileSizeInputInvalid,
     resizeUnit,
     dpiValue,
     currentOutputFormat,
@@ -654,6 +717,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     heightPlaceholder,
     sizeDifference,
     formatNotice,
+    targetFileSizeNotice,
   };
 
   const actions: AppActions = {
@@ -668,6 +732,8 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     setIsDragOver,
     setFormatValue,
     setQualityValue,
+    setCompressionMode,
+    setTargetFileSizeValue,
   };
 
   return (

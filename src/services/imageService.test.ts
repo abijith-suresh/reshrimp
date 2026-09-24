@@ -20,6 +20,10 @@ vi.mock("./canvasService", () => ({
   loadImage: vi.fn(),
   resizeOnCanvas: vi.fn(() => mockCanvas),
   canvasToBlob: vi.fn(async () => new Blob([], { type: "image/png" })),
+  canvasToBlobAtFileSizeTarget: vi.fn(async () => ({
+    blob: new Blob([], { type: "image/jpeg" }),
+    targetReached: true,
+  })),
   getBestFormat: vi.fn((f: string) => f),
 }));
 
@@ -33,12 +37,19 @@ vi.mock("./formatDetectionService", () => ({
 }));
 
 import { removeBackground } from "./backgroundRemovalService";
-import { canvasToBlob, getBestFormat, loadImage, resizeOnCanvas } from "./canvasService";
+import {
+  canvasToBlob,
+  canvasToBlobAtFileSizeTarget,
+  getBestFormat,
+  loadImage,
+  resizeOnCanvas,
+} from "./canvasService";
 import { decodeHeicBlob, isHeicBlob } from "./formatDetectionService";
 
 const mockLoadImage = loadImage as ReturnType<typeof vi.fn>;
 const mockResizeOnCanvas = resizeOnCanvas as ReturnType<typeof vi.fn>;
 const mockCanvasToBlob = canvasToBlob as ReturnType<typeof vi.fn>;
+const mockCanvasToBlobAtFileSizeTarget = canvasToBlobAtFileSizeTarget as ReturnType<typeof vi.fn>;
 const mockGetBestFormat = getBestFormat as ReturnType<typeof vi.fn>;
 const mockRemoveBackground = removeBackground as ReturnType<typeof vi.fn>;
 const mockDecodeHeicBlob = decodeHeicBlob as ReturnType<typeof vi.fn>;
@@ -53,6 +64,10 @@ beforeEach(() => {
   mockLoadImage.mockResolvedValue(makeMockImg());
   mockResizeOnCanvas.mockReturnValue(mockCanvas);
   mockCanvasToBlob.mockResolvedValue(new Blob([], { type: "image/png" }));
+  mockCanvasToBlobAtFileSizeTarget.mockResolvedValue({
+    blob: new Blob([], { type: "image/jpeg" }),
+    targetReached: true,
+  });
   mockGetBestFormat.mockImplementation((f: string) => f);
   mockRemoveBackground.mockResolvedValue(new Blob([], { type: "image/png" }));
   mockDecodeHeicBlob.mockResolvedValue(new Blob([], { type: "image/png" }));
@@ -321,6 +336,54 @@ describe("processImage", () => {
     await processImage(file, opts);
 
     expect(mockCanvasToBlob).toHaveBeenCalledWith(expect.anything(), "image/jpeg", 0.75);
+  });
+
+  it("uses target-size encoding for quality-adjustable formats", async () => {
+    const file = new File([], "test.jpg", { type: "image/jpeg" });
+    const targetFileSizeBytes = 500 * 1024;
+    const outputBlob = new Blob(["small"], { type: "image/jpeg" });
+    mockCanvasToBlobAtFileSizeTarget.mockResolvedValue({
+      blob: outputBlob,
+      targetReached: false,
+    });
+
+    const result = await processImage(file, {
+      format: "image/jpeg",
+      targetFileSizeBytes,
+    });
+
+    expect(mockCanvasToBlobAtFileSizeTarget).toHaveBeenCalledWith(
+      mockCanvas,
+      "image/jpeg",
+      targetFileSizeBytes
+    );
+    expect(result.blob).toBe(outputBlob);
+    expect(result.metadata).toMatchObject({
+      targetFileSizeBytes,
+      targetFileSizeStatus: "unmet",
+    });
+  });
+
+  it("reports unsupported targets when the actual output has no quality control", async () => {
+    const file = new File([], "test.png", { type: "image/png" });
+    const targetFileSizeBytes = 100_000;
+
+    const result = await processImage(file, { targetFileSizeBytes });
+
+    expect(mockCanvasToBlobAtFileSizeTarget).not.toHaveBeenCalled();
+    expect(result.metadata).toMatchObject({
+      targetFileSizeBytes,
+      targetFileSizeStatus: "unsupported",
+    });
+  });
+
+  it("rejects invalid target sizes before decoding the image", async () => {
+    const file = new File([], "test.jpg", { type: "image/jpeg" });
+
+    await expect(processImage(file, { targetFileSizeBytes: 0 })).rejects.toThrow(
+      "Maximum file size must be a positive whole number of bytes"
+    );
+    expect(mockLoadImage).not.toHaveBeenCalled();
   });
 
   it("returns ProcessResult with blob and metadata", async () => {

@@ -25,22 +25,14 @@ The active product supports:
 
 - image resizing and dimension changes
 - compression through output quality controls
+- best-effort maximum file-size targeting for JPEG, WebP, and AVIF output
 - format conversion
 - background removal
 - single-image upload, preview, process, and download
 
 These are the only current public product promises.
 
-### Desired Near-Term Capability
-
-Best-effort target file-size export is a desired product direction, but it should not be promised in public copy until it is implemented and reliable.
-
-The intended behavior is:
-
-- the user provides dimensions, output format, and a maximum file size
-- Reshrimp attempts to produce an output just under that maximum
-- success is best effort, not an exact guarantee
-- the UI should reduce manual quality-slider fiddling
+Maximum file-size targeting adjusts output quality for JPEG, WebP, and AVIF while preserving the selected dimensions and format. The size is a best-effort limit, not a guarantee. If quality reaches its lower bound before the output fits, the app keeps the smallest result it produced and tells the user the target was not met. PNG and background-removal exports remain lossless and do not support a size target.
 
 ### Non-Goals
 

@@ -738,7 +738,117 @@ describe("ImageApp", () => {
 
     await vi.waitFor(() => {
       expect(view.container.querySelector("#quality-slider")).toBeDisabled();
+      expect(view.container.querySelector("#compression-mode-quality")).toBeDisabled();
+      expect(view.container.querySelector("#compression-mode-size")).toBeDisabled();
+      expect(view.container.querySelector("#target-file-size")).toBeDisabled();
+      expect(view.container.querySelector("#target-file-size")).not.toBeVisible();
       expect(view.container).not.toHaveTextContent("Fixed");
+    });
+  });
+
+  it("switches between quality and best-effort size modes", async () => {
+    const sourceFile = new File(["source"], "photo.jpg", { type: "image/jpeg" });
+    const firstBlob = new Blob(["first"], { type: "image/jpeg" });
+    const targetedBlob = new Blob(["targeted"], { type: "image/jpeg" });
+    const qualityBlob = new Blob(["quality"], { type: "image/jpeg" });
+    const metadata = {
+      width: 1200,
+      height: 800,
+      format: "image/jpeg" as const,
+      fileSize: sourceFile.size,
+      fileName: sourceFile.name,
+    };
+
+    mockGetImageMetadata.mockResolvedValue(metadata);
+    mockProcessImage
+      .mockResolvedValueOnce({
+        blob: firstBlob,
+        requestedFormat: "image/jpeg",
+        metadata: { ...metadata, fileSize: firstBlob.size },
+      })
+      .mockResolvedValueOnce({
+        blob: targetedBlob,
+        requestedFormat: "image/jpeg",
+        metadata: {
+          ...metadata,
+          fileSize: targetedBlob.size,
+          targetFileSizeBytes: 500 * 1024,
+          targetFileSizeStatus: "met",
+        },
+      })
+      .mockResolvedValueOnce({
+        blob: qualityBlob,
+        requestedFormat: "image/jpeg",
+        metadata: { ...metadata, fileSize: qualityBlob.size },
+      })
+      .mockResolvedValue({
+        blob: targetedBlob,
+        requestedFormat: "image/jpeg",
+        metadata: {
+          ...metadata,
+          fileSize: targetedBlob.size,
+          targetFileSizeBytes: 500 * 1024,
+          targetFileSizeStatus: "met",
+        },
+      });
+
+    vi.mocked(URL.createObjectURL)
+      .mockReturnValueOnce("blob:original")
+      .mockReturnValueOnce("blob:first")
+      .mockReturnValueOnce("blob:targeted")
+      .mockReturnValueOnce("blob:quality");
+
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
+
+    const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
+    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
+    fireEvent.change(fileInput);
+
+    await vi.waitFor(() => {
+      expect(mockProcessImage).toHaveBeenCalledTimes(1);
+    });
+
+    const sizeModeButton = view.container.querySelector(
+      "#compression-mode-size"
+    ) as HTMLButtonElement;
+    fireEvent.click(sizeModeButton);
+
+    const targetInput = view.container.querySelector("#target-file-size") as HTMLInputElement;
+    expect(targetInput).toBeInTheDocument();
+    expect(targetInput).toHaveAttribute("inputmode", "decimal");
+    expect(targetInput).toHaveClass("text-base");
+    expect(targetInput).toBeVisible();
+    expect(view.container.querySelector("#quality-slider")).toBeDisabled();
+    expect(view.container.querySelector("#quality-slider")).not.toBeVisible();
+    expect(sizeModeButton).toHaveAttribute("aria-pressed", "true");
+    fireEvent.input(targetInput, { target: { value: "500" } });
+
+    await vi.waitFor(() => {
+      expect(mockProcessImage).toHaveBeenCalledTimes(2);
+      expect(mockProcessImage.mock.calls[1]?.[1]).toMatchObject({
+        targetFileSizeBytes: 500 * 1024,
+      });
+      expect(view.container.querySelector("#quality-slider")).not.toBeVisible();
+      expect(view.container).toHaveTextContent("Output fits within 500.0 KB.");
+    });
+
+    const qualityModeButton = view.container.querySelector(
+      "#compression-mode-quality"
+    ) as HTMLButtonElement;
+    fireEvent.click(qualityModeButton);
+
+    await vi.waitFor(() => {
+      expect(mockProcessImage).toHaveBeenCalledTimes(3);
+      expect(mockProcessImage.mock.calls[2]?.[1]).toMatchObject({ quality: 0.92 });
+      expect(mockProcessImage.mock.calls[2]?.[1]).not.toHaveProperty("targetFileSizeBytes");
+      expect(qualityModeButton).toHaveAttribute("aria-pressed", "true");
+      expect(sizeModeButton).toHaveAttribute("aria-pressed", "false");
+      expect(view.container.querySelector("#quality-slider")).toHaveValue("92");
+      expect(view.container.querySelector("#quality-slider")).toBeVisible();
+      expect(targetInput).toBeDisabled();
+      expect(targetInput).not.toBeVisible();
+      expect(view.container).toHaveTextContent("92%");
     });
   });
 

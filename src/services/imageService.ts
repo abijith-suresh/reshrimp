@@ -12,7 +12,13 @@ import type {
   ResizeOptions,
 } from "../types/processing";
 import { removeBackground } from "./backgroundRemovalService";
-import { canvasToBlob, getBestFormat, loadImage, resizeOnCanvas } from "./canvasService";
+import {
+  canvasToBlob,
+  canvasToBlobAtFileSizeTarget,
+  getBestFormat,
+  loadImage,
+  resizeOnCanvas,
+} from "./canvasService";
 import { decodeHeicBlob, isHeicBlob } from "./formatDetectionService";
 
 const backgroundRemovalResults = new WeakMap<File, Promise<Blob>>();
@@ -159,6 +165,13 @@ export async function processImage(
   options: ProcessOptions,
   onBackgroundRemovalProgress?: BackgroundRemovalProgressCallback
 ): Promise<ProcessResult> {
+  if (
+    options.targetFileSizeBytes !== undefined &&
+    (!Number.isSafeInteger(options.targetFileSizeBytes) || options.targetFileSizeBytes < 1)
+  ) {
+    throw new Error("Maximum file size must be a positive whole number of bytes");
+  }
+
   // Step 0.5: Decode HEIC/HEIF input to PNG before processing. Also covers
   // HEIC content that arrives with an empty or generic MIME type.
   let currentFile = (await prepareImageFile(file)).file;
@@ -212,14 +225,32 @@ export async function processImage(
   }
   const format = getBestFormat(requestedFormat);
 
-  // Step 7: Determine quality (compress or default)
-  let quality: number | undefined;
-  if (supportsBrowserQualityControl(format)) {
-    quality = options.quality !== undefined ? options.quality : 0.92;
-  }
+  // Step 7: Encode at a best-effort quality when a target is available.
+  let blob: Blob;
+  let targetFileSizeStatus: ProcessResult["metadata"]["targetFileSizeStatus"];
 
-  // Step 8: Convert to blob
-  const blob = await canvasToBlob(canvas, format, quality);
+  if (options.targetFileSizeBytes !== undefined) {
+    if (supportsBrowserQualityControl(format)) {
+      const targetResult = await canvasToBlobAtFileSizeTarget(
+        canvas,
+        format,
+        options.targetFileSizeBytes
+      );
+      blob = targetResult.blob;
+      targetFileSizeStatus = targetResult.targetReached ? "met" : "unmet";
+    } else {
+      blob = await canvasToBlob(canvas, format);
+      targetFileSizeStatus = "unsupported";
+    }
+  } else {
+    // Manual quality controls apply to JPEG/WebP/AVIF; other formats are lossless.
+    let quality: number | undefined;
+    if (supportsBrowserQualityControl(format)) {
+      quality = options.quality !== undefined ? options.quality : 0.92;
+    }
+
+    blob = await canvasToBlob(canvas, format, quality);
+  }
 
   return {
     blob,
@@ -229,6 +260,12 @@ export async function processImage(
       height,
       format,
       fileSize: blob.size,
+      ...(options.targetFileSizeBytes !== undefined
+        ? {
+            targetFileSizeBytes: options.targetFileSizeBytes,
+            targetFileSizeStatus,
+          }
+        : {}),
     },
   };
 }

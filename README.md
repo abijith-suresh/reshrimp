@@ -11,6 +11,7 @@ Try it: https://reshrimp.vercel.app
 - Resize images by pixels, percentage, inches, or centimetres.
 - Convert between common browser image formats such as JPEG, PNG, WebP, and AVIF when supported by your browser.
 - Reduce file size by adjusting output quality for supported formats.
+- Set a maximum output size for JPEG, WebP, or AVIF. Reshrimp adjusts quality to try to fit; this is best effort, and the target may not be reachable.
 - Remove backgrounds locally in the browser and export PNG with transparency.
 - Process one image at a time so the app stays simple and predictable.
 
@@ -32,6 +33,8 @@ The app still loads website files like any web app. Background removal also load
 - Maximum upload size is 50 MB.
 - Very large images may be slow or fail depending on your device memory and browser limits.
 - Output support can vary by browser, especially for newer formats.
+- File-size targeting adjusts quality for JPEG, WebP, and AVIF. PNG and transparent background-removal exports stay lossless and do not support a size target.
+- If an image cannot be reduced enough at the minimum attempted quality, Reshrimp returns its smallest attempt and reports that the target was not met.
 
 ## Source And License
 
