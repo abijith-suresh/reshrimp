@@ -740,7 +740,8 @@ describe("ImageApp", () => {
       expect(view.container.querySelector("#quality-slider")).toBeDisabled();
       expect(view.container.querySelector("#compression-mode-quality")).toBeDisabled();
       expect(view.container.querySelector("#compression-mode-size")).toBeDisabled();
-      expect(view.container.querySelector("#target-file-size")).not.toBeInTheDocument();
+      expect(view.container.querySelector("#target-file-size")).toBeDisabled();
+      expect(view.container.querySelector("#target-file-size")).not.toBeVisible();
       expect(view.container).not.toHaveTextContent("Fixed");
     });
   });
@@ -817,7 +818,9 @@ describe("ImageApp", () => {
     expect(targetInput).toBeInTheDocument();
     expect(targetInput).toHaveAttribute("inputmode", "decimal");
     expect(targetInput).toHaveClass("text-base");
-    expect(view.container.querySelector("#quality-slider")).not.toBeInTheDocument();
+    expect(targetInput).toBeVisible();
+    expect(view.container.querySelector("#quality-slider")).toBeDisabled();
+    expect(view.container.querySelector("#quality-slider")).not.toBeVisible();
     expect(sizeModeButton).toHaveAttribute("aria-pressed", "true");
     fireEvent.input(targetInput, { target: { value: "500" } });
 
@@ -826,7 +829,7 @@ describe("ImageApp", () => {
       expect(mockProcessImage.mock.calls[1]?.[1]).toMatchObject({
         targetFileSizeBytes: 500 * 1024,
       });
-      expect(view.container.querySelector("#quality-slider")).not.toBeInTheDocument();
+      expect(view.container.querySelector("#quality-slider")).not.toBeVisible();
       expect(view.container).toHaveTextContent("Output fits within 500.0 KB.");
     });
 
@@ -842,7 +845,9 @@ describe("ImageApp", () => {
       expect(qualityModeButton).toHaveAttribute("aria-pressed", "true");
       expect(sizeModeButton).toHaveAttribute("aria-pressed", "false");
       expect(view.container.querySelector("#quality-slider")).toHaveValue("92");
-      expect(view.container.querySelector("#target-file-size")).not.toBeInTheDocument();
+      expect(view.container.querySelector("#quality-slider")).toBeVisible();
+      expect(targetInput).toBeDisabled();
+      expect(targetInput).not.toBeVisible();
       expect(view.container).toHaveTextContent("92%");
     });
   });
