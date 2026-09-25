@@ -37,9 +37,11 @@ function translateForState(s: SheetState): string {
 function MobileSheet() {
   const { state } = useImageApp();
   const [sheetState, setSheetState] = createSignal<SheetState>("hidden");
+  const [headerTransitions, setHeaderTransitions] = createSignal(false);
   let sheetRef: HTMLElement | undefined;
   let sheetHeaderRef: HTMLDivElement | undefined;
   let controlsToggleRef: HTMLButtonElement | undefined;
+  let headerTransitionFallback: number | undefined;
   let disposed = false;
   let lastFocusedElement: HTMLElement | null = null;
 
@@ -61,9 +63,42 @@ function MobileSheet() {
 
   function collapseSheet() {
     setSheetState("peek");
+    headerTransitionStarted();
     queueMicrotask(() => {
       if (!disposed && controlsToggleRef?.isConnected) controlsToggleRef.focus();
     });
+  }
+
+  // Freeze the peek height from the settled peek layout before the open
+  // transition starts.  Measuring later races the collapse animation and
+  // would briefly point the slide at a wrong offset.
+  function capturePeekHeight() {
+    const height = sheetHeaderRef?.getBoundingClientRect().height;
+    if (height && sheetRef) {
+      sheetRef.style.setProperty("--app-sheet-peek-height", `${height}px`);
+    }
+  }
+
+  // While the header is collapsing or re-expanding, the peek height is in flux;
+  // the ResizeObserver must not chase it frame by frame or the slide would
+  // constantly retarget.  The fallback covers reduced layouts without events.
+  function headerTransitionStarted() {
+    setHeaderTransitions(true);
+    window.clearTimeout(headerTransitionFallback);
+    headerTransitionFallback = window.setTimeout(() => setHeaderTransitions(false), 700);
+  }
+
+  function headerTransitionSettled() {
+    window.clearTimeout(headerTransitionFallback);
+    setHeaderTransitions(false);
+  }
+
+  // The collapsed peek affordances re-expand through a transition; once it
+  // settles, the peek offset must match the (possibly changed) header size.
+  function handleAffordanceTransition(event: TransitionEvent) {
+    if (event.propertyName !== "max-height") return;
+    headerTransitionSettled();
+    if (sheetState() === "peek") capturePeekHeight();
   }
 
   function toggleSheet() {
@@ -72,6 +107,10 @@ function MobileSheet() {
       return;
     }
 
+    if (sheetState() === "peek") {
+      capturePeekHeight();
+      headerTransitionStarted();
+    }
     setSheetState("open");
   }
 
@@ -241,7 +280,7 @@ function MobileSheet() {
     editorBreakpoint?.addEventListener("change", handleBreakpointChange);
 
     const updatePeekHeight = () => {
-      if (sheetState() === "open") return;
+      if (sheetState() !== "peek" || headerTransitions()) return;
       const height = sheetHeaderRef?.getBoundingClientRect().height;
       if (height && sheetRef) {
         sheetRef.style.setProperty("--app-sheet-peek-height", `${height}px`);
@@ -283,17 +322,13 @@ function MobileSheet() {
       } else {
         appShell?.removeAttribute("inert");
         skipLink?.removeAttribute("inert");
-        // Keep the measured peek height current when returning to peek
-        const height = sheetHeaderRef?.getBoundingClientRect().height;
-        if (height && sheetRef) {
-          sheetRef.style.setProperty("--app-sheet-peek-height", `${height}px`);
-        }
       }
     })
   );
 
   onCleanup(() => {
     disposed = true;
+    window.clearTimeout(headerTransitionFallback);
     document.querySelector<HTMLElement>("[data-app-shell]")?.removeAttribute("inert");
     document.querySelector<HTMLElement>("[data-global-skip-link]")?.removeAttribute("inert");
   });
@@ -312,7 +347,7 @@ function MobileSheet() {
       {/* Backdrop — tap to collapse when fully open */}
       <Show when={sheetState() === "open"}>
         <div
-          class="editor:hidden fixed inset-0 z-50 bg-black/20 cursor-pointer"
+          class="mobile-sheet-backdrop editor:hidden fixed inset-0 z-50 bg-black/20 cursor-pointer"
           onClick={collapseSheet}
           aria-hidden="true"
         />
@@ -420,8 +455,16 @@ function MobileSheet() {
             </button>
           </div>
 
-          {/* Peek-only header elements: file metadata & instant download CTA */}
-          <Show when={sheetState() !== "open"}>
+          {/* Peek-only affordances stay mounted and collapse smoothly mid-slide
+              instead of unmounting, so the header morphs instead of snapping */}
+          <div
+            id="mobile-peek-affordances"
+            class:is-open={sheetState() === "open"}
+            class="mobile-peek-affordances"
+            onTransitionEnd={handleAffordanceTransition}
+            aria-hidden={sheetState() === "open" ? "true" : "false"}
+            inert={sheetState() === "open"}
+          >
             <Show when={img()}>
               {(currentImg) => (
                 <div class="px-4 pb-1.5">
@@ -441,7 +484,7 @@ function MobileSheet() {
             <div class="px-4 pt-1 mobile-sheet-footer">
               <DownloadSection idPrefix="mobile-" />
             </div>
-          </Show>
+          </div>
         </div>
 
         {/* Scrollable settings content */}

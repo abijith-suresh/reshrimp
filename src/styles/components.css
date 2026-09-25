@@ -272,6 +272,36 @@
   overscroll-behavior: contain;
 }
 
+/* Collapsed peek affordances morph into open layout instead of unmounting,
+   so header height eases during the slide instead of snapping mid-animation */
+.mobile-peek-affordances {
+  max-height: 16.5rem;
+  opacity: 1;
+  overflow: hidden;
+  transition:
+    max-height 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 0.35s ease;
+}
+
+.mobile-peek-affordances.is-open {
+  max-height: 0;
+  opacity: 0;
+}
+
+.mobile-sheet-backdrop {
+  animation: mobile-sheet-backdrop-in 0.35s ease both;
+}
+
+@keyframes mobile-sheet-backdrop-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 .mobile-sheet-content {
   overscroll-behavior: contain;
   padding-bottom: max(1rem, env(safe-area-inset-bottom));

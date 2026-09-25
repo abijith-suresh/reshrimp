@@ -1221,6 +1221,9 @@ describe("ImageApp", () => {
     expect(openButton).toHaveClass("w-full");
     expect(openButton).toHaveAttribute("aria-expanded", "false");
     expect(sheet.querySelector("h2")).toBeNull();
+    const peekAffordances = sheet.querySelector("#mobile-peek-affordances") as HTMLDivElement;
+    expect(peekAffordances).not.toHaveClass("is-open");
+    expect(peekAffordances.inert).toBe(false);
     triggerDelegatedClick(openButton);
 
     expect(sheet).toHaveAttribute("role", "dialog");
@@ -1230,6 +1233,8 @@ describe("ImageApp", () => {
     expect(openButton).toHaveAccessibleName("Done");
     expect(sheet.querySelector("h2")).toHaveTextContent("Edit image");
     expect(sheet.querySelector("#mobile-modal-download-button")).not.toBeNull();
+    expect(peekAffordances).toHaveClass("is-open");
+    expect(peekAffordances.inert).toBe(true);
     await vi.waitFor(() => {
       expect(document.activeElement).toBe(sheet);
     });
@@ -1253,6 +1258,8 @@ describe("ImageApp", () => {
       expect(openButton).toHaveAttribute("aria-expanded", "false");
       expect(openButton).toHaveAccessibleName("Edit image");
       expect(sheet.querySelector("h2")).toBeNull();
+      expect(peekAffordances).not.toHaveClass("is-open");
+      expect(peekAffordances.inert).toBe(false);
       expect(view.container.querySelector("[data-app-shell]")).not.toHaveAttribute("inert");
       expect(document.activeElement).toBe(openButton);
     });
