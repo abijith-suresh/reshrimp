@@ -7,6 +7,7 @@ import ProcessPanel from "@/components/app/panels/ProcessPanel";
 import DownloadSection from "@/components/app/preview/DownloadSection";
 import ImageInfoBar from "@/components/app/preview/ImageInfoBar";
 import { ImageAppProvider, useImageApp } from "@/components/app/state/ImageAppContext";
+import { buttonVariants } from "@/components/ui/button";
 
 // ── Mobile bottom sheet ─────────────────────────────────────────────────────
 // Two visible states, zero drag logic:
@@ -323,6 +324,17 @@ function MobileSheet() {
         appShell?.removeAttribute("inert");
         skipLink?.removeAttribute("inert");
       }
+      // Let the preview make room for the sheet so the live image is never
+      // buried underneath it.  Desktop has a static layout, so desktop keeps
+      // the shell attribute off.
+      const onMobile =
+        typeof window.matchMedia !== "function" ||
+        !window.matchMedia(EDITOR_BREAKPOINT_QUERY).matches;
+      if (nextState !== "hidden" && onMobile) {
+        appShell?.setAttribute("data-sheet-state", nextState);
+      } else {
+        appShell?.removeAttribute("data-sheet-state");
+      }
     })
   );
 
@@ -395,23 +407,18 @@ function MobileSheet() {
           <div
             class={
               sheetState() === "open"
-                ? "flex items-center justify-between px-4 py-2 min-h-12 border-b border-border-light"
+                ? "flex items-center justify-between px-4 pt-1 pb-2 min-h-12"
                 : "mx-4 mt-1 mb-2"
             }
           >
             <Show when={sheetState() === "open"}>
               <div class="flex flex-col min-w-0 pr-3">
-                <div class="flex items-center gap-2">
-                  <SlidersHorizontal
-                    size={16}
-                    class="text-lavender-600 shrink-0"
-                    aria-hidden="true"
-                  />
-                  <h2 class="text-base font-semibold text-foreground tracking-tight">Edit image</h2>
-                </div>
+                <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-[0.12em]">
+                  Edit image
+                </h2>
                 <Show when={img()}>
                   {(currentImg) => (
-                    <p class="text-xs text-muted-foreground truncate mt-0.5">
+                    <p class="text-sm text-muted-foreground truncate mt-0.5">
                       {currentImg().metadata.fileName} · {displayWidth()} × {displayHeight()} px
                     </p>
                   )}
@@ -424,11 +431,9 @@ function MobileSheet() {
                 controlsToggleRef = element;
               }}
               type="button"
-              class={
-                sheetState() === "open"
-                  ? "flex items-center justify-center shrink-0 min-h-9 px-4 py-1.5 rounded-full bg-lavender-600 text-white font-semibold text-sm shadow-xs hover:bg-lavender-700 active:scale-95 transition-all duration-150 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-lavender-500/40"
-                  : "flex w-full min-h-11 items-center justify-between rounded-xl border border-lavender-200 bg-lavender-50 px-4 text-sm font-semibold text-lavender-700 shadow-sm transition-[background-color,border-color,box-shadow,transform] duration-200 hover:bg-lavender-100 active:scale-[0.99] focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-lavender-500/40"
-              }
+              class={`${
+                sheetState() === "open" ? "shrink-0" : "w-full justify-between"
+              } ${buttonVariants({ variant: "secondary", tone: "neutral" })}`}
               style={{ "touch-action": "manipulation" }}
               onClick={toggleSheet}
               aria-controls="mobile-controls-content"
@@ -497,7 +502,7 @@ function MobileSheet() {
         >
           <ProcessPanel sourceAtBottom idPrefix="mobile-" showDownload={false} />
           {/* In open modal mode, primary download is available at the end of configurations */}
-          <div class="px-5 py-4 border-t border-border-light">
+          <div class="px-5 pt-1 pb-5">
             <DownloadSection idPrefix="mobile-modal-" />
           </div>
         </div>
