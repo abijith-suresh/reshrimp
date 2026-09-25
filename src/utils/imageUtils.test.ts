@@ -131,8 +131,8 @@ describe("calculateWidthFromHeight", () => {
   });
 
   it("rounds non-integer results", () => {
-    // 3:2 aspect → height 10 → width = 10 * 1.5 = 15
-    expect(calculateWidthFromHeight(3, 2, 10)).toBe(15);
+    // 3:2 aspect → height 9 → width = 9 * 1.5 = 13.5 → rounds to 14
+    expect(calculateWidthFromHeight(3, 2, 9)).toBe(14);
   });
 });
 
