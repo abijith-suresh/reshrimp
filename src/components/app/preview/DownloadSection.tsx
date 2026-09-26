@@ -17,7 +17,7 @@ export default function DownloadSection(props: DownloadSectionProps) {
         {(message) => (
           <p
             id={`${prefix}format-fallback-warning`}
-            class="w-full text-xs leading-relaxed text-yellow-700"
+            class="w-full text-xs leading-relaxed text-yellow-600"
             role="status"
           >
             {message()}

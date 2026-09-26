@@ -374,7 +374,7 @@ function MobileSheet() {
         aria-label="Image controls"
         aria-hidden={sheetState() === "hidden" ? "true" : "false"}
         inert={sheetState() === "hidden"}
-        class="editor:hidden fixed inset-x-0 bottom-0 z-60 flex flex-col bg-card rounded-t-[22px] mobile-sheet"
+        class="editor:hidden fixed inset-x-0 bottom-0 z-60 flex flex-col bg-card rounded-t-lg mobile-sheet"
         onKeyDown={handleSheetKeyDown}
         style={{
           transform: translateForState(sheetState()),
@@ -392,8 +392,8 @@ function MobileSheet() {
           <div
             class={
               sheetState() === "open"
-                ? "flex items-center justify-between px-4 pt-2 pb-2 min-h-12"
-                : "mx-4 pt-3 pb-2"
+                ? "flex items-center justify-between px-5 pt-2 pb-2 min-h-12"
+                : "px-5 pt-3 pb-2"
             }
           >
             <Show when={sheetState() === "open"}>
@@ -418,8 +418,7 @@ function MobileSheet() {
               type="button"
               class={`${
                 sheetState() === "open" ? "shrink-0" : "w-full justify-between"
-              } ${buttonVariants({ variant: "primary", tone: "neutral" })}`}
-              style={{ "touch-action": "manipulation" }}
+              } ${buttonVariants({ variant: "primary", tone: "coral" })}`}
               onClick={toggleSheet}
               aria-controls="mobile-controls-content"
               aria-expanded={sheetState() === "open"}
@@ -457,7 +456,7 @@ function MobileSheet() {
           >
             <Show when={img()}>
               {(currentImg) => (
-                <div class="px-4 pb-1.5">
+                <div class="px-5 pb-2">
                   <ImageInfoBar
                     idPrefix="mobile-"
                     fileName={currentImg().metadata.fileName}
@@ -471,7 +470,7 @@ function MobileSheet() {
             </Show>
 
             {/* Download button — primary CTA reachable directly in peek mode */}
-            <div class="px-4 pt-1 mobile-sheet-footer">
+            <div class="px-5 pt-1 mobile-sheet-footer">
               <DownloadSection idPrefix="mobile-" />
             </div>
           </div>
