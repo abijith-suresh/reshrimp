@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.0.5](https://github.com/abijith-suresh/reshrimp/compare/v0.0.4...v0.0.5) (2026-09-26)
+
+
+### Bug Fixes
+
+* make mobile image controls discoverable and coherent ([#227](https://github.com/abijith-suresh/reshrimp/issues/227)) ([32658df](https://github.com/abijith-suresh/reshrimp/commit/32658df5b9fc749d9fc3ab4453b8bb62d6779cdd))
+
 ## [0.0.4](https://github.com/abijith-suresh/reshrimp/compare/v0.0.3...v0.0.4) (2026-09-24)
 
 
