@@ -1,3 +1,4 @@
+import { ChevronUp, SlidersHorizontal } from "lucide-solid";
 import { createEffect, createSignal, on, onCleanup, onMount, Show } from "solid-js";
 import AppSidebar from "@/components/app/AppSidebar";
 import FloatingBackButton from "@/components/app/FloatingBackButton";
@@ -6,12 +7,13 @@ import ProcessPanel from "@/components/app/panels/ProcessPanel";
 import DownloadSection from "@/components/app/preview/DownloadSection";
 import ImageInfoBar from "@/components/app/preview/ImageInfoBar";
 import { ImageAppProvider, useImageApp } from "@/components/app/state/ImageAppContext";
+import { buttonVariants } from "@/components/ui/button";
 
 // ── Mobile bottom sheet ─────────────────────────────────────────────────────
 // Two visible states, zero drag logic:
 //   hidden  → no image loaded; sheet is fully off-screen below the viewport
-//   peek    → image loaded; the handle, info, and download header stays visible
-//   open    → 80dvh panel; tap handle or backdrop to return to peek
+//   peek    → image loaded; the action pill, info, and download header stay visible
+//   open    → 80dvh panel; tap Done or backdrop to return to peek
 //
 // Toggling is a single boolean tap with no pointer-event math or flick thresholds.
 // CSS spring handles the animation, while the header observer keeps the peek state honest.
@@ -36,9 +38,11 @@ function translateForState(s: SheetState): string {
 function MobileSheet() {
   const { state } = useImageApp();
   const [sheetState, setSheetState] = createSignal<SheetState>("hidden");
+  const [headerTransitions, setHeaderTransitions] = createSignal(false);
   let sheetRef: HTMLElement | undefined;
   let sheetHeaderRef: HTMLDivElement | undefined;
-  let handleRef: HTMLButtonElement | undefined;
+  let controlsToggleRef: HTMLButtonElement | undefined;
+  let headerTransitionFallback: number | undefined;
   let disposed = false;
   let lastFocusedElement: HTMLElement | null = null;
 
@@ -60,9 +64,42 @@ function MobileSheet() {
 
   function collapseSheet() {
     setSheetState("peek");
+    headerTransitionStarted();
     queueMicrotask(() => {
-      if (!disposed && handleRef?.isConnected) handleRef.focus();
+      if (!disposed && controlsToggleRef?.isConnected) controlsToggleRef.focus();
     });
+  }
+
+  // Freeze the peek height from the settled peek layout before the open
+  // transition starts.  Measuring later races the collapse animation and
+  // would briefly point the slide at a wrong offset.
+  function capturePeekHeight() {
+    const height = sheetHeaderRef?.getBoundingClientRect().height;
+    if (height && sheetRef) {
+      sheetRef.style.setProperty("--app-sheet-peek-height", `${height}px`);
+    }
+  }
+
+  // While the header is collapsing or re-expanding, the peek height is in flux;
+  // the ResizeObserver must not chase it frame by frame or the slide would
+  // constantly retarget.  The fallback covers reduced layouts without events.
+  function headerTransitionStarted() {
+    setHeaderTransitions(true);
+    window.clearTimeout(headerTransitionFallback);
+    headerTransitionFallback = window.setTimeout(() => setHeaderTransitions(false), 700);
+  }
+
+  function headerTransitionSettled() {
+    window.clearTimeout(headerTransitionFallback);
+    setHeaderTransitions(false);
+  }
+
+  // The collapsed peek affordances re-expand through a transition; once it
+  // settles, the peek offset must match the (possibly changed) header size.
+  function handleAffordanceTransition(event: TransitionEvent) {
+    if (event.propertyName !== "max-height") return;
+    headerTransitionSettled();
+    if (sheetState() === "peek") capturePeekHeight();
   }
 
   function toggleSheet() {
@@ -71,6 +108,10 @@ function MobileSheet() {
       return;
     }
 
+    if (sheetState() === "peek") {
+      capturePeekHeight();
+      headerTransitionStarted();
+    }
     setSheetState("open");
   }
 
@@ -222,7 +263,7 @@ function MobileSheet() {
           new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true })
         );
         setSheetState("peek");
-        if (hadAppFocus) queueMicrotask(() => !disposed && handleRef?.focus());
+        if (hadAppFocus) queueMicrotask(() => !disposed && controlsToggleRef?.focus());
       } else if (
         (!!focusOrigin && !!appShell?.contains(focusOrigin)) ||
         (!!listboxTrigger && !!appShell?.contains(listboxTrigger))
@@ -240,6 +281,7 @@ function MobileSheet() {
     editorBreakpoint?.addEventListener("change", handleBreakpointChange);
 
     const updatePeekHeight = () => {
+      if (sheetState() !== "peek" || headerTransitions()) return;
       const height = sheetHeaderRef?.getBoundingClientRect().height;
       if (height && sheetRef) {
         sheetRef.style.setProperty("--app-sheet-peek-height", `${height}px`);
@@ -282,11 +324,23 @@ function MobileSheet() {
         appShell?.removeAttribute("inert");
         skipLink?.removeAttribute("inert");
       }
+      // Let the preview make room for the sheet so the live image is never
+      // buried underneath it.  Desktop has a static layout, so desktop keeps
+      // the shell attribute off.
+      const onMobile =
+        typeof window.matchMedia !== "function" ||
+        !window.matchMedia(EDITOR_BREAKPOINT_QUERY).matches;
+      if (nextState !== "hidden" && onMobile) {
+        appShell?.setAttribute("data-sheet-state", nextState);
+      } else {
+        appShell?.removeAttribute("data-sheet-state");
+      }
     })
   );
 
   onCleanup(() => {
     disposed = true;
+    window.clearTimeout(headerTransitionFallback);
     document.querySelector<HTMLElement>("[data-app-shell]")?.removeAttribute("inert");
     document.querySelector<HTMLElement>("[data-global-skip-link]")?.removeAttribute("inert");
   });
@@ -305,7 +359,7 @@ function MobileSheet() {
       {/* Backdrop — tap to collapse when fully open */}
       <Show when={sheetState() === "open"}>
         <div
-          class="editor:hidden fixed inset-0 z-50 bg-black/20 cursor-pointer"
+          class="mobile-sheet-backdrop editor:hidden fixed inset-0 z-50 bg-black/20 cursor-pointer"
           onClick={collapseSheet}
           aria-hidden="true"
         />
@@ -320,67 +374,107 @@ function MobileSheet() {
         aria-label="Image controls"
         aria-hidden={sheetState() === "hidden" ? "true" : "false"}
         inert={sheetState() === "hidden"}
-        class="editor:hidden fixed inset-x-0 bottom-0 z-60 flex flex-col bg-card rounded-t-[22px] mobile-sheet"
+        class="editor:hidden fixed inset-x-0 bottom-0 z-60 flex flex-col bg-card rounded-t-lg mobile-sheet"
         onKeyDown={handleSheetKeyDown}
         style={{
           transform: translateForState(sheetState()),
           transition: SPRING,
         }}
       >
-        {/* ── Sticky header — always visible in peek ── */}
+        {/* ── Sticky header: transitions between collapsed peek controls and a standard modal header ── */}
         <div
           ref={(element) => {
             sheetHeaderRef = element;
           }}
           class="shrink-0"
         >
-          {/* Handle pill — tap to toggle between peek and open */}
-          <button
-            ref={(element) => {
-              handleRef = element;
-            }}
-            type="button"
-            class="w-full pt-3 pb-2 flex flex-col items-center cursor-pointer active:opacity-60 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-lavender-500/40 rounded-t-[22px] transition-opacity duration-150"
-            style={{ "touch-action": "manipulation" }}
-            onClick={toggleSheet}
-            aria-controls="mobile-controls-content"
-            aria-expanded={sheetState() === "open"}
-            aria-label={sheetState() === "open" ? "Minimise controls" : "Open controls"}
+          {/* Action header: when open, renders a standard modal title bar with Done CTA */}
+          <div
+            class={
+              sheetState() === "open"
+                ? "flex items-center justify-between px-5 pt-2 pb-2 min-h-12"
+                : "px-5 pt-3 pb-2"
+            }
           >
-            {/* Pill — widens and turns lavender when open as a state hint */}
-            <div
-              class="rounded-full transition-[width,background] duration-300 mobile-sheet-handle"
-              style={{
-                width: sheetState() === "open" ? "28px" : "40px",
-                background: sheetState() === "open" ? "var(--lavender-500)" : "var(--border)",
-              }}
-            />
-          </button>
-
-          {/* File info row */}
-          <Show when={img()}>
-            {(currentImg) => (
-              <div class="px-4 pb-1.5">
-                <ImageInfoBar
-                  idPrefix="mobile-"
-                  fileName={currentImg().metadata.fileName}
-                  width={displayWidth()}
-                  height={displayHeight()}
-                  fileSize={displayFileSize()}
-                  sizeDiff={state.sizeDifference()}
-                />
+            <Show when={sheetState() === "open"}>
+              <div class="flex flex-col min-w-0 pr-3">
+                <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-[0.12em]">
+                  Edit image
+                </h2>
+                <Show when={img()}>
+                  {(currentImg) => (
+                    <p class="text-sm text-muted-foreground truncate mt-0.5">
+                      {currentImg().metadata.fileName} · {displayWidth()} × {displayHeight()} px
+                    </p>
+                  )}
+                </Show>
               </div>
-            )}
-          </Show>
+            </Show>
 
-          {/* Download button — primary CTA always reachable without opening */}
-          <div class="px-4 pt-1 mobile-sheet-footer">
-            <DownloadSection idPrefix="mobile-" />
+            <button
+              ref={(element) => {
+                controlsToggleRef = element;
+              }}
+              type="button"
+              class={`${
+                sheetState() === "open" ? "shrink-0" : "w-full justify-between"
+              } ${buttonVariants({ variant: "primary", tone: "coral" })}`}
+              onClick={toggleSheet}
+              aria-controls="mobile-controls-content"
+              aria-expanded={sheetState() === "open"}
+            >
+              <Show
+                when={sheetState() === "open"}
+                fallback={
+                  <>
+                    <span class="flex items-center gap-2">
+                      <SlidersHorizontal size={17} aria-hidden="true" />
+                      <span>Edit image</span>
+                    </span>
+                    <ChevronUp
+                      size={18}
+                      aria-hidden="true"
+                      class="transition-transform duration-300"
+                    />
+                  </>
+                }
+              >
+                <span>Done</span>
+              </Show>
+            </button>
+          </div>
+
+          {/* Peek-only affordances stay mounted and collapse smoothly mid-slide
+              instead of unmounting, so the header morphs instead of snapping */}
+          <div
+            id="mobile-peek-affordances"
+            class:is-open={sheetState() === "open"}
+            class="mobile-peek-affordances"
+            onTransitionEnd={handleAffordanceTransition}
+            aria-hidden={sheetState() === "open" ? "true" : "false"}
+            inert={sheetState() === "open"}
+          >
+            <Show when={img()}>
+              {(currentImg) => (
+                <div class="px-5 pb-2">
+                  <ImageInfoBar
+                    idPrefix="mobile-"
+                    fileName={currentImg().metadata.fileName}
+                    width={displayWidth()}
+                    height={displayHeight()}
+                    fileSize={displayFileSize()}
+                    sizeDiff={state.sizeDifference()}
+                  />
+                </div>
+              )}
+            </Show>
+
+            {/* Download button — primary CTA reachable directly in peek mode */}
+            <div class="px-5 pt-1 mobile-sheet-footer">
+              <DownloadSection idPrefix="mobile-" />
+            </div>
           </div>
         </div>
-
-        {/* Hairline divider between header and content */}
-        <div class="mx-4 h-px bg-border-light shrink-0" />
 
         {/* Scrollable settings content */}
         <div
@@ -391,6 +485,10 @@ function MobileSheet() {
           inert={sheetState() !== "open"}
         >
           <ProcessPanel sourceAtBottom idPrefix="mobile-" showDownload={false} />
+          {/* In open modal mode, primary download is available at the end of configurations */}
+          <div class="px-5 pt-1 pb-5">
+            <DownloadSection idPrefix="mobile-modal-" />
+          </div>
         </div>
       </section>
     </>

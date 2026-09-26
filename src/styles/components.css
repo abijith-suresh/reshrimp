@@ -272,6 +272,36 @@
   overscroll-behavior: contain;
 }
 
+/* Collapsed peek affordances morph into open layout instead of unmounting,
+   so header height eases during the slide instead of snapping mid-animation */
+.mobile-peek-affordances {
+  max-height: 16.5rem;
+  opacity: 1;
+  overflow: hidden;
+  transition:
+    max-height 0.4s cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 0.35s ease;
+}
+
+.mobile-peek-affordances.is-open {
+  max-height: 0;
+  opacity: 0;
+}
+
+.mobile-sheet-backdrop {
+  animation: mobile-sheet-backdrop-in 0.35s ease both;
+}
+
+@keyframes mobile-sheet-backdrop-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 .mobile-sheet-content {
   overscroll-behavior: contain;
   padding-bottom: max(1rem, env(safe-area-inset-bottom));
@@ -292,15 +322,26 @@
   margin: var(--app-preview-gutter) var(--app-preview-gutter) 0;
 }
 
+/* Mobile sheet: the live preview yields floor space so the untouched image
+   (peek) or a one-glance result (open) stays visible above the sheet instead of
+   being cropped underneath it.  Slides in sync with the sheet's spring. */
+@media (max-width: 55.96875rem) {
+  .app-preview-media {
+    transition: margin-bottom 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  [data-app-shell][data-sheet-state="peek"] .app-preview-media {
+    margin-bottom: calc(var(--app-sheet-peek-height) + var(--app-preview-gutter));
+  }
+
+  [data-app-shell][data-sheet-state="open"] .app-preview-media {
+    margin-bottom: calc(100dvh - var(--app-sheet-height) + var(--app-preview-gutter));
+  }
+}
+
 .app-preview-info {
   flex-shrink: 0;
   padding: 0.75rem var(--app-preview-gutter);
-}
-
-.mobile-sheet-handle {
-  width: 36px;
-  height: 3px;
-  border-radius: var(--radius-full);
 }
 
 .mobile-sheet-footer {
