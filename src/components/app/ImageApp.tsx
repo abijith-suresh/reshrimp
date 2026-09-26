@@ -12,8 +12,8 @@ import { buttonVariants } from "@/components/ui/button";
 // ── Mobile bottom sheet ─────────────────────────────────────────────────────
 // Two visible states, zero drag logic:
 //   hidden  → no image loaded; sheet is fully off-screen below the viewport
-//   peek    → image loaded; the handle, info, and download header stays visible
-//   open    → 80dvh panel; tap handle or backdrop to return to peek
+//   peek    → image loaded; the action pill, info, and download header stay visible
+//   open    → 80dvh panel; tap Done or backdrop to return to peek
 //
 // Toggling is a single boolean tap with no pointer-event math or flick thresholds.
 // CSS spring handles the animation, while the header observer keeps the peek state honest.
@@ -388,27 +388,12 @@ function MobileSheet() {
           }}
           class="shrink-0"
         >
-          {/* Drag affordance */}
-          <div
-            class="flex justify-center pt-2.5 pb-1 cursor-pointer select-none"
-            aria-hidden="true"
-            onClick={toggleSheet}
-          >
-            <div
-              class="rounded-full transition-[width,background] duration-300 mobile-sheet-handle"
-              style={{
-                width: sheetState() === "open" ? "32px" : "40px",
-                background: sheetState() === "open" ? "var(--lavender-500)" : "var(--border)",
-              }}
-            />
-          </div>
-
-          {/* Action header: when open, renders a clean standard modal title bar with Done CTA */}
+          {/* Action header: when open, renders a standard modal title bar with Done CTA */}
           <div
             class={
               sheetState() === "open"
-                ? "flex items-center justify-between px-4 pt-1 pb-2 min-h-12"
-                : "mx-4 mt-1 mb-2"
+                ? "flex items-center justify-between px-4 pt-2 pb-2 min-h-12"
+                : "mx-4 pt-3 pb-2"
             }
           >
             <Show when={sheetState() === "open"}>
@@ -433,7 +418,7 @@ function MobileSheet() {
               type="button"
               class={`${
                 sheetState() === "open" ? "shrink-0" : "w-full justify-between"
-              } ${buttonVariants({ variant: "secondary", tone: "neutral" })}`}
+              } ${buttonVariants({ variant: "primary", tone: "neutral" })}`}
               style={{ "touch-action": "manipulation" }}
               onClick={toggleSheet}
               aria-controls="mobile-controls-content"
