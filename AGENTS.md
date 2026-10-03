@@ -91,18 +91,18 @@ If product scope changes, update the Product Truth section of this file first, t
 
 ## Commands
 
-- Install dependencies: `bun install`
-- Dev server: `bun run dev`
-- Full quality gate: `bun run verify`
-- Individual checks: `bun run type-check`, `bun run lint`, `bun run format:check`, `bun run test`, `bun run build`
+- Install tools and dependencies: `mise install && mise exec -- bun install --frozen-lockfile`
+- Dev server: `mise exec -- bun run dev`
+- Full quality gate: `mise exec -- bun run verify`
+- Individual checks: `mise exec -- bun run type-check`, `mise exec -- bun run lint`, `mise exec -- bun run format:check`, `mise exec -- bun run test`, `mise exec -- bun run build`
 
 ## Git And CI
 
 - Branch from the latest `main` before starting changes.
 - Never commit directly to `main`.
 - Commit and PR titles must use Conventional Commits: `feat`, `fix`, `docs`, `refactor`, `chore`, `test`, `ci`, or `build`.
-- Before push, run `bun run verify` when feasible.
-- `pre-commit` runs `lint-staged`, `commit-msg` runs `commitlint`, and `pre-push` runs `bun run verify`.
+- Before push, run `mise exec -- bun run verify` when feasible.
+- `pre-commit` runs `lint-staged`, `commit-msg` runs `commitlint`, and `pre-push` runs `mise exec -- bun run verify`.
 - CI enforces quality and PR-title checks on pull requests.
 - Squash merge is the expected merge strategy.
 - Open one focused PR at a time, then stop and wait for review or merge feedback before continuing.

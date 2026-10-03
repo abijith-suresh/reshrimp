@@ -36,6 +36,6 @@
       "onAutoForward": "notify"
     }
   },
-  "postCreateCommand": "bun install",
+  "postCreateCommand": "mise install && mise exec -- bun install --frozen-lockfile",
   "remoteUser": "nodeuser"
 }

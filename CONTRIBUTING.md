@@ -12,27 +12,28 @@ Do not expand product scope unless the Product Truth section of `AGENTS.md` is u
 
 ## Setup
 
-Use Bun from the repository root.
+Use mise from the repository root. It installs the Bun and Node versions declared in `mise.toml`.
 
 ```bash
-bun install
+mise install
+mise exec -- bun install --frozen-lockfile
 ```
 
 ## Commands
 
 ```bash
-bun run dev
-bun run type-check
-bun run lint
-bun run format:check
-bun run test
-bun run build
-bun run verify
+mise exec -- bun run dev
+mise exec -- bun run type-check
+mise exec -- bun run lint
+mise exec -- bun run format:check
+mise exec -- bun run test
+mise exec -- bun run build
+mise exec -- bun run verify
 ```
 
-`bun run verify` is the full quality gate and should pass before pushing.
+`mise exec -- bun run verify` is the full quality gate and should pass before pushing.
 
-Pull request CI uses the pinned central Bun quality workflow, runs dependency review, and reports both through the required `quality` check. Pull request titles use the pinned central Conventional Commit workflow and retain the required local `pr-title` check.
+Pull request CI uses pinned shared Bun quality and dependency review workflows, then reports both through the required `quality` check. Pull request titles use the pinned shared Conventional Commit workflow and retain the required local `pr-title` check. Release Please calls the shared release workflow with the `RELEASE_PLEASE_TOKEN` secret.
 
 Background-removal assets are mirrored before `dev` and `build` through the configured package scripts. If assets are missing locally, that step needs network access.
 
@@ -42,7 +43,7 @@ Background-removal assets are mirrored before `dev` and `build` through the conf
 2. Create a focused branch.
 3. Make the smallest correct change.
 4. Keep public copy, product truth, and implementation aligned.
-5. Run the relevant checks, preferably `bun run verify` before push.
+5. Run the relevant checks, preferably `mise exec -- bun run verify` before push.
 6. Open one focused pull request.
 7. Stop and wait for review or merge feedback before starting unrelated work.
 

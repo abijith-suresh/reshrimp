@@ -1,3 +1,5 @@
 {
-  "*.{js,mjs,cjs,jsx,ts,tsx,astro,css,json}": ["bunx biome check --write --no-errors-on-unmatched"]
+  "*.{js,mjs,cjs,jsx,ts,tsx,astro,css,json}": [
+    "mise exec -- bunx biome check --write --no-errors-on-unmatched"
+  ]
 }
