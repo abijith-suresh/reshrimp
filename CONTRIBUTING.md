@@ -28,11 +28,12 @@ bun run format:check
 bun run test
 bun run build
 bun run verify
+bun run test:e2e
 ```
 
-`bun run verify` is the full quality gate and should pass before pushing.
+`bun run verify` runs type checking, lint, formatting, unit coverage, asset-sync tests, and the production build. Run it before pushing. Run `bun run test:e2e` for browser validation as well.
 
-Pull request CI uses the pinned central Bun quality workflow, runs dependency review, and reports both through the required `quality` check. Pull request titles use the pinned central Conventional Commit workflow and retain the required local `pr-title` check.
+Pull request CI uses the pinned central Bun quality workflow, runs dependency review and the browser suite, and reports all three through the required `quality` check. Pull request titles use the pinned central Conventional Commit workflow and retain the required local `pr-title` check.
 
 Background-removal assets are mirrored before `dev` and `build` through the configured package scripts. If assets are missing locally, that step needs network access.
 
@@ -42,7 +43,7 @@ Background-removal assets are mirrored before `dev` and `build` through the conf
 2. Create a focused branch.
 3. Make the smallest correct change.
 4. Keep public copy, product truth, and implementation aligned.
-5. Run the relevant checks, preferably `bun run verify` before push.
+5. Run `bun run verify` and `bun run test:e2e` before push.
 6. Open one focused pull request.
 7. Stop and wait for review or merge feedback before starting unrelated work.
 
@@ -92,7 +93,7 @@ Current contributions should preserve these constraints:
 - no editor/workspace expansion unless the Product Truth section of `AGENTS.md` changes first
 - no public copy for unimplemented features
 
-Target file-size export is a desired near-term capability, but public copy should not promise it until it is implemented.
+Target file-size export is implemented for JPEG, WebP, and AVIF. Its limit is best-effort; PNG and background-removal output are lossless and do not support a size target.
 
 ## Versioning And Releases
 
@@ -114,19 +115,38 @@ Releases are automated by release-please from Conventional Commits. Versioning r
 
 ## Tests
 
-Add or update tests when behavior changes.
+Use the cheapest test that can detect the regression, but run browser tests for behavior that depends on a real browser. A mocked canvas cannot prove that a downloaded image has the right pixels or that metadata was removed.
 
-Prefer:
+| Test layer | What it checks | Where to put it |
+| --- | --- | --- |
+| Service and helper tests | Validation, dimension math, quality search, format fallback, codec errors, model configuration | Beside the module in `src/` |
+| Context tests | Debouncing, concurrent uploads, stale progress/results, URL ownership, unmount cleanup, model preloading | `src/components/app/state/ImageAppContext.test.tsx` |
+| Component tests | Accessible controls, complete pointer/keyboard interactions, wiring controls to context actions | Beside the component in `src/` |
+| Browser tests | Actual upload/encode/download, decoded dimensions, signatures, metadata removal, size limits, background inference, mobile layout and focus | `tests/e2e/` |
+| Asset-sync tests | Mirrored runtime files and manifests, reused assets, missing/corrupt assets | `scripts/sync-background-removal-assets.test.mjs` |
 
-- service tests for processing rules and edge cases
-- behavior-focused UI tests for upload, process, preview, error, and download flows
-- accessible queries where practical
+Component tests use Solid Testing Library and `userEvent.setup()`. Query by role and accessible name. Use `await user.click`, `user.type`, and `user.keyboard` so focus, input, and click events occur together. Keep `fireEvent` for browser events that user-event cannot produce. Use real timers for control tests. Context tests use fake timers with explicit debounce boundaries and controlled promises for races; component tests that need fake timers pass `advanceTimers` to user-event.
 
-Avoid:
+Mock only the unavailable boundary needed by the test. `src/test/mocks.ts` provides separate object URL, image loading, and canvas helpers because jsdom does not implement image decoding or canvas encoding. Global cleanup disposes Solid roots, restores spies and globals, and resets timers. Do not install all browser mocks for every suite, or mock a whole pipeline and assert that its own fake output is correct.
 
-- snapshot-heavy suites
-- brittle DOM selectors when a user-facing query is available
-- tests that only lock in implementation details
+The context tests call public actions through `renderHook` and inspect public state. They do not render the app to test every race. The small `ImageApp` suite checks control wiring; the browser suite owns responsive layout, caret behavior, and focus across breakpoints.
+
+Install Chromium once, then run the browser suite against the production build:
+
+```bash
+bunx playwright install chromium
+# On Linux machines missing browser libraries:
+bunx playwright install --with-deps chromium
+bun run test:e2e
+```
+
+`test:e2e` builds the app and starts an isolated preview server on port 4322. It runs desktop Chromium and mobile Chromium emulation. Processing services and model inference are real. Each test observes requests from the browser context, including workers, and fails on HTTP requests outside the app origin, non-GET requests, or request bodies. This checks the exercised workflows; it does not replace reviewing the privacy rules in `AGENTS.md`.
+
+Download tests read the saved bytes and decode them to verify output dimensions. Their synthetic JPEG includes EXIF and GPS markers so metadata-removal assertions cannot pass with a metadata-free source. PNG transparency and background removal are checked in decoded pixels. Browser failures retain screenshots and traces in `test-results/`; CI uploads that directory. Open a trace with `bunx playwright show-trace <trace.zip>`.
+
+Coverage includes every TypeScript module in `src/`, with the existing thresholds unchanged. Treat it as a way to find omissions. Add a test when it protects a specific behavior, not merely to execute another line. Avoid class-list assertions, snapshots of large trees, and tests of trivial child passthrough. Browser coverage is separate from the jsdom report. Chromium emulation does not establish Firefox, WebKit, real-device, or every codec compatibility.
+
+These choices follow [Testing Library's guiding principles](https://testing-library.com/docs/guiding-principles/), [user-event's interaction guidance](https://testing-library.com/docs/user-event/intro/), [Solid's testing guidance](https://github.com/solidjs/solid-testing-library), and [Playwright's best practices](https://playwright.dev/docs/best-practices).
 
 ## Documentation
 

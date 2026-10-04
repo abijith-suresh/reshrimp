@@ -1,5 +1,10 @@
 import "@testing-library/jest-dom/vitest";
 import { cleanup } from "@solidjs/testing-library";
-import { afterEach } from "vitest";
+import { afterEach, vi } from "vitest";
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  vi.restoreAllMocks();
+  vi.unstubAllGlobals();
+  vi.useRealTimers();
+});

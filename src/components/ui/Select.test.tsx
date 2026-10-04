@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, within } from "@solidjs/testing-library";
+import { render, screen, within } from "@solidjs/testing-library";
+import userEvent from "@testing-library/user-event";
 import { createSignal } from "solid-js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Select from "./Select";
@@ -42,10 +43,11 @@ describe("Select", () => {
   }
 
   it("opens from the trigger and moves keyboard focus into the listbox", async () => {
+    const user = userEvent.setup();
     renderFormatSelect();
     const trigger = screen.getByRole("button", { name: "Output format" });
-    fireEvent.keyDown(trigger, { key: "ArrowDown" });
-    await Promise.resolve();
+    trigger.focus();
+    await user.keyboard("{ArrowDown}");
 
     expect(trigger).toHaveAttribute("aria-haspopup", "listbox");
     expect(trigger).toHaveAttribute("aria-expanded", "true");
@@ -53,6 +55,7 @@ describe("Select", () => {
   });
 
   it("keeps its portaled listbox inside an open modal dialog", async () => {
+    const user = userEvent.setup();
     render(() => (
       <section role="dialog" aria-modal="true">
         <Select
@@ -64,8 +67,8 @@ describe("Select", () => {
       </section>
     ));
 
-    fireEvent.keyDown(screen.getByRole("button", { name: "Output format" }), { key: "ArrowDown" });
-    await Promise.resolve();
+    screen.getByRole("button", { name: "Output format" }).focus();
+    await user.keyboard("{ArrowDown}");
 
     const listbox = within(screen.getByRole("dialog")).getByRole("listbox", {
       name: "Output format",
@@ -74,11 +77,12 @@ describe("Select", () => {
   });
 
   it("closes on escape and returns focus to the trigger", async () => {
+    const user = userEvent.setup();
     renderFormatSelect();
     const trigger = screen.getByRole("button", { name: "Output format" });
-    fireEvent.keyDown(trigger, { key: "ArrowDown" });
-    await Promise.resolve();
-    fireEvent.keyDown(screen.getByRole("listbox"), { key: "Escape" });
+    trigger.focus();
+    await user.keyboard("{ArrowDown}");
+    await user.keyboard("{Escape}");
 
     expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
     expect(trigger).toHaveFocus();
@@ -86,6 +90,7 @@ describe("Select", () => {
   });
 
   it("moves focus to the adjacent control when tabbing out of the listbox", async () => {
+    const user = userEvent.setup();
     render(() => (
       <div>
         <button type="button">Before</button>
@@ -99,21 +104,21 @@ describe("Select", () => {
       </div>
     ));
 
-    fireEvent.keyDown(screen.getByRole("button", { name: "Output format" }), { key: "ArrowDown" });
-    await Promise.resolve();
-    fireEvent.keyDown(screen.getByRole("listbox"), { key: "Tab" });
-    await Promise.resolve();
+    screen.getByRole("button", { name: "Output format" }).focus();
+    await user.keyboard("{ArrowDown}");
+    await user.tab();
 
     expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "After" })).toHaveFocus();
   });
 
   it("exposes the keyboard-highlighted option to assistive technology", async () => {
+    const user = userEvent.setup();
     renderFormatSelect();
-    fireEvent.keyDown(screen.getByRole("button", { name: "Output format" }), { key: "ArrowDown" });
-    await Promise.resolve();
+    screen.getByRole("button", { name: "Output format" }).focus();
+    await user.keyboard("{ArrowDown}");
     const listbox = screen.getByRole("listbox");
-    fireEvent.keyDown(listbox, { key: "ArrowDown" });
+    await user.keyboard("{ArrowDown}");
 
     expect(listbox).toHaveAttribute(
       "aria-activedescendant",
@@ -123,6 +128,7 @@ describe("Select", () => {
 
   it("selects an option with the mouse and returns focus to the trigger", async () => {
     const [value, setValue] = createSignal("image/png");
+    const user = userEvent.setup();
     render(() => (
       <Select
         ariaLabel="Output format"
@@ -132,9 +138,8 @@ describe("Select", () => {
       />
     ));
     const trigger = screen.getByRole("button", { name: "Output format" });
-    fireEvent.click(trigger);
-    await Promise.resolve();
-    fireEvent.mouseDown(screen.getByRole("option", { name: "WebP" }));
+    await user.click(trigger);
+    await user.click(screen.getByRole("option", { name: "WebP" }));
 
     expect(value()).toBe("image/webp");
     expect(trigger).toHaveTextContent("WebP");

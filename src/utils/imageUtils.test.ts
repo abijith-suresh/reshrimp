@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { restoreMocks, setupBrowserMocks } from "../test/mocks";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { mockObjectUrls } from "../test/mocks";
 import {
   calculateAspectRatio,
   calculateHeightFromWidth,
@@ -34,12 +34,10 @@ describe("calculateAspectRatio", () => {
 describe("createDownloadLink", () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    setupBrowserMocks();
-  });
-
-  afterEach(() => {
-    restoreMocks();
-    vi.useRealTimers();
+    mockObjectUrls();
+    vi.spyOn(document.body, "appendChild");
+    vi.spyOn(document.body, "removeChild");
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
   });
 
   it("creates an anchor with correct href and download attributes", () => {

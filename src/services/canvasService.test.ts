@@ -1,5 +1,10 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { makeCanvasMock, restoreMocks, setupBrowserMocks } from "../test/mocks";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import {
+  makeCanvasMock,
+  mockCanvasCreation,
+  mockImageLoading,
+  mockObjectUrls,
+} from "../test/mocks";
 import {
   canvasToBlob,
   canvasToBlobAtFileSizeTarget,
@@ -9,8 +14,11 @@ import {
   supportsFormat,
 } from "./canvasService";
 
-beforeEach(setupBrowserMocks);
-afterEach(restoreMocks);
+beforeEach(() => {
+  mockObjectUrls();
+  mockImageLoading();
+  mockCanvasCreation();
+});
 
 describe("loadImage", () => {
   it("loads the image and releases its temporary URL", async () => {
