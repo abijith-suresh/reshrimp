@@ -16,8 +16,8 @@ import {
 } from "@imgly/background-removal";
 import { preloadBackgroundRemoval, removeBackground } from "./backgroundRemovalService";
 
-const mockImglyPreload = imglyPreload as ReturnType<typeof vi.fn>;
-const mockImglyRemoveBackground = imglyRemoveBackground as ReturnType<typeof vi.fn>;
+const mockImglyPreload = vi.mocked(imglyPreload);
+const mockImglyRemoveBackground = vi.mocked(imglyRemoveBackground);
 
 describe("removeBackground", () => {
   beforeEach(() => {

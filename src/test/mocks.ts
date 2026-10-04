@@ -1,9 +1,6 @@
 import { vi } from "vitest";
 
-/**
- * Canvas 2D context stub
- */
-export function makeCtxStub() {
+function makeCtxStub() {
   return {
     drawImage: vi.fn(),
     imageSmoothingEnabled: false,
@@ -11,9 +8,6 @@ export function makeCtxStub() {
   };
 }
 
-/**
- * Build a mock HTMLCanvasElement
- */
 export function makeCanvasMock(format = "image/png") {
   const ctx = makeCtxStub();
   const canvas = {
@@ -28,18 +22,13 @@ export function makeCanvasMock(format = "image/png") {
   return { canvas, ctx };
 }
 
-/**
- * Set up all browser API mocks.
- * Call in beforeEach.
- */
 export function setupBrowserMocks() {
-  // URL stubs
   vi.stubGlobal("URL", {
     createObjectURL: vi.fn(() => "blob:mock-url"),
     revokeObjectURL: vi.fn(),
   });
 
-  // createElement interceptor — canvas gets a mock, anything else uses real impl
+  // jsdom has no canvas renderer. Keep real DOM elements for the UI tests.
   const realCreateElement = document.createElement.bind(document);
   vi.spyOn(document, "createElement").mockImplementation((tag: string) => {
     if (tag === "canvas") {
@@ -52,9 +41,8 @@ export function setupBrowserMocks() {
   vi.spyOn(document.body, "removeChild");
   vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
 
-  // Image mock — fires onload after a microtask; sentinel URL triggers onerror
+  // Load asynchronously, with a sentinel URL for decode failures.
   const ERROR_URL = "blob:error-url";
-  const OrigImage = globalThis.Image;
   const MockImage = class {
     width = 100;
     height = 80;
@@ -75,14 +63,8 @@ export function setupBrowserMocks() {
     }
   };
   vi.stubGlobal("Image", MockImage);
-
-  return { ERROR_URL, OrigImage };
 }
 
-/**
- * Restore all mocks.
- * Call in afterEach.
- */
 export function restoreMocks() {
   vi.restoreAllMocks();
   vi.unstubAllGlobals();

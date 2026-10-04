@@ -46,14 +46,14 @@ import {
 } from "./canvasService";
 import { decodeHeicBlob, isHeicBlob } from "./formatDetectionService";
 
-const mockLoadImage = loadImage as ReturnType<typeof vi.fn>;
-const mockResizeOnCanvas = resizeOnCanvas as ReturnType<typeof vi.fn>;
-const mockCanvasToBlob = canvasToBlob as ReturnType<typeof vi.fn>;
-const mockCanvasToBlobAtFileSizeTarget = canvasToBlobAtFileSizeTarget as ReturnType<typeof vi.fn>;
-const mockGetBestFormat = getBestFormat as ReturnType<typeof vi.fn>;
-const mockRemoveBackground = removeBackground as ReturnType<typeof vi.fn>;
-const mockDecodeHeicBlob = decodeHeicBlob as ReturnType<typeof vi.fn>;
-const mockIsHeicBlob = isHeicBlob as ReturnType<typeof vi.fn>;
+const mockLoadImage = vi.mocked(loadImage);
+const mockResizeOnCanvas = vi.mocked(resizeOnCanvas);
+const mockCanvasToBlob = vi.mocked(canvasToBlob);
+const mockCanvasToBlobAtFileSizeTarget = vi.mocked(canvasToBlobAtFileSizeTarget);
+const mockGetBestFormat = vi.mocked(getBestFormat);
+const mockRemoveBackground = vi.mocked(removeBackground);
+const mockDecodeHeicBlob = vi.mocked(decodeHeicBlob);
+const mockIsHeicBlob = vi.mocked(isHeicBlob);
 
 function makeMockImg(width = 800, height = 600) {
   return { width, height } as HTMLImageElement;
@@ -68,13 +68,11 @@ beforeEach(() => {
     blob: new Blob([], { type: "image/jpeg" }),
     targetReached: true,
   });
-  mockGetBestFormat.mockImplementation((f: string) => f);
+  mockGetBestFormat.mockImplementation((format) => format);
   mockRemoveBackground.mockResolvedValue(new Blob([], { type: "image/png" }));
   mockDecodeHeicBlob.mockResolvedValue(new Blob([], { type: "image/png" }));
   mockIsHeicBlob.mockResolvedValue(false);
 });
-
-// ─── calculateDimensions ─────────────────────────────────────────────────────
 
 describe("calculateDimensions", () => {
   describe("maintainAspectRatio = false", () => {
@@ -91,19 +89,16 @@ describe("calculateDimensions", () => {
 
   describe("maintainAspectRatio = true", () => {
     it("derives height from width when only width provided", () => {
-      // 800x600 → aspect 4:3 → width 400 → height 300
       const opts: ResizeOptions = { width: 400, maintainAspectRatio: true };
       expect(calculateDimensions(800, 600, opts)).toEqual({ width: 400, height: 300 });
     });
 
     it("derives width from height when only height provided", () => {
-      // 800x600 → aspect 4:3 → height 300 → width 400
       const opts: ResizeOptions = { height: 300, maintainAspectRatio: true };
       expect(calculateDimensions(800, 600, opts)).toEqual({ width: 400, height: 300 });
     });
 
     it("fits within the requested box when both width and height are provided", () => {
-      // 800x600 → fit within 400x200 => 267x200
       const opts: ResizeOptions = { width: 400, height: 200, maintainAspectRatio: true };
       expect(calculateDimensions(800, 600, opts)).toEqual({ width: 267, height: 200 });
     });
@@ -114,7 +109,6 @@ describe("calculateDimensions", () => {
     });
 
     it("handles fractional aspect ratios with rounding", () => {
-      // 3x2 image → width 10 → height = 10 / 1.5 = 6.666 → rounds to 7
       const opts: ResizeOptions = { width: 10, maintainAspectRatio: true };
       expect(calculateDimensions(3, 2, opts)).toEqual({ width: 10, height: 7 });
     });
@@ -130,8 +124,6 @@ describe("calculateDimensions", () => {
     });
   });
 });
-
-// ─── processImage ────────────────────────────────────────────────────────────
 
 describe("processImage dimension guards", () => {
   it("rejects sources beyond MAX_PIXEL_DIMENSION before any heavy work runs", async () => {
@@ -435,8 +427,6 @@ describe("prepareImageFile", () => {
     expect(mockDecodeHeicBlob).toHaveBeenCalledWith(file);
   });
 });
-
-// ─── getImageMetadata ─────────────────────────────────────────────────────────
 
 describe("getImageMetadata", () => {
   it("returns width and height from the loaded image", async () => {

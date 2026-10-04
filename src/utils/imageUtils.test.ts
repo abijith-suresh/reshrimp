@@ -49,8 +49,7 @@ describe("createDownloadLink", () => {
     expect(document.body.appendChild).toHaveBeenCalledOnce();
     expect(HTMLAnchorElement.prototype.click).toHaveBeenCalledOnce();
 
-    const link = (document.body.appendChild as ReturnType<typeof vi.fn>).mock
-      .calls[0][0] as HTMLAnchorElement;
+    const link = vi.mocked(document.body.appendChild).mock.calls[0][0] as HTMLAnchorElement;
     expect(link.href).toBe("blob:mock-url");
     expect(link.download).toBe("output.png");
   });
@@ -65,8 +64,7 @@ describe("createDownloadLink", () => {
 
     vi.runAllTimers();
 
-    const link = (document.body.appendChild as ReturnType<typeof vi.fn>).mock
-      .calls[0][0] as HTMLAnchorElement;
+    const link = vi.mocked(document.body.appendChild).mock.calls[0][0] as HTMLAnchorElement;
     expect(document.body.removeChild).toHaveBeenCalledWith(link);
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url");
   });
@@ -79,8 +77,7 @@ describe("createDownloadLink", () => {
 
     expect(() => createDownloadLink(new Blob([]), "file.png")).toThrow(error);
 
-    const link = (document.body.appendChild as ReturnType<typeof vi.fn>).mock
-      .calls[0][0] as HTMLAnchorElement;
+    const link = vi.mocked(document.body.appendChild).mock.calls[0][0] as HTMLAnchorElement;
     expect(document.body.removeChild).toHaveBeenCalledWith(link);
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url");
   });
@@ -114,24 +111,20 @@ describe("formatFileSize", () => {
 
 describe("calculateHeightFromWidth", () => {
   it("preserves aspect ratio", () => {
-    // 200x100 image → aspect 2:1 → target width 400 → height 200
     expect(calculateHeightFromWidth(200, 100, 400)).toBe(200);
   });
 
   it("rounds non-integer results", () => {
-    // 3:2 aspect → width 10 → height = 10 / 1.5 = 6.666... → rounds to 7
     expect(calculateHeightFromWidth(3, 2, 10)).toBe(7);
   });
 });
 
 describe("calculateWidthFromHeight", () => {
   it("preserves aspect ratio", () => {
-    // 200x100 image → aspect 2:1 → target height 50 → width 100
     expect(calculateWidthFromHeight(200, 100, 50)).toBe(100);
   });
 
   it("rounds non-integer results", () => {
-    // 3:2 aspect → height 9 → width = 9 * 1.5 = 13.5 → rounds to 14
     expect(calculateWidthFromHeight(3, 2, 9)).toBe(14);
   });
 });

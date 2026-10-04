@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { makeCanvasMock, restoreMocks, setupBrowserMocks } from "../test/mocks";
-import type { ImageFormat } from "../types/image";
 import {
   canvasToBlob,
   canvasToBlobAtFileSizeTarget,
@@ -10,60 +9,30 @@ import {
   supportsFormat,
 } from "./canvasService";
 
+beforeEach(setupBrowserMocks);
+afterEach(restoreMocks);
+
 describe("loadImage", () => {
-  beforeEach(() => {
-    setupBrowserMocks();
-  });
-
-  afterEach(() => {
-    restoreMocks();
-  });
-
-  it("resolves with an HTMLImageElement", async () => {
+  it("loads the image and releases its temporary URL", async () => {
     const file = new File([], "test.png", { type: "image/png" });
+
     const img = await loadImage(file);
-    expect(img).toBeDefined();
-    expect(img.width).toBe(100);
-    expect(img.height).toBe(80);
-  });
 
-  it("creates and revokes an object URL", async () => {
-    const file = new File([], "test.png", { type: "image/png" });
-    await loadImage(file);
-    expect(URL.createObjectURL).toHaveBeenCalledOnce();
+    expect(img).toMatchObject({ width: 100, height: 80 });
+    expect(URL.createObjectURL).toHaveBeenCalledWith(file);
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url");
   });
 
-  it("rejects when the image fails to load", async () => {
-    vi.stubGlobal("URL", {
-      createObjectURL: vi.fn(() => "blob:error-url"),
-      revokeObjectURL: vi.fn(),
-    });
+  it("releases the temporary URL when decoding fails", async () => {
+    vi.mocked(URL.createObjectURL).mockReturnValue("blob:error-url");
     const file = new File([], "bad.png", { type: "image/png" });
-    await expect(loadImage(file)).rejects.toThrow("Failed to load image");
-  });
 
-  it("revokes URL even on error", async () => {
-    const revokeMock = vi.fn();
-    vi.stubGlobal("URL", {
-      createObjectURL: vi.fn(() => "blob:error-url"),
-      revokeObjectURL: revokeMock,
-    });
-    const file = new File([], "bad.png", { type: "image/png" });
-    await loadImage(file).catch(() => {});
-    expect(revokeMock).toHaveBeenCalledWith("blob:error-url");
+    await expect(loadImage(file)).rejects.toThrow("Failed to load image");
+    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:error-url");
   });
 });
 
 describe("resizeOnCanvas", () => {
-  beforeEach(() => {
-    setupBrowserMocks();
-  });
-
-  afterEach(() => {
-    restoreMocks();
-  });
-
   it("returns a canvas element with the correct dimensions", () => {
     const img = { width: 200, height: 100 } as HTMLImageElement;
     const canvas = resizeOnCanvas(img, 400, 200);
@@ -85,7 +54,7 @@ describe("resizeOnCanvas", () => {
 
   it("throws when canvas context is null", () => {
     const { canvas } = makeCanvasMock();
-    (canvas.getContext as ReturnType<typeof vi.fn>).mockReturnValue(null);
+    vi.mocked(canvas.getContext).mockReturnValue(null);
     vi.spyOn(document, "createElement").mockReturnValue(canvas);
 
     const img = { width: 200, height: 100 } as HTMLImageElement;
@@ -94,14 +63,6 @@ describe("resizeOnCanvas", () => {
 });
 
 describe("canvasToBlob", () => {
-  beforeEach(() => {
-    setupBrowserMocks();
-  });
-
-  afterEach(() => {
-    restoreMocks();
-  });
-
   it("resolves with a Blob", async () => {
     const { canvas } = makeCanvasMock();
     const blob = await canvasToBlob(canvas);
@@ -110,7 +71,7 @@ describe("canvasToBlob", () => {
 
   it("rejects when toBlob callback receives null", async () => {
     const { canvas } = makeCanvasMock();
-    (canvas.toBlob as ReturnType<typeof vi.fn>).mockImplementation((cb: BlobCallback) => cb(null));
+    vi.mocked(canvas.toBlob).mockImplementation((cb: BlobCallback) => cb(null));
 
     await expect(canvasToBlob(canvas, "image/png")).rejects.toThrow(
       "Failed to convert canvas to image/png"
@@ -131,83 +92,73 @@ describe("canvasToBlob", () => {
 });
 
 describe("canvasToBlobAtFileSizeTarget", () => {
-  beforeEach(() => {
-    setupBrowserMocks();
-  });
-
-  afterEach(() => {
-    restoreMocks();
-  });
-
-  function setEncodedSizeByQuality(canvas: HTMLCanvasElement): number[] {
-    const qualities: number[] = [];
-    (canvas.toBlob as ReturnType<typeof vi.fn>).mockImplementation(
-      (callback: BlobCallback, format: string, quality: number) => {
-        qualities.push(quality);
-        const byteCount = Math.round(100 + quality * 900);
-        callback(new Blob([new Uint8Array(byteCount)], { type: format }));
-      }
-    );
-    return qualities;
+  function mockEncoder(canvas: HTMLCanvasElement): Blob[] {
+    const samples: Blob[] = [];
+    vi.mocked(canvas.toBlob).mockImplementation((callback, format, quality) => {
+      const byteCount = Math.round(100 + Number(quality) * 900);
+      const blob = new Blob([new Uint8Array(byteCount)], { type: format });
+      samples.push(blob);
+      callback(blob);
+    });
+    return samples;
   }
 
-  it("returns the highest-quality sample found within the target", async () => {
+  it("keeps the largest fitting sample without changing dimensions or format", async () => {
     const { canvas } = makeCanvasMock();
-    const qualities = setEncodedSizeByQuality(canvas);
+    canvas.width = 1200;
+    canvas.height = 800;
+    const samples = mockEncoder(canvas);
 
     const result = await canvasToBlobAtFileSizeTarget(canvas, "image/jpeg", 600);
+    const fittingSamples = samples.filter((blob) => blob.size <= 600);
 
     expect(result.targetReached).toBe(true);
-    expect(result.blob.size).toBeLessThanOrEqual(600);
-    expect(qualities).toHaveLength(8);
-    expect(qualities.at(-1)).toBeGreaterThan(0.5);
+    expect(result.blob.size).toBe(Math.max(...fittingSamples.map((blob) => blob.size)));
+    // This encoder can fit 600 bytes. Reject an unnecessarily low-quality result.
+    expect(result.blob.size).toBeGreaterThanOrEqual(580);
+    expect(result.blob.type).toBe("image/jpeg");
+    expect(canvas).toMatchObject({ width: 1200, height: 800 });
   });
 
-  it("returns the smallest attempt and reports an unreachable target", async () => {
+  it("keeps the smallest sample and reports an unreachable target", async () => {
     const { canvas } = makeCanvasMock();
-    const qualities = setEncodedSizeByQuality(canvas);
+    const samples = mockEncoder(canvas);
 
     const result = await canvasToBlobAtFileSizeTarget(canvas, "image/webp", 50);
 
-    expect(result).toEqual({ blob: expect.any(Blob), targetReached: false });
-    expect(result.blob.size).toBe(109);
-    expect(qualities).toEqual([1, 0.01]);
+    expect(result.targetReached).toBe(false);
+    expect(result.blob.size).toBeGreaterThan(50);
+    expect(result.blob.size).toBe(Math.min(...samples.map((blob) => blob.size)));
+    expect(result.blob.type).toBe("image/webp");
   });
 
   it("uses maximum quality when it already fits", async () => {
     const { canvas } = makeCanvasMock();
-    const qualities = setEncodedSizeByQuality(canvas);
+    mockEncoder(canvas);
 
     const result = await canvasToBlobAtFileSizeTarget(canvas, "image/avif", 1000);
 
     expect(result.targetReached).toBe(true);
     expect(result.blob.size).toBe(1000);
-    expect(qualities).toEqual([1]);
+    expect(result.blob.type).toBe("image/avif");
   });
 
-  it("rejects invalid byte limits", async () => {
-    const { canvas } = makeCanvasMock();
+  it.each([0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, Number.MAX_SAFE_INTEGER + 1])(
+    "rejects byte limit %s before encoding",
+    async (limit) => {
+      const { canvas } = makeCanvasMock();
 
-    await expect(canvasToBlobAtFileSizeTarget(canvas, "image/jpeg", 0)).rejects.toThrow(
-      "Maximum file size must be a positive whole number of bytes"
-    );
-  });
+      await expect(canvasToBlobAtFileSizeTarget(canvas, "image/jpeg", limit)).rejects.toThrow(
+        "Maximum file size must be a positive whole number of bytes"
+      );
+      expect(canvas.toBlob).not.toHaveBeenCalled();
+    }
+  );
 });
 
 describe("supportsFormat", () => {
-  beforeEach(() => {
-    setupBrowserMocks();
-  });
-
-  afterEach(() => {
-    restoreMocks();
-  });
-
   it("returns true when toDataURL output starts with data:{format}", () => {
     const { canvas } = makeCanvasMock("image/webp");
-    (canvas.toDataURL as ReturnType<typeof vi.fn>).mockImplementation(
-      (f: string) => `data:${f};base64,abc`
-    );
     vi.spyOn(document, "createElement").mockReturnValue(canvas);
 
     expect(supportsFormat("image/webp")).toBe(true);
@@ -216,27 +167,16 @@ describe("supportsFormat", () => {
   it("returns false when toDataURL output does not match format", () => {
     const { canvas } = makeCanvasMock();
     // Simulate unsupported format — browser falls back to PNG
-    (canvas.toDataURL as ReturnType<typeof vi.fn>).mockReturnValue("data:image/png;base64,abc");
+    vi.mocked(canvas.toDataURL).mockReturnValue("data:image/png;base64,abc");
     vi.spyOn(document, "createElement").mockReturnValue(canvas);
 
-    expect(supportsFormat("image/webp" as ImageFormat)).toBe(false);
+    expect(supportsFormat("image/webp")).toBe(false);
   });
 });
 
 describe("getBestFormat", () => {
-  beforeEach(() => {
-    setupBrowserMocks();
-  });
-
-  afterEach(() => {
-    restoreMocks();
-  });
-
   it("returns the requested format when supported", () => {
     const { canvas } = makeCanvasMock("image/webp");
-    (canvas.toDataURL as ReturnType<typeof vi.fn>).mockImplementation(
-      (f: string) => `data:${f};base64,abc`
-    );
     vi.spyOn(document, "createElement").mockReturnValue(canvas);
 
     expect(getBestFormat("image/webp")).toBe("image/webp");
@@ -244,9 +184,9 @@ describe("getBestFormat", () => {
 
   it("returns image/png fallback when format is not supported", () => {
     const { canvas } = makeCanvasMock();
-    (canvas.toDataURL as ReturnType<typeof vi.fn>).mockReturnValue("data:image/png;base64,abc");
+    vi.mocked(canvas.toDataURL).mockReturnValue("data:image/png;base64,abc");
     vi.spyOn(document, "createElement").mockReturnValue(canvas);
 
-    expect(getBestFormat("image/webp" as ImageFormat)).toBe("image/png");
+    expect(getBestFormat("image/webp")).toBe("image/png");
   });
 });

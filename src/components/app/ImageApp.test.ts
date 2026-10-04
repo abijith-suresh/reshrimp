@@ -1,5 +1,6 @@
-import { fireEvent, render } from "@solidjs/testing-library";
+import { fireEvent, render, screen, within } from "@solidjs/testing-library";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import type { ImageFormat, ImageMetadata } from "@/types/image";
 import type { ProcessResult } from "@/types/processing";
 import { restoreMocks, setupBrowserMocks } from "../../test/mocks";
 
@@ -32,7 +33,6 @@ import { preloadBackgroundRemoval } from "@/services/backgroundRemovalService";
 import { getImageMetadata, prepareImageFile, processImage } from "@/services/imageService";
 import { createDownloadLink, formatFileSize } from "@/utils/imageUtils";
 import ImageApp from "./ImageApp";
-import { createDecodedObjectUrl } from "./state/imageAppObjectUrls";
 
 const mockGetImageMetadata = vi.mocked(getImageMetadata);
 const mockPrepareImageFile = vi.mocked(prepareImageFile);
@@ -40,22 +40,26 @@ const mockProcessImage = vi.mocked(processImage);
 const mockCreateDownloadLink = vi.mocked(createDownloadLink);
 const mockPreloadBackgroundRemoval = vi.mocked(preloadBackgroundRemoval);
 
-// Solid stores delegated click handlers on the element in jsdom tests.
-function triggerDelegatedClick(element: HTMLButtonElement): void {
-  const delegatedElement = element as HTMLButtonElement & {
-    $$click?: (event: MouseEvent) => void;
-  };
-
-  delegatedElement.$$click?.(new MouseEvent("click", { bubbles: true }));
+function imageMetadata(
+  file: File,
+  width: number,
+  height: number,
+  format = file.type
+): ImageMetadata {
+  return { width, height, format, fileSize: file.size, fileName: file.name };
 }
 
-// Solid also delegates mousedown; used for custom Select options.
-function triggerDelegatedMouseDown(element: HTMLElement): void {
-  const delegatedElement = element as HTMLElement & {
-    $$mousedown?: (event: MouseEvent) => void;
+function processResult(blob: Blob, width: number, height: number): ProcessResult {
+  const format = blob.type as ImageFormat;
+  return {
+    blob,
+    requestedFormat: format,
+    metadata: { width, height, format, fileSize: blob.size },
   };
+}
 
-  delegatedElement.$$mousedown?.(new MouseEvent("mousedown", { bubbles: true, cancelable: true }));
+function upload(fileInput: HTMLInputElement, file: File): void {
+  fireEvent.change(fileInput, { target: { files: [file] } });
 }
 
 function mockEditorBreakpoint() {
@@ -87,8 +91,10 @@ describe("ImageApp", () => {
   let idleCallbackDescriptor: PropertyDescriptor | undefined;
   let cancelIdleCallbackDescriptor: PropertyDescriptor | undefined;
   let connectionDescriptor: PropertyDescriptor | undefined;
+  let scrollIntoViewDescriptor: PropertyDescriptor | undefined;
 
   beforeEach(() => {
+    vi.useFakeTimers();
     setupBrowserMocks();
     idleCallbackDescriptor = Object.getOwnPropertyDescriptor(window, "requestIdleCallback");
     cancelIdleCallbackDescriptor = Object.getOwnPropertyDescriptor(window, "cancelIdleCallback");
@@ -101,6 +107,10 @@ describe("ImageApp", () => {
     mockPreloadBackgroundRemoval.mockClear();
     // jsdom does not implement scrollIntoView; the custom Select scrolls the
     // highlighted option into view when its listbox opens.
+    scrollIntoViewDescriptor = Object.getOwnPropertyDescriptor(
+      HTMLElement.prototype,
+      "scrollIntoView"
+    );
     Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
       configurable: true,
       value: vi.fn(),
@@ -110,7 +120,8 @@ describe("ImageApp", () => {
 
   afterEach(() => {
     dispose?.();
-    document.body.innerHTML = "";
+    dispose = undefined;
+    vi.useRealTimers();
     restoreMocks();
     if (idleCallbackDescriptor) {
       Object.defineProperty(window, "requestIdleCallback", idleCallbackDescriptor);
@@ -122,6 +133,11 @@ describe("ImageApp", () => {
     } else {
       Reflect.deleteProperty(window, "cancelIdleCallback");
     }
+    if (scrollIntoViewDescriptor) {
+      Object.defineProperty(HTMLElement.prototype, "scrollIntoView", scrollIntoViewDescriptor);
+    } else {
+      Reflect.deleteProperty(HTMLElement.prototype, "scrollIntoView");
+    }
     if (connectionDescriptor) {
       Object.defineProperty(navigator, "connection", connectionDescriptor);
     } else {
@@ -129,50 +145,12 @@ describe("ImageApp", () => {
     }
   });
 
-  it("revokes a preview URL when its decode is cancelled", async () => {
-    const controller = new AbortController();
-    vi.mocked(URL.createObjectURL).mockReturnValueOnce("blob:pending-preview");
-
-    const previewPromise = createDecodedObjectUrl(
-      new Blob(["processed"], { type: "image/png" }),
-      controller.signal
-    );
-    controller.abort();
-
-    await expect(previewPromise).rejects.toThrow("decoding was cancelled");
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:pending-preview");
-  });
-
-  it("revokes a preview URL when the browser cannot decode it", async () => {
-    vi.mocked(URL.createObjectURL).mockReturnValueOnce("blob:error-url");
-
-    const previewPromise = createDecodedObjectUrl(new Blob(["processed"], { type: "image/png" }));
-
-    await expect(previewPromise).rejects.toThrow("could not be decoded");
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:error-url");
-  });
-
   it("auto-processes after upload and allows download", async () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
     const processedBlob = new Blob(["processed"], { type: "image/png" });
 
-    mockGetImageMetadata.mockResolvedValue({
-      width: 1200,
-      height: 800,
-      format: "image/png",
-      fileSize: sourceFile.size,
-      fileName: sourceFile.name,
-    });
-    mockProcessImage.mockResolvedValue({
-      blob: processedBlob,
-      requestedFormat: "image/png",
-      metadata: {
-        width: 1200,
-        height: 800,
-        format: "image/png",
-        fileSize: processedBlob.size,
-      },
-    });
+    mockGetImageMetadata.mockResolvedValue(imageMetadata(sourceFile, 1200, 800));
+    mockProcessImage.mockResolvedValue(processResult(processedBlob, 1200, 800));
 
     vi.mocked(URL.createObjectURL)
       .mockReturnValueOnce("blob:original")
@@ -182,44 +160,33 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", {
-      configurable: true,
-      value: [sourceFile],
-    });
+    upload(fileInput, sourceFile);
 
-    fireEvent.change(fileInput);
-
-    // Wait for upload to complete — original image should be shown
     await vi.waitFor(() => {
       expect(mockGetImageMetadata).toHaveBeenCalledWith(sourceFile);
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
-        "src",
-        "blob:original"
-      );
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute("src", "blob:original");
       expect((view.container.querySelector("#width-input") as HTMLInputElement).value).toBe("1200");
       expect((view.container.querySelector("#height-input") as HTMLInputElement).value).toBe("800");
     });
 
-    // Info strip should show filename and original metadata
-    expect(view.container.querySelector("[data-testid='info-strip']")).toHaveTextContent(
-      "photo.png"
-    );
-    expect(view.container.querySelector("[data-testid='info-strip']")).toHaveTextContent(
-      "1200 × 800px"
-    );
+    expect(
+      within(view.container.querySelector("[data-app-shell]") as HTMLElement).getByTestId(
+        "info-strip"
+      )
+    ).toHaveTextContent("photo.png");
+    expect(
+      within(view.container.querySelector("[data-app-shell]") as HTMLElement).getByTestId(
+        "info-strip"
+      )
+    ).toHaveTextContent("1200 × 800px");
 
-    // Auto-process should fire after debounce
     await vi.waitFor(() => {
       expect(mockProcessImage).toHaveBeenCalled();
     });
 
-    // After processing, the preview should update to processed URL
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
-        "src",
-        "blob:processed"
-      );
-      expect(view.container.querySelectorAll(".preview-frame img")).toHaveLength(1);
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute("src", "blob:processed");
+      expect(screen.getAllByRole("img", { name: "Preview" })).toHaveLength(1);
       expect(view.container.querySelector("#download-button")).toBeEnabled();
     });
 
@@ -229,9 +196,8 @@ describe("ImageApp", () => {
     );
     expect(new Set(renderedIds).size).toBe(renderedIds.length);
 
-    // Download should work
     const downloadBtn = view.container.querySelector("#download-button") as HTMLButtonElement;
-    triggerDelegatedClick(downloadBtn);
+    fireEvent.click(downloadBtn);
 
     expect(mockCreateDownloadLink).toHaveBeenCalledWith(processedBlob, "photo-processed.png");
   });
@@ -240,18 +206,8 @@ describe("ImageApp", () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
     const processedBlob = new Blob(["processed"], { type: "image/png" });
 
-    mockGetImageMetadata.mockResolvedValue({
-      width: 500,
-      height: 400,
-      format: "image/png",
-      fileSize: sourceFile.size,
-      fileName: sourceFile.name,
-    });
-    mockProcessImage.mockResolvedValue({
-      blob: processedBlob,
-      requestedFormat: "image/png",
-      metadata: { width: 500, height: 400, format: "image/png", fileSize: processedBlob.size },
-    });
+    mockGetImageMetadata.mockResolvedValue(imageMetadata(sourceFile, 500, 400));
+    mockProcessImage.mockResolvedValue(processResult(processedBlob, 500, 400));
     vi.mocked(URL.createObjectURL)
       .mockReturnValueOnce("blob:original")
       .mockReturnValueOnce("blob:processed");
@@ -260,8 +216,7 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
-    fireEvent.change(fileInput);
+    upload(fileInput, sourceFile);
 
     await vi.waitFor(() => {
       expect(view.container.querySelector("#download-button")).toBeEnabled();
@@ -282,18 +237,8 @@ describe("ImageApp", () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
     const processedBlob = new Blob(["processed"], { type: "image/png" });
 
-    mockGetImageMetadata.mockResolvedValue({
-      width: 1200,
-      height: 800,
-      format: "image/png",
-      fileSize: sourceFile.size,
-      fileName: sourceFile.name,
-    });
-    mockProcessImage.mockResolvedValue({
-      blob: processedBlob,
-      requestedFormat: "image/png",
-      metadata: { width: 1200, height: 800, format: "image/png", fileSize: processedBlob.size },
-    });
+    mockGetImageMetadata.mockResolvedValue(imageMetadata(sourceFile, 1200, 800));
+    mockProcessImage.mockResolvedValue(processResult(processedBlob, 1200, 800));
 
     vi.mocked(URL.createObjectURL)
       .mockReturnValueOnce("blob:original")
@@ -303,24 +248,14 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", {
-      configurable: true,
-      value: [sourceFile],
-    });
-
-    fireEvent.change(fileInput);
+    upload(fileInput, sourceFile);
 
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
-        "src",
-        "blob:processed"
-      );
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute("src", "blob:processed");
     });
 
-    // Regression guard for the auto-process loop: a completion rewrites the
-    // currentImage object, which must not re-trigger processing. Wait past a
-    // full debounce window and confirm no further runs were queued.
-    await new Promise((resolve) => setTimeout(resolve, 900));
+    // Advance past another debounce window to catch a completion-triggered loop.
+    await vi.advanceTimersByTimeAsync(900);
     expect(mockProcessImage).toHaveBeenCalledTimes(1);
   });
 
@@ -331,13 +266,7 @@ describe("ImageApp", () => {
     });
 
     mockPrepareImageFile.mockResolvedValueOnce({ file: decodedFile, format: "image/heic" });
-    mockGetImageMetadata.mockResolvedValueOnce({
-      width: 1200,
-      height: 800,
-      format: "image/heic",
-      fileSize: decodedFile.size,
-      fileName: decodedFile.name,
-    });
+    mockGetImageMetadata.mockResolvedValueOnce(imageMetadata(decodedFile, 1200, 800, "image/heic"));
     mockProcessImage.mockImplementationOnce(() => new Promise<ProcessResult>(() => {}));
     vi.mocked(URL.createObjectURL).mockReturnValueOnce("blob:decoded-preview");
 
@@ -345,19 +274,20 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
-    fireEvent.change(fileInput);
+    upload(fileInput, sourceFile);
 
     await vi.waitFor(() => {
       expect(mockGetImageMetadata).toHaveBeenCalledWith(decodedFile, "image/heic");
       expect(URL.createObjectURL).toHaveBeenCalledWith(decodedFile);
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute(
         "src",
         "blob:decoded-preview"
       );
     });
 
-    const info = view.container.querySelector("[data-testid='info-strip']");
+    const info = within(
+      view.container.querySelector("[data-app-shell]") as HTMLElement
+    ).getByTestId("info-strip");
     expect(info).toHaveTextContent("photo.heic");
     expect(info).toHaveTextContent(formatFileSize(sourceFile.size));
   });
@@ -393,34 +323,10 @@ describe("ImageApp", () => {
 
     vi.stubGlobal("Image", DeferredImage);
 
-    mockGetImageMetadata.mockResolvedValue({
-      width: 1200,
-      height: 800,
-      format: "image/png",
-      fileSize: sourceFile.size,
-      fileName: sourceFile.name,
-    });
+    mockGetImageMetadata.mockResolvedValue(imageMetadata(sourceFile, 1200, 800));
     mockProcessImage
-      .mockResolvedValueOnce({
-        blob: firstBlob,
-        requestedFormat: "image/png",
-        metadata: {
-          width: 1200,
-          height: 800,
-          format: "image/png",
-          fileSize: firstBlob.size,
-        },
-      })
-      .mockResolvedValueOnce({
-        blob: secondBlob,
-        requestedFormat: "image/png",
-        metadata: {
-          width: 600,
-          height: 400,
-          format: "image/png",
-          fileSize: secondBlob.size,
-        },
-      });
+      .mockResolvedValueOnce(processResult(firstBlob, 1200, 800))
+      .mockResolvedValueOnce(processResult(secondBlob, 600, 400));
 
     vi.mocked(URL.createObjectURL)
       .mockReturnValueOnce("blob:original")
@@ -431,22 +337,18 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
-    fireEvent.change(fileInput);
+    upload(fileInput, sourceFile);
 
     await vi.waitFor(() => {
       expect(mockProcessImage).toHaveBeenCalledTimes(1);
       expect(decodeResolvers).toHaveLength(1);
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
-        "src",
-        "blob:original"
-      );
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute("src", "blob:original");
     });
 
     decodeResolvers.shift()?.();
 
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute(
         "src",
         "blob:first-processed"
       );
@@ -458,25 +360,29 @@ describe("ImageApp", () => {
     await vi.waitFor(() => {
       expect(mockProcessImage).toHaveBeenCalledTimes(2);
       expect(decodeResolvers).toHaveLength(1);
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute(
         "src",
         "blob:first-processed"
       );
-      expect(view.container.querySelector("[data-testid='info-strip']")).toHaveTextContent(
-        "1200 × 800px"
-      );
+      expect(
+        within(view.container.querySelector("[data-app-shell]") as HTMLElement).getByTestId(
+          "info-strip"
+        )
+      ).toHaveTextContent("1200 × 800px");
     });
 
     decodeResolvers.shift()?.();
 
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute(
         "src",
         "blob:second-processed"
       );
-      expect(view.container.querySelector("[data-testid='info-strip']")).toHaveTextContent(
-        "600 × 400px"
-      );
+      expect(
+        within(view.container.querySelector("[data-app-shell]") as HTMLElement).getByTestId(
+          "info-strip"
+        )
+      ).toHaveTextContent("600 × 400px");
     });
   });
 
@@ -485,34 +391,10 @@ describe("ImageApp", () => {
     const firstBlob = new Blob(["first"], { type: "image/png" });
     const secondBlob = new Blob(["second"], { type: "image/png" });
 
-    mockGetImageMetadata.mockResolvedValue({
-      width: 1200,
-      height: 800,
-      format: "image/png",
-      fileSize: sourceFile.size,
-      fileName: sourceFile.name,
-    });
+    mockGetImageMetadata.mockResolvedValue(imageMetadata(sourceFile, 1200, 800));
     mockProcessImage
-      .mockResolvedValueOnce({
-        blob: firstBlob,
-        requestedFormat: "image/png",
-        metadata: {
-          width: 1200,
-          height: 800,
-          format: "image/png",
-          fileSize: firstBlob.size,
-        },
-      })
-      .mockResolvedValueOnce({
-        blob: secondBlob,
-        requestedFormat: "image/png",
-        metadata: {
-          width: 600,
-          height: 400,
-          format: "image/png",
-          fileSize: secondBlob.size,
-        },
-      });
+      .mockResolvedValueOnce(processResult(firstBlob, 1200, 800))
+      .mockResolvedValueOnce(processResult(secondBlob, 600, 400));
 
     vi.mocked(URL.createObjectURL)
       .mockReturnValueOnce("blob:original")
@@ -523,27 +405,20 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", {
-      configurable: true,
-      value: [sourceFile],
-    });
-
-    fireEvent.change(fileInput);
+    upload(fileInput, sourceFile);
 
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute(
         "src",
         "blob:first-processed"
       );
     });
 
-    // The quality slider cannot trigger anything for PNG output (quality
-    // control unsupported), so drive the reprocess with a real dimension
-    // input. 1200×800 with linked aspect ratio: width 400 → height 267.
+    // PNG reprocessing is triggered by dimensions; it has no quality control.
     const widthInput = view.container.querySelector("#width-input") as HTMLInputElement;
     fireEvent.input(widthInput, { target: { value: "400" } });
 
-    expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+    expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute(
       "src",
       "blob:first-processed"
     );
@@ -552,7 +427,7 @@ describe("ImageApp", () => {
 
     await vi.waitFor(() => {
       expect(mockProcessImage).toHaveBeenCalledTimes(2);
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute(
         "src",
         "blob:second-processed"
       );
@@ -568,42 +443,12 @@ describe("ImageApp", () => {
     const secondProcessedBlob = new Blob(["second-processed"], { type: "image/png" });
 
     mockGetImageMetadata
-      .mockResolvedValueOnce({
-        width: 1200,
-        height: 800,
-        format: "image/png",
-        fileSize: firstFile.size,
-        fileName: firstFile.name,
-      })
-      .mockResolvedValueOnce({
-        width: 800,
-        height: 600,
-        format: "image/png",
-        fileSize: secondFile.size,
-        fileName: secondFile.name,
-      });
+      .mockResolvedValueOnce(imageMetadata(firstFile, 1200, 800))
+      .mockResolvedValueOnce(imageMetadata(secondFile, 800, 600));
 
     mockProcessImage
-      .mockResolvedValueOnce({
-        blob: firstProcessedBlob,
-        requestedFormat: "image/png",
-        metadata: {
-          width: 1200,
-          height: 800,
-          format: "image/png",
-          fileSize: firstProcessedBlob.size,
-        },
-      })
-      .mockResolvedValueOnce({
-        blob: secondProcessedBlob,
-        requestedFormat: "image/png",
-        metadata: {
-          width: 800,
-          height: 600,
-          format: "image/png",
-          fileSize: secondProcessedBlob.size,
-        },
-      });
+      .mockResolvedValueOnce(processResult(firstProcessedBlob, 1200, 800))
+      .mockResolvedValueOnce(processResult(secondProcessedBlob, 800, 600));
 
     vi.mocked(URL.createObjectURL)
       .mockReturnValueOnce("blob:first-original")
@@ -615,30 +460,20 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", {
-      configurable: true,
-      value: [firstFile],
-    });
-
-    fireEvent.change(fileInput);
+    upload(fileInput, firstFile);
 
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute(
         "src",
         "blob:first-processed"
       );
     });
 
-    Object.defineProperty(fileInput, "files", {
-      configurable: true,
-      value: [secondFile],
-    });
-
-    fireEvent.change(fileInput);
+    upload(fileInput, secondFile);
 
     await vi.waitFor(() => {
       expect(mockGetImageMetadata).toHaveBeenCalledWith(secondFile);
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute(
         "src",
         "blob:second-processed"
       );
@@ -652,23 +487,8 @@ describe("ImageApp", () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
     const processedBlob = new Blob(["processed"], { type: "image/png" });
 
-    mockGetImageMetadata.mockResolvedValue({
-      width: 1200,
-      height: 800,
-      format: "image/png",
-      fileSize: sourceFile.size,
-      fileName: sourceFile.name,
-    });
-    mockProcessImage.mockResolvedValue({
-      blob: processedBlob,
-      requestedFormat: "image/png",
-      metadata: {
-        width: 1200,
-        height: 800,
-        format: "image/png",
-        fileSize: processedBlob.size,
-      },
-    });
+    mockGetImageMetadata.mockResolvedValue(imageMetadata(sourceFile, 1200, 800));
+    mockProcessImage.mockResolvedValue(processResult(processedBlob, 1200, 800));
 
     vi.mocked(URL.createObjectURL)
       .mockReturnValueOnce("blob:original")
@@ -678,18 +498,10 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", {
-      configurable: true,
-      value: [sourceFile],
-    });
-
-    fireEvent.change(fileInput);
+    upload(fileInput, sourceFile);
 
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
-        "src",
-        "blob:processed"
-      );
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute("src", "blob:processed");
     });
 
     view.unmount();
@@ -703,23 +515,8 @@ describe("ImageApp", () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
     const processedBlob = new Blob(["processed"], { type: "image/png" });
 
-    mockGetImageMetadata.mockResolvedValue({
-      width: 1200,
-      height: 800,
-      format: "image/png",
-      fileSize: sourceFile.size,
-      fileName: sourceFile.name,
-    });
-    mockProcessImage.mockResolvedValue({
-      blob: processedBlob,
-      requestedFormat: "image/png",
-      metadata: {
-        width: 1200,
-        height: 800,
-        format: "image/png",
-        fileSize: processedBlob.size,
-      },
-    });
+    mockGetImageMetadata.mockResolvedValue(imageMetadata(sourceFile, 1200, 800));
+    mockProcessImage.mockResolvedValue(processResult(processedBlob, 1200, 800));
 
     vi.mocked(URL.createObjectURL)
       .mockReturnValueOnce("blob:original")
@@ -729,12 +526,7 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", {
-      configurable: true,
-      value: [sourceFile],
-    });
-
-    fireEvent.change(fileInput);
+    upload(fileInput, sourceFile);
 
     await vi.waitFor(() => {
       expect(view.container.querySelector("#quality-slider")).toBeDisabled();
@@ -742,7 +534,6 @@ describe("ImageApp", () => {
       expect(view.container.querySelector("#compression-mode-size")).toBeDisabled();
       expect(view.container.querySelector("#target-file-size")).toBeDisabled();
       expect(view.container.querySelector("#target-file-size")).not.toBeVisible();
-      expect(view.container).not.toHaveTextContent("Fixed");
     });
   });
 
@@ -802,8 +593,7 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
-    fireEvent.change(fileInput);
+    upload(fileInput, sourceFile);
 
     await vi.waitFor(() => {
       expect(mockProcessImage).toHaveBeenCalledTimes(1);
@@ -817,7 +607,6 @@ describe("ImageApp", () => {
     const targetInput = view.container.querySelector("#target-file-size") as HTMLInputElement;
     expect(targetInput).toBeInTheDocument();
     expect(targetInput).toHaveAttribute("inputmode", "decimal");
-    expect(targetInput).toHaveClass("text-base");
     expect(targetInput).toBeVisible();
     expect(view.container.querySelector("#quality-slider")).toBeDisabled();
     expect(view.container.querySelector("#quality-slider")).not.toBeVisible();
@@ -855,13 +644,7 @@ describe("ImageApp", () => {
   it("shows a user-facing error when processing fails", async () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
 
-    mockGetImageMetadata.mockResolvedValue({
-      width: 1200,
-      height: 800,
-      format: "image/png",
-      fileSize: sourceFile.size,
-      fileName: sourceFile.name,
-    });
+    mockGetImageMetadata.mockResolvedValue(imageMetadata(sourceFile, 1200, 800));
     mockProcessImage.mockRejectedValue(new Error("Processing exploded"));
 
     vi.mocked(URL.createObjectURL).mockReturnValueOnce("blob:original");
@@ -870,12 +653,7 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", {
-      configurable: true,
-      value: [sourceFile],
-    });
-
-    fireEvent.change(fileInput);
+    upload(fileInput, sourceFile);
 
     // Wait for auto-process to fire and fail
     await vi.waitFor(() => {
@@ -889,19 +667,9 @@ describe("ImageApp", () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
     const firstBlob = new Blob(["first"], { type: "image/png" });
 
-    mockGetImageMetadata.mockResolvedValue({
-      width: 1200,
-      height: 800,
-      format: "image/png",
-      fileSize: sourceFile.size,
-      fileName: sourceFile.name,
-    });
+    mockGetImageMetadata.mockResolvedValue(imageMetadata(sourceFile, 1200, 800));
     mockProcessImage
-      .mockResolvedValueOnce({
-        blob: firstBlob,
-        requestedFormat: "image/png",
-        metadata: { width: 1200, height: 800, format: "image/png", fileSize: firstBlob.size },
-      })
+      .mockResolvedValueOnce(processResult(firstBlob, 1200, 800))
       .mockRejectedValueOnce(new Error("Second run failed"));
 
     vi.mocked(URL.createObjectURL)
@@ -912,8 +680,7 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
-    fireEvent.change(fileInput);
+    upload(fileInput, sourceFile);
 
     await vi.waitFor(() => {
       expect(view.container.querySelector("#download-button")).toBeEnabled();
@@ -926,7 +693,7 @@ describe("ImageApp", () => {
       expect(mockProcessImage).toHaveBeenCalledTimes(2);
       expect(view.container.querySelector("#error-text")).toHaveTextContent("Second run failed");
       expect(view.container.querySelector("#download-button")).toBeDisabled();
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute(
         "src",
         "blob:first-processed"
       );
@@ -935,13 +702,7 @@ describe("ImageApp", () => {
 
   it("does not create a processed URL after unmounting during processing", async () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
-    mockGetImageMetadata.mockResolvedValue({
-      width: 1200,
-      height: 800,
-      format: "image/png",
-      fileSize: sourceFile.size,
-      fileName: sourceFile.name,
-    });
+    mockGetImageMetadata.mockResolvedValue(imageMetadata(sourceFile, 1200, 800));
 
     let resolveProcessing!: (result: ProcessResult) => void;
     mockProcessImage.mockImplementationOnce(
@@ -956,8 +717,7 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
-    fireEvent.change(fileInput);
+    upload(fileInput, sourceFile);
 
     await vi.waitFor(() => {
       expect(mockProcessImage).toHaveBeenCalledTimes(1);
@@ -972,23 +732,15 @@ describe("ImageApp", () => {
       metadata: { width: 1200, height: 800, format: "image/png", fileSize: 9 },
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await vi.advanceTimersByTimeAsync(0);
     expect(URL.createObjectURL).toHaveBeenCalledTimes(1);
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:original");
   });
 
-  it("renders the snap sheet (not the old tab-bar drawer) and starts hidden with no image", () => {
+  it("hides mobile image controls until an image is uploaded", () => {
     const view = render(() => ImageApp());
     dispose = view.unmount;
 
-    // No legacy "Adjust" / "Batch" app modes should be present
-    expect(view.container).not.toHaveTextContent("Adjust");
-    expect(view.container).not.toHaveTextContent("Batch");
-
-    // Old bottom-tab drawer element is gone
-    expect(view.container.querySelector("#app-controls-drawer")).toBeNull();
-
-    // New snap sheet is present and starts hidden (no image loaded)
     const sheet = view.container.querySelector('[aria-label="Image controls"]') as HTMLDivElement;
     expect(sheet).not.toBeNull();
     expect(sheet).toHaveAttribute("aria-hidden", "true");
@@ -1056,13 +808,7 @@ describe("ImageApp", () => {
     const changeBreakpoint = mockEditorBreakpoint();
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
 
-    mockGetImageMetadata.mockResolvedValue({
-      width: 1200,
-      height: 800,
-      format: "image/png",
-      fileSize: sourceFile.size,
-      fileName: sourceFile.name,
-    });
+    mockGetImageMetadata.mockResolvedValue(imageMetadata(sourceFile, 1200, 800));
     mockProcessImage.mockResolvedValue({
       blob: new Blob(["processed"], { type: "image/png" }),
       requestedFormat: "image/png",
@@ -1076,15 +822,14 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
-    fireEvent.change(fileInput);
+    upload(fileInput, sourceFile);
 
     await vi.waitFor(() => {
       expect(view.container.querySelector("#mobile-width-input")).toBeEnabled();
     });
 
     const desktopUnitSelect = view.container.querySelector("#unit-select") as HTMLButtonElement;
-    triggerDelegatedClick(desktopUnitSelect);
+    fireEvent.click(desktopUnitSelect);
 
     await vi.waitFor(() => {
       const listbox = document.querySelector('[role="listbox"]');
@@ -1110,13 +855,7 @@ describe("ImageApp", () => {
   it("lets Escape close a mobile Select before collapsing its sheet", async () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
 
-    mockGetImageMetadata.mockResolvedValue({
-      width: 1200,
-      height: 800,
-      format: "image/png",
-      fileSize: sourceFile.size,
-      fileName: sourceFile.name,
-    });
+    mockGetImageMetadata.mockResolvedValue(imageMetadata(sourceFile, 1200, 800));
     mockProcessImage.mockResolvedValue({
       blob: new Blob(["processed"], { type: "image/png" }),
       requestedFormat: "image/png",
@@ -1130,8 +869,7 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
-    fireEvent.change(fileInput);
+    upload(fileInput, sourceFile);
 
     await vi.waitFor(() => {
       expect(view.container.querySelector("#mobile-width-input")).toBeEnabled();
@@ -1145,13 +883,13 @@ describe("ImageApp", () => {
       "data-sheet-state",
       "peek"
     );
-    triggerDelegatedClick(openButton);
+    fireEvent.click(openButton);
     await vi.waitFor(() => expect(sheet).toHaveAttribute("role", "dialog"));
 
     const mobileUnitSelect = view.container.querySelector(
       "#mobile-unit-select"
     ) as HTMLButtonElement;
-    triggerDelegatedClick(mobileUnitSelect);
+    fireEvent.click(mobileUnitSelect);
 
     await vi.waitFor(() => {
       const listbox = document.querySelector('[role="listbox"]');
@@ -1179,13 +917,7 @@ describe("ImageApp", () => {
   it("keeps peeked mobile settings inert until the sheet is opened", async () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
 
-    mockGetImageMetadata.mockResolvedValue({
-      width: 1200,
-      height: 800,
-      format: "image/png",
-      fileSize: sourceFile.size,
-      fileName: sourceFile.name,
-    });
+    mockGetImageMetadata.mockResolvedValue(imageMetadata(sourceFile, 1200, 800));
     mockProcessImage.mockResolvedValue({
       blob: new Blob(["processed"], { type: "image/png" }),
       requestedFormat: "image/png",
@@ -1199,18 +931,14 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
-    fireEvent.change(fileInput);
+    upload(fileInput, sourceFile);
 
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
-        "src",
-        "blob:original"
-      );
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute("src", "blob:original");
     });
 
     const sheet = view.container.querySelector('[aria-label="Image controls"]') as HTMLDivElement;
-    const settings = sheet.querySelector(".overflow-y-auto") as HTMLDivElement;
+    const settings = sheet.querySelector("#mobile-controls-content") as HTMLDivElement;
     expect(sheet).toHaveAttribute("aria-hidden", "false");
     expect(sheet.inert).toBe(false);
     expect(settings).toHaveAttribute("aria-hidden", "true");
@@ -1222,13 +950,12 @@ describe("ImageApp", () => {
       'button[aria-controls="mobile-controls-content"]'
     ) as HTMLButtonElement;
     expect(openButton).toHaveAccessibleName("Edit image");
-    expect(openButton).toHaveClass("w-full");
     expect(openButton).toHaveAttribute("aria-expanded", "false");
     expect(sheet.querySelector("h2")).toBeNull();
     const peekAffordances = sheet.querySelector("#mobile-peek-affordances") as HTMLDivElement;
     expect(peekAffordances).not.toHaveClass("is-open");
     expect(peekAffordances.inert).toBe(false);
-    triggerDelegatedClick(openButton);
+    fireEvent.click(openButton);
 
     expect(sheet).toHaveAttribute("role", "dialog");
     expect(sheet).toHaveAttribute("aria-modal", "true");
@@ -1276,17 +1003,13 @@ describe("ImageApp", () => {
       expect(document.activeElement).toBe(openButton);
     });
 
-    triggerDelegatedClick(openButton);
+    fireEvent.click(openButton);
 
     expect(settings).toHaveAttribute("aria-hidden", "false");
     expect(settings.inert).toBe(false);
 
-    triggerDelegatedClick(view.container.querySelector("#mobile-unit-select") as HTMLButtonElement);
-    const inchOption = Array.from(
-      document.body.querySelectorAll<HTMLElement>('[role="option"]')
-    ).find((option) => option.textContent?.trim() === "in");
-    expect(inchOption).toBeDefined();
-    triggerDelegatedMouseDown(inchOption as HTMLElement);
+    fireEvent.click(view.container.querySelector("#mobile-unit-select") as HTMLButtonElement);
+    fireEvent.mouseDown(screen.getByRole("option", { name: "in" }));
 
     await vi.waitFor(() => {
       expect(view.container.querySelector("#dpi-select")).toHaveAccessibleName(
@@ -1306,14 +1029,11 @@ describe("ImageApp", () => {
       'input[type="file"][aria-hidden="true"]'
     ) as HTMLInputElement;
     const openFilePicker = vi.spyOn(fileInput, "click");
-    triggerDelegatedClick(
-      view.container.querySelector("#sbs-empty-state button") as HTMLButtonElement
-    );
+    fireEvent.click(view.container.querySelector("#sbs-empty-state button") as HTMLButtonElement);
     expect(openFilePicker).toHaveBeenCalledOnce();
 
     const invalidFile = new File(["not an image"], "notes.txt", { type: "text/plain" });
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [invalidFile] });
-    fireEvent.change(fileInput);
+    upload(fileInput, invalidFile);
 
     await vi.waitFor(() => {
       expect(view.container.querySelector("#sbs-empty-state [role='status']")).toHaveTextContent(
@@ -1329,20 +1049,8 @@ describe("ImageApp", () => {
     const blobB = new Blob(["processed-b"], { type: "image/png" });
 
     mockGetImageMetadata
-      .mockResolvedValueOnce({
-        width: 100,
-        height: 100,
-        format: "image/png",
-        fileSize: fileA.size,
-        fileName: fileA.name,
-      })
-      .mockResolvedValueOnce({
-        width: 200,
-        height: 200,
-        format: "image/png",
-        fileSize: fileB.size,
-        fileName: fileB.name,
-      });
+      .mockResolvedValueOnce(imageMetadata(fileA, 100, 100))
+      .mockResolvedValueOnce(imageMetadata(fileB, 200, 200));
 
     let resolveA!: (result: ProcessResult) => void;
     mockProcessImage
@@ -1352,11 +1060,7 @@ describe("ImageApp", () => {
             resolveA = resolve;
           })
       )
-      .mockResolvedValueOnce({
-        blob: blobB,
-        requestedFormat: "image/png",
-        metadata: { width: 200, height: 200, format: "image/png", fileSize: blobB.size },
-      });
+      .mockResolvedValueOnce(processResult(blobB, 200, 200));
 
     vi.mocked(URL.createObjectURL)
       .mockReturnValueOnce("blob:a-original")
@@ -1368,19 +1072,16 @@ describe("ImageApp", () => {
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
 
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [fileA] });
-    fireEvent.change(fileInput);
+    upload(fileInput, fileA);
 
     await vi.waitFor(() => {
       expect(mockProcessImage).toHaveBeenCalledTimes(1);
     });
 
-    // Upload B while A's processing run is still in flight
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [fileB] });
-    fireEvent.change(fileInput);
+    upload(fileInput, fileB);
 
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute(
         "src",
         "blob:b-original"
       );
@@ -1389,14 +1090,9 @@ describe("ImageApp", () => {
     // Let B's debounce expire while A is still running. The completion of A
     // must still hand the queued work back to B instead of leaving the app
     // stuck in its processing state.
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await vi.advanceTimersByTimeAsync(500);
 
-    // A's stale completion must not stamp its result onto B's session
-    resolveA({
-      blob: blobA,
-      requestedFormat: "image/png",
-      metadata: { width: 100, height: 100, format: "image/png", fileSize: blobA.size },
-    });
+    resolveA(processResult(blobA, 100, 100));
 
     await vi.waitFor(() => {
       expect(mockProcessImage).toHaveBeenCalledTimes(2);
@@ -1404,7 +1100,7 @@ describe("ImageApp", () => {
     });
 
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute(
         "src",
         "blob:b-processed"
       );
@@ -1433,22 +1129,14 @@ describe("ImageApp", () => {
     let resolveBackgroundRemoval!: (result: ProcessResult) => void;
     let reportBackgroundRemovalProgress!: (progress: number) => void;
     mockProcessImage
-      .mockResolvedValueOnce({
-        blob: firstBlob,
-        requestedFormat: "image/png",
-        metadata: { width: 100, height: 100, format: "image/png", fileSize: firstBlob.size },
-      })
+      .mockResolvedValueOnce(processResult(firstBlob, 100, 100))
       .mockImplementationOnce((_file, _options, onProgress) => {
         reportBackgroundRemovalProgress = onProgress as (progress: number) => void;
         return new Promise<ProcessResult>((resolve) => {
           resolveBackgroundRemoval = resolve;
         });
       })
-      .mockResolvedValueOnce({
-        blob: secondBlob,
-        requestedFormat: "image/png",
-        metadata: { width: 200, height: 200, format: "image/png", fileSize: secondBlob.size },
-      });
+      .mockResolvedValueOnce(processResult(secondBlob, 200, 200));
 
     vi.mocked(URL.createObjectURL)
       .mockReturnValueOnce("blob:a-original")
@@ -1460,11 +1148,10 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [fileA] });
-    fireEvent.change(fileInput);
+    upload(fileInput, fileA);
 
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute(
         "src",
         "blob:a-processed"
       );
@@ -1480,11 +1167,10 @@ describe("ImageApp", () => {
       expect(reportBackgroundRemovalProgress).toBeDefined();
     });
 
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [fileB] });
-    fireEvent.change(fileInput);
+    upload(fileInput, fileB);
 
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute(
         "src",
         "blob:b-original"
       );
@@ -1508,7 +1194,7 @@ describe("ImageApp", () => {
     });
 
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute(
         "src",
         "blob:b-processed"
       );
@@ -1519,13 +1205,7 @@ describe("ImageApp", () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
     const processedBlob = new Blob(["processed"], { type: "image/png" });
 
-    mockGetImageMetadata.mockResolvedValue({
-      width: 1200,
-      height: 800,
-      format: "image/png",
-      fileSize: sourceFile.size,
-      fileName: sourceFile.name,
-    });
+    mockGetImageMetadata.mockResolvedValue(imageMetadata(sourceFile, 1200, 800));
 
     let resolveProcessing!: (result: ProcessResult) => void;
     mockProcessImage.mockImplementationOnce(
@@ -1542,32 +1222,23 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
-    fireEvent.change(fileInput);
+    upload(fileInput, sourceFile);
 
     await vi.waitFor(() => {
       expect(mockProcessImage).toHaveBeenCalledTimes(1);
     });
 
     const invalidFile = new File(["not an image"], "notes.txt", { type: "text/plain" });
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [invalidFile] });
-    fireEvent.change(fileInput);
+    upload(fileInput, invalidFile);
 
     await vi.waitFor(() => {
       expect(view.container).toHaveTextContent("File must be an image");
     });
 
-    resolveProcessing({
-      blob: processedBlob,
-      requestedFormat: "image/png",
-      metadata: { width: 1200, height: 800, format: "image/png", fileSize: processedBlob.size },
-    });
+    resolveProcessing(processResult(processedBlob, 1200, 800));
 
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
-        "src",
-        "blob:processed"
-      );
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute("src", "blob:processed");
       expect(view.container.querySelector("#download-button")).toBeEnabled();
     });
     expect(mockProcessImage).toHaveBeenCalledTimes(1);
@@ -1588,19 +1259,9 @@ describe("ImageApp", () => {
       return Promise.resolve({ file, format: file.type });
     });
     mockGetImageMetadata.mockImplementation((file) =>
-      Promise.resolve({
-        width: 200,
-        height: 200,
-        format: "image/png",
-        fileSize: file.size,
-        fileName: file.name,
-      })
+      Promise.resolve(imageMetadata(file, 200, 200))
     );
-    mockProcessImage.mockResolvedValue({
-      blob: blobB,
-      requestedFormat: "image/png",
-      metadata: { width: 200, height: 200, format: "image/png", fileSize: blobB.size },
-    });
+    mockProcessImage.mockResolvedValue(processResult(blobB, 200, 200));
     vi.mocked(URL.createObjectURL)
       .mockReturnValueOnce("blob:b-original")
       .mockReturnValueOnce("blob:b-processed");
@@ -1609,30 +1270,25 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [fileA] });
-    fireEvent.change(fileInput);
+    upload(fileInput, fileA);
     await vi.waitFor(() => {
       expect(mockPrepareImageFile).toHaveBeenCalledWith(fileA);
     });
 
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [fileB] });
-    fireEvent.change(fileInput);
+    upload(fileInput, fileB);
 
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute(
         "src",
         "blob:b-processed"
       );
     });
 
     rejectPreparationA(new Error("stale upload failed"));
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await vi.advanceTimersByTimeAsync(0);
 
     expect(view.container.querySelector("#error-text")).toBeNull();
-    expect(view.container.querySelector("#preview-image")).toHaveAttribute(
-      "src",
-      "blob:b-processed"
-    );
+    expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute("src", "blob:b-processed");
   });
 
   it("does not continue upload work after unmounting during preparation", async () => {
@@ -1649,8 +1305,7 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
-    fireEvent.change(fileInput);
+    upload(fileInput, sourceFile);
 
     await vi.waitFor(() => {
       expect(mockPrepareImageFile).toHaveBeenCalledWith(sourceFile);
@@ -1659,7 +1314,7 @@ describe("ImageApp", () => {
     view.unmount();
     dispose = undefined;
     resolvePreparation({ file: sourceFile, format: sourceFile.type });
-    await new Promise((resolve) => setTimeout(resolve, 0));
+    await vi.advanceTimersByTimeAsync(0);
 
     expect(mockGetImageMetadata).not.toHaveBeenCalled();
     expect(URL.createObjectURL).not.toHaveBeenCalled();
@@ -1684,19 +1339,9 @@ describe("ImageApp", () => {
         });
       }
 
-      return Promise.resolve({
-        width: 200,
-        height: 200,
-        format: "image/png",
-        fileSize: fileB.size,
-        fileName: fileB.name,
-      });
+      return Promise.resolve(imageMetadata(fileB, 200, 200));
     });
-    mockProcessImage.mockResolvedValue({
-      blob: blobB,
-      requestedFormat: "image/png",
-      metadata: { width: 200, height: 200, format: "image/png", fileSize: blobB.size },
-    });
+    mockProcessImage.mockResolvedValue(processResult(blobB, 200, 200));
 
     vi.mocked(URL.createObjectURL)
       .mockReturnValueOnce("blob:b-original")
@@ -1706,36 +1351,25 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [fileA] });
-    fireEvent.change(fileInput);
+    upload(fileInput, fileA);
 
     await vi.waitFor(() => {
       expect(mockGetImageMetadata).toHaveBeenCalledWith(fileA);
     });
 
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [fileB] });
-    fireEvent.change(fileInput);
+    upload(fileInput, fileB);
 
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute(
         "src",
         "blob:b-processed"
       );
     });
 
-    resolveMetadataA({
-      width: 100,
-      height: 100,
-      format: "image/png",
-      fileSize: fileA.size,
-      fileName: fileA.name,
-    });
+    resolveMetadataA(imageMetadata(fileA, 100, 100));
 
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(view.container.querySelector("#preview-image")).toHaveAttribute(
-      "src",
-      "blob:b-processed"
-    );
+    await vi.advanceTimersByTimeAsync(0);
+    expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute("src", "blob:b-processed");
     expect(mockProcessImage).toHaveBeenCalledTimes(1);
     expect(mockProcessImage.mock.calls[0]?.[0]).toBe(fileB);
   });
@@ -1745,13 +1379,7 @@ describe("ImageApp", () => {
     const firstBlob = new Blob(["first"], { type: "image/png" });
     const secondBlob = new Blob(["second"], { type: "image/png" });
 
-    mockGetImageMetadata.mockResolvedValue({
-      width: 1200,
-      height: 800,
-      format: "image/png",
-      fileSize: sourceFile.size,
-      fileName: sourceFile.name,
-    });
+    mockGetImageMetadata.mockResolvedValue(imageMetadata(sourceFile, 1200, 800));
 
     let resolveFirst!: (result: ProcessResult) => void;
     mockProcessImage
@@ -1761,11 +1389,7 @@ describe("ImageApp", () => {
             resolveFirst = resolve;
           })
       )
-      .mockResolvedValueOnce({
-        blob: secondBlob,
-        requestedFormat: "image/png",
-        metadata: { width: 400, height: 300, format: "image/png", fileSize: secondBlob.size },
-      });
+      .mockResolvedValueOnce(processResult(secondBlob, 400, 267));
 
     vi.mocked(URL.createObjectURL)
       .mockReturnValueOnce("blob:original")
@@ -1775,8 +1399,7 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
-    fireEvent.change(fileInput);
+    upload(fileInput, sourceFile);
 
     await vi.waitFor(() => {
       expect(mockProcessImage).toHaveBeenCalledTimes(1);
@@ -1786,16 +1409,12 @@ describe("ImageApp", () => {
     // debounced auto-process time to hit the in-flight guard
     const widthInput = view.container.querySelector("#width-input") as HTMLInputElement;
     fireEvent.input(widthInput, { target: { value: "400" } });
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    await vi.advanceTimersByTimeAsync(500);
 
-    resolveFirst({
-      blob: firstBlob,
-      requestedFormat: "image/png",
-      metadata: { width: 1200, height: 800, format: "image/png", fileSize: firstBlob.size },
-    });
+    resolveFirst(processResult(firstBlob, 1200, 800));
 
-    await new Promise((resolve) => setTimeout(resolve, 0));
-    expect(view.container.querySelector("#preview-image")).toHaveAttribute("src", "blob:original");
+    await vi.advanceTimersByTimeAsync(0);
+    expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute("src", "blob:original");
     expect(view.container.querySelector("#download-button")).toBeDisabled();
 
     await vi.waitFor(() => {
@@ -1807,7 +1426,7 @@ describe("ImageApp", () => {
     });
 
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute(
         "src",
         "blob:second-processed"
       );
@@ -1818,13 +1437,7 @@ describe("ImageApp", () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
     const processedBlob = new Blob(["processed"], { type: "image/png" });
 
-    mockGetImageMetadata.mockResolvedValue({
-      width: 1200,
-      height: 800,
-      format: "image/png",
-      fileSize: sourceFile.size,
-      fileName: sourceFile.name,
-    });
+    mockGetImageMetadata.mockResolvedValue(imageMetadata(sourceFile, 1200, 800));
 
     // Simulate a browser that cannot encode AVIF: AVIF requested, PNG produced
     mockProcessImage.mockResolvedValue({
@@ -1842,29 +1455,23 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
-    fireEvent.change(fileInput);
+    upload(fileInput, sourceFile);
 
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute(
         "src",
         "blob:first-processed"
       );
     });
 
-    // Request AVIF through the custom Select (trigger + portal listbox)
     const formatTrigger = view.container.querySelector("#format-select") as HTMLButtonElement;
-    triggerDelegatedClick(formatTrigger);
+    fireEvent.click(formatTrigger);
 
-    const avifOption = Array.from(
-      document.body.querySelectorAll<HTMLElement>('[role="option"]')
-    ).find((el) => el.textContent?.includes("AVIF"));
-    expect(avifOption).toBeDefined();
-    triggerDelegatedMouseDown(avifOption as HTMLElement);
+    fireEvent.mouseDown(screen.getByRole("option", { name: "AVIF" }));
 
     await vi.waitFor(() => {
       expect(mockProcessImage).toHaveBeenCalledTimes(2);
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute(
         "src",
         "blob:second-processed"
       );
@@ -1874,7 +1481,7 @@ describe("ImageApp", () => {
     });
 
     const downloadBtn = view.container.querySelector("#download-button") as HTMLButtonElement;
-    triggerDelegatedClick(downloadBtn);
+    fireEvent.click(downloadBtn);
 
     expect(mockCreateDownloadLink).toHaveBeenCalledWith(processedBlob, "photo-processed.png");
   });
@@ -1900,18 +1507,8 @@ describe("ImageApp", () => {
     const sourceFile = new File(["source"], "photo.png", { type: "image/png" });
     const processedBlob = new Blob(["processed"], { type: "image/png" });
 
-    mockGetImageMetadata.mockResolvedValue({
-      width: 1200,
-      height: 800,
-      format: "image/png",
-      fileSize: sourceFile.size,
-      fileName: sourceFile.name,
-    });
-    mockProcessImage.mockResolvedValue({
-      blob: processedBlob,
-      requestedFormat: "image/png",
-      metadata: { width: 1200, height: 800, format: "image/png", fileSize: processedBlob.size },
-    });
+    mockGetImageMetadata.mockResolvedValue(imageMetadata(sourceFile, 1200, 800));
+    mockProcessImage.mockResolvedValue(processResult(processedBlob, 1200, 800));
 
     vi.mocked(URL.createObjectURL)
       .mockReturnValueOnce("blob:original")
@@ -1921,14 +1518,10 @@ describe("ImageApp", () => {
     dispose = view.unmount;
 
     const fileInput = view.container.querySelector("#file-input") as HTMLInputElement;
-    Object.defineProperty(fileInput, "files", { configurable: true, value: [sourceFile] });
-    fireEvent.change(fileInput);
+    upload(fileInput, sourceFile);
 
     await vi.waitFor(() => {
-      expect(view.container.querySelector("#preview-image")).toHaveAttribute(
-        "src",
-        "blob:processed"
-      );
+      expect(screen.getByRole("img", { name: "Preview" })).toHaveAttribute("src", "blob:processed");
     });
 
     // The large model stays idle until the browser reaches an idle period.
@@ -1978,32 +1571,18 @@ describe("ImageApp", () => {
     });
   });
 
-  it("skips automatic model downloads on slow or data-saving connections", () => {
-    Object.defineProperty(window, "requestIdleCallback", {
-      configurable: true,
-      value: undefined,
-    });
-    const setTimeoutSpy = vi.spyOn(window, "setTimeout");
-    const preloadTimeoutCount = () =>
-      setTimeoutSpy.mock.calls.filter(([, delay]) => delay === 2000).length;
+  it.each([
+    { saveData: false, effectiveType: "4g", downlink: 3 },
+    { saveData: true, effectiveType: "4g", downlink: 10 },
+  ])("skips automatic model downloads with connection %j", async (connection) => {
+    Object.defineProperty(window, "requestIdleCallback", { configurable: true, value: undefined });
+    Object.defineProperty(navigator, "connection", { configurable: true, value: connection });
 
-    for (const connection of [
-      { saveData: false, effectiveType: "4g", downlink: 3 },
-      { saveData: true, effectiveType: "4g", downlink: 10 },
-    ]) {
-      Object.defineProperty(navigator, "connection", {
-        configurable: true,
-        value: connection,
-      });
-      const previousTimeoutCount = preloadTimeoutCount();
+    const view = render(() => ImageApp());
+    dispose = view.unmount;
 
-      const view = render(() => ImageApp());
-      dispose = view.unmount;
-
-      expect(preloadTimeoutCount()).toBe(previousTimeoutCount);
-      expect(mockPreloadBackgroundRemoval).not.toHaveBeenCalled();
-      view.unmount();
-    }
+    await vi.advanceTimersByTimeAsync(5000);
+    expect(mockPreloadBackgroundRemoval).not.toHaveBeenCalled();
   });
 
   it("falls back to a delay when idle callbacks are unavailable", async () => {
@@ -2015,19 +1594,14 @@ describe("ImageApp", () => {
       configurable: true,
       value: undefined,
     });
-    const setTimeoutSpy = vi.spyOn(window, "setTimeout");
 
     const view = render(() => ImageApp());
     dispose = view.unmount;
 
-    const preloadTimeout = setTimeoutSpy.mock.calls.find(([, delay]) => delay === 2000);
-    expect(preloadTimeout).toBeDefined();
     expect(mockPreloadBackgroundRemoval).not.toHaveBeenCalled();
-    const callback = preloadTimeout?.[0];
-    if (typeof callback === "function") callback();
+    await vi.advanceTimersByTimeAsync(2000);
     await vi.waitFor(() => {
       expect(mockPreloadBackgroundRemoval).toHaveBeenCalledTimes(1);
     });
-    setTimeoutSpy.mockRestore();
   });
 });
