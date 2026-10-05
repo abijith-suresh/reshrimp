@@ -20,14 +20,11 @@ function getBackgroundRemovalConfig(): BackgroundRemovalConfig {
   return {
     model: BACKGROUND_REMOVAL_MODEL,
     publicPath: getBackgroundRemovalPublicPath(window.location.origin),
-    // Pinned so the WebGPU onnxruntime stays unreachable — the build excludes
-    // its ~24 MB jsep wasm, and the self-hosted mirror carries CPU assets only.
+    // The local asset mirror contains only the CPU runtime.
     device: "cpu",
     ...(initializationRetryAttempt > 0
       ? {
-          // The library memoizes initialization by the serialized config and
-          // retains rejected promises. A unique same-origin header gives a
-          // later attempt a fresh cache key without changing model behavior.
+          // A new header bypasses failed initialization in the library cache.
           fetchArgs: {
             headers: { "X-Reshrimp-Initialization-Attempt": String(initializationRetryAttempt) },
           },
@@ -42,18 +39,14 @@ function advanceInitializationRetry(): void {
 
 function loadBackgroundRemovalModule() {
   backgroundRemovalModulePromise ??= import("@imgly/background-removal").catch((err: unknown) => {
-    // A rejected import must not stay cached — a single transient failure
-    // would otherwise kill background removal for the whole session.
+    // Permit a new import after a failure.
     backgroundRemovalModulePromise = undefined;
     throw err;
   });
   return backgroundRemovalModulePromise;
 }
 
-/**
- * Preloads the WASM runtime and ML model in the background. Call from an idle
- * callback after the app has rendered so it never delays the initial bundle.
- */
+// Call during idle time to load the runtime and model.
 export async function preloadBackgroundRemoval(): Promise<void> {
   const { preload } = await loadBackgroundRemovalModule();
   try {
@@ -64,14 +57,7 @@ export async function preloadBackgroundRemoval(): Promise<void> {
   }
 }
 
-/**
- * Removes the background from an image using imgly's client-side ML model
- * Output will always be PNG to preserve transparency
- *
- * @param imageFile - The input image file
- * @param onProgress - Optional callback for loading progress (0-1)
- * @returns Promise resolving to a Blob containing the transparent PNG
- */
+// Progress values range from 0 to 1. The output is a transparent PNG.
 export async function removeBackground(
   imageFile: File,
   onProgress?: BackgroundRemovalProgressCallback
@@ -88,9 +74,7 @@ export async function removeBackground(
 
   const { preload, removeBackground: imglyRemoveBackground } = await loadBackgroundRemovalModule();
   try {
-    // Separate runtime/model initialization from per-image inference. A bad
-    // image or canvas failure must not invalidate the library's shared model
-    // session and force another large model initialization on the next run.
+    // Only initialization failures require a new model cache key.
     await preload(config);
   } catch (error) {
     advanceInitializationRetry();

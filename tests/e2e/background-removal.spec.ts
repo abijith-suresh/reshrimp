@@ -49,7 +49,7 @@ test("runs background removal with same-origin assets and exports a transparent 
   }
   expect(clear).toBeGreaterThan(256 * 256 * 0.2);
   expect(opaque).toBeGreaterThan(256 * 256 * 0.2);
-  // A point on the face must survive, and a point in the upper-right wall must disappear.
+  // Keep face pixels opaque. Make wall pixels transparent.
   const face = pixelAt(outputPixels, 110, 55);
   expect(face[3]).toBeGreaterThan(240);
   const originalFace = pixelAt(source, 110, 55);

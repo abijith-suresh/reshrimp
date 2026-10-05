@@ -1,6 +1,6 @@
 import sharp from "sharp";
 
-// Decode outside the browser, independently of the app's canvas/Image APIs.
+// Sharp checks output pixels without the app's browser decoder.
 export async function decodePixels(bytes: Buffer) {
   return sharp(bytes).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
 }

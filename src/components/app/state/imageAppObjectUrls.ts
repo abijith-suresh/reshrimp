@@ -1,13 +1,6 @@
 import type { ProcessedImage } from "@/types/image";
 
-/**
- * Create a preview URL only after the browser has decoded the complete image.
- *
- * Assigning a blob URL directly to the visible preview lets the browser paint
- * a partially decoded image while it is still working. Keeping the URL out of
- * the visible image until decoding finishes makes the preview replacement
- * atomic from the user's perspective.
- */
+// Decode the full image before the preview uses its URL.
 export function createDecodedObjectUrl(blob: Blob, signal?: AbortSignal): Promise<string> {
   const url = URL.createObjectURL(blob);
 
@@ -48,11 +41,7 @@ export function createDecodedObjectUrl(blob: Blob, signal?: AbortSignal): Promis
       return;
     }
 
-    // `decode()` resolves after the full frame is decoded, which is the
-    // stronger guarantee we want before swapping the visible preview. The
-    // load-event fallback keeps this compatible with older browsers. Do not
-    // listen for load when decode() exists: load can fire before decoding is
-    // complete and would reintroduce the partial-frame swap.
+    // The load event can precede full decoding. Use it only if decode() is unavailable.
     if (typeof image.decode === "function") {
       image.src = url;
       void image.decode().then(finish, () => fail());

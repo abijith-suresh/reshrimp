@@ -115,42 +115,50 @@ Releases are automated by release-please from Conventional Commits. Versioning r
 
 ## Tests
 
-Use the cheapest test that can detect the regression, but run browser tests for behavior that depends on a real browser. A mocked canvas cannot prove that a downloaded image has the right pixels or that metadata was removed.
+Select the test layer that can detect the defect.
 
-| Test layer | What it checks | Where to put it |
+| Test layer | Purpose | Location |
 | --- | --- | --- |
-| Service and helper tests | Validation, dimension math, quality search, format fallback, codec errors, model configuration | Beside the module in `src/` |
-| Context tests | Debouncing, concurrent uploads, stale progress/results, URL ownership, unmount cleanup, model preloading | `src/components/app/state/ImageAppContext.test.tsx` |
-| Component tests | Accessible controls, complete pointer/keyboard interactions, wiring controls to context actions | Beside the component in `src/` |
-| Browser tests | Actual upload/encode/download, decoded dimensions, signatures, metadata removal, size limits, background inference, mobile layout and focus | `tests/e2e/` |
-| Asset-sync tests | Mirrored runtime files and manifests, reused assets, missing/corrupt assets | `scripts/sync-background-removal-assets.test.mjs` |
+| Service | Validation, dimensions, encoding rules, codec failures, model configuration | Beside each module in `src/` |
+| Context | Session state, concurrent work, debounce delays, URL cleanup | `src/components/app/state/` |
+| Component | Accessible controls and pointer or keyboard input | Beside each component in `src/` |
+| Browser | Image output, metadata removal, network requests, mobile focus | `tests/e2e/` |
+| Asset sync | Model files, manifests, missing or corrupt assets | `scripts/sync-background-removal-assets.test.mjs` |
 
-Component tests use Solid Testing Library and `userEvent.setup()`. Query by role and accessible name. Use `await user.click`, `user.type`, and `user.keyboard` so focus, input, and click events occur together. Keep `fireEvent` for browser events that user-event cannot produce. Use real timers for control tests. Context tests use fake timers with explicit debounce boundaries and controlled promises for races; component tests that need fake timers pass `advanceTimers` to user-event.
+Use role and accessible name queries for controls. Use `userEvent.setup()` and await each interaction.
+Use fake timers for debounce tests. If user-event uses fake timers, supply its `advanceTimers` option.
+Test context actions with `renderHook`.
 
-Mock only the unavailable boundary needed by the test. `src/test/mocks.ts` provides separate object URL, image loading, and canvas helpers because jsdom does not implement image decoding or canvas encoding. Global cleanup disposes Solid roots, restores spies and globals, and resets timers. Do not install all browser mocks for every suite, or mock a whole pipeline and assert that its own fake output is correct.
+Mock only browser features that jsdom does not provide. The helpers in `src/test/mocks.ts` are separate.
+Global cleanup restores spies, globals, and timers. Do not duplicate a browser test with a mocked image pipeline.
 
-The context tests call public actions through `renderHook` and inspect public state. They do not render the app to test every race. The small `ImageApp` suite checks control wiring; the browser suite owns responsive layout, caret behavior, and focus across breakpoints.
-
-Install Chromium and Firefox once, then run the browser suite against the production build:
+Install the browsers, then run the browser tests:
 
 ```bash
 bunx playwright install chromium firefox
-# On Linux machines missing browser libraries:
-bunx playwright install --with-deps chromium firefox
 bun run test:e2e
 ```
 
-`test:e2e` builds the app and starts an isolated preview server on port 4322. It runs desktop Chromium, desktop Firefox, and mobile Chromium emulation. Processing services and model inference are real. Each test observes requests from the browser context, including workers, and allows only GET requests for known build assets and pages. Off-origin requests, query strings, request bodies, unknown paths, and WebSocket connections fail the test. This checks the exercised workflows; it does not replace reviewing the privacy rules in `AGENTS.md`.
+If Linux libraries are missing, use `bunx playwright install --with-deps chromium firefox`.
 
-Download tests read the saved bytes with Sharp, independently of the app's canvas and image decoder. They check decoded dimensions and color landmarks to detect blank, flipped, or corrupted exports. Parsed EXIF checks verify metadata removal, and a rotated JPEG checks that orientation survives in the pixels after metadata is removed. A real HEIC fixture exercises the lazy decoder. AVIF tests probe the actual browser encoder, then verify either AVIF bytes or an honestly named PNG fallback. The background-removal test uses a public-domain portrait and checks that the face survives while the wall becomes transparent. Browser failures retain screenshots and traces in `test-results/`; CI uploads that directory. Open a trace with `bunx playwright show-trace <trace.zip>`.
+The command builds the app and starts a preview on port 4322.
+The tests use desktop Chromium, Firefox, and mobile Chromium emulation.
+Sharp checks downloaded pixels and metadata outside the browser.
+HEIC conversion and background removal use the actual libraries.
+Each test checks browser and worker requests against the local build files.
+WebKit and physical devices are outside this test suite.
 
-Coverage includes every TypeScript module in `src/`, with the existing thresholds unchanged. Treat it as a way to find omissions. Add a test when it protects a specific behavior, not merely to execute another line. Avoid class-list assertions, snapshots of large trees, and tests of trivial child passthrough. Browser coverage is separate from the jsdom report. These checks do not establish WebKit, real-device, or every codec compatibility.
+Geometry tests use 500 generated inputs per property with a fixed seed.
+Keep explicit boundary cases. Coverage includes all source TypeScript modules.
+Do not lower thresholds to remove a test.
 
-Geometry properties in `imageGeometry.properties.test.ts` use fast-check to exercise 500 generated examples per property, with a fixed seed for repeatability. They check box fitting, aspect preservation within integer rounding, independent dimensions, and pixel/unit round trips. Keep explicit regression examples for important boundaries too; generated inputs do not replace them.
+Use temporary faults to confirm that a test detects its target defect.
+Restore the code before the full checks.
+See [Testing Library](https://testing-library.com/docs/guiding-principles/) and [Playwright](https://playwright.dev/docs/best-practices/) for test guidance.
 
-When strengthening a test, temporarily introduce the fault it should catch and run that test again. For example, omit canvas drawing, preserve source EXIF, bypass background removal, or send a payload in a same-origin query string. Require a failure in the relevant assertion, rather than a build or browser-launch error. Restore the code before running the full quality gate. This follows [Stryker's distinction between detected faults and infrastructure errors](https://stryker-mutator.io/docs/mutation-testing-elements/mutant-states-and-metrics/).
-
-These choices follow [Testing Library's guiding principles](https://testing-library.com/docs/guiding-principles/), [user-event's interaction guidance](https://testing-library.com/docs/user-event/intro/), [Solid's testing guidance](https://github.com/solidjs/solid-testing-library), and [Playwright's best practices](https://playwright.dev/docs/best-practices).
+Browser failures save traces and screenshots in `test-results/`.
+Open a trace with `bunx playwright show-trace <trace.zip>`.
+See `tests/e2e/fixtures/README.md` for image sources.
 
 ## Documentation
 

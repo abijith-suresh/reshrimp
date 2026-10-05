@@ -8,32 +8,23 @@ import {
   processImage,
 } from "./imageService";
 
-const mockCanvas = {
-  width: 0,
-  height: 0,
-  getContext: vi.fn(),
-  toDataURL: vi.fn(),
-  toBlob: vi.fn(),
-} as unknown as HTMLCanvasElement;
+const mockCanvas = {} as HTMLCanvasElement;
 
 vi.mock("./canvasService", () => ({
   loadImage: vi.fn(),
-  resizeOnCanvas: vi.fn(() => mockCanvas),
-  canvasToBlob: vi.fn(async () => new Blob([], { type: "image/png" })),
-  canvasToBlobAtFileSizeTarget: vi.fn(async () => ({
-    blob: new Blob([], { type: "image/jpeg" }),
-    targetReached: true,
-  })),
-  getBestFormat: vi.fn((f: string) => f),
+  resizeOnCanvas: vi.fn(),
+  canvasToBlob: vi.fn(),
+  canvasToBlobAtFileSizeTarget: vi.fn(),
+  getBestFormat: vi.fn(),
 }));
 
 vi.mock("./backgroundRemovalService", () => ({
-  removeBackground: vi.fn(async () => new Blob([], { type: "image/png" })),
+  removeBackground: vi.fn(),
 }));
 
 vi.mock("./formatDetectionService", () => ({
-  decodeHeicBlob: vi.fn(async () => new Blob([], { type: "image/png" })),
-  isHeicBlob: vi.fn(async () => false),
+  decodeHeicBlob: vi.fn(),
+  isHeicBlob: vi.fn(),
 }));
 
 import { removeBackground } from "./backgroundRemovalService";
@@ -60,7 +51,7 @@ function makeMockImg(width = 800, height = 600) {
 }
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
   mockLoadImage.mockResolvedValue(makeMockImg());
   mockResizeOnCanvas.mockReturnValue(mockCanvas);
   mockCanvasToBlob.mockResolvedValue(new Blob([], { type: "image/png" }));
@@ -75,53 +66,25 @@ beforeEach(() => {
 });
 
 describe("calculateDimensions", () => {
-  describe("maintainAspectRatio = false", () => {
-    it("uses exact width and height when both provided", () => {
-      const opts: ResizeOptions = { width: 400, height: 300, maintainAspectRatio: false };
-      expect(calculateDimensions(800, 600, opts)).toEqual({ width: 400, height: 300 });
-    });
+  const cases: Array<[number, number, ResizeOptions, { width: number; height: number }]> = [
+    [
+      800,
+      600,
+      { width: 400, height: 300, maintainAspectRatio: false },
+      { width: 400, height: 300 },
+    ],
+    [800, 600, { maintainAspectRatio: false }, { width: 800, height: 600 }],
+    [800, 600, { width: 400, maintainAspectRatio: true }, { width: 400, height: 300 }],
+    [800, 600, { height: 300, maintainAspectRatio: true }, { width: 400, height: 300 }],
+    [800, 600, { width: 400, height: 200, maintainAspectRatio: true }, { width: 267, height: 200 }],
+    [800, 600, { maintainAspectRatio: true }, { width: 800, height: 600 }],
+    [3, 2, { width: 10, maintainAspectRatio: true }, { width: 10, height: 7 }],
+    [16384, 1, { width: 1, maintainAspectRatio: true }, { width: 1, height: 1 }],
+    [1, 16384, { height: 1, maintainAspectRatio: true }, { width: 1, height: 1 }],
+  ];
 
-    it("uses original dimensions when neither width nor height provided", () => {
-      const opts: ResizeOptions = { maintainAspectRatio: false };
-      expect(calculateDimensions(800, 600, opts)).toEqual({ width: 800, height: 600 });
-    });
-  });
-
-  describe("maintainAspectRatio = true", () => {
-    it("derives height from width when only width provided", () => {
-      const opts: ResizeOptions = { width: 400, maintainAspectRatio: true };
-      expect(calculateDimensions(800, 600, opts)).toEqual({ width: 400, height: 300 });
-    });
-
-    it("derives width from height when only height provided", () => {
-      const opts: ResizeOptions = { height: 300, maintainAspectRatio: true };
-      expect(calculateDimensions(800, 600, opts)).toEqual({ width: 400, height: 300 });
-    });
-
-    it("fits within the requested box when both width and height are provided", () => {
-      const opts: ResizeOptions = { width: 400, height: 200, maintainAspectRatio: true };
-      expect(calculateDimensions(800, 600, opts)).toEqual({ width: 267, height: 200 });
-    });
-
-    it("returns original dimensions when neither provided", () => {
-      const opts: ResizeOptions = { maintainAspectRatio: true };
-      expect(calculateDimensions(800, 600, opts)).toEqual({ width: 800, height: 600 });
-    });
-
-    it("handles fractional aspect ratios with rounding", () => {
-      const opts: ResizeOptions = { width: 10, maintainAspectRatio: true };
-      expect(calculateDimensions(3, 2, opts)).toEqual({ width: 10, height: 7 });
-    });
-
-    it("clamps a derived height to one pixel for very wide images", () => {
-      const opts: ResizeOptions = { width: 1, maintainAspectRatio: true };
-      expect(calculateDimensions(16384, 1, opts)).toEqual({ width: 1, height: 1 });
-    });
-
-    it("clamps a derived width to one pixel for very tall images", () => {
-      const opts: ResizeOptions = { height: 1, maintainAspectRatio: true };
-      expect(calculateDimensions(1, 16384, opts)).toEqual({ width: 1, height: 1 });
-    });
+  it.each(cases)("resizes %i × %i with %j to %j", (width, height, options, expected) => {
+    expect(calculateDimensions(width, height, options)).toEqual(expected);
   });
 });
 
@@ -193,24 +156,15 @@ describe("processImage dimension guards", () => {
 });
 
 describe("processImage", () => {
-  it("applies background removal and forces PNG format", async () => {
-    const file = new File([], "test.jpg", { type: "image/jpeg" });
-    const opts: ProcessOptions = { removeBackground: true };
-
-    const result = await processImage(file, opts);
-
-    expect(mockRemoveBackground).toHaveBeenCalledWith(file, undefined);
-    expect(result.metadata.format).toBe("image/png");
-  });
-
-  it("forwards the progress callback to removeBackground", async () => {
+  it("uses PNG after background removal and forwards progress", async () => {
     const file = new File([], "test.jpg", { type: "image/jpeg" });
     const onProgress = vi.fn();
-    const opts: ProcessOptions = { removeBackground: true };
 
-    await processImage(file, opts, onProgress);
+    const result = await processImage(file, { removeBackground: true }, onProgress);
 
     expect(mockRemoveBackground).toHaveBeenCalledWith(file, onProgress);
+    expect(result.metadata.format).toBe("image/png");
+    expect(mockCanvasToBlob).toHaveBeenCalledWith(mockCanvas, "image/png", undefined);
   });
 
   it("reuses the background-removed source when output controls change", async () => {
@@ -275,15 +229,7 @@ describe("processImage", () => {
   });
 
   it("decodes heic content that ships with an empty mime type", async () => {
-    const bytes = new Uint8Array(12);
-    for (let i = 0; i < 4; i += 1) {
-      bytes[4 + i] = "ftyp".charCodeAt(i);
-      bytes[8 + i] = "heic".charCodeAt(i);
-    }
-    const file = new File([bytes], "photo", { type: "" });
-
-    // The byte-level sniff itself is covered in formatDetectionService tests;
-    // here the empty-MIME file must reach the sniff and route to the decoder.
+    const file = new File(["heic"], "photo", { type: "" });
     mockIsHeicBlob.mockResolvedValue(true);
 
     await processImage(file, {});
@@ -300,34 +246,28 @@ describe("processImage", () => {
     expect(mockDecodeHeicBlob).not.toHaveBeenCalled();
   });
 
-  it("applies resize when resize option provided", async () => {
-    const file = new File([], "test.png", { type: "image/png" });
-    const opts: ProcessOptions = {
+  it("returns the encoded file with the selected dimensions, format, and quality", async () => {
+    const file = new File(["source"], "photo.png", { type: "image/png" });
+    const output = new Blob(["encoded jpeg"], { type: "image/jpeg" });
+    mockCanvasToBlob.mockResolvedValueOnce(output);
+
+    const result = await processImage(file, {
       resize: { width: 400, height: 300, maintainAspectRatio: false },
-    };
+      format: "image/jpeg",
+      quality: 0.75,
+    });
 
-    await processImage(file, opts);
-
-    expect(mockResizeOnCanvas).toHaveBeenCalledWith(expect.anything(), 400, 300);
-  });
-
-  it("applies format conversion", async () => {
-    const file = new File([], "test.png", { type: "image/png" });
-    const opts: ProcessOptions = { format: "image/jpeg" };
-
-    await processImage(file, opts);
-
-    expect(mockGetBestFormat).toHaveBeenCalledWith("image/jpeg");
-  });
-
-  it("applies quality for JPEG output", async () => {
-    mockGetBestFormat.mockReturnValue("image/jpeg");
-    const file = new File([], "test.jpeg", { type: "image/jpeg" });
-    const opts: ProcessOptions = { quality: 0.75 };
-
-    await processImage(file, opts);
-
-    expect(mockCanvasToBlob).toHaveBeenCalledWith(expect.anything(), "image/jpeg", 0.75);
+    expect(mockResizeOnCanvas).toHaveBeenCalledWith(
+      expect.objectContaining({ width: 800, height: 600 }),
+      400,
+      300
+    );
+    expect(mockCanvasToBlob).toHaveBeenCalledWith(mockCanvas, "image/jpeg", 0.75);
+    expect(result).toEqual({
+      blob: output,
+      requestedFormat: "image/jpeg",
+      metadata: { width: 400, height: 300, format: "image/jpeg", fileSize: output.size },
+    });
   });
 
   it("uses target-size encoding for quality-adjustable formats", async () => {
@@ -378,18 +318,16 @@ describe("processImage", () => {
     expect(mockLoadImage).not.toHaveBeenCalled();
   });
 
-  it("returns ProcessResult with blob and metadata", async () => {
+  it("keeps the source dimensions and format when no options are set", async () => {
     const file = new File([], "test.png", { type: "image/png" });
+    const output = new Blob(["pixels"], { type: "image/png" });
+    mockCanvasToBlob.mockResolvedValueOnce(output);
     const result = await processImage(file, {});
 
-    expect(result).toHaveProperty("blob");
-    expect(result.requestedFormat).toBe("image/png");
-    expect(result).toHaveProperty("metadata");
-    expect(result.metadata).toMatchObject({
-      width: expect.any(Number),
-      height: expect.any(Number),
-      format: expect.any(String),
-      fileSize: expect.any(Number),
+    expect(result).toEqual({
+      blob: output,
+      requestedFormat: "image/png",
+      metadata: { width: 800, height: 600, format: "image/png", fileSize: output.size },
     });
   });
 });
@@ -429,26 +367,16 @@ describe("prepareImageFile", () => {
 });
 
 describe("getImageMetadata", () => {
-  it("returns width and height from the loaded image", async () => {
+  it("returns the decoded dimensions and source file details", async () => {
     mockLoadImage.mockResolvedValue(makeMockImg(1920, 1080));
-    const file = new File([], "photo.jpg", { type: "image/jpeg" });
-    const meta = await getImageMetadata(file);
-
-    expect(meta.width).toBe(1920);
-    expect(meta.height).toBe(1080);
-  });
-
-  it("returns format and fileSize from the file object", async () => {
     const file = new File(["abc"], "photo.jpg", { type: "image/jpeg" });
-    const meta = await getImageMetadata(file);
 
-    expect(meta.format).toBe("image/jpeg");
-    expect(meta.fileSize).toBe(file.size);
-  });
-
-  it("returns fileName from the file object", async () => {
-    const file = new File([], "my-photo.png", { type: "image/png" });
-    const meta = await getImageMetadata(file);
-    expect(meta.fileName).toBe("my-photo.png");
+    expect(await getImageMetadata(file)).toEqual({
+      width: 1920,
+      height: 1080,
+      format: "image/jpeg",
+      fileSize: 3,
+      fileName: "photo.jpg",
+    });
   });
 });

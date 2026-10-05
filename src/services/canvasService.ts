@@ -1,8 +1,5 @@
 import type { ImageFormat } from "../types/image";
 
-/**
- * Load an image from a File object into an HTMLImageElement
- */
 export async function loadImage(file: File): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const img = new Image();
@@ -22,10 +19,6 @@ export async function loadImage(file: File): Promise<HTMLImageElement> {
   });
 }
 
-/**
- * Resize an image on a canvas element
- * Returns a canvas with the resized image drawn on it
- */
 export function resizeOnCanvas(
   img: HTMLImageElement,
   width: number,
@@ -40,7 +33,6 @@ export function resizeOnCanvas(
     throw new Error("Failed to get canvas context");
   }
 
-  // Use high-quality image smoothing
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
 
@@ -49,17 +41,13 @@ export function resizeOnCanvas(
   return canvas;
 }
 
-/**
- * Convert a canvas to a Blob with specified format and quality
- * Returns a Promise that resolves to the Blob
- */
 export async function canvasToBlob(
   canvas: HTMLCanvasElement,
   format: ImageFormat = "image/png",
   quality: number = 0.92
 ): Promise<Blob> {
   return new Promise((resolve, reject) => {
-    // Canvas re-encodes pixel data into a fresh file, so EXIF metadata is not preserved.
+    // Canvas encoding removes source EXIF metadata.
     canvas.toBlob(
       (blob) => {
         if (blob) {
@@ -82,10 +70,7 @@ export interface FileSizeTargetResult {
 const MIN_TARGET_QUALITY = 0.01;
 const FILE_SIZE_SEARCH_STEPS = 6;
 
-/**
- * Encode the highest quality found under a byte limit. If the smallest
- * attempted encoding is still over the limit, return that smallest attempt.
- */
+// Keep the highest tested quality that fits, or the smallest output if none fits.
 export async function canvasToBlobAtFileSizeTarget(
   canvas: HTMLCanvasElement,
   format: ImageFormat,
@@ -102,7 +87,7 @@ export async function canvasToBlobAtFileSizeTarget(
 
   const lowestQualityBlob = await canvasToBlob(canvas, format, MIN_TARGET_QUALITY);
   if (lowestQualityBlob.size > maximumBytes) {
-    // Codec overhead can make quality and byte count non-monotonic.
+    // Lower quality can produce a larger file.
     const smallestBlob =
       lowestQualityBlob.size < highestQualityBlob.size ? lowestQualityBlob : highestQualityBlob;
     return { blob: smallestBlob, targetReached: false };
@@ -127,18 +112,12 @@ export async function canvasToBlobAtFileSizeTarget(
   return { blob: bestBlob, targetReached: true };
 }
 
-/**
- * Check if the browser supports a specific image format
- */
 export function supportsFormat(format: ImageFormat): boolean {
   const canvas = document.createElement("canvas");
   const dataUrl = canvas.toDataURL(format);
   return dataUrl.startsWith(`data:${format}`);
 }
 
-/**
- * Get the best supported format, falling back to PNG if needed
- */
 export function getBestFormat(requestedFormat: ImageFormat): ImageFormat {
   if (supportsFormat(requestedFormat)) {
     return requestedFormat;

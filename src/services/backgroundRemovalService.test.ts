@@ -1,146 +1,98 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import {
-  BACKGROUND_REMOVAL_ASSET_PATH_PREFIX,
-  BACKGROUND_REMOVAL_MODEL,
-  getBackgroundRemovalPublicPath,
-} from "../config/backgroundRemoval";
 
-vi.mock("@imgly/background-removal", () => ({
-  removeBackground: vi.fn(async () => new Blob([], { type: "image/png" })),
-  preload: vi.fn(async () => undefined),
-}));
+const library = { preload: vi.fn(), removeBackground: vi.fn() };
 
-import {
-  preload as imglyPreload,
-  removeBackground as imglyRemoveBackground,
-} from "@imgly/background-removal";
-import { preloadBackgroundRemoval, removeBackground } from "./backgroundRemovalService";
+let service: typeof import("./backgroundRemovalService");
 
-const mockImglyPreload = vi.mocked(imglyPreload);
-const mockImglyRemoveBackground = vi.mocked(imglyRemoveBackground);
-
-describe("removeBackground", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  it("builds a same-origin public path for mirrored model assets", () => {
-    expect(getBackgroundRemovalPublicPath("https://reshrimp.test")).toBe(
-      `https://reshrimp.test${BACKGROUND_REMOVAL_ASSET_PATH_PREFIX}`
-    );
-  });
-
-  it("preloads with the same model configuration used for processing", async () => {
-    await preloadBackgroundRemoval();
-
-    expect(mockImglyPreload).toHaveBeenCalledWith({
-      model: BACKGROUND_REMOVAL_MODEL,
-      publicPath: getBackgroundRemovalPublicPath(window.location.origin),
-      device: "cpu",
-    });
-  });
-
-  it("uses a fresh initialization key after a failed preload", async () => {
-    mockImglyPreload.mockRejectedValueOnce(new Error("temporary asset failure"));
-
-    await expect(preloadBackgroundRemoval()).rejects.toThrow("temporary asset failure");
-
-    const file = new File([], "photo.jpg", { type: "image/jpeg" });
-    await removeBackground(file);
-
-    const preloadConfig = mockImglyPreload.mock.calls[0]?.[0] as Record<string, unknown>;
-    const retryConfig = mockImglyRemoveBackground.mock.calls[0]?.[1] as {
-      fetchArgs?: RequestInit;
-    };
-    expect(preloadConfig).not.toHaveProperty("fetchArgs");
-    expect(retryConfig.fetchArgs?.headers).toEqual({
-      "X-Reshrimp-Initialization-Attempt": expect.any(String),
-    });
-  });
-
-  it("does not replace the initialized model key after an image processing failure", async () => {
-    const file = new File([], "photo.jpg", { type: "image/jpeg" });
-    mockImglyRemoveBackground.mockRejectedValueOnce(new Error("invalid image"));
-
-    await expect(removeBackground(file)).rejects.toThrow("invalid image");
-    await removeBackground(file);
-
-    const firstConfig = mockImglyPreload.mock.calls[0]?.[0];
-    const secondConfig = mockImglyPreload.mock.calls[1]?.[0];
-    expect(secondConfig).toEqual(firstConfig);
-    expect(mockImglyPreload).toHaveBeenCalledTimes(2);
-  });
-
-  it("forwards the shared model and public path configuration", async () => {
-    const file = new File([], "photo.jpg", { type: "image/jpeg" });
-
-    await removeBackground(file);
-
-    expect(mockImglyRemoveBackground).toHaveBeenCalledWith(
-      file,
-      expect.objectContaining({
-        model: BACKGROUND_REMOVAL_MODEL,
-        publicPath: getBackgroundRemovalPublicPath(window.location.origin),
-        device: "cpu",
-      })
-    );
-  });
-
-  it("normalizes library progress events to a 0-1 callback", async () => {
-    const file = new File([], "photo.jpg", { type: "image/jpeg" });
-    const onProgress = vi.fn();
-
-    await removeBackground(file, onProgress);
-
-    const config = mockImglyRemoveBackground.mock.calls[0]?.[1] as {
-      progress?: (key: string, current: number, total: number) => void;
-    };
-
-    config.progress?.("download", 25, 100);
-    expect(onProgress).toHaveBeenCalledWith(0.25);
-  });
-
-  it("ignores progress events with a zero total", async () => {
-    const file = new File([], "photo.jpg", { type: "image/jpeg" });
-    const onProgress = vi.fn();
-
-    await removeBackground(file, onProgress);
-
-    const config = mockImglyRemoveBackground.mock.calls[0]?.[1] as {
-      progress?: (key: string, current: number, total: number) => void;
-    };
-
-    config.progress?.("download", 10, 0);
-    expect(onProgress).not.toHaveBeenCalled();
-  });
+beforeEach(async () => {
+  library.preload.mockReset().mockResolvedValue(undefined);
+  library.removeBackground
+    .mockReset()
+    .mockResolvedValue(new Blob(["pixels"], { type: "image/png" }));
+  vi.doMock("@imgly/background-removal", () => library);
+  // Reset the import cache and retry count for each test.
+  vi.resetModules();
+  service = await import("./backgroundRemovalService");
 });
 
-describe("module loading", () => {
-  it("retries a failed dynamic import on the next call", async () => {
-    let importShouldFail = true;
-    vi.doMock("@imgly/background-removal", () => {
-      if (importShouldFail) {
-        throw new Error("Simulated transient import failure");
-      }
-      return {
-        removeBackground: vi.fn(async () => new Blob([], { type: "image/png" })),
-        preload: vi.fn(async () => undefined),
-      };
-    });
+describe("background removal", () => {
+  it("uses the same local CPU model for preload and processing", async () => {
+    const file = new File(["source"], "photo.jpg", { type: "image/jpeg" });
+    const output = new Blob(["transparent pixels"], { type: "image/png" });
+    library.removeBackground.mockResolvedValueOnce(output);
+    const config = {
+      model: "isnet_fp16",
+      publicPath: window.location.origin + "/background-removal/1.7.0/dist/",
+      device: "cpu",
+    };
 
-    // Fresh service module instance so the retry is not served by a cached
-    // import promise from the tests above.
-    vi.resetModules();
-    const { removeBackground: freshRemoveBackground } = await import("./backgroundRemovalService");
+    await service.preloadBackgroundRemoval();
+    expect(await service.removeBackground(file)).toBe(output);
+
+    expect(library.preload).toHaveBeenNthCalledWith(1, config);
+    expect(library.preload).toHaveBeenNthCalledWith(2, config);
+    expect(library.removeBackground).toHaveBeenCalledExactlyOnceWith(file, config);
+  });
+
+  it("uses a new model cache key after each preload failure", async () => {
+    library.preload.mockRejectedValue(new Error("asset failure"));
+    await expect(service.preloadBackgroundRemoval()).rejects.toThrow("asset failure");
     const file = new File([], "photo.jpg", { type: "image/jpeg" });
+    await expect(service.removeBackground(file)).rejects.toThrow("asset failure");
+    expect(library.removeBackground).not.toHaveBeenCalled();
 
-    // Vitest wraps the thrown factory error, so only assert that the import
-    // rejects; the retry assertion below proves the promise cache was reset.
-    await expect(freshRemoveBackground(file)).rejects.toThrow();
+    library.preload.mockResolvedValue(undefined);
+    await service.removeBackground(file);
 
-    importShouldFail = false;
-    await expect(freshRemoveBackground(file)).resolves.toBeInstanceOf(Blob);
+    expect(library.preload.mock.calls[0][0]).not.toHaveProperty("fetchArgs");
+    expect(library.preload.mock.calls[1][0].fetchArgs.headers).toEqual({
+      "X-Reshrimp-Initialization-Attempt": "1",
+    });
+    expect(library.preload.mock.calls[2][0].fetchArgs.headers).toEqual({
+      "X-Reshrimp-Initialization-Attempt": "2",
+    });
+  });
 
-    vi.doUnmock("@imgly/background-removal");
+  it("keeps the model cache key after an image processing failure", async () => {
+    const file = new File([], "photo.jpg", { type: "image/jpeg" });
+    library.removeBackground.mockRejectedValueOnce(new Error("invalid image"));
+    await expect(service.removeBackground(file)).rejects.toThrow("invalid image");
+    await service.removeBackground(file);
+
+    expect(library.preload).toHaveBeenCalledTimes(2);
+    expect(library.preload.mock.calls[1][0]).toEqual(library.preload.mock.calls[0][0]);
+    expect(library.preload.mock.calls[1][0]).not.toHaveProperty("fetchArgs");
+  });
+
+  it("reports fractional progress, caps completed work, and ignores zero totals", async () => {
+    const onProgress = vi.fn();
+    await service.removeBackground(new File([], "photo.jpg", { type: "image/jpeg" }), onProgress);
+    const { progress } = library.removeBackground.mock.calls[0][1];
+
+    progress("download", 10, 0);
+    progress("download", 25, 100);
+    progress("download", 150, 100);
+
+    expect(onProgress.mock.calls).toEqual([[0.25], [1]]);
+  });
+
+  it("retries a failed library import", async () => {
+    let failImport = true;
+    vi.doMock("@imgly/background-removal", () => {
+      if (failImport) throw new Error("import failure");
+      return library;
+    });
+    vi.resetModules();
+    try {
+      const freshService = await import("./backgroundRemovalService");
+      // Vitest wraps errors from mock factories.
+      await expect(freshService.preloadBackgroundRemoval()).rejects.toThrow();
+      expect(library.preload).not.toHaveBeenCalled();
+      failImport = false;
+      await freshService.preloadBackgroundRemoval();
+      expect(library.preload).toHaveBeenCalledOnce();
+    } finally {
+      vi.doUnmock("@imgly/background-removal");
+    }
   });
 });

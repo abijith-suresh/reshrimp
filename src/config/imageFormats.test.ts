@@ -1,15 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
-  ACCEPTED_INPUT_FORMATS,
-  CONVERTIBLE_OUTPUT_FORMATS,
   getImageFormatLabel,
   getInitialOutputFormat,
   getSupportedImageFormatSummary,
-  IMAGE_FORMAT_LABELS,
   isAcceptedInputFormat,
   isConvertibleOutputFormat,
   isHeicInput,
-  QUALITY_CONTROLLED_OUTPUT_FORMATS,
   supportsBrowserQualityControl,
   UPLOAD_ACCEPT_ATTRIBUTE,
 } from "./imageFormats";
@@ -31,7 +27,7 @@ describe("imageFormats", () => {
 
   it("keeps labels in sync with the supported formats", () => {
     expect(getImageFormatLabel("image/webp")).toBe("WebP");
-    expect(IMAGE_FORMAT_LABELS["image/heif"]).toBe("HEIF");
+    expect(getImageFormatLabel("image/heif")).toBe("HEIF");
   });
 
   it.each([
@@ -78,25 +74,9 @@ describe("imageFormats", () => {
     expect(getSupportedImageFormatSummary()).toBe("JPEG, PNG, WebP, AVIF, HEIC, HEIF");
   });
 
-  it("keeps accepted and convertible format lists stable", () => {
-    expect(ACCEPTED_INPUT_FORMATS).toEqual([
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-      "image/avif",
-      "image/heic",
-      "image/heif",
-    ]);
-    expect(CONVERTIBLE_OUTPUT_FORMATS).toEqual([
-      "image/jpeg",
-      "image/png",
-      "image/webp",
-      "image/avif",
-    ]);
-    expect(QUALITY_CONTROLLED_OUTPUT_FORMATS).toEqual(["image/jpeg", "image/webp", "image/avif"]);
-  });
-
   it("keeps the file-picker filter aligned with accepted input formats", () => {
-    expect(UPLOAD_ACCEPT_ATTRIBUTE).toBe(ACCEPTED_INPUT_FORMATS.join(","));
+    expect(UPLOAD_ACCEPT_ATTRIBUTE).toBe(
+      "image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif"
+    );
   });
 });

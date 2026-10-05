@@ -27,7 +27,7 @@ describe("image geometry properties", () => {
           expect(result.width).toBeLessThanOrEqual(boxWidth);
           expect(result.height).toBeLessThanOrEqual(boxHeight);
           expect(result.width === boxWidth || result.height === boxHeight).toBe(true);
-          // Integer pixels can perturb the common scale by at most one pixel per axis.
+          // Allow one pixel of rounding per axis.
           const scaleDifference = Math.abs(
             result.width / originalWidth - result.height / originalHeight
           );

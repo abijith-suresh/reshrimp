@@ -17,7 +17,7 @@ test("exports AVIF when the encoder supports it, otherwise explains and names th
   await page.goto("/app");
   await uploadImage(page, landmarksPath);
   await openImageControls(page);
-  // Probe the actual encoder, independently of the app's toDataURL detection.
+  // Test the encoder separately from the app's format check.
   const canEncodeAvif = await page.evaluate(
     () =>
       new Promise<boolean>((resolve) => {

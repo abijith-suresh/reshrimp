@@ -21,7 +21,6 @@ for (const format of [
     page,
   }) => {
     const source = await readFile(imagePath);
-    // Check parsed EXIF, not a coincidental sequence of bytes in the compressed image.
     expect((await readMetadata(source)).exif).toBeDefined();
     expect(source.includes(Buffer.from("reshrimp-private-test-metadata"))).toBe(true);
     await page.goto("/app");
@@ -136,6 +135,8 @@ test("replaces the active image and preserves PNG transparency in its download",
   await openImageControls(page);
   const output = await downloadImage(page);
   expect(output.name).toBe("transparent-processed.png");
+  await expect(page.getByRole("slider", { name: "Output quality" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Max file size", exact: true })).toBeDisabled();
   expect(await decodeImage(output.bytes)).toEqual({
     width: 128,
     height: 96,

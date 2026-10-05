@@ -69,11 +69,7 @@ const HEIC_FTYP_BRANDS = new Set([
   "msf1",
 ]);
 
-/**
- * Detect HEIC/HEIF content by reading the ISO-BMFF "ftyp" box magic bytes.
- * Some devices export HEIC files with an empty or generic MIME type, so the
- * declared Content-Type alone is not enough to recognize them.
- */
+// Check the file header because the MIME type can be empty or incorrect.
 export async function isHeicBlob(blob: Blob): Promise<boolean> {
   const header = new Uint8Array(await blob.slice(0, 12).arrayBuffer());
   if (header.length < 12) {
@@ -89,11 +85,6 @@ export async function isHeicBlob(blob: Blob): Promise<boolean> {
   return HEIC_FTYP_BRANDS.has(brand);
 }
 
-/**
- * Decode a HEIC/HEIF blob into a PNG blob using the heic2any library.
- *
- * The conversion happens entirely in-browser; no data leaves the device.
- */
 export async function decodeHeicBlob(blob: Blob): Promise<Blob> {
   const heic2any = await loadHeic2AnyConverter();
   const result = await heic2any({ blob, toType: "image/png" });

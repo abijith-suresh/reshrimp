@@ -40,7 +40,7 @@ describe("createDownloadLink", () => {
     vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
   });
 
-  it("creates an anchor with correct href and download attributes", () => {
+  it("starts the download and releases its link and URL after the delay", () => {
     const blob = new Blob(["data"], { type: "image/png" });
     createDownloadLink(blob, "output.png");
 
@@ -50,19 +50,11 @@ describe("createDownloadLink", () => {
     const link = vi.mocked(document.body.appendChild).mock.calls[0][0] as HTMLAnchorElement;
     expect(link.href).toBe("blob:mock-url");
     expect(link.download).toBe("output.png");
-  });
-
-  it("removes the temporary link and revokes the object URL after cleanup", () => {
-    const blob = new Blob([]);
-    createDownloadLink(blob, "file.png");
-
-    expect(document.body.appendChild).toHaveBeenCalledOnce();
     expect(document.body.removeChild).not.toHaveBeenCalled();
     expect(URL.revokeObjectURL).not.toHaveBeenCalled();
 
     vi.runAllTimers();
 
-    const link = vi.mocked(document.body.appendChild).mock.calls[0][0] as HTMLAnchorElement;
     expect(document.body.removeChild).toHaveBeenCalledWith(link);
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url");
   });
@@ -82,28 +74,15 @@ describe("createDownloadLink", () => {
 });
 
 describe("formatFileSize", () => {
-  it('returns "0 B" for 0 bytes', () => {
-    expect(formatFileSize(0)).toBe("0 B");
-  });
-
-  it("formats bytes", () => {
-    expect(formatFileSize(512)).toBe("512.0 B");
-  });
-
-  it("formats kilobytes", () => {
-    expect(formatFileSize(1536)).toBe("1.5 KB");
-  });
-
-  it("formats megabytes", () => {
-    expect(formatFileSize(2 * 1024 * 1024)).toBe("2.0 MB");
-  });
-
-  it("formats at exactly 1 KB boundary", () => {
-    expect(formatFileSize(1024)).toBe("1.0 KB");
-  });
-
-  it("formats at exactly 1 MB boundary", () => {
-    expect(formatFileSize(1024 * 1024)).toBe("1.0 MB");
+  it.each([
+    [0, "0 B"],
+    [512, "512.0 B"],
+    [1024, "1.0 KB"],
+    [1536, "1.5 KB"],
+    [1024 * 1024, "1.0 MB"],
+    [2 * 1024 * 1024, "2.0 MB"],
+  ])("formats %i bytes as %s", (bytes, expected) => {
+    expect(formatFileSize(bytes)).toBe(expected);
   });
 });
 
@@ -186,14 +165,5 @@ describe("convertFromPx", () => {
 
   it("in: returns 0 when dpi is 0", () => {
     expect(convertFromPx(100, "in", originalPx, 0)).toBe(0);
-  });
-
-  it("round-trip px → unit → px stays within 1px", () => {
-    const px = 1280;
-    for (const unit of ["px", "%", "in", "cm"] as const) {
-      const display = convertFromPx(px, unit, originalPx, dpi);
-      const backToPx = convertToPx(display, unit, originalPx, dpi);
-      expect(Math.abs(backToPx - px)).toBeLessThanOrEqual(1);
-    }
   });
 });

@@ -41,20 +41,14 @@ describe("loadImage", () => {
 });
 
 describe("resizeOnCanvas", () => {
-  it("returns a canvas element with the correct dimensions", () => {
-    const img = { width: 200, height: 100 } as HTMLImageElement;
-    const canvas = resizeOnCanvas(img, 400, 200);
-    expect(canvas.width).toBe(400);
-    expect(canvas.height).toBe(200);
-  });
-
-  it("enables high-quality image smoothing", () => {
+  it("draws the image at the selected dimensions with high-quality smoothing", () => {
     const img = { width: 200, height: 100 } as HTMLImageElement;
     const { canvas, ctx } = makeCanvasMock();
     vi.spyOn(document, "createElement").mockReturnValue(canvas);
 
     resizeOnCanvas(img, 400, 200);
 
+    expect(canvas).toMatchObject({ width: 400, height: 200 });
     expect(ctx.imageSmoothingEnabled).toBe(true);
     expect(ctx.imageSmoothingQuality).toBe("high");
     expect(ctx.drawImage).toHaveBeenCalledWith(img, 0, 0, 400, 200);
@@ -71,12 +65,6 @@ describe("resizeOnCanvas", () => {
 });
 
 describe("canvasToBlob", () => {
-  it("resolves with a Blob", async () => {
-    const { canvas } = makeCanvasMock();
-    const blob = await canvasToBlob(canvas);
-    expect(blob).toBeInstanceOf(Blob);
-  });
-
   it("rejects when toBlob callback receives null", async () => {
     const { canvas } = makeCanvasMock();
     vi.mocked(canvas.toBlob).mockImplementation((cb: BlobCallback) => cb(null));
@@ -86,17 +74,29 @@ describe("canvasToBlob", () => {
     );
   });
 
-  it("uses default format and quality when not specified", async () => {
-    const { canvas } = makeCanvasMock();
-    await canvasToBlob(canvas);
-    expect(canvas.toBlob).toHaveBeenCalledWith(expect.any(Function), "image/png", 0.92);
-  });
+  it.each([
+    { format: undefined, quality: undefined, expectedFormat: "image/png", expectedQuality: 0.92 },
+    {
+      format: "image/jpeg" as const,
+      quality: 0.7,
+      expectedFormat: "image/jpeg",
+      expectedQuality: 0.7,
+    },
+  ])(
+    "returns the encoder output for $expectedFormat at quality $expectedQuality",
+    async ({ format, quality, expectedFormat, expectedQuality }) => {
+      const { canvas } = makeCanvasMock();
+      const encoded = new Blob(["pixels"], { type: expectedFormat });
+      vi.mocked(canvas.toBlob).mockImplementation((callback) => callback(encoded));
 
-  it("passes specified format and quality", async () => {
-    const { canvas } = makeCanvasMock();
-    await canvasToBlob(canvas, "image/jpeg", 0.7);
-    expect(canvas.toBlob).toHaveBeenCalledWith(expect.any(Function), "image/jpeg", 0.7);
-  });
+      expect(await canvasToBlob(canvas, format, quality)).toBe(encoded);
+      expect(canvas.toBlob).toHaveBeenCalledWith(
+        expect.any(Function),
+        expectedFormat,
+        expectedQuality
+      );
+    }
+  );
 });
 
 describe("canvasToBlobAtFileSizeTarget", () => {
@@ -122,7 +122,6 @@ describe("canvasToBlobAtFileSizeTarget", () => {
 
     expect(result.targetReached).toBe(true);
     expect(result.blob.size).toBe(Math.max(...fittingSamples.map((blob) => blob.size)));
-    // This encoder can fit 600 bytes. Reject an unnecessarily low-quality result.
     expect(result.blob.size).toBeGreaterThanOrEqual(580);
     expect(result.blob.type).toBe("image/jpeg");
     expect(canvas).toMatchObject({ width: 1200, height: 800 });
@@ -209,7 +208,6 @@ describe("supportsFormat", () => {
 
   it("returns false when toDataURL output does not match format", () => {
     const { canvas } = makeCanvasMock();
-    // Simulate unsupported format — browser falls back to PNG
     vi.mocked(canvas.toDataURL).mockReturnValue("data:image/png;base64,abc");
     vi.spyOn(document, "createElement").mockReturnValue(canvas);
 

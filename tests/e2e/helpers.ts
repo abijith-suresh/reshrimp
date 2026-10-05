@@ -3,8 +3,7 @@ import { fileURLToPath } from "node:url";
 import { test as base, expect, type Page } from "@playwright/test";
 
 const distPath = fileURLToPath(new URL("../../dist/", import.meta.url));
-// The production app has no API. A same-origin request is safe here only when
-// it names an actual build asset or page, without a payload in its URL.
+// The app has no API. Allow requests only for build assets and pages.
 const staticPaths = readdir(distPath, { recursive: true }).then((files) => {
   const paths = new Set(files.map((file) => `/${file}`));
   for (const file of files) {
@@ -19,8 +18,7 @@ const staticPaths = readdir(distPath, { recursive: true }).then((files) => {
 
 export const imagePath = fileURLToPath(new URL("./fixtures/metadata.jpg", import.meta.url));
 
-// Observe the whole context, including background-removal workers. Fail on
-// outbound HTTP traffic or request bodies instead of blocking a leak silently.
+// Observe worker requests too. Report leaks without blocking them.
 export const test = base.extend<{ privacy: undefined; browserErrors: undefined }>({
   browserErrors: [
     async ({ context }, use) => {

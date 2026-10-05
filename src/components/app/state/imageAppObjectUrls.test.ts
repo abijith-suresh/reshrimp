@@ -32,8 +32,7 @@ describe("createDecodedObjectUrl", () => {
   });
 });
 
-// jsdom has no image decoder. Control this browser boundary to check ownership
-// while decoding is pending; the browser suite checks actual encoded images.
+// jsdom has no decoder. Use controlled promises to test URL ownership.
 describe("decoded preview ownership", () => {
   function pendingDecode() {
     mockObjectUrls();
