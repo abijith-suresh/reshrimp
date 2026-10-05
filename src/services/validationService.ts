@@ -9,12 +9,7 @@ import type { ImageFormat, ImageMetadata, ValidationResult } from "../types/imag
 import { formatFileSize } from "../utils/imageUtils";
 import { isHeicBlob } from "./formatDetectionService";
 
-/**
- * Validate an image file for processing
- * Returns validation result with error or warning messages
- */
 export async function validateImageFile(file: File): Promise<ValidationResult> {
-  // Check if file exists
   if (!file) {
     return {
       valid: false,
@@ -22,8 +17,7 @@ export async function validateImageFile(file: File): Promise<ValidationResult> {
     };
   }
 
-  // Check if it's an image file. Devices that export HEIC with an empty or
-  // generic MIME type are still accepted when the magic bytes confirm HEIC.
+  // Some devices export HEIC files without an image MIME type.
   if (!file.type.startsWith("image/")) {
     if (!(await isHeicBlob(file))) {
       return {
@@ -32,14 +26,12 @@ export async function validateImageFile(file: File): Promise<ValidationResult> {
       };
     }
   } else if (!isAcceptedInputFormat(file.type)) {
-    // Check if format is supported (including HEIC/HEIF/AVIF)
     return {
       valid: false,
       error: `Unsupported image format: ${file.type}. Supported formats: ${getSupportedImageFormatSummary()}`,
     };
   }
 
-  // Check if file is too large (hard limit)
   if (file.size > MAX_FILE_SIZE) {
     return {
       valid: false,
@@ -49,7 +41,6 @@ export async function validateImageFile(file: File): Promise<ValidationResult> {
 
   const warnings: string[] = [];
 
-  // Warn if file is large but still processable
   if (file.size > RECOMMENDED_MAX_SIZE) {
     warnings.push(`Large file detected (${formatFileSize(file.size)}). Processing may be slow.`);
   }
@@ -64,10 +55,6 @@ export async function validateImageFile(file: File): Promise<ValidationResult> {
       };
 }
 
-/**
- * Validate that an image's pixel dimensions are processable.
- * Needs decoded metadata, so callers run it after extracting dimensions.
- */
 export function validateImageDimensions(
   metadata: Pick<ImageMetadata, "width" | "height">
 ): ValidationResult {
@@ -90,9 +77,6 @@ export function validateImageDimensions(
   };
 }
 
-/**
- * Get file extension from format
- */
 export function getFileExtension(format: ImageFormat): string {
   const extensionMap: Record<ImageFormat, string> = {
     "image/jpeg": "jpg",
@@ -106,9 +90,6 @@ export function getFileExtension(format: ImageFormat): string {
   return extensionMap[format] || "png";
 }
 
-/**
- * Generate download filename from original filename and format
- */
 export function generateDownloadFilename(
   originalFilename: string,
   targetFormat: ImageFormat

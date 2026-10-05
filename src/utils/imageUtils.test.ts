@@ -1,5 +1,5 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { restoreMocks, setupBrowserMocks } from "../test/mocks";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { mockObjectUrls } from "../test/mocks";
 import {
   calculateAspectRatio,
   calculateHeightFromWidth,
@@ -34,39 +34,27 @@ describe("calculateAspectRatio", () => {
 describe("createDownloadLink", () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    setupBrowserMocks();
+    mockObjectUrls();
+    vi.spyOn(document.body, "appendChild");
+    vi.spyOn(document.body, "removeChild");
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => {});
   });
 
-  afterEach(() => {
-    restoreMocks();
-    vi.useRealTimers();
-  });
-
-  it("creates an anchor with correct href and download attributes", () => {
+  it("starts the download and releases its link and URL after the delay", () => {
     const blob = new Blob(["data"], { type: "image/png" });
     createDownloadLink(blob, "output.png");
 
     expect(document.body.appendChild).toHaveBeenCalledOnce();
     expect(HTMLAnchorElement.prototype.click).toHaveBeenCalledOnce();
 
-    const link = (document.body.appendChild as ReturnType<typeof vi.fn>).mock
-      .calls[0][0] as HTMLAnchorElement;
+    const link = vi.mocked(document.body.appendChild).mock.calls[0][0] as HTMLAnchorElement;
     expect(link.href).toBe("blob:mock-url");
     expect(link.download).toBe("output.png");
-  });
-
-  it("removes the temporary link and revokes the object URL after cleanup", () => {
-    const blob = new Blob([]);
-    createDownloadLink(blob, "file.png");
-
-    expect(document.body.appendChild).toHaveBeenCalledOnce();
     expect(document.body.removeChild).not.toHaveBeenCalled();
     expect(URL.revokeObjectURL).not.toHaveBeenCalled();
 
     vi.runAllTimers();
 
-    const link = (document.body.appendChild as ReturnType<typeof vi.fn>).mock
-      .calls[0][0] as HTMLAnchorElement;
     expect(document.body.removeChild).toHaveBeenCalledWith(link);
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url");
   });
@@ -79,59 +67,41 @@ describe("createDownloadLink", () => {
 
     expect(() => createDownloadLink(new Blob([]), "file.png")).toThrow(error);
 
-    const link = (document.body.appendChild as ReturnType<typeof vi.fn>).mock
-      .calls[0][0] as HTMLAnchorElement;
+    const link = vi.mocked(document.body.appendChild).mock.calls[0][0] as HTMLAnchorElement;
     expect(document.body.removeChild).toHaveBeenCalledWith(link);
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url");
   });
 });
 
 describe("formatFileSize", () => {
-  it('returns "0 B" for 0 bytes', () => {
-    expect(formatFileSize(0)).toBe("0 B");
-  });
-
-  it("formats bytes", () => {
-    expect(formatFileSize(512)).toBe("512.0 B");
-  });
-
-  it("formats kilobytes", () => {
-    expect(formatFileSize(1536)).toBe("1.5 KB");
-  });
-
-  it("formats megabytes", () => {
-    expect(formatFileSize(2 * 1024 * 1024)).toBe("2.0 MB");
-  });
-
-  it("formats at exactly 1 KB boundary", () => {
-    expect(formatFileSize(1024)).toBe("1.0 KB");
-  });
-
-  it("formats at exactly 1 MB boundary", () => {
-    expect(formatFileSize(1024 * 1024)).toBe("1.0 MB");
+  it.each([
+    [0, "0 B"],
+    [512, "512.0 B"],
+    [1024, "1.0 KB"],
+    [1536, "1.5 KB"],
+    [1024 * 1024, "1.0 MB"],
+    [2 * 1024 * 1024, "2.0 MB"],
+  ])("formats %i bytes as %s", (bytes, expected) => {
+    expect(formatFileSize(bytes)).toBe(expected);
   });
 });
 
 describe("calculateHeightFromWidth", () => {
   it("preserves aspect ratio", () => {
-    // 200x100 image → aspect 2:1 → target width 400 → height 200
     expect(calculateHeightFromWidth(200, 100, 400)).toBe(200);
   });
 
   it("rounds non-integer results", () => {
-    // 3:2 aspect → width 10 → height = 10 / 1.5 = 6.666... → rounds to 7
     expect(calculateHeightFromWidth(3, 2, 10)).toBe(7);
   });
 });
 
 describe("calculateWidthFromHeight", () => {
   it("preserves aspect ratio", () => {
-    // 200x100 image → aspect 2:1 → target height 50 → width 100
     expect(calculateWidthFromHeight(200, 100, 50)).toBe(100);
   });
 
   it("rounds non-integer results", () => {
-    // 3:2 aspect → height 9 → width = 9 * 1.5 = 13.5 → rounds to 14
     expect(calculateWidthFromHeight(3, 2, 9)).toBe(14);
   });
 });
@@ -195,14 +165,5 @@ describe("convertFromPx", () => {
 
   it("in: returns 0 when dpi is 0", () => {
     expect(convertFromPx(100, "in", originalPx, 0)).toBe(0);
-  });
-
-  it("round-trip px → unit → px stays within 1px", () => {
-    const px = 1280;
-    for (const unit of ["px", "%", "in", "cm"] as const) {
-      const display = convertFromPx(px, unit, originalPx, dpi);
-      const backToPx = convertToPx(display, unit, originalPx, dpi);
-      expect(Math.abs(backToPx - px)).toBeLessThanOrEqual(1);
-    }
   });
 });

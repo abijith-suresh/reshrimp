@@ -43,6 +43,13 @@ export default function PreviewPanel() {
           validationWarning={state.validation()?.warning}
           onUploadClick={() => mobileUploadRef?.click()}
         />
+        <Show when={state.error()}>
+          {(msg) => (
+            <div class="px-4 pb-3">
+              <ErrorDisplay message={msg()} />
+            </div>
+          )}
+        </Show>
       </Show>
 
       <Show when={state.currentImage()}>

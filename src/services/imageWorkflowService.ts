@@ -53,9 +53,7 @@ function parseDimensionInput(value: string): number | undefined {
   const trimmedValue = value.trim();
   if (!trimmedValue) return undefined;
 
-  // Decimal keyboards may provide a comma depending on the device locale.
-  // Number() validates the entire entry, unlike parseFloat() which accepts a
-  // valid numeric prefix and silently ignores trailing text.
+  // Accept decimal commas. Reject numeric values followed by text.
   return Number(trimmedValue.replace(",", "."));
 }
 
@@ -93,9 +91,7 @@ export function buildProcessOptions(input: BuildProcessOptionsInput): ProcessOpt
       : convertToPx(heightNumber, input.resizeUnit, input.originalHeight, input.dpi);
 
   return {
-    // Explicit undefined checks instead of truthiness so that a "0" target
-    // reaches the processing guard and surfaces an error instead of being
-    // silently treated as "no resize requested".
+    // Keep zero values so the processing guard can reject them.
     ...(width !== undefined || height !== undefined
       ? {
           resize: {
