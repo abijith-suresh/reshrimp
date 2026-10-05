@@ -102,7 +102,10 @@ export async function canvasToBlobAtFileSizeTarget(
 
   const lowestQualityBlob = await canvasToBlob(canvas, format, MIN_TARGET_QUALITY);
   if (lowestQualityBlob.size > maximumBytes) {
-    return { blob: lowestQualityBlob, targetReached: false };
+    // Codec overhead can make quality and byte count non-monotonic.
+    const smallestBlob =
+      lowestQualityBlob.size < highestQualityBlob.size ? lowestQualityBlob : highestQualityBlob;
+    return { blob: smallestBlob, targetReached: false };
   }
 
   let bestBlob = lowestQualityBlob;

@@ -131,20 +131,24 @@ Mock only the unavailable boundary needed by the test. `src/test/mocks.ts` provi
 
 The context tests call public actions through `renderHook` and inspect public state. They do not render the app to test every race. The small `ImageApp` suite checks control wiring; the browser suite owns responsive layout, caret behavior, and focus across breakpoints.
 
-Install Chromium once, then run the browser suite against the production build:
+Install Chromium and Firefox once, then run the browser suite against the production build:
 
 ```bash
-bunx playwright install chromium
+bunx playwright install chromium firefox
 # On Linux machines missing browser libraries:
-bunx playwright install --with-deps chromium
+bunx playwright install --with-deps chromium firefox
 bun run test:e2e
 ```
 
-`test:e2e` builds the app and starts an isolated preview server on port 4322. It runs desktop Chromium and mobile Chromium emulation. Processing services and model inference are real. Each test observes requests from the browser context, including workers, and fails on HTTP requests outside the app origin, non-GET requests, or request bodies. This checks the exercised workflows; it does not replace reviewing the privacy rules in `AGENTS.md`.
+`test:e2e` builds the app and starts an isolated preview server on port 4322. It runs desktop Chromium, desktop Firefox, and mobile Chromium emulation. Processing services and model inference are real. Each test observes requests from the browser context, including workers, and allows only GET requests for known build assets and pages. Off-origin requests, query strings, request bodies, unknown paths, and WebSocket connections fail the test. This checks the exercised workflows; it does not replace reviewing the privacy rules in `AGENTS.md`.
 
-Download tests read the saved bytes and decode them to verify output dimensions. Their synthetic JPEG includes EXIF and GPS markers so metadata-removal assertions cannot pass with a metadata-free source. PNG transparency and background removal are checked in decoded pixels. Browser failures retain screenshots and traces in `test-results/`; CI uploads that directory. Open a trace with `bunx playwright show-trace <trace.zip>`.
+Download tests read the saved bytes with Sharp, independently of the app's canvas and image decoder. They check decoded dimensions and color landmarks to detect blank, flipped, or corrupted exports. Parsed EXIF checks verify metadata removal, and a rotated JPEG checks that orientation survives in the pixels after metadata is removed. A real HEIC fixture exercises the lazy decoder. AVIF tests probe the actual browser encoder, then verify either AVIF bytes or an honestly named PNG fallback. The background-removal test uses a public-domain portrait and checks that the face survives while the wall becomes transparent. Browser failures retain screenshots and traces in `test-results/`; CI uploads that directory. Open a trace with `bunx playwright show-trace <trace.zip>`.
 
-Coverage includes every TypeScript module in `src/`, with the existing thresholds unchanged. Treat it as a way to find omissions. Add a test when it protects a specific behavior, not merely to execute another line. Avoid class-list assertions, snapshots of large trees, and tests of trivial child passthrough. Browser coverage is separate from the jsdom report. Chromium emulation does not establish Firefox, WebKit, real-device, or every codec compatibility.
+Coverage includes every TypeScript module in `src/`, with the existing thresholds unchanged. Treat it as a way to find omissions. Add a test when it protects a specific behavior, not merely to execute another line. Avoid class-list assertions, snapshots of large trees, and tests of trivial child passthrough. Browser coverage is separate from the jsdom report. These checks do not establish WebKit, real-device, or every codec compatibility.
+
+Geometry properties in `imageGeometry.properties.test.ts` use fast-check to exercise 500 generated examples per property, with a fixed seed for repeatability. They check box fitting, aspect preservation within integer rounding, independent dimensions, and pixel/unit round trips. Keep explicit regression examples for important boundaries too; generated inputs do not replace them.
+
+When strengthening a test, temporarily introduce the fault it should catch and run that test again. For example, omit canvas drawing, preserve source EXIF, bypass background removal, or send a payload in a same-origin query string. Require a failure in the relevant assertion, rather than a build or browser-launch error. Restore the code before running the full quality gate. This follows [Stryker's distinction between detected faults and infrastructure errors](https://stryker-mutator.io/docs/mutation-testing-elements/mutant-states-and-metrics/).
 
 These choices follow [Testing Library's guiding principles](https://testing-library.com/docs/guiding-principles/), [user-event's interaction guidance](https://testing-library.com/docs/user-event/intro/), [Solid's testing guidance](https://github.com/solidjs/solid-testing-library), and [Playwright's best practices](https://playwright.dev/docs/best-practices).
 

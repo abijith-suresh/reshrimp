@@ -68,7 +68,7 @@ test("converts physical dimensions, keeps DPI help in the dialog, and downloads 
   await expect(page.getByAltText("Preview")).toHaveAttribute("width", "300");
   await dialog.getByRole("button", { name: "Done", exact: true }).click();
   const output = await downloadImage(page);
-  expect(await decodeImage(page, output.bytes)).toMatchObject({ width: 300, height: 225 });
+  expect(await decodeImage(output.bytes)).toMatchObject({ width: 300, height: 225 });
 });
 
 test("moves focus to visible desktop controls when the viewport grows", async ({ page }) => {

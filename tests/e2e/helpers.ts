@@ -1,6 +1,21 @@
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
 import { fileURLToPath } from "node:url";
 import { test as base, expect, type Page } from "@playwright/test";
+
+const distPath = fileURLToPath(new URL("../../dist/", import.meta.url));
+// The production app has no API. A same-origin request is safe here only when
+// it names an actual build asset or page, without a payload in its URL.
+const staticPaths = readdir(distPath, { recursive: true }).then((files) => {
+  const paths = new Set(files.map((file) => `/${file}`));
+  for (const file of files) {
+    if (file.endsWith("index.html")) {
+      const route = `/${file.slice(0, -"index.html".length)}`;
+      paths.add(route);
+      paths.add(route === "/" ? route : route.slice(0, -1));
+    }
+  }
+  return paths;
+});
 
 export const imagePath = fileURLToPath(new URL("./fixtures/metadata.jpg", import.meta.url));
 
@@ -20,15 +35,28 @@ export const test = base.extend<{ privacy: undefined; browserErrors: undefined }
     async ({ context, baseURL }, use) => {
       const violations: string[] = [];
       const origin = new URL(baseURL as string).origin;
+      const assets = await staticPaths;
+      context.on("page", (page) => {
+        page.on("websocket", () => violations.push("WebSocket connection"));
+      });
       context.on("request", (request) => {
         const url = new URL(request.url());
         if (url.protocol !== "http:" && url.protocol !== "https:") return;
-        if (url.origin !== origin || request.method() !== "GET" || request.postDataBuffer()) {
+        if (
+          url.origin !== origin ||
+          request.method() !== "GET" ||
+          request.postDataBuffer() ||
+          url.search ||
+          !assets.has(url.pathname)
+        ) {
           violations.push(`${request.method()} ${url.origin}${url.pathname}`);
         }
       });
       await use(undefined);
-      expect(violations, "Image workflows must only fetch assets from the app origin").toEqual([]);
+      expect(
+        violations,
+        "Image workflows must only fetch known static assets without transmitting data"
+      ).toEqual([]);
     },
     { auto: true },
   ],
@@ -64,23 +92,4 @@ export async function downloadImage(page: Page) {
   return { name: download.suggestedFilename(), bytes: await readFile(path) };
 }
 
-export async function decodeImage(page: Page, bytes: Buffer) {
-  return page.evaluate(async (base64) => {
-    const data = Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
-    const bitmap = await createImageBitmap(new Blob([data]));
-    const canvas = document.createElement("canvas");
-    canvas.width = bitmap.width;
-    canvas.height = bitmap.height;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) throw new Error("Canvas is unavailable");
-    ctx.drawImage(bitmap, 0, 0);
-    const pixels = ctx.getImageData(0, 0, bitmap.width, bitmap.height).data;
-    let transparentPixels = 0;
-    for (let index = 3; index < pixels.length; index += 4) {
-      if (pixels[index] < 255) transparentPixels += 1;
-    }
-    const dimensions = { width: bitmap.width, height: bitmap.height, transparentPixels };
-    bitmap.close();
-    return dimensions;
-  }, bytes.toString("base64"));
-}
+export { decodeImage } from "./imageAssertions";

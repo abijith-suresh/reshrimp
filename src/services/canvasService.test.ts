@@ -111,7 +111,7 @@ describe("canvasToBlobAtFileSizeTarget", () => {
     return samples;
   }
 
-  it("keeps the largest fitting sample without changing dimensions or format", async () => {
+  it("keeps the highest-quality fitting sample without changing dimensions or format", async () => {
     const { canvas } = makeCanvasMock();
     canvas.width = 1200;
     canvas.height = 800;
@@ -149,6 +149,41 @@ describe("canvasToBlobAtFileSizeTarget", () => {
     expect(result.targetReached).toBe(true);
     expect(result.blob.size).toBe(1000);
     expect(result.blob.type).toBe("image/avif");
+  });
+
+  it("returns the smallest attempted output even when minimum quality produces more bytes", async () => {
+    const { canvas } = makeCanvasMock();
+    const smaller = new Blob([new Uint8Array(800)], { type: "image/webp" });
+    const larger = new Blob([new Uint8Array(1000)], { type: "image/webp" });
+    vi.mocked(canvas.toBlob)
+      .mockImplementationOnce((callback) => callback(smaller))
+      .mockImplementationOnce((callback) => callback(larger));
+
+    const result = await canvasToBlobAtFileSizeTarget(canvas, "image/webp", 100);
+
+    expect(result.targetReached).toBe(false);
+    expect(result.blob.size).toBe(800);
+  });
+
+  it("prefers quality over byte count among fitting outputs from a non-monotonic encoder", async () => {
+    const { canvas } = makeCanvasMock();
+    const attempts: Array<{ quality: number; blob: Blob }> = [];
+    vi.mocked(canvas.toBlob).mockImplementation((callback, format, quality) => {
+      const q = Number(quality);
+      const blob = new Blob([new Uint8Array(q === 1 ? 1000 : q > 0.5 ? 300 : 500)], {
+        type: format,
+      });
+      attempts.push({ quality: q, blob });
+      callback(blob);
+    });
+
+    const result = await canvasToBlobAtFileSizeTarget(canvas, "image/webp", 600);
+
+    const fitting = attempts.filter(({ blob }) => blob.size <= 600);
+    const best = fitting.reduce((a, b) => (a.quality > b.quality ? a : b));
+    expect(result.targetReached).toBe(true);
+    expect(result.blob).toBe(best.blob);
+    expect(best.quality).toBeGreaterThan(0.9);
   });
 
   it.each([0, -1, 1.5, Number.NaN, Number.POSITIVE_INFINITY, Number.MAX_SAFE_INTEGER + 1])(

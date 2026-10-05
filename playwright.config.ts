@@ -14,8 +14,17 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      testMatch: ["**/image-workflow.spec.ts", "**/background-removal.spec.ts"],
+      testMatch: [
+        "**/image-workflow.spec.ts",
+        "**/background-removal.spec.ts",
+        "**/codec-compatibility.spec.ts",
+      ],
       use: { ...devices["Desktop Chrome"] },
+    },
+    {
+      name: "firefox",
+      testMatch: ["**/image-workflow.spec.ts", "**/codec-compatibility.spec.ts"],
+      use: { ...devices["Desktop Firefox"] },
     },
     {
       name: "mobile-chromium",
