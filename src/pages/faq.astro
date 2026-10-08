@@ -69,14 +69,14 @@ const faqs = [
     </PageSection>
 
     <PageSection
-      sectionClass="marketing-section-faq-cta"
-      containerClass="marketing-narrow-cta"
+      centered
+      containerClass="w-full max-w-marketing-narrow mx-auto"
     >
-      <h2 class="marketing-faq-cta-title" data-reveal data-reveal-delay="0">Still have a question?</h2>
-      <p class="marketing-faq-cta-copy" data-reveal data-reveal-delay="80">
+      <h2 class="m-0 text-foreground font-display text-marketing-title-lg leading-none tracking-marketing-tight text-balance" data-reveal data-reveal-delay="0">Still have a question?</h2>
+      <p class="mt-5 mb-8 text-muted-foreground text-marketing-body leading-marketing-body" data-reveal data-reveal-delay="80">
         Read the source or try the tool.
       </p>
-      <div class="marketing-faq-cta-actions" data-reveal data-reveal-delay="160">
+      <div class="flex items-center justify-center gap-3 flex-wrap marketing-mobile:[&>a]:w-full" data-reveal data-reveal-delay="160">
         <ButtonLink href={makeHref(ROUTES.APP)}>
           Choose an image
         </ButtonLink>
@@ -88,35 +88,3 @@ const faqs = [
     </PageSection>
   </MarketingPageWrapper>
 </MarketingLayout>
-
-<style>
-  .marketing-faq-cta-title {
-    margin: 0;
-    color: var(--foreground);
-    font-family: var(--font-display);
-    font-size: var(--marketing-section-size);
-    line-height: 1;
-    letter-spacing: -0.06em;
-  }
-
-  .marketing-faq-cta-copy {
-    margin: var(--space-5) 0 var(--space-8);
-    color: var(--muted-foreground);
-    font-size: var(--marketing-body-size);
-    line-height: var(--marketing-body-leading);
-  }
-
-  .marketing-faq-cta-actions {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: var(--space-3);
-    flex-wrap: wrap;
-  }
-
-  @media (max-width: 560px) {
-    .marketing-faq-cta-actions :global(a[data-ui-button]) {
-      width: 100%;
-    }
-  }
-</style>

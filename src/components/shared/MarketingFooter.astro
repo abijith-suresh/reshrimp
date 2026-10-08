@@ -17,20 +17,20 @@ const footerLinks: FooterLink[] = [
 ];
 ---
 
-<footer class="footer">
+<footer class="relative z-1 border-t border-border-light py-8 px-marketing-gutter">
   <MarketingContainer>
-    <div class="footer-inner">
-      <div class="footer-bottom">
+    <div class="w-full flex items-center justify-between gap-6 marketing-mobile:items-start marketing-mobile:flex-col marketing-mobile:gap-4">
+      <div class="flex items-center text-marketing-caption text-soft-foreground">
         <span>&copy; {new Date().getFullYear()} {SITE_NAME}</span>
       </div>
-      <nav class="footer-links" aria-label="Footer navigation">
+      <nav class="flex flex-wrap justify-end gap-y-2 gap-x-5 marketing-mobile:justify-start" aria-label="Footer navigation">
         {
           footerLinks.map((link) => (
             <a
               href={link.href}
               target={link.external ? "_blank" : undefined}
               rel={link.external ? "noopener noreferrer" : undefined}
-              class="footer-link"
+              class="inline-flex items-center min-h-10 text-marketing-small font-medium text-muted-foreground no-underline transition-colors duration-fast ease-[ease] touch-manipulation hover:text-coral-500 focus-visible:outline-none focus-visible:shadow-[0_0_0_2px_rgba(167,139,250,0.4)] focus-visible:rounded-[4px]"
             >
               {link.label}
             </a>
@@ -40,70 +40,3 @@ const footerLinks: FooterLink[] = [
     </div>
   </MarketingContainer>
 </footer>
-
-<style>
-  .footer {
-    border-top: 1px solid var(--border-light);
-    padding: var(--space-8) var(--marketing-gutter);
-    position: relative;
-    z-index: 1;
-  }
-
-  .footer-inner {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--space-6);
-  }
-
-  .footer-links {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: var(--space-2) var(--space-5);
-  }
-
-  .footer-link {
-    display: inline-flex;
-    align-items: center;
-    min-height: var(--space-10);
-    font-size: var(--marketing-small-size);
-    font-weight: 500;
-    color: var(--muted-foreground);
-    text-decoration: none;
-    transition: color var(--duration-fast) ease;
-    touch-action: manipulation;
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .footer-link:hover {
-      color: var(--coral-500);
-    }
-  }
-
-  .footer-link:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.4);
-    border-radius: 4px;
-  }
-
-  .footer-bottom {
-    display: flex;
-    align-items: center;
-    font-size: var(--marketing-caption-size);
-    color: var(--soft-foreground);
-  }
-
-  @media (max-width: 560px) {
-    .footer-inner {
-      align-items: flex-start;
-      flex-direction: column;
-      gap: var(--space-4);
-    }
-
-    .footer-links {
-      justify-content: flex-start;
-    }
-  }
-</style>

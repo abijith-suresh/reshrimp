@@ -6,6 +6,6 @@ interface Props {
 const { delay = 0 } = Astro.props;
 ---
 
-<div class="marketing-content-block" data-reveal data-reveal-delay={String(delay)}>
+<div class="py-8 border-t border-border mb-6 last:mb-0 [&>h2]:m-0 [&>h2]:mb-4 [&>h2]:text-foreground [&>h2]:font-display [&>h2]:text-marketing-title-sm [&>h2]:font-bold [&>h2]:tracking-[-0.04em] [&>p]:max-w-marketing-content [&>p]:m-0 [&>p]:mb-4 [&>p]:text-muted-foreground [&>p]:text-marketing-small [&>p]:leading-marketing-body [&>p:last-child]:mb-0" data-reveal data-reveal-delay={String(delay)}>
   <slot />
 </div>

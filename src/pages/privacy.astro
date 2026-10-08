@@ -62,7 +62,7 @@ const PRIVACY_CARDS = [
                   <p set:html={p} />
                 ))}
               {card.listItems && (
-                <ul class="marketing-bullet-list">
+                <ul class="grid gap-3 m-0 p-0 list-none [&>li]:relative [&>li]:ps-6 [&>li]:text-muted-foreground [&>li]:text-marketing-small [&>li]:leading-marketing-body [&>li]:before:absolute [&>li]:before:top-2 [&>li]:before:start-0 [&>li]:before:size-2 [&>li]:before:rounded-full [&>li]:before:bg-mint-500 [&>li]:before:content-['']">
                   {card.listItems.map((item) => <li>{item}</li>)}
                 </ul>
               )}

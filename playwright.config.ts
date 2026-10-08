@@ -18,12 +18,17 @@ export default defineConfig({
         "**/image-workflow.spec.ts",
         "**/background-removal.spec.ts",
         "**/codec-compatibility.spec.ts",
+        "**/marketing-layout.spec.ts",
       ],
       use: { ...devices["Desktop Chrome"] },
     },
     {
       name: "firefox",
-      testMatch: ["**/image-workflow.spec.ts", "**/codec-compatibility.spec.ts"],
+      testMatch: [
+        "**/image-workflow.spec.ts",
+        "**/codec-compatibility.spec.ts",
+        "**/marketing-layout.spec.ts",
+      ],
       use: { ...devices["Desktop Firefox"] },
     },
     {
@@ -32,6 +37,7 @@ export default defineConfig({
         "**/image-workflow.spec.ts",
         "**/mobile-controls.spec.ts",
         "**/marketing-interactions.spec.ts",
+        "**/marketing-layout.spec.ts",
       ],
       use: { ...devices["Pixel 7"] },
     },
