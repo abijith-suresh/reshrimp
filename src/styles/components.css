@@ -159,9 +159,14 @@
   display: none;
 }
 
-.info-icon:hover + .info-tooltip,
 .info-tooltip.active {
   display: block;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .info-icon:hover + .info-tooltip {
+    display: block;
+  }
 }
 
 .info-tooltip::after {

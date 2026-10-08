@@ -134,9 +134,11 @@ const headerLinks = [{ label: "About", href: ROUTES.ABOUT }];
     touch-action: manipulation;
   }
 
-  .nav-link:hover {
-    color: var(--foreground);
-    background: var(--border-light);
+  @media (hover: hover) and (pointer: fine) {
+    .nav-link:hover {
+      color: var(--foreground);
+      background: var(--border-light);
+    }
   }
 
   .nav-link:focus-visible {
@@ -171,8 +173,10 @@ const headerLinks = [{ label: "About", href: ROUTES.ABOUT }];
     -webkit-tap-highlight-color: transparent;
   }
 
-  .header-cta:hover {
-    background: var(--coral-600);
+  @media (hover: hover) and (pointer: fine) {
+    .header-cta:hover {
+      background: var(--coral-600);
+    }
   }
 
   .header-cta:active {
@@ -200,8 +204,10 @@ const headerLinks = [{ label: "About", href: ROUTES.ABOUT }];
     -webkit-tap-highlight-color: transparent;
   }
 
-  .hamburger:hover {
-    background: var(--card);
+  @media (hover: hover) and (pointer: fine) {
+    .hamburger:hover {
+      background: var(--card);
+    }
   }
 
   .hamburger:active {
@@ -280,9 +286,11 @@ const headerLinks = [{ label: "About", href: ROUTES.ABOUT }];
     touch-action: manipulation;
   }
 
-  .mobile-link:hover {
-    color: var(--foreground);
-    background: var(--card);
+  @media (hover: hover) and (pointer: fine) {
+    .mobile-link:hover {
+      color: var(--foreground);
+      background: var(--card);
+    }
   }
 
   .mobile-link:focus-visible {
@@ -304,15 +312,16 @@ const headerLinks = [{ label: "About", href: ROUTES.ABOUT }];
     font-weight: 600;
   }
 
-  .mobile-link-cta:hover {
-    color: white;
-    background: var(--coral-600);
+  @media (hover: hover) and (pointer: fine) {
+    .mobile-link-cta:hover {
+      color: white;
+      background: var(--coral-600);
+    }
   }
 
   @media (max-width: 768px) {
     .header-inner {
-      padding-right: var(--space-4);
-      padding-left: var(--space-4);
+      padding-inline: var(--space-4);
     }
 
     .nav-desktop {
@@ -320,6 +329,7 @@ const headerLinks = [{ label: "About", href: ROUTES.ABOUT }];
     }
 
     .hamburger {
+      display: flex;
       align-items: center;
       justify-content: center;
       width: 40px;

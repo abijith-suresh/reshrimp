@@ -76,8 +76,10 @@ const footerLinks: FooterLink[] = [
     touch-action: manipulation;
   }
 
-  .footer-link:hover {
-    color: var(--coral-500);
+  @media (hover: hover) and (pointer: fine) {
+    .footer-link:hover {
+      color: var(--coral-500);
+    }
   }
 
   .footer-link:focus-visible {

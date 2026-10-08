@@ -63,14 +63,16 @@ const questionId = `${answerId}-question`;
     font-size: var(--marketing-small-size);
     font-weight: 600;
     line-height: 1.35;
-    text-align: left;
+    text-align: start;
     touch-action: manipulation;
     transition: color var(--duration-fast) ease;
     cursor: pointer;
   }
 
-  .faq-question:hover {
-    color: var(--coral-600);
+  @media (hover: hover) and (pointer: fine) {
+    .faq-question:hover {
+      color: var(--coral-600);
+    }
   }
 
   .faq-question:focus-visible {
@@ -136,8 +138,10 @@ const questionId = `${answerId}-question`;
     transition: text-decoration-color 0.2s;
   }
 
-  .faq-answer a:hover {
-    text-decoration-color: var(--coral-500);
+  @media (hover: hover) and (pointer: fine) {
+    .faq-answer a:hover {
+      text-decoration-color: var(--coral-500);
+    }
   }
 </style>
 

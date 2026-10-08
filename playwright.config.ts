@@ -28,7 +28,11 @@ export default defineConfig({
     },
     {
       name: "mobile-chromium",
-      testMatch: ["**/image-workflow.spec.ts", "**/mobile-controls.spec.ts"],
+      testMatch: [
+        "**/image-workflow.spec.ts",
+        "**/mobile-controls.spec.ts",
+        "**/marketing-interactions.spec.ts",
+      ],
       use: { ...devices["Pixel 7"] },
     },
   ],

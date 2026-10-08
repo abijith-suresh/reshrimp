@@ -111,7 +111,7 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
   // ── Scroll reveal via Intersection Observer ──────────────────────────
   function initReveal() {
     const els = document.querySelectorAll<HTMLElement>("[data-reveal]");
-    if (!els.length) return;
+    if (!els.length || !window.matchMedia("(prefers-reduced-motion: no-preference)").matches) return;
 
     // If a script starts after the browser has painted, don't hide visible
     // content and then reveal it again. Keep the first viewport settled while
