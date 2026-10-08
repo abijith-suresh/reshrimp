@@ -50,15 +50,18 @@ test("targets a reachable size and reports an impossible limit without changing 
   await page.getByRole("button", { name: "Max file size", exact: true }).click();
   const limit = page.getByRole("textbox", { name: "Maximum file size (KB)", exact: true });
   await limit.fill("40");
+  // Size targeting runs several canvas encodes, which can be slow in CI Firefox.
   await expect(
     page.getByRole("status").filter({ hasText: "Output fits within 40.0 KB." })
-  ).toBeVisible();
+  ).toBeVisible({ timeout: 20_000 });
   const fitting = await downloadImage(page);
   expect(fitting.bytes.length).toBeLessThanOrEqual(40 * 1024);
   expect(await decodeImage(fitting.bytes)).toMatchObject({ width: 512, height: 384 });
 
   await limit.fill("0.001");
-  await expect(page.getByRole("status").filter({ hasText: "Could not meet" })).toBeVisible();
+  await expect(page.getByRole("status").filter({ hasText: "Could not meet" })).toBeVisible({
+    timeout: 20_000,
+  });
   const smallest = await downloadImage(page);
   expect(smallest.bytes.length).toBeGreaterThan(1);
   expect(smallest.bytes.length).toBeLessThan(fitting.bytes.length);
