@@ -13,11 +13,11 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  bun-quality:
-    name: bun-quality
-    uses: abijith-suresh/workflows/.github/workflows/bun-quality.yml@163055ac24b4169ae93ae05c5d7491b1cd5d96c7
+  ci:
+    name: CI
     permissions:
       contents: read
+    uses: abijith-suresh/workflows/.github/workflows/ci.yml@a53b4c876bca362ca058c99c01c4c0a955d71c9d # 0.7.0
 
   dependency-review:
     name: dependency-review
@@ -27,43 +27,22 @@ jobs:
       - name: Dependency review
         uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
 
-  browser-tests:
-    name: browser-tests
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: read
+  gate:
+    name: gate
+    if: ${{ !cancelled() }}
+    needs: [ci, dependency-review]
+    runs-on: ubuntu-24.04
+    permissions: {}
     steps:
-      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
-      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
-        with:
-          bun-version: "1.3.14"
-      - run: bun install --frozen-lockfile
-      - run: bunx playwright install --with-deps chromium firefox
-      - run: bun run test:e2e
-      - name: Save browser failure traces
-        if: failure()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: browser-test-results
-          path: test-results/
-          retention-days: 7
-
-  quality:
-    name: quality
-    if: always()
-    needs: [bun-quality, dependency-review, browser-tests]
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Report quality failure
-        if: needs.bun-quality.result != 'success' || needs.dependency-review.result != 'success' || needs.browser-tests.result != 'success'
+      - name: Require CI and dependency review success
+        shell: bash
+        env:
+          CI_RESULT: ${{ needs.ci.result }}
+          DEPENDENCY_REVIEW_RESULT: ${{ needs.dependency-review.result }}
         run: |
-          echo "bun-quality: ${{ needs.bun-quality.result }}"
-          echo "dependency-review: ${{ needs.dependency-review.result }}"
-          echo "browser-tests: ${{ needs.browser-tests.result }}"
-          exit 1
-
-      - name: Report quality success
-        if: needs.bun-quality.result == 'success' && needs.dependency-review.result == 'success' && needs.browser-tests.result == 'success'
-        run: echo "bun-quality, dependency-review, and browser-tests passed"
+          set -euo pipefail
+          if [[ "$CI_RESULT" != success || "$DEPENDENCY_REVIEW_RESULT" != success ]]; then
+            echo "ci: $CI_RESULT" >&2
+            echo "dependency-review: $DEPENDENCY_REVIEW_RESULT" >&2
+            exit 1
+          fi
