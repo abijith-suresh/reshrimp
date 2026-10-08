@@ -113,6 +113,14 @@ Releases are automated by release-please from Conventional Commits. Versioning r
 - Use existing design tokens and spacing patterns before adding one-off values.
 - Add comments only when they explain non-obvious behavior.
 
+## Styling
+
+Use Tailwind utility classes for component styling, layout, responsive rules, and interaction states in both Astro and SolidJS. Shared values belong in the single `@theme` block in `src/styles/global.css`. Use the existing spacing scale and theme utilities before adding arbitrary values. Keep complete class names in source, including explicit maps for color variants, so Tailwind can detect them.
+
+Do not add scoped component styles, `@apply` component classes, or a parallel set of CSS variables. Shared UI components own repeated markup and utility classes. Use `aria-*` or `data-*` state variants for open, selected, and hidden states. Inline styles are for values calculated at runtime, such as portal coordinates and measured sheet heights.
+
+Handwritten CSS is limited to font loading, shared keyframes, global defaults and reduced-motion overrides, and browser-specific selectors. Range-input thumbs and safe-area values read by positioning code live in `src/styles/browser-primitives.css`. Component rules must not be added to that file. Hover feedback uses the shared precise-pointer `hover` variant. Shared marketing variants preserve the existing inclusive breakpoints; retain visible keyboard focus and touch behavior.
+
 ## Tests
 
 Select the test layer that can detect the defect.

@@ -77,7 +77,9 @@ These rules are enforceable invariants. Violating any of them is a defect even i
 ### Consistency
 
 - Follow the existing Astro and SolidJS structure.
-- Use existing design tokens and spacing patterns before introducing new one-off values.
+- Use Tailwind utilities for all Astro and SolidJS component styling and layout; do not add scoped component CSS or `@apply` component classes.
+- Keep shared design values in the single `@theme` block in `src/styles/global.css`. Use existing tokens and spacing patterns before introducing one-off values.
+- Limit handwritten CSS to font loading, shared keyframes, global defaults and accessibility overrides, and browser-specific selectors. Keep inline styles for values calculated at runtime.
 - Keep heavy processing paths lazy or isolated where practical.
 - Keep public copy human, honest, and specific to implemented behavior.
 

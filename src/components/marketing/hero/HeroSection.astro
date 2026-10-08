@@ -9,65 +9,9 @@ interface Props {
 const { title, subtitle } = Astro.props;
 ---
 
-<section class="marketing-page-hero">
+<section class="relative z-1 pt-marketing-hero px-marketing-gutter pb-8 marketing-mobile:pt-8 marketing-mobile:px-4 marketing-mobile:pb-6">
   <MarketingContainer>
-    <h1>{title}</h1>
-    {subtitle ? <p>{subtitle}</p> : null}
+    <h1 class="max-w-[780px] m-0 text-foreground font-display text-marketing-title-xl font-bold leading-none tracking-marketing-tight text-balance animate-hero-in marketing-mobile:text-marketing-title-mobile">{title}</h1>
+    {subtitle ? <p class="max-w-[38rem] mt-6 mb-0 text-muted-foreground text-marketing-body leading-marketing-body animate-hero-in [animation-delay:100ms] marketing-mobile:mt-5">{subtitle}</p> : null}
   </MarketingContainer>
 </section>
-
-<style>
-  .marketing-page-hero {
-    position: relative;
-    z-index: 1;
-    padding: var(--marketing-hero-space) var(--marketing-gutter) var(--space-8);
-  }
-
-  .marketing-page-hero h1 {
-    max-width: 780px;
-    margin: 0;
-    color: var(--foreground);
-    font-family: var(--font-display);
-    font-size: var(--marketing-title-xl);
-    font-weight: 700;
-    line-height: var(--marketing-title-leading);
-    letter-spacing: var(--marketing-tight-tracking);
-    text-wrap: balance;
-    animation: marketing-hero-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  .marketing-page-hero p {
-    max-width: 38rem;
-    margin: var(--space-6) 0 0;
-    color: var(--muted-foreground);
-    font-size: var(--marketing-body-size);
-    line-height: var(--marketing-body-leading);
-    animation: marketing-hero-in 700ms 100ms cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-
-  @keyframes marketing-hero-in {
-    from {
-      opacity: 0;
-      transform: translateY(1rem);
-    }
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-
-  @media (max-width: 560px) {
-    .marketing-page-hero {
-      padding: var(--space-8) var(--space-4) var(--space-6);
-    }
-
-    .marketing-page-hero h1 {
-      font-size: var(--marketing-title-mobile);
-      letter-spacing: -0.06em;
-    }
-
-    .marketing-page-hero p {
-      margin-top: var(--space-5);
-    }
-  }
-</style>

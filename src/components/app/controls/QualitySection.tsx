@@ -23,11 +23,8 @@ export default function QualitySection(props: QualitySectionProps) {
         <legend class="sr-only">Compression mode</legend>
         <span
           aria-hidden="true"
-          class="pointer-events-none absolute inset-y-1 left-1 z-0 rounded-md bg-card shadow-sm transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none"
-          style={{
-            width: "calc(50% - 4px)",
-            transform: isQualityMode() ? "translateX(0)" : "translateX(100%)",
-          }}
+          class="pointer-events-none absolute inset-y-1 left-1 z-0 w-[calc(50%-4px)] rounded-md bg-card shadow-sm transition-[transform,translate] duration-normal ease-reveal motion-reduce:transition-none data-[mode=size]:translate-x-full"
+          data-mode={state.compressionMode()}
         />
         <button
           id={qualityModeId}
@@ -55,13 +52,7 @@ export default function QualitySection(props: QualitySectionProps) {
         <div
           aria-hidden={!isQualityMode()}
           inert={!isQualityMode()}
-          class="col-start-1 row-start-1 flex flex-col gap-3 transition-[opacity,transform,visibility] duration-200 ease-out motion-reduce:transition-none"
-          style={{
-            opacity: isQualityMode() ? "1" : "0",
-            visibility: isQualityMode() ? "visible" : "hidden",
-            transform: isQualityMode() ? "translateY(0)" : "translateY(4px)",
-            "pointer-events": isQualityMode() ? "auto" : "none",
-          }}
+          class="col-start-1 row-start-1 flex flex-col gap-3 transition-[opacity,transform,translate,visibility] duration-200 ease-out motion-reduce:transition-none aria-hidden:opacity-0 aria-hidden:invisible aria-hidden:translate-y-1 aria-hidden:pointer-events-none"
         >
           <div class="flex min-h-12 items-center justify-between gap-3">
             <label for={qualityId} class="text-sm font-medium text-foreground">
@@ -106,13 +97,7 @@ export default function QualitySection(props: QualitySectionProps) {
         <div
           aria-hidden={isQualityMode()}
           inert={isQualityMode()}
-          class="col-start-1 row-start-1 flex flex-col gap-3 transition-[opacity,transform,visibility] duration-200 ease-out motion-reduce:transition-none"
-          style={{
-            opacity: isQualityMode() ? "0" : "1",
-            visibility: isQualityMode() ? "hidden" : "visible",
-            transform: isQualityMode() ? "translateY(4px)" : "translateY(0)",
-            "pointer-events": isQualityMode() ? "none" : "auto",
-          }}
+          class="col-start-1 row-start-1 flex flex-col gap-3 transition-[opacity,transform,translate,visibility] duration-200 ease-out motion-reduce:transition-none aria-hidden:opacity-0 aria-hidden:invisible aria-hidden:translate-y-1 aria-hidden:pointer-events-none"
         >
           <div class="flex min-h-12 items-center justify-between gap-3">
             <label for={targetFileSizeId} class="text-sm font-medium text-foreground">
