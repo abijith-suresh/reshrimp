@@ -32,6 +32,15 @@ export default defineConfig({
       use: { ...devices["Desktop Firefox"] },
     },
     {
+      name: "webkit",
+      testMatch: [
+        "**/image-workflow.spec.ts",
+        "**/codec-compatibility.spec.ts",
+        "**/marketing-layout.spec.ts",
+      ],
+      use: { ...devices["Desktop Safari"] },
+    },
+    {
       name: "mobile-chromium",
       testMatch: [
         "**/image-workflow.spec.ts",
