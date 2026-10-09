@@ -81,19 +81,16 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
     <!-- SPA Navigation -->
     <ClientRouter />
   </head>
-  <body>
+  <body class="font-body bg-background text-foreground antialiased selection:bg-lavender-500 selection:text-card">
     <a
       href="#main-content"
       data-global-skip-link
-      class="sr-only focus:not-sr-only focus:absolute focus:top-4 focus:left-4 z-50 p-2 bg-coral-500 text-white rounded-md font-semibold"
-      style={
+      class:list={[
+        "sr-only focus:not-sr-only focus:absolute z-50 p-2 bg-coral-500 text-white rounded-md font-semibold",
         viewportFitCover
-          ? {
-              top: "calc(env(safe-area-inset-top, 0px) + 1rem)",
-              left: "calc(env(safe-area-inset-left, 0px) + 1rem)",
-            }
-          : undefined
-      }
+          ? "focus:top-[calc(env(safe-area-inset-top,0px)+1rem)] focus:left-[calc(env(safe-area-inset-left,0px)+1rem)]"
+          : "focus:top-4 focus:left-4",
+      ]}
     >
       Skip to main content
     </a>
@@ -111,7 +108,7 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
   // ── Scroll reveal via Intersection Observer ──────────────────────────
   function initReveal() {
     const els = document.querySelectorAll<HTMLElement>("[data-reveal]");
-    if (!els.length) return;
+    if (!els.length || !window.matchMedia("(prefers-reduced-motion: no-preference)").matches) return;
 
     // If a script starts after the browser has painted, don't hide visible
     // content and then reveal it again. Keep the first viewport settled while
@@ -120,11 +117,11 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
     els.forEach((el) => {
       const rect = el.getBoundingClientRect();
       if (rect.top < viewportHeight && rect.bottom > 0) {
-        el.classList.add("revealed");
+        delete el.dataset.revealState;
+      } else {
+        el.dataset.revealState = "pending";
       }
     });
-
-    document.documentElement.classList.add("reveal-ready");
 
     // Apply staggered delays from data-reveal-delay attribute
     els.forEach((el) => {
@@ -136,7 +133,7 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            (entry.target as HTMLElement).classList.add("revealed");
+            delete (entry.target as HTMLElement).dataset.revealState;
             observer.unobserve(entry.target);
           }
         });
@@ -148,7 +145,7 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
 
     return () => {
       observer.disconnect();
-      document.documentElement.classList.remove("reveal-ready");
+      els.forEach((el) => delete el.dataset.revealState);
     };
   }
 

@@ -43,6 +43,13 @@ export default function PreviewPanel() {
           validationWarning={state.validation()?.warning}
           onUploadClick={() => mobileUploadRef?.click()}
         />
+        <Show when={state.error()}>
+          {(msg) => (
+            <div class="px-4 pb-3">
+              <ErrorDisplay message={msg()} />
+            </div>
+          )}
+        </Show>
       </Show>
 
       <Show when={state.currentImage()}>
@@ -57,8 +64,8 @@ export default function PreviewPanel() {
 
           return (
             <div class="flex-1 flex flex-col min-h-0">
-              <div class="app-preview-media">
-                <div class="absolute inset-0 preview-frame">
+              <div class="relative flex-auto min-h-0 mt-app-preview-gutter mx-app-preview-gutter max-editor:transition-[margin-bottom] max-editor:duration-slow max-editor:ease-sheet max-editor:group-data-[sheet-state=peek]/app:mb-[calc(var(--spacing-app-sheet-peek)+var(--spacing-app-preview-gutter))] max-editor:group-data-[sheet-state=open]/app:mb-[calc(100dvh-var(--spacing-app-sheet)+var(--spacing-app-preview-gutter))]">
+                <div class="absolute inset-0 flex-1 overflow-hidden flex items-center justify-center bg-background bg-transparency-grid text-border bg-size-[16px_16px] bg-[position:0_0,0_8px,8px_-8px,-8px_0] border border-border-light rounded-md">
                   <img
                     id="preview-image"
                     src={previewUrl()}
@@ -71,7 +78,7 @@ export default function PreviewPanel() {
               </div>
 
               {/* Info strip — desktop only; on mobile it lives in the snap-sheet mini header */}
-              <div class="app-preview-info hidden editor:block">
+              <div class="shrink-0 py-3 px-app-preview-gutter hidden editor:block">
                 <ImageInfoBar
                   idPrefix="desktop-"
                   fileName={img().metadata.fileName}

@@ -1,148 +1,149 @@
-import { fireEvent, render } from "@solidjs/testing-library";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { render, screen, within } from "@solidjs/testing-library";
+import userEvent from "@testing-library/user-event";
+import { createSignal } from "solid-js";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Select from "./Select";
 
+const formatOptions = [
+  { value: "image/png", label: "PNG" },
+  { value: "image/webp", label: "WebP" },
+];
+
 describe("Select", () => {
+  let scrollIntoViewDescriptor: PropertyDescriptor | undefined;
+
   beforeEach(() => {
+    scrollIntoViewDescriptor = Object.getOwnPropertyDescriptor(
+      HTMLElement.prototype,
+      "scrollIntoView"
+    );
     Object.defineProperty(HTMLElement.prototype, "scrollIntoView", {
       configurable: true,
       value: vi.fn(),
     });
   });
 
-  it("opens from the trigger and moves keyboard focus into the listbox", async () => {
-    const view = render(() => (
+  afterEach(() => {
+    if (scrollIntoViewDescriptor) {
+      Object.defineProperty(HTMLElement.prototype, "scrollIntoView", scrollIntoViewDescriptor);
+    } else {
+      Reflect.deleteProperty(HTMLElement.prototype, "scrollIntoView");
+    }
+  });
+
+  function renderFormatSelect() {
+    return render(() => (
       <Select
-        id="format-select"
         ariaLabel="Output format"
-        options={[
-          { value: "image/png", label: "PNG" },
-          { value: "image/webp", label: "WebP" },
-        ]}
+        options={formatOptions}
         value="image/png"
         onChange={() => {}}
       />
     ));
+  }
 
-    const trigger = view.container.querySelector("#format-select") as HTMLButtonElement;
-    fireEvent.keyDown(trigger, { key: "ArrowDown" });
-
-    await Promise.resolve();
-
-    const listbox = document.querySelector('[role="listbox"]') as HTMLUListElement;
+  it("opens from the trigger and moves keyboard focus into the listbox", async () => {
+    const user = userEvent.setup();
+    renderFormatSelect();
+    const trigger = screen.getByRole("button", { name: "Output format" });
+    trigger.focus();
+    await user.keyboard("{ArrowDown}");
 
     expect(trigger).toHaveAttribute("aria-haspopup", "listbox");
-    expect(trigger).toHaveAccessibleName("Output format");
     expect(trigger).toHaveAttribute("aria-expanded", "true");
-    expect(document.activeElement).toBe(listbox);
+    expect(screen.getByRole("listbox", { name: "Output format" })).toHaveFocus();
   });
 
   it("keeps its portaled listbox inside an open modal dialog", async () => {
-    const view = render(() => (
+    const user = userEvent.setup();
+    render(() => (
       <section role="dialog" aria-modal="true">
         <Select
-          id="modal-format-select"
-          options={[
-            { value: "image/png", label: "PNG" },
-            { value: "image/webp", label: "WebP" },
-          ]}
+          ariaLabel="Output format"
+          options={formatOptions}
           value="image/png"
           onChange={() => {}}
         />
       </section>
     ));
 
-    const dialog = view.container.querySelector('[role="dialog"]') as HTMLElement;
-    const trigger = view.container.querySelector("#modal-format-select") as HTMLButtonElement;
-    fireEvent.keyDown(trigger, { key: "ArrowDown" });
-    await Promise.resolve();
+    screen.getByRole("button", { name: "Output format" }).focus();
+    await user.keyboard("{ArrowDown}");
 
-    const listbox = document.querySelector('[role="listbox"]') as HTMLElement;
-    expect(dialog.contains(listbox)).toBe(true);
-    expect(document.activeElement).toBe(listbox);
+    const listbox = within(screen.getByRole("dialog")).getByRole("listbox", {
+      name: "Output format",
+    });
+    expect(listbox).toHaveFocus();
   });
 
   it("closes on escape and returns focus to the trigger", async () => {
-    const view = render(() => (
-      <Select
-        id="quality-select"
-        options={[
-          { value: "low", label: "Low" },
-          { value: "high", label: "High" },
-        ]}
-        value="low"
-        onChange={() => {}}
-      />
-    ));
+    const user = userEvent.setup();
+    renderFormatSelect();
+    const trigger = screen.getByRole("button", { name: "Output format" });
+    trigger.focus();
+    await user.keyboard("{ArrowDown}");
+    await user.keyboard("{Escape}");
 
-    const trigger = view.container.querySelector("#quality-select") as HTMLButtonElement;
-    fireEvent.keyDown(trigger, { key: "ArrowDown" });
-
-    await Promise.resolve();
-
-    const listbox = document.querySelector('[role="listbox"]') as HTMLUListElement;
-    fireEvent.keyDown(listbox, { key: "Escape" });
-
-    expect(document.querySelector('[role="listbox"]')).toBeNull();
-    expect(document.activeElement).toBe(trigger);
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+    expect(trigger).toHaveFocus();
     expect(trigger).toHaveAttribute("aria-expanded", "false");
   });
 
   it("moves focus to the adjacent control when tabbing out of the listbox", async () => {
-    const view = render(() => (
+    const user = userEvent.setup();
+    render(() => (
       <div>
-        <button type="button" id="before-format">
-          Before
-        </button>
+        <button type="button">Before</button>
         <Select
-          id="format-select"
-          options={[
-            { value: "image/png", label: "PNG" },
-            { value: "image/webp", label: "WebP" },
-          ]}
+          ariaLabel="Output format"
+          options={formatOptions}
           value="image/png"
           onChange={() => {}}
         />
-        <button type="button" id="after-format">
-          After
-        </button>
+        <button type="button">After</button>
       </div>
     ));
 
-    const trigger = view.container.querySelector("#format-select") as HTMLButtonElement;
-    fireEvent.keyDown(trigger, { key: "ArrowDown" });
-    await Promise.resolve();
+    screen.getByRole("button", { name: "Output format" }).focus();
+    await user.keyboard("{ArrowDown}");
+    await user.tab();
 
-    const listbox = document.querySelector('[role="listbox"]') as HTMLDivElement;
-    fireEvent.keyDown(listbox, { key: "Tab" });
-    await Promise.resolve();
-
-    expect(document.querySelector('[role="listbox"]')).toBeNull();
-    expect(document.activeElement).toBe(view.container.querySelector("#after-format"));
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "After" })).toHaveFocus();
   });
 
   it("exposes the keyboard-highlighted option to assistive technology", async () => {
-    const view = render(() => (
+    const user = userEvent.setup();
+    renderFormatSelect();
+    screen.getByRole("button", { name: "Output format" }).focus();
+    await user.keyboard("{ArrowDown}");
+    const listbox = screen.getByRole("listbox");
+    await user.keyboard("{ArrowDown}");
+
+    expect(listbox).toHaveAttribute(
+      "aria-activedescendant",
+      screen.getByRole("option", { name: "WebP" }).id
+    );
+  });
+
+  it("selects an option with the mouse and returns focus to the trigger", async () => {
+    const [value, setValue] = createSignal("image/png");
+    const user = userEvent.setup();
+    render(() => (
       <Select
-        id="format-select"
-        options={[
-          { value: "image/png", label: "PNG" },
-          { value: "image/webp", label: "WebP" },
-        ]}
-        value="image/png"
-        onChange={() => {}}
+        ariaLabel="Output format"
+        options={formatOptions}
+        value={value()}
+        onChange={setValue}
       />
     ));
+    const trigger = screen.getByRole("button", { name: "Output format" });
+    await user.click(trigger);
+    await user.click(screen.getByRole("option", { name: "WebP" }));
 
-    const trigger = view.container.querySelector("#format-select") as HTMLButtonElement;
-    fireEvent.keyDown(trigger, { key: "ArrowDown" });
-    await Promise.resolve();
-
-    const listbox = document.querySelector('[role="listbox"]') as HTMLDivElement;
-    fireEvent.keyDown(listbox, { key: "ArrowDown" });
-
-    const focusedOption = listbox.querySelector(".select-option-focused") as HTMLElement;
-    expect(focusedOption).not.toBeNull();
-    expect(listbox).toHaveAttribute("aria-activedescendant", focusedOption.id);
+    expect(value()).toBe("image/webp");
+    expect(trigger).toHaveTextContent("WebP");
+    expect(trigger).toHaveFocus();
+    expect(screen.queryByRole("listbox")).not.toBeInTheDocument();
   });
 });

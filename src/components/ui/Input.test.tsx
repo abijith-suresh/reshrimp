@@ -1,37 +1,42 @@
-import { fireEvent, render } from "@solidjs/testing-library";
+import { render, screen } from "@solidjs/testing-library";
+import userEvent from "@testing-library/user-event";
 import { createSignal } from "solid-js";
 import { describe, expect, it, vi } from "vitest";
 import Input from "./Input";
 
 describe("Input", () => {
-  it("forwards input value", () => {
+  it("updates a controlled numeric value as the user types", async () => {
+    const user = userEvent.setup();
+    const [value, setValue] = createSignal("100");
+    render(() => <Input label="Width" value={value()} onInput={setValue} />);
+    const input = screen.getByRole("spinbutton", { name: "Width" });
+    await user.clear(input);
+    await user.type(input, "200");
+    expect(input).toHaveValue(200);
+    expect(value()).toBe("200");
+  });
+
+  it("does not accept typing when disabled", async () => {
+    const user = userEvent.setup();
     const onInput = vi.fn();
-    const { getByRole } = render(() => <Input label="Width" value="100" onInput={onInput} />);
-    const input = getByRole("spinbutton", { name: "Width" });
-    fireEvent.input(input, { target: { value: "200" } });
-    expect(onInput).toHaveBeenCalledWith("200");
+    render(() => <Input label="Width" value="100" onInput={onInput} disabled />);
+    const input = screen.getByRole("spinbutton", { name: "Width" });
+    await user.type(input, "200");
+    expect(input).toHaveValue(100);
+    expect(onInput).not.toHaveBeenCalled();
   });
 
-  it("respects disabled state", () => {
-    const { getByRole } = render(() => (
-      <Input label="Width" value="100" onInput={() => {}} disabled />
+  it("keeps decimal commas in text inputs for physical dimensions", async () => {
+    const user = userEvent.setup();
+    const [value, setValue] = createSignal("1");
+    render(() => (
+      <Input label="Width" type="text" inputMode="decimal" value={value()} onInput={setValue} />
     ));
-    expect(getByRole("spinbutton")).toBeDisabled();
-  });
-
-  it("preserves the caret when a text-based dimension value updates", () => {
-    const [value, setValue] = createSignal("500");
-    const { getByRole } = render(() => (
-      <Input label="Width" type="text" inputMode="numeric" value={value()} onInput={setValue} />
-    ));
-    const input = getByRole("textbox", { name: "Width" }) as HTMLInputElement;
-
-    input.value = "50";
-    input.setSelectionRange(1, 1);
-    fireEvent.input(input);
-
-    expect(value()).toBe("50");
-    expect(input.selectionStart).toBe(1);
-    expect(input).toHaveAttribute("inputmode", "numeric");
+    const input = screen.getByRole("textbox", { name: "Width" });
+    await user.clear(input);
+    await user.type(input, "1,5");
+    expect(input).toHaveValue("1,5");
+    expect(value()).toBe("1,5");
+    expect(input).toHaveAttribute("inputmode", "decimal");
   });
 });

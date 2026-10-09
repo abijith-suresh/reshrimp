@@ -239,7 +239,8 @@ export default function InfoTooltip(props: InfoTooltipProps) {
               tooltipEl = element;
             }}
             id={props.id ? `${props.id}-tooltip` : undefined}
-            class={`info-tooltip active info-tooltip-portaled text-xs leading-[1.4] text-foreground ${pos().placement === "below" ? "info-tooltip-below" : ""}`}
+            class="fixed z-9999 block -translate-x-1/2 px-[0.65rem] py-2 text-xs leading-[1.4] text-foreground bg-card border border-border rounded-md shadow-md pointer-events-none after:content-[''] after:absolute after:top-full after:left-(--tooltip-arrow-left) after:-translate-x-1/2 after:border-5 after:border-transparent after:border-t-border data-[side=below]:after:top-auto data-[side=below]:after:bottom-full data-[side=below]:after:border-t-transparent data-[side=below]:after:border-b-border"
+            data-side={pos().placement}
             role="tooltip"
             style={{
               "--tooltip-arrow-left": `${pos().arrowLeft}px`,

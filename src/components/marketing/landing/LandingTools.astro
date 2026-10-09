@@ -5,13 +5,13 @@ import MarketingContainer from "../layout/MarketingContainer.astro";
 import MarketingSectionHeading from "../sections/MarketingSectionHeading.astro";
 ---
 
-<section class="landing-section" id="tools">
+<section class="relative z-1 py-marketing-section px-marketing-gutter" id="tools">
   <MarketingContainer>
     <MarketingSectionHeading
       title="What you can do."
     />
 
-    <div class="landing-tool-list">
+    <div class="flex flex-col">
       <LandingToolRow
         number="01"
         icon={Scaling}
@@ -43,16 +43,3 @@ import MarketingSectionHeading from "../sections/MarketingSectionHeading.astro";
     </div>
   </MarketingContainer>
 </section>
-
-<style>
-  .landing-section {
-    position: relative;
-    z-index: 1;
-    padding: var(--marketing-section-space) var(--marketing-gutter);
-  }
-
-  .landing-tool-list {
-    display: flex;
-    flex-direction: column;
-  }
-</style>

@@ -13,18 +13,24 @@ const answerId = `faq-answer-${question
 const questionId = `${answerId}-question`;
 ---
 
-<div class="faq-item" data-reveal data-reveal-delay={String(delay)}>
+<div data-faq-item class="group/faq border-t border-border last:border-b" data-reveal data-reveal-delay={String(delay)}>
   <button
     type="button"
-    class="faq-question"
+    data-faq-question
+    class="group/question flex items-center justify-between w-full gap-4 py-5 border-0 bg-transparent text-foreground font-display text-marketing-small font-semibold leading-[1.35] text-start touch-manipulation transition-colors duration-fast ease-[ease] cursor-pointer hover:text-coral-600 focus-visible:outline-2 focus-visible:outline-lavender-500 focus-visible:outline-offset-[-2px] focus-visible:rounded-[0.35rem]"
     id={questionId}
     aria-expanded="false"
     aria-controls={answerId}
   >
     {question}
+    <span
+      aria-hidden="true"
+      class="text-xl leading-[inherit] font-normal text-coral-500 shrink-0 transition-transform duration-normal ease-pop group-aria-expanded/question:rotate-45"
+    >+</span>
   </button>
   <div
-    class="faq-body"
+    data-faq-body
+    class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-normal ease-reveal motion-reduce:transition-none aria-[hidden=false]:grid-rows-[1fr]"
     role="region"
     id={answerId}
     aria-labelledby={questionId}
@@ -33,128 +39,28 @@ const questionId = `${answerId}-question`;
   >
     <div class="overflow-hidden">
       <p
-        class="faq-answer"
+        class="opacity-0 max-w-[44rem] pb-5 m-0 text-muted-foreground text-marketing-small leading-marketing-body translate-y-1.5 transition-[opacity,transform,translate] duration-normal ease-[ease] delay-[80ms] group-data-[open=true]/faq:opacity-100 group-data-[open=true]/faq:translate-y-0 [&_a]:text-coral-500 [&_a]:underline [&_a]:decoration-[rgba(242,90,90,0.3)] [&_a]:underline-offset-2 [&_a]:transition-[text-decoration-color] [&_a]:duration-200 [&_a]:hover:decoration-coral-500"
         set:html={answer}
       />
     </div>
   </div>
 </div>
 
-<style>
-  .faq-item {
-    border-top: 1px solid var(--border);
-  }
-
-  .faq-item:last-child {
-    border-bottom: 1px solid var(--border);
-  }
-
-  .faq-question {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    gap: var(--space-4);
-    padding: var(--space-5) 0;
-    border: 0;
-    background: transparent;
-    color: var(--foreground);
-    font-family: var(--font-display);
-    font-size: var(--marketing-small-size);
-    font-weight: 600;
-    line-height: 1.35;
-    text-align: left;
-    touch-action: manipulation;
-    transition: color var(--duration-fast) ease;
-    cursor: pointer;
-  }
-
-  .faq-question:hover {
-    color: var(--coral-600);
-  }
-
-  .faq-question:focus-visible {
-    outline: 2px solid var(--lavender-500);
-    outline-offset: -2px;
-    border-radius: 0.35rem;
-  }
-
-  .faq-question::after {
-    content: "+";
-    font-size: var(--space-5);
-    font-weight: 400;
-    color: var(--coral-500);
-    flex-shrink: 0;
-    transition: transform var(--duration-normal) var(--ease-pop);
-  }
-
-  .faq-item.faq-open .faq-question::after {
-    transform: rotate(45deg);
-  }
-
-  .faq-body {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows var(--duration-normal) cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .faq-body {
-      transition: none;
-    }
-  }
-
-  .faq-item.faq-open .faq-body {
-    grid-template-rows: 1fr;
-  }
-
-  .faq-answer {
-    opacity: 0;
-    max-width: 44rem;
-    padding: 0 0 var(--space-5);
-    margin: 0;
-    color: var(--muted-foreground);
-    font-size: var(--marketing-small-size);
-    line-height: var(--marketing-body-leading);
-    transform: translateY(6px);
-    transition:
-      opacity 0.3s ease,
-      transform 0.3s ease;
-    transition-delay: 80ms;
-  }
-
-  .faq-item.faq-open .faq-answer {
-    opacity: 1;
-    transform: translateY(0);
-  }
-
-  .faq-answer a {
-    color: var(--coral-500);
-    text-decoration: underline;
-    text-decoration-color: rgba(242, 90, 90, 0.3);
-    text-underline-offset: 2px;
-    transition: text-decoration-color 0.2s;
-  }
-
-  .faq-answer a:hover {
-    text-decoration-color: var(--coral-500);
-  }
-</style>
-
 <script>
   import { registerPageInitializer } from "../../../lib/pageInitializer";
 
   function initFaq() {
-    const questions = document.querySelectorAll<HTMLButtonElement>(".faq-question");
+    const questions = document.querySelectorAll<HTMLButtonElement>("[data-faq-question]");
     if (!questions.length) return;
 
     const handleFaqClick = (event: Event) => {
       const question = event.currentTarget as HTMLButtonElement;
-      const item = question.closest<HTMLElement>(".faq-item");
-      const body = item?.querySelector<HTMLElement>(".faq-body");
+      const item = question.closest<HTMLElement>("[data-faq-item]");
+      const body = item?.querySelector<HTMLElement>("[data-faq-body]");
       if (!item || !body) return;
 
-      const isOpen = item.classList.toggle("faq-open");
+      const isOpen = question.getAttribute("aria-expanded") !== "true";
+      item.dataset.open = String(isOpen);
       question.setAttribute("aria-expanded", String(isOpen));
       body.setAttribute("aria-hidden", String(!isOpen));
       if (isOpen) {

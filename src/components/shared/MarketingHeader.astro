@@ -13,35 +13,36 @@ const { currentPath = "/" } = Astro.props;
 const headerLinks = [{ label: "About", href: ROUTES.ABOUT }];
 ---
 
-<header class="header" id="header" transition:animate="none">
+<header class="sticky top-0 z-100 bg-background border-b border-border-light transition-[box-shadow,border-color] duration-fast ease-[ease] data-[scrolled=true]:shadow-xs data-[scrolled=true]:border-border" id="header" transition:animate="none">
   <MarketingContainer>
-    <nav class="header-inner">
+    <nav class="w-full flex justify-between items-center py-3 px-marketing-gutter marketing-menu:px-4">
     <Logo />
 
-    <div class="nav-desktop">
+    <div class="flex items-center gap-2 marketing-menu:hidden">
       {
         headerLinks.map((link) => (
           <a
             href={makeHref(link.href)}
-            class:list={["nav-link", { "nav-link-active": currentPath === link.href }]}
+            class="text-marketing-small font-medium text-muted-foreground no-underline py-2 px-3 rounded-md transition-colors duration-200 ease-[ease] touch-manipulation hover:text-foreground hover:bg-border-light focus-visible:outline-none focus-visible:shadow-[0_0_0_2px_rgba(167,139,250,0.4)] aria-[current=page]:text-coral-700 aria-[current=page]:font-semibold aria-[current=page]:bg-coral-50"
+            aria-current={currentPath === link.href ? "page" : undefined}
           >
             {link.label}
           </a>
         ))
       }
-      <a href={makeHref(ROUTES.APP)} class="header-cta">Use Reshrimp</a>
+      <a href={makeHref(ROUTES.APP)} class="inline-flex items-center justify-center min-h-10 px-4 rounded-md bg-coral-500 text-white text-marketing-small font-semibold no-underline shadow-sm transition-[background-color,box-shadow,transform,scale] duration-fast ease-[ease] touch-manipulation [-webkit-tap-highlight-color:transparent] hover:bg-coral-600 active:scale-98 active:shadow-2xs focus-visible:outline-2 focus-visible:outline-lavender-500 focus-visible:outline-offset-3">Use Reshrimp</a>
     </div>
 
     <button
       type="button"
-      class="hamburger"
+      class="group/menu relative hidden cursor-pointer text-foreground bg-transparent border-none p-1 rounded-md transition-[background-color,transform,scale] duration-fast ease-[ease] [-webkit-tap-highlight-color:transparent] hover:bg-card active:scale-96 marketing-menu:flex marketing-menu:items-center marketing-menu:justify-center marketing-menu:size-10 focus-visible:outline-none focus-visible:shadow-[0_0_0_2px_rgba(167,139,250,0.4)]"
       id="mobile-menu-btn"
       aria-label="Open menu"
       aria-expanded="false"
       aria-controls="mobile-menu-panel"
     >
       <svg
-        class="hamburger-icon"
+        class="absolute inset-0 m-auto transition-[opacity,transform,scale,rotate] duration-fast ease-[ease,cubic-bezier(0.2,0.8,0.2,1),cubic-bezier(0.2,0.8,0.2,1),cubic-bezier(0.2,0.8,0.2,1)] group-aria-expanded/menu:opacity-0 group-aria-expanded/menu:scale-70 group-aria-expanded/menu:rotate-8"
         width="24"
         height="24"
         viewBox="0 0 24 24"
@@ -56,7 +57,7 @@ const headerLinks = [{ label: "About", href: ROUTES.ABOUT }];
         <line x1="3" y1="18" x2="21" y2="18"></line>
       </svg>
       <svg
-        class="close-icon"
+        class="absolute inset-0 m-auto transition-[opacity,transform,scale,rotate] duration-fast ease-[ease,cubic-bezier(0.2,0.8,0.2,1),cubic-bezier(0.2,0.8,0.2,1),cubic-bezier(0.2,0.8,0.2,1)] opacity-0 scale-70 -rotate-8 group-aria-expanded/menu:opacity-100 group-aria-expanded/menu:scale-100 group-aria-expanded/menu:rotate-0"
         width="24"
         height="24"
         viewBox="0 0 24 24"
@@ -73,265 +74,23 @@ const headerLinks = [{ label: "About", href: ROUTES.ABOUT }];
     </nav>
   </MarketingContainer>
 
-  <div class="mobile-panel" id="mobile-menu-panel" aria-hidden="true" inert>
-    <div class="mobile-panel-inner">
+  <div class="absolute top-full inset-x-0 invisible overflow-hidden pointer-events-none opacity-0 -translate-y-2 bg-background border-b border-border-light shadow-sm transition-[opacity,transform,translate,visibility] duration-[300ms,300ms,300ms,0s] ease-[var(--ease-reveal),var(--ease-reveal),var(--ease-reveal),linear] delay-[0s,0s,0s,300ms] aria-[hidden=false]:visible aria-[hidden=false]:pointer-events-auto aria-[hidden=false]:opacity-100 aria-[hidden=false]:translate-y-0 aria-[hidden=false]:delay-0" id="mobile-menu-panel" aria-hidden="true" inert>
+    <div class="flex flex-col gap-1 pt-2 px-marketing-gutter pb-6">
       {
         headerLinks.map((link) => (
           <a
             href={makeHref(link.href)}
-            class:list={["mobile-link", { "mobile-link-active": currentPath === link.href }]}
+            class="text-marketing-small font-medium text-muted-foreground no-underline py-2 px-3 rounded-md transition-colors duration-fast ease-[ease] touch-manipulation hover:text-foreground hover:bg-card focus-visible:outline-none focus-visible:shadow-[0_0_0_2px_rgba(167,139,250,0.4)] focus-visible:rounded-[4px] aria-[current=page]:text-coral-500 aria-[current=page]:font-semibold"
+            aria-current={currentPath === link.href ? "page" : undefined}
           >
             {link.label}
           </a>
         ))
       }
-      <a href={makeHref(ROUTES.APP)} class="mobile-link mobile-link-cta">Use Reshrimp</a>
+      <a href={makeHref(ROUTES.APP)} class="text-marketing-small font-semibold text-white no-underline py-2 px-3 rounded-md transition-colors duration-fast ease-[ease] touch-manipulation mt-2 bg-coral-500 text-center hover:text-white hover:bg-coral-600 focus-visible:outline-none focus-visible:shadow-[0_0_0_2px_rgba(167,139,250,0.4)] focus-visible:rounded-[4px]">Use Reshrimp</a>
     </div>
   </div>
 </header>
-
-<style>
-  .header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: var(--marketing-shell-surface);
-    border-bottom: 1px solid var(--border-light);
-    transition:
-      box-shadow var(--duration-fast) ease,
-      border-color var(--duration-fast) ease;
-  }
-
-  .header.scrolled {
-    box-shadow: var(--shadow-xs);
-    border-bottom-color: var(--border);
-  }
-
-  .header-inner {
-    width: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--space-3) var(--marketing-gutter);
-  }
-
-  .nav-desktop {
-    display: flex;
-    align-items: center;
-    gap: var(--space-2);
-  }
-
-  .nav-link {
-    font-size: var(--marketing-small-size);
-    font-weight: 500;
-    color: var(--muted-foreground);
-    text-decoration: none;
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-md);
-    transition:
-      color 0.2s ease,
-      background-color 0.2s ease;
-    touch-action: manipulation;
-  }
-
-  .nav-link:hover {
-    color: var(--foreground);
-    background: var(--border-light);
-  }
-
-  .nav-link:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.4);
-  }
-
-  .nav-link-active {
-    color: var(--coral-700);
-    font-weight: 600;
-    background: var(--coral-50);
-  }
-
-  .header-cta {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: var(--space-10);
-    padding: 0 var(--space-4);
-    border-radius: var(--radius-md);
-    background: var(--coral-500);
-    color: white;
-    font-size: var(--marketing-small-size);
-    font-weight: 600;
-    text-decoration: none;
-    box-shadow: var(--shadow-sm);
-    transition:
-      background-color var(--duration-fast) ease,
-      box-shadow var(--duration-fast) ease,
-      transform var(--duration-fast) ease;
-    touch-action: manipulation;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .header-cta:hover {
-    background: var(--coral-600);
-  }
-
-  .header-cta:active {
-    transform: scale(0.98);
-    box-shadow: var(--shadow-2xs);
-  }
-
-  .header-cta:focus-visible {
-    outline: 2px solid var(--lavender-500);
-    outline-offset: 3px;
-  }
-
-  .hamburger {
-    position: relative;
-    display: none;
-    cursor: pointer;
-    color: var(--foreground);
-    background: none;
-    border: none;
-    padding: var(--space-1);
-    border-radius: var(--radius-md);
-    transition:
-      background-color var(--duration-fast) ease,
-      transform var(--duration-fast) ease;
-    -webkit-tap-highlight-color: transparent;
-  }
-
-  .hamburger:hover {
-    background: var(--card);
-  }
-
-  .hamburger:active {
-    transform: scale(0.96);
-  }
-
-  .hamburger-icon,
-  .close-icon {
-    position: absolute;
-    inset: 0;
-    margin: auto;
-    transition:
-      opacity var(--duration-fast) ease,
-      transform var(--duration-fast) cubic-bezier(0.2, 0.8, 0.2, 1);
-  }
-
-  .close-icon {
-    opacity: 0;
-    transform: scale(0.7) rotate(-8deg);
-  }
-
-  .hamburger[aria-expanded="true"] .hamburger-icon {
-    opacity: 0;
-    transform: scale(0.7) rotate(8deg);
-  }
-
-  .hamburger[aria-expanded="true"] .close-icon {
-    opacity: 1;
-    transform: scale(1) rotate(0);
-  }
-
-  .mobile-panel {
-    position: absolute;
-    top: 100%;
-    right: 0;
-    left: 0;
-    visibility: hidden;
-    overflow: hidden;
-    pointer-events: none;
-    opacity: 0;
-    transform: translateY(-0.5rem);
-    background: var(--marketing-shell-surface);
-    border-bottom: 1px solid var(--border-light);
-    box-shadow: var(--shadow-sm);
-    transition:
-      opacity var(--duration-normal) cubic-bezier(0.22, 1, 0.36, 1),
-      transform var(--duration-normal) cubic-bezier(0.22, 1, 0.36, 1),
-      visibility 0s linear var(--duration-normal);
-  }
-
-  .mobile-panel.mobile-open {
-    visibility: visible;
-    pointer-events: auto;
-    opacity: 1;
-    transform: translateY(0);
-    transition-delay: 0s;
-  }
-
-  .mobile-panel-inner {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    padding: var(--space-2) var(--marketing-gutter) var(--space-6);
-  }
-
-  .mobile-link {
-    font-size: var(--marketing-small-size);
-    font-weight: 500;
-    color: var(--muted-foreground);
-    text-decoration: none;
-    padding: var(--space-2) var(--space-3);
-    border-radius: var(--radius-md);
-    transition:
-      color var(--duration-fast) ease,
-      background-color var(--duration-fast) ease;
-    touch-action: manipulation;
-  }
-
-  .mobile-link:hover {
-    color: var(--foreground);
-    background: var(--card);
-  }
-
-  .mobile-link:focus-visible {
-    outline: none;
-    box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.4);
-    border-radius: 4px;
-  }
-
-  .mobile-link-active {
-    color: var(--coral-500);
-    font-weight: 600;
-  }
-
-  .mobile-link-cta {
-    margin-top: var(--space-2);
-    background: var(--coral-500);
-    color: white;
-    text-align: center;
-    font-weight: 600;
-  }
-
-  .mobile-link-cta:hover {
-    color: white;
-    background: var(--coral-600);
-  }
-
-  @media (max-width: 768px) {
-    .header-inner {
-      padding-right: var(--space-4);
-      padding-left: var(--space-4);
-    }
-
-    .nav-desktop {
-      display: none;
-    }
-
-    .hamburger {
-      align-items: center;
-      justify-content: center;
-      width: 40px;
-      height: 40px;
-    }
-
-    .hamburger:focus-visible {
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(167, 139, 250, 0.4);
-    }
-  }
-</style>
 
 <script>
   import { registerPageInitializer } from "../../lib/pageInitializer";
@@ -342,7 +101,6 @@ const headerLinks = [{ label: "About", href: ROUTES.ABOUT }];
     if (!btn || !panel) return;
 
     const setMenuOpen = (open: boolean) => {
-      panel.classList.toggle("mobile-open", open);
       btn.setAttribute("aria-expanded", String(open));
       btn.setAttribute("aria-label", open ? "Close menu" : "Open menu");
       panel.setAttribute("aria-hidden", String(!open));
@@ -358,11 +116,11 @@ const headerLinks = [{ label: "About", href: ROUTES.ABOUT }];
     };
 
     const toggleMenu = () => {
-      setMenuOpen(!panel.classList.contains("mobile-open"));
+      setMenuOpen(panel.getAttribute("aria-hidden") !== "false");
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape" && panel.classList.contains("mobile-open")) {
+      if (event.key === "Escape" && panel.getAttribute("aria-hidden") === "false") {
         closeMenu();
         btn.focus();
       }
@@ -384,11 +142,11 @@ const headerLinks = [{ label: "About", href: ROUTES.ABOUT }];
     if (!header) return;
 
     const update = () => {
-      header.classList.toggle("scrolled", window.scrollY > 8);
+      header.dataset.scrolled = String(window.scrollY > 8);
     };
 
     // Only set initial state on first page load.
-    // On SPA navigation Astro resets scroll to 0, so the scrolled class
+    // On SPA navigation Astro resets scroll to 0, so the scrolled state
     // should already be removed by the cleanup below.
     if (!isSpaNavigation) {
       update();
@@ -398,7 +156,7 @@ const headerLinks = [{ label: "About", href: ROUTES.ABOUT }];
 
     return () => {
       window.removeEventListener("scroll", update);
-      header.classList.remove("scrolled");
+      delete header.dataset.scrolled;
     };
   }
 

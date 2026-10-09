@@ -19,8 +19,7 @@ export default function Checkbox(props: CheckboxProps) {
           checked={props.checked}
           disabled={props.disabled}
           onChange={(e) => props.onChange(e.target.checked)}
-          class="sr-only"
-          style={{ "touch-action": "manipulation" }}
+          class="sr-only touch-manipulation"
         />
         <span
           class="absolute inset-0 rounded-sm border-[1.5px] transition-[background-color,border-color,box-shadow] duration-200 pointer-events-none focus-within:ring-2 focus-within:ring-lavender-500 focus-within:ring-offset-2"

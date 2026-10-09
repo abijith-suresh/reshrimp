@@ -78,9 +78,7 @@ const PRELOAD_FALLBACK_DELAY_MS = 2000;
 
 function scheduleBackgroundRemovalPreload(callback: () => void): () => void {
   const network = (navigator as Navigator & { connection?: NetworkInformation }).connection;
-  // The model is about 96 MiB. Only warm it automatically when the browser
-  // reports a constrained connection and the user has not requested data
-  // savings. Unknown connection capabilities do not suppress the warm-up.
+  // Skip automatic model downloads on slow connections or when data saving is enabled.
   if (
     network?.saveData ||
     (network?.effectiveType !== undefined && network.effectiveType !== "4g") ||
@@ -104,20 +102,14 @@ function scheduleBackgroundRemovalPreload(callback: () => void): () => void {
 const ImageAppContext = createContext<ImageAppContextValue>();
 
 export function ImageAppProvider(props: { children: JSX.Element }) {
-  // ── Core image state ──────────────────────────────────────────────────────
   const [currentImage, setCurrentImage] = createSignal<ProcessedImage | null>(null);
   const [processResult, setProcessResult] = createSignal<ProcessResult | null>(null);
   const [lastCompletedResult, setLastCompletedResult] = createSignal<ProcessResult | null>(null);
 
-  // ── Session identity ──────────────────────────────────────────────────────
-  // Bumped on every successful upload. Processing is keyed off this id, never
-  // off the currentImage object: a processing completion rewrites currentImage,
-  // so depending on its identity would re-trigger processing forever.
+  // Only uploads change this ID. Preview updates must not start another run.
   const [sessionId, setSessionId] = createSignal(0);
 
-  // Session of the in-flight run; null when idle. Guarding with a plain
-  // variable (not the isProcessing signal) keeps stale completions from
-  // clobbering the state of a newer run.
+  // This run ID prevents old results from changing the active session.
   let activeRunSession: number | null = null;
   let activeRunId: number | null = null;
   let pendingPreviewAbort: AbortController | null = null;
@@ -125,22 +117,18 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   let uploadRequestId = 0;
   let disposed = false;
   let processingRevision = 0;
-  // Set when inputs change mid-run; consumed after completion so the change
-  // is re-processed instead of silently dropped.
+  // Process edits made during an active run after that run completes.
   let pendingReprocess = false;
   let preloadRequested = false;
   let cancelScheduledPreload: (() => void) | undefined;
 
-  // ── Async / loading state ─────────────────────────────────────────────────
   const [isProcessing, setIsProcessing] = createSignal(false);
   const [progressLabel, setProgressLabel] = createSignal<string | null>(null);
 
-  // ── UI state ──────────────────────────────────────────────────────────────
   const [error, setError] = createSignal<string | null>(null);
   const [validation, setValidation] = createSignal<ValidationResult | null>(null);
   const [isDragOver, setIsDragOver] = createSignal(false);
 
-  // ── Form controls ─────────────────────────────────────────────────────────
   const [widthValue, setWidthValue] = createSignal("");
   const [heightValue, setHeightValue] = createSignal("");
   const [maintainAspectRatio, setMaintainAspectRatio] = createSignal(true);
@@ -151,7 +139,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   const [compressionMode, setCompressionMode] = createSignal<CompressionMode>("quality");
   const [targetFileSizeValue, setTargetFileSizeValue] = createSignal("");
 
-  // ── Resize unit controls ──────────────────────────────────────────────────
   const [resizeUnit, setResizeUnit] = createSignal<ResizeUnit>("px");
   const [dpiValue, setDpiValue] = createSignal(DEFAULT_DPI);
 
@@ -184,7 +171,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     cancelScheduledPreload = scheduleBackgroundRemovalPreload(warmBackgroundRemoval);
   });
 
-  // ── Derived signals ───────────────────────────────────────────────────────
   const controlsActive = createMemo(() => currentImage() !== null);
   const formatSelectDisabled = createMemo(() => removeBackground());
   const downloadActive = createMemo(
@@ -275,7 +261,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     return "This browser could not apply a size target to the output format.";
   });
 
-  // ── Core processing (internal) ────────────────────────────────────────────
   async function handleProcess(): Promise<void> {
     if (disposed) return;
 
@@ -343,19 +328,15 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
           : undefined
       );
 
-      // A new upload started a different session while this run was in
-      // flight — discard the result instead of stamping it onto the new image.
+      // Discard results from an earlier image session.
       if (!isCurrentRun()) return;
 
-      // Decode the new output off-screen first. The currently visible output
-      // remains untouched until this resolves, so the browser cannot paint a
-      // partially decoded frame during the update.
+      // Keep the current preview until the new output is fully decoded.
       previewAbortController = new AbortController();
       pendingPreviewAbort = previewAbortController;
       const processedUrl = await createDecodedObjectUrl(result.blob, previewAbortController.signal);
 
-      // Inputs or the active image may have changed while the browser was
-      // decoding the result. Do not attach a stale URL to the new session.
+      // Recheck the session and inputs after decoding.
       if (!isCurrentRun()) {
         revokeProcessedObjectUrl(processedUrl);
         return;
@@ -363,7 +344,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
       const previousProcessedUrl = img.processedUrl;
 
-      // Batch result updates into a single DOM update
       batch(() => {
         setCurrentImage((prev) => (prev ? { ...prev, processedUrl } : null));
         setProcessResult(result);
@@ -395,10 +375,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     }
   }
 
-  // ── Auto-process: debounce fast operations, immediate for bg removal ──────
-  // Depends on the session id and user-input signals only. currentImage is
-  // read for the null-check but is not a dependency: processing completions
-  // replace its object identity, which would re-trigger processing forever.
+  // Track the session ID and inputs. Preview updates must not start another run.
   createEffect(
     on(
       [
@@ -447,7 +424,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     )
   );
 
-  // ── Handlers ──────────────────────────────────────────────────────────────
   async function handleFileUpload(file: File): Promise<void> {
     const requestId = ++uploadRequestId;
 
@@ -492,13 +468,9 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         metadata: sourceMetadata,
       };
 
-      // Batch all state resets into a single DOM update to prevent flickering.
-      // Without batch(), each set* after an await triggers a separate re-render.
+      // Apply all upload state changes in one DOM update.
       batch(() => {
-        // Reset stale state when a new file is loaded
-        // Detach the previous run before starting the new session. Its
-        // eventual completion is stale and must not keep the new session
-        // waiting for an active run that belongs to the old image.
+        // The new image must not wait for the previous run.
         activeRunSession = null;
         activeRunId = null;
         pendingPreviewAbort?.abort();
@@ -509,8 +481,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
           revokeImageSessionUrls(previousImage);
           return processedImage;
         });
-        // Queued re-process work belongs to the previous session; the session
-        // bump re-triggers the auto-process effect for the new image anyway.
+        // The new session starts its own processing run.
         pendingReprocess = false;
         setSessionId((id) => id + 1);
         setProcessResult(null);
@@ -519,7 +490,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         setProgressLabel(null);
         setTargetFileSizeValue("");
 
-        // Reset form controls to defaults
         setWidthValue(String(metadata.width));
         setHeightValue(String(metadata.height));
         setMaintainAspectRatio(true);
@@ -529,7 +499,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         setQualityValue(92);
         setCompressionMode("quality");
 
-        // Reset unit controls
         setResizeUnit("px");
         setDpiValue(DEFAULT_DPI);
       });
@@ -546,9 +515,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     const result = processResult();
     if (!img?.processedUrl || !result) return;
 
-    // Name the file after the ACTUAL encoded format: getBestFormat can fall
-    // back when the browser cannot encode the requested format (e.g. AVIF →
-    // PNG), so the extension must match the blob's bytes, not the request.
+    // Use the encoded format for the extension if the requested format is unsupported.
     const filename = generateDownloadFilename(img.metadata.fileName, result.metadata.format);
 
     try {

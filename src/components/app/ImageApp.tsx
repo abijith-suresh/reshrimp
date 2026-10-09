@@ -20,20 +20,7 @@ import { buttonVariants } from "@/components/ui/button";
 
 type SheetState = "hidden" | "peek" | "open";
 
-const SPRING = "transform 0.5s cubic-bezier(0.32, 0.72, 0, 1)";
 const EDITOR_BREAKPOINT_QUERY = "(min-width: 56rem)";
-
-function translateForState(s: SheetState): string {
-  switch (s) {
-    case "hidden":
-      return "translateY(100%)";
-    case "peek":
-      // The shared token keeps the visible download action aligned with the sheet header.
-      return "translateY(calc(100% - var(--app-sheet-peek-height)))";
-    case "open":
-      return "translateY(0%)";
-  }
-}
 
 function MobileSheet() {
   const { state } = useImageApp();
@@ -76,7 +63,7 @@ function MobileSheet() {
   function capturePeekHeight() {
     const height = sheetHeaderRef?.getBoundingClientRect().height;
     if (height && sheetRef) {
-      sheetRef.style.setProperty("--app-sheet-peek-height", `${height}px`);
+      sheetRef.style.setProperty("--spacing-app-sheet-peek", `${height}px`);
     }
   }
 
@@ -249,7 +236,7 @@ function MobileSheet() {
             if (disposed) return;
             document
               .querySelector<HTMLElement>(
-                '.app-control-panel [aria-label="Upload image or drag and drop"]'
+                '[data-desktop-controls] [aria-label="Upload image or drag and drop"]'
               )
               ?.focus();
           });
@@ -284,7 +271,7 @@ function MobileSheet() {
       if (sheetState() !== "peek" || headerTransitions()) return;
       const height = sheetHeaderRef?.getBoundingClientRect().height;
       if (height && sheetRef) {
-        sheetRef.style.setProperty("--app-sheet-peek-height", `${height}px`);
+        sheetRef.style.setProperty("--spacing-app-sheet-peek", `${height}px`);
       }
     };
     const resizeObserver =
@@ -359,7 +346,7 @@ function MobileSheet() {
       {/* Backdrop — tap to collapse when fully open */}
       <Show when={sheetState() === "open"}>
         <div
-          class="mobile-sheet-backdrop editor:hidden fixed inset-0 z-50 bg-black/20 cursor-pointer"
+          class="animate-sheet-backdrop-in editor:hidden fixed inset-0 z-50 bg-black/20 cursor-pointer"
           onClick={collapseSheet}
           aria-hidden="true"
         />
@@ -374,12 +361,9 @@ function MobileSheet() {
         aria-label="Image controls"
         aria-hidden={sheetState() === "hidden" ? "true" : "false"}
         inert={sheetState() === "hidden"}
-        class="editor:hidden fixed inset-x-0 bottom-0 z-60 flex flex-col bg-card rounded-t-lg mobile-sheet"
+        class="editor:hidden fixed inset-x-0 bottom-0 z-60 flex flex-col bg-card rounded-t-lg h-app-sheet pl-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)] border-t border-border shadow-mobile-sheet will-change-transform overscroll-contain transition-transform duration-slow ease-sheet [transform:translateY(100%)] data-[sheet-state=peek]:[transform:translateY(calc(100%-var(--spacing-app-sheet-peek)))] data-[sheet-state=open]:[transform:translateY(0%)]"
         onKeyDown={handleSheetKeyDown}
-        style={{
-          transform: translateForState(sheetState()),
-          transition: SPRING,
-        }}
+        data-sheet-state={sheetState()}
       >
         {/* ── Sticky header: transitions between collapsed peek controls and a standard modal header ── */}
         <div
@@ -448,8 +432,7 @@ function MobileSheet() {
               instead of unmounting, so the header morphs instead of snapping */}
           <div
             id="mobile-peek-affordances"
-            class:is-open={sheetState() === "open"}
-            class="mobile-peek-affordances"
+            class="max-h-66 opacity-100 overflow-hidden transition-[max-height,opacity] duration-[400ms,350ms] ease-[var(--ease-sheet),ease] aria-hidden:max-h-0 aria-hidden:opacity-0"
             onTransitionEnd={handleAffordanceTransition}
             aria-hidden={sheetState() === "open" ? "true" : "false"}
             inert={sheetState() === "open"}
@@ -470,7 +453,7 @@ function MobileSheet() {
             </Show>
 
             {/* Download button — primary CTA reachable directly in peek mode */}
-            <div class="px-5 pt-1 mobile-sheet-footer">
+            <div class="px-5 pt-1 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
               <DownloadSection idPrefix="mobile-" />
             </div>
           </div>
@@ -480,7 +463,7 @@ function MobileSheet() {
         <div
           id="mobile-controls-content"
           data-sheet-content
-          class="mobile-sheet-content flex-1 overflow-y-auto min-h-0"
+          class="flex-1 overflow-y-auto min-h-0 overscroll-contain pb-[max(1rem,env(safe-area-inset-bottom))]"
           aria-hidden={sheetState() === "open" ? "false" : "true"}
           inert={sheetState() !== "open"}
         >
@@ -499,12 +482,18 @@ function MobileSheet() {
 export default function ImageApp() {
   return (
     <ImageAppProvider>
-      <div data-app-shell class="app-safe-area h-dvh overflow-hidden flex flex-row bg-background">
+      <div
+        data-app-shell
+        class="group/app pt-[env(safe-area-inset-top,0px)] pl-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)] h-dvh overflow-hidden flex flex-row bg-background"
+      >
         {/* Desktop icon dock */}
         <AppSidebar />
 
         {/* Control panel — desktop only */}
-        <div class="hidden editor:flex app-control-panel flex-col border-r border-border bg-card overflow-hidden shrink-0">
+        <div
+          data-desktop-controls
+          class="hidden editor:flex w-app-panel flex-col border-r border-border bg-card overflow-hidden shrink-0"
+        >
           <div class="flex flex-col flex-1 overflow-hidden min-h-0">
             <ProcessPanel />
           </div>

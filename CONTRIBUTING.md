@@ -28,11 +28,12 @@ bun run format:check
 bun run test
 bun run build
 bun run verify
+bun run test:e2e
 ```
 
-`bun run verify` is the full quality gate and should pass before pushing.
+`bun run verify` runs type checking, lint, formatting, unit coverage, asset-sync tests, and the production build. Run it before pushing. Run `bun run test:e2e` for browser validation as well.
 
-Pull request CI uses the pinned central Bun quality workflow, runs dependency review, and reports both through the required `quality` check. Pull request titles use the pinned central Conventional Commit workflow and retain the required local `pr-title` check.
+Pull request CI uses the pinned central Bun quality workflow, runs dependency review and the browser suite, and reports all three through the required `quality` check. Pull request titles use the pinned central Conventional Commit workflow and retain the required local `pr-title` check.
 
 Background-removal assets are mirrored before `dev` and `build` through the configured package scripts. If assets are missing locally, that step needs network access.
 
@@ -42,7 +43,7 @@ Background-removal assets are mirrored before `dev` and `build` through the conf
 2. Create a focused branch.
 3. Make the smallest correct change.
 4. Keep public copy, product truth, and implementation aligned.
-5. Run the relevant checks, preferably `bun run verify` before push.
+5. Run `bun run verify` and `bun run test:e2e` before push.
 6. Open one focused pull request.
 7. Stop and wait for review or merge feedback before starting unrelated work.
 
@@ -92,7 +93,7 @@ Current contributions should preserve these constraints:
 - no editor/workspace expansion unless the Product Truth section of `AGENTS.md` changes first
 - no public copy for unimplemented features
 
-Target file-size export is a desired near-term capability, but public copy should not promise it until it is implemented.
+Target file-size export is implemented for JPEG, WebP, and AVIF. Its limit is best-effort; PNG and background-removal output are lossless and do not support a size target.
 
 ## Versioning And Releases
 
@@ -112,21 +113,60 @@ Releases are automated by release-please from Conventional Commits. Versioning r
 - Use existing design tokens and spacing patterns before adding one-off values.
 - Add comments only when they explain non-obvious behavior.
 
+## Styling
+
+Use Tailwind utility classes for component styling, layout, responsive rules, and interaction states in both Astro and SolidJS. Shared values belong in the single `@theme` block in `src/styles/global.css`. Use the existing spacing scale and theme utilities before adding arbitrary values. Keep complete class names in source, including explicit maps for color variants, so Tailwind can detect them.
+
+Do not add scoped component styles, `@apply` component classes, or a parallel set of CSS variables. Shared UI components own repeated markup and utility classes. Use `aria-*` or `data-*` state variants for open, selected, and hidden states. Inline styles are for values calculated at runtime, such as portal coordinates and measured sheet heights.
+
+Handwritten CSS is limited to font loading, shared keyframes, global defaults and reduced-motion overrides, and browser-specific selectors. Range-input thumbs and safe-area values read by positioning code live in `src/styles/browser-primitives.css`. Component rules must not be added to that file. Hover feedback uses the shared precise-pointer `hover` variant. Shared marketing variants preserve the existing inclusive breakpoints; retain visible keyboard focus and touch behavior.
+
 ## Tests
 
-Add or update tests when behavior changes.
+Select the test layer that can detect the defect.
 
-Prefer:
+| Test layer | Purpose | Location |
+| --- | --- | --- |
+| Service | Validation, dimensions, encoding rules, codec failures, model configuration | Beside each module in `src/` |
+| Context | Session state, concurrent work, debounce delays, URL cleanup | `src/components/app/state/` |
+| Component | Accessible controls and pointer or keyboard input | Beside each component in `src/` |
+| Browser | Image output, metadata removal, network requests, mobile focus | `tests/e2e/` |
+| Asset sync | Model files, manifests, missing or corrupt assets | `scripts/sync-background-removal-assets.test.mjs` |
 
-- service tests for processing rules and edge cases
-- behavior-focused UI tests for upload, process, preview, error, and download flows
-- accessible queries where practical
+Use role and accessible name queries for controls. Use `userEvent.setup()` and await each interaction.
+Use fake timers for debounce tests. If user-event uses fake timers, supply its `advanceTimers` option.
+Test context actions with `renderHook`.
 
-Avoid:
+Mock only browser features that jsdom does not provide. The helpers in `src/test/mocks.ts` are separate.
+Global cleanup restores spies, globals, and timers. Do not duplicate a browser test with a mocked image pipeline.
 
-- snapshot-heavy suites
-- brittle DOM selectors when a user-facing query is available
-- tests that only lock in implementation details
+Install the browsers, then run the browser tests:
+
+```bash
+bunx playwright install chromium firefox
+bun run test:e2e
+```
+
+If Linux libraries are missing, use `bunx playwright install --with-deps chromium firefox`.
+
+The command builds the app and starts a preview on port 4322.
+The tests use desktop Chromium, Firefox, and mobile Chromium emulation.
+Sharp checks downloaded pixels and metadata outside the browser.
+HEIC conversion and background removal use the actual libraries.
+Each test checks browser and worker requests against the local build files.
+WebKit and physical devices are outside this test suite.
+
+Geometry tests use 500 generated inputs per property with a fixed seed.
+Keep explicit boundary cases. Coverage includes all source TypeScript modules.
+Do not lower thresholds to remove a test.
+
+Use temporary faults to confirm that a test detects its target defect.
+Restore the code before the full checks.
+See [Testing Library](https://testing-library.com/docs/guiding-principles/) and [Playwright](https://playwright.dev/docs/best-practices/) for test guidance.
+
+Browser failures save traces and screenshots in `test-results/`.
+Open a trace with `bunx playwright show-trace <trace.zip>`.
+See `tests/e2e/fixtures/README.md` for image sources.
 
 ## Documentation
 

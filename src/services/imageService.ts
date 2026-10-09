@@ -44,9 +44,6 @@ async function getBackgroundRemovedBlob(
   }
 }
 
-/**
- * Calculate dimensions maintaining aspect ratio
- */
 export function calculateDimensions(
   originalWidth: number,
   originalHeight: number,
@@ -86,7 +83,6 @@ export function calculateDimensions(
     };
   }
 
-  // No dimensions specified, return original
   return { width: originalWidth, height: originalHeight };
 }
 
@@ -95,11 +91,7 @@ interface PreparedImageFile {
   format: string;
 }
 
-/**
- * Normalize browser-unsupported HEIC/HEIF input before metadata extraction.
- * The original format is retained separately so the UI can choose a sensible
- * output format after the working file has been decoded to PNG.
- */
+// Keep the input format when HEIC decoding creates a PNG working file.
 export async function prepareImageFile(file: File): Promise<PreparedImageFile> {
   const isHeic = isHeicInput(file.type) || (await isHeicBlob(file));
   if (!isHeic) {
@@ -115,10 +107,6 @@ export async function prepareImageFile(file: File): Promise<PreparedImageFile> {
   };
 }
 
-/**
- * Reject resize targets that cannot produce a valid output: non-positive
- * dimensions and targets beyond the browser-safe canvas limit.
- */
 function assertValidResizeTargets(resize: ResizeOptions): void {
   const targets: Array<["Width" | "Height", number | undefined]> = [
     ["Width", resize.width],
@@ -154,12 +142,6 @@ function assertWithinPixelLimits(width: number, height: number, label: string): 
   }
 }
 
-/**
- * Process an image with combined operations (resize, format conversion, compression)
- * Operations are applied in order: background removal -> resize -> format conversion -> compression
- *
- * When background removal is enabled, the output is always PNG to preserve transparency.
- */
 export async function processImage(
   file: File,
   options: ProcessOptions,
@@ -172,18 +154,13 @@ export async function processImage(
     throw new Error("Maximum file size must be a positive whole number of bytes");
   }
 
-  // Step 0.5: Decode HEIC/HEIF input to PNG before processing. Also covers
-  // HEIC content that arrives with an empty or generic MIME type.
   let currentFile = (await prepareImageFile(file)).file;
 
-  // Step 1: Load the source and guard dimensions before any heavy work —
-  // background removal downloads a large ML model and must not run for
-  // images that would be rejected anyway.
+  // Check source dimensions before the model downloads.
   const sourceImage = await loadImage(currentFile);
 
   assertWithinPixelLimits(sourceImage.width, sourceImage.height, "Image");
 
-  // Step 2: Remove background if requested
   if (options.removeBackground) {
     const transparentBlob = await getBackgroundRemovedBlob(
       file,
@@ -193,11 +170,9 @@ export async function processImage(
     currentFile = new File([transparentBlob], currentFile.name, { type: "image/png" });
   }
 
-  // Step 3: Load the working image (the background-removed output when applicable)
   const img = options.removeBackground ? await loadImage(currentFile) : sourceImage;
   assertWithinPixelLimits(img.width, img.height, "Image");
 
-  // Step 4: Determine dimensions (resize or original)
   let width = img.width;
   let height = img.height;
 
@@ -207,15 +182,12 @@ export async function processImage(
     width = dimensions.width;
     height = dimensions.height;
 
-    // Aspect-ratio derivation can push an in-range target past the canvas limit
+    // The derived dimension can exceed the canvas limit.
     assertWithinPixelLimits(width, height, "Target");
   }
 
-  // Step 5: Create canvas with final dimensions
   const canvas = resizeOnCanvas(img, width, height);
 
-  // Step 6: Determine format (convert or original)
-  // If background removal is enabled, force PNG to preserve transparency
   let requestedFormat: ImageFormat;
   if (options.removeBackground) {
     requestedFormat = "image/png";
@@ -225,7 +197,6 @@ export async function processImage(
   }
   const format = getBestFormat(requestedFormat);
 
-  // Step 7: Encode at a best-effort quality when a target is available.
   let blob: Blob;
   let targetFileSizeStatus: ProcessResult["metadata"]["targetFileSizeStatus"];
 
@@ -243,7 +214,6 @@ export async function processImage(
       targetFileSizeStatus = "unsupported";
     }
   } else {
-    // Manual quality controls apply to JPEG/WebP/AVIF; other formats are lossless.
     let quality: number | undefined;
     if (supportsBrowserQualityControl(format)) {
       quality = options.quality !== undefined ? options.quality : 0.92;
@@ -270,9 +240,6 @@ export async function processImage(
   };
 }
 
-/**
- * Extract metadata from an image file
- */
 export async function getImageMetadata(file: File, format = file.type) {
   const img = await loadImage(file);
   return {

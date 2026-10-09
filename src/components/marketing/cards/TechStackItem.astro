@@ -6,29 +6,7 @@ interface Props {
 const { name, description } = Astro.props;
 ---
 
-<div class="marketing-tech-item">
-  <span class="marketing-tech-name">{name}</span>
-  <span class="marketing-tech-description">{description}</span>
+<div class="flex flex-col gap-1 py-3 border-t border-border">
+  <span class="text-foreground font-display text-marketing-small font-semibold">{name}</span>
+  <span class="text-soft-foreground text-marketing-caption">{description}</span>
 </div>
-
-<style>
-  .marketing-tech-item {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-1);
-    padding: var(--space-3) 0;
-    border-top: 1px solid var(--border);
-  }
-
-  .marketing-tech-name {
-    color: var(--foreground);
-    font-family: var(--font-display);
-    font-size: var(--marketing-small-size);
-    font-weight: 600;
-  }
-
-  .marketing-tech-description {
-    color: var(--soft-foreground);
-    font-size: var(--marketing-caption-size);
-  }
-</style>
