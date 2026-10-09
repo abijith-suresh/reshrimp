@@ -29,9 +29,10 @@ bun run test
 bun run build
 bun run verify
 bun run test:e2e
+bun run test:e2e:build
 ```
 
-`bun run verify` runs type checking, lint, formatting, unit coverage, asset-sync tests, and the production build. Run it before pushing. Run `bun run test:e2e` for browser validation as well.
+`bun run verify` runs type checking, lint, formatting, unit coverage, asset-sync tests, and the production build. Run it before pushing. Run `bun run test:e2e:build` for browser validation as well: it builds the app and then runs the browser tests. `bun run test:e2e` runs the browser tests alone against the existing build, matching what CI does after its build step.
 
 Pull request CI calls the pinned central CI workflow (type checking, linting, formatting, unit tests, build, and the Playwright browser suite) and the pinned central dependency review workflow, and reports both through the required `gate` check. Pull request titles, Dependabot auto-merge, and releases also call pinned central workflows.
 
@@ -43,7 +44,7 @@ Background-removal assets are mirrored before `dev` and `build` through the conf
 2. Create a focused branch.
 3. Make the smallest correct change.
 4. Keep public copy, product truth, and implementation aligned.
-5. Run `bun run verify` and `bun run test:e2e` before push.
+5. Run `bun run verify` and `bun run test:e2e:build` before push.
 6. Open one focused pull request.
 7. Stop and wait for review or merge feedback before starting unrelated work.
 
@@ -143,18 +144,19 @@ Global cleanup restores spies, globals, and timers. Do not duplicate a browser t
 Install the browsers, then run the browser tests:
 
 ```bash
-bunx playwright install chromium firefox
-bun run test:e2e
+bunx playwright install chromium firefox webkit
+bun run test:e2e:build
 ```
 
-If Linux libraries are missing, use `bunx playwright install --with-deps chromium firefox`.
+If Linux libraries are missing, use `bunx playwright install --with-deps chromium firefox webkit`.
 
-The command builds the app and starts a preview on port 4322.
-The tests use desktop Chromium, Firefox, and mobile Chromium emulation.
+`bun run test:e2e:build` builds the app, then `bun run test:e2e` runs Playwright against that build. The preview server serves it on port 4322, so `bun run test:e2e` needs an up-to-date `dist/` from `bun run build`; CI runs the same build-then-`test:e2e` sequence.
+The tests use desktop Chromium, Firefox, and WebKit, plus mobile Chromium emulation.
 Sharp checks downloaded pixels and metadata outside the browser.
-HEIC conversion and background removal use the actual libraries.
+HEIC conversion uses the actual library.
+Background removal runs in the Chromium project only, where the model runtime is supported.
 Each test checks browser and worker requests against the local build files.
-WebKit and physical devices are outside this test suite.
+Physical devices are outside this test suite.
 
 Geometry tests use 500 generated inputs per property with a fixed seed.
 Keep explicit boundary cases. Coverage includes all source TypeScript modules.

@@ -23,7 +23,8 @@
     "analyze": "ANALYZE=true bun run build",
     "verify": "bun run type-check && bun run lint && bun run format:check && bun run test:coverage && bun run test:asset-sync && bun run build",
     "prepare": "husky",
-    "test:e2e": "bun run build && playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:build": "bun run build && bun run test:e2e"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
