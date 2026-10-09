@@ -33,7 +33,7 @@ bun run test:e2e
 
 `bun run verify` runs type checking, lint, formatting, unit coverage, asset-sync tests, and the production build. Run it before pushing. Run `bun run test:e2e` for browser validation as well.
 
-Pull request CI uses the pinned central Bun quality workflow, runs dependency review and the browser suite, and reports all three through the required `quality` check. Pull request titles use the pinned central Conventional Commit workflow and retain the required local `pr-title` check.
+Pull request CI calls the pinned central CI workflow (type checking, linting, formatting, unit tests, build, and the Playwright browser suite) and the pinned central dependency review workflow, and reports both through the required `gate` check. Pull request titles, Dependabot auto-merge, and releases also call pinned central workflows.
 
 Background-removal assets are mirrored before `dev` and `build` through the configured package scripts. If assets are missing locally, that step needs network access.
 
