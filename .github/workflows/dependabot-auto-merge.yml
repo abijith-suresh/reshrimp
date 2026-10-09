@@ -2,55 +2,12 @@ name: Dependabot auto-merge
 
 on: pull_request_target
 
-permissions:
-  contents: write
-  pull-requests: write
-
-concurrency:
-  group: dependabot-auto-merge
-  cancel-in-progress: false
+permissions: {}
 
 jobs:
   dependabot:
-    runs-on: ubuntu-latest
-    if: >
-      github.event.pull_request.user.login == 'dependabot[bot]'
-      && github.repository == 'abijith-suresh/reshrimp'
-
-    steps:
-      - name: Dependabot metadata
-        id: metadata
-        uses: dependabot/fetch-metadata@25dd0e34f4fe68f24cc83900b1fe3fe149efef98 # v3.1.0
-        with:
-          github-token: "${{ secrets.GITHUB_TOKEN }}"
-
-      # Patch & minor updates → always auto-merge (safe by definition)
-      - name: Auto-merge patch and minor updates
-        if: >
-          steps.metadata.outputs.update-type == 'version-update:semver-patch'
-          || steps.metadata.outputs.update-type == 'version-update:semver-minor'
-        run: gh pr merge --auto --squash "$PR_URL"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Dev dependency majors → auto-merge (CI gate is sufficient)
-      - name: Auto-merge major updates for dev dependencies
-        if: >
-          steps.metadata.outputs.update-type == 'version-update:semver-major'
-          && steps.metadata.outputs.dependency-type == 'direct:development'
-        run: gh pr merge --auto --squash "$PR_URL"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      # Runtime dependency majors → auto-merge only if compat score ≥ 90
-      - name: Auto-merge major updates for runtime deps with high compat
-        if: >
-          steps.metadata.outputs.update-type == 'version-update:semver-major'
-          && steps.metadata.outputs.dependency-type == 'direct:production'
-          && steps.metadata.outputs.compatibility-score >= 90
-        run: gh pr merge --auto --squash "$PR_URL"
-        env:
-          PR_URL: ${{ github.event.pull_request.html_url }}
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    name: dependabot
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: abijith-suresh/workflows/.github/workflows/dependabot-auto-merge.yml@6838f8e2495013c024606bbf8d63d3d5c66344fa # 0.8.0

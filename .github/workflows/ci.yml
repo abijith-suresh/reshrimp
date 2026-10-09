@@ -4,9 +4,7 @@ on:
   pull_request:
     branches: [main]
 
-permissions:
-  contents: read
-  pull-requests: write
+permissions: {}
 
 concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
@@ -17,15 +15,13 @@ jobs:
     name: CI
     permissions:
       contents: read
-    uses: abijith-suresh/workflows/.github/workflows/ci.yml@a53b4c876bca362ca058c99c01c4c0a955d71c9d # 0.7.0
+    uses: abijith-suresh/workflows/.github/workflows/ci.yml@6838f8e2495013c024606bbf8d63d3d5c66344fa # 0.8.0
 
   dependency-review:
     name: dependency-review
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Dependency review
-        uses: actions/dependency-review-action@a1d282b36b6f3519aa1f3fc636f609c47dddb294 # v5.0.0
+    permissions:
+      contents: read
+    uses: abijith-suresh/workflows/.github/workflows/dependency-review.yml@6838f8e2495013c024606bbf8d63d3d5c66344fa # 0.8.0
 
   gate:
     name: gate

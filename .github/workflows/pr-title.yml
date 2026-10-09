@@ -1,32 +1,15 @@
 name: PR Title
 
 on:
-  pull_request_target:
+  pull_request:
     types: [opened, edited, synchronize, reopened]
 
 permissions:
   pull-requests: read
 
 jobs:
-  title-check:
-    name: title-check
-    uses: abijith-suresh/workflows/.github/workflows/conventional-commit-title.yml@a53b4c876bca362ca058c99c01c4c0a955d71c9d # 0.7.0
-    permissions:
-      pull-requests: read
-
   pr-title:
     name: pr-title
-    if: always()
-    needs: title-check
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Report title check failure
-        if: needs.title-check.result != 'success'
-        run: |
-          echo "title-check: ${{ needs.title-check.result }}"
-          exit 1
-
-      - name: Report title check success
-        if: needs.title-check.result == 'success'
-        run: echo "title-check passed"
+    uses: abijith-suresh/workflows/.github/workflows/conventional-commit-title.yml@6838f8e2495013c024606bbf8d63d3d5c66344fa # 0.8.0
+    permissions:
+      pull-requests: read
