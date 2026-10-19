@@ -62,18 +62,7 @@ Examples:
 
 ## Commits And Pull Requests
 
-Use Conventional Commits for commits and PR titles.
-
-Allowed types:
-
-- `feat`
-- `fix`
-- `docs`
-- `refactor`
-- `chore`
-- `test`
-- `ci`
-- `build`
+Use Conventional Commits for commits and PR titles. The allowed types and header rules live in commitlint.config.ts.
 
 Examples:
 
