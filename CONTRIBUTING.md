@@ -6,9 +6,9 @@ This document describes the development workflow for Reshrimp.
 
 Read these documents first:
 
-- `AGENTS.md` for product truth, hard rules, and agent behavior
+- `AGENTS.md` for product truth and hard rules
 
-Do not expand product scope unless the Product Truth section of `AGENTS.md` is updated first.
+Do not expand product scope unless § The Project in `AGENTS.md` is updated first.
 
 ## Setup
 
@@ -32,7 +32,7 @@ bun run test:e2e
 bun run test:e2e:build
 ```
 
-`bun run verify` runs type checking, lint, formatting, unit coverage, asset-sync tests, and the production build. Run it before pushing. Run `bun run test:e2e:build` for browser validation as well: it builds the app and then runs the browser tests. `bun run test:e2e` runs the browser tests alone against the existing build, matching what CI does after its build step.
+Run `bun run verify` before pushing. Run `bun run test:e2e:build` for browser validation as well: it builds the app and then runs the browser tests. `bun run test:e2e` runs the browser tests alone against the existing build, matching what CI does after its build step.
 
 Pull request CI calls the pinned central CI workflow (type checking, linting, formatting, unit tests, build, and the Playwright browser suite) and the pinned central dependency review workflow, and reports both through the required `gate` check. Pull request titles, Dependabot auto-merge, and releases also call pinned central workflows.
 
@@ -44,9 +44,11 @@ Background-removal assets are mirrored before `dev` and `build` through the conf
 2. Create a focused branch.
 3. Make the smallest correct change.
 4. Keep public copy, product truth, and implementation aligned.
-5. Run `bun run verify` and `bun run test:e2e:build` before push.
+5. Run `bun run verify` and `bun run test:e2e:build` before push. Add focused tests for the behavior you touched; CI owns the full suite.
 6. Open one focused pull request.
 7. Stop and wait for review or merge feedback before starting unrelated work.
+
+Never commit straight to `main`. Squash merge pull requests.
 
 ## Branches
 
@@ -62,18 +64,7 @@ Examples:
 
 ## Commits And Pull Requests
 
-Use Conventional Commits for commits and PR titles.
-
-Allowed types:
-
-- `feat`
-- `fix`
-- `docs`
-- `refactor`
-- `chore`
-- `test`
-- `ci`
-- `build`
+Use Conventional Commits for commits and PR titles. The allowed types and header rules live in commitlint.config.ts.
 
 Examples:
 
@@ -90,11 +81,23 @@ Current contributions should preserve these constraints:
 - no server-side image processing
 - no accounts or authentication
 - no ads, tracking, or analytics
-- no batch UI unless the Product Truth section of `AGENTS.md` changes first
-- no editor/workspace expansion unless the Product Truth section of `AGENTS.md` changes first
+- no batch UI unless § The Project in `AGENTS.md` changes first
+- no editor/workspace expansion unless § The Project in `AGENTS.md` changes first
 - no public copy for unimplemented features
 
 Target file-size export is implemented for JPEG, WebP, and AVIF. Its limit is best-effort; PNG and background-removal output are lossless and do not support a size target.
+
+## Gotchas
+
+These do not follow from reading the tree, and breaking one changes the product:
+
+- Canvas re-encoding is the privacy boundary: uploaded metadata (EXIF/GPS) must not survive into outputs.
+- Object URLs must be revoked on all four paths — when replaced, when a new file is loaded, when the app unmounts, and on processing error.
+- Heavy dependencies (background removal, HEIC decoding) must load lazily, never in the initial bundle.
+- One image at a time; batch and editor/workspace flows are out of scope until § The Project changes first.
+- Background-removal model/runtime assets must come from the app origin (origin-pinned `publicPath`, mirrored at build time); never a third-party CDN.
+- User image bytes never cross the network — no uploads, beacons, or error reports containing image content.
+- Business logic belongs in `src/services/` or shared helpers, not UI components. `validationService` is the single gate for validation and download naming.
 
 ## Versioning And Releases
 
@@ -110,6 +113,7 @@ Releases are automated by release-please from Conventional Commits. Versioning r
 - Keep image-processing logic in `src/services/` or shared helpers.
 - Keep UI components focused on state display and user interaction.
 - Prefer clear explicit modules over generic registries or workflow engines.
+- Prefer deletion over dormant abstractions.
 - Avoid speculative abstractions for future features.
 - Use existing design tokens and spacing patterns before adding one-off values.
 - Add comments only when they explain non-obvious behavior.
@@ -174,7 +178,7 @@ See `tests/e2e/fixtures/README.md` for image sources.
 
 Documentation is part of the product.
 
-- Update `README.md` only with user-facing current behavior.
-- Update the Product Truth section of `AGENTS.md` before changing product promises or scope.
+- Update `README.md` only with user-facing current behavior, and keep public copy honest and specific to what is implemented.
+- Update § The Project in `AGENTS.md` before changing product promises or scope.
 - Update this file when development workflow changes.
-- Update `AGENTS.md` when agent behavior or document ownership changes.
+- Update `AGENTS.md` when the product's intent or philosophy changes.
