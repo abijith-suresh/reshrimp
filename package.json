@@ -34,7 +34,7 @@
     "astro": "^7.4.4",
     "heic2any": "^0.0.4",
     "lucide-astro": "^0.556.0",
-    "lucide-solid": "^1.64.0",
+    "lucide-solid": "^1.66.0",
     "satori": "^0.63.2",
     "solid-js": "^1.9.18"
   },
@@ -67,7 +67,7 @@
     "sharp": "^0.35.5",
     "tailwindcss": "^4.3.3",
     "vite": "^8.3.5",
-    "vite-plugin-solid": "^2.11.14",
+    "vite-plugin-solid": "^2.11.15",
     "vitest": "^5.0.5"
   }
 }
