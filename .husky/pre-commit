@@ -1,1 +1,1 @@
-bunx lint-staged
+mise exec -- bunx lint-staged

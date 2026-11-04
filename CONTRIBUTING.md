@@ -12,11 +12,14 @@ Do not expand product scope unless § The Project in `AGENTS.md` is updated firs
 
 ## Setup
 
-Use Bun from the repository root.
+`mise.toml` is the only source for the Bun and Node versions. Install them with [mise](https://mise.jdx.dev), then install dependencies from the repository root.
 
 ```bash
-bun install
+mise install
+mise exec -- bun install --frozen-lockfile
 ```
+
+The commands below assume mise is activated in your shell; otherwise prefix them with `mise exec --`. The Git hooks run through `mise exec`, so they use the pinned versions either way.
 
 ## Commands
 

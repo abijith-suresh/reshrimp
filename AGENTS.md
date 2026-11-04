@@ -16,6 +16,7 @@ Status: live.
 | Product intent   | § The Project (this file) |
 | Runtime behavior | code + tests              |
 | Commands & deps  | package.json              |
+| Tool versions    | mise.toml                 |
 | How to work here | `CONTRIBUTING.md`         |
 | Commit rules     | commitlint.config.ts      |
 
