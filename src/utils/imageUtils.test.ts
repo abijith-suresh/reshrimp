@@ -1,7 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { mockObjectUrls } from "../test/mocks";
 import {
-  calculateAspectRatio,
   calculateHeightFromWidth,
   calculateWidthFromHeight,
   convertFromPx,
@@ -9,27 +8,6 @@ import {
   createDownloadLink,
   formatFileSize,
 } from "./imageUtils";
-
-describe("calculateAspectRatio", () => {
-  it("returns width/height ratio", () => {
-    expect(calculateAspectRatio(200, 100)).toBe(2);
-    expect(calculateAspectRatio(100, 200)).toBe(0.5);
-    expect(calculateAspectRatio(300, 300)).toBe(1);
-  });
-
-  it("throws when height is 0", () => {
-    expect(() => calculateAspectRatio(100, 0)).toThrow("Height cannot be zero");
-  });
-
-  it("returns 0 when width is 0", () => {
-    expect(calculateAspectRatio(0, 100)).toBe(0);
-  });
-
-  it("handles negative values by dividing", () => {
-    expect(calculateAspectRatio(-200, 100)).toBe(-2);
-    expect(calculateAspectRatio(200, -100)).toBe(-2);
-  });
-});
 
 describe("createDownloadLink", () => {
   beforeEach(() => {

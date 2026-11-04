@@ -48,7 +48,6 @@ beforeEach(() => {
     vi.fn(() => 1)
   );
   vi.stubGlobal("cancelIdleCallback", vi.fn());
-  vi.spyOn(console, "error").mockImplementation(() => {});
   prepare.mockReset().mockImplementation(async (file) => ({ file, format: file.type }));
   metadata.mockReset().mockImplementation(async (file) => ({
     width: 1200,

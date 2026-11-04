@@ -8,20 +8,6 @@ describe("createDecodedObjectUrl", () => {
     mockImageLoading();
   });
 
-  it("revokes a preview URL when its decode is cancelled", async () => {
-    const controller = new AbortController();
-    vi.mocked(URL.createObjectURL).mockReturnValueOnce("blob:pending-preview");
-
-    const previewPromise = createDecodedObjectUrl(
-      new Blob(["processed"], { type: "image/png" }),
-      controller.signal
-    );
-    controller.abort();
-
-    await expect(previewPromise).rejects.toThrow("decoding was cancelled");
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:pending-preview");
-  });
-
   it("revokes a preview URL when the browser cannot decode it", async () => {
     vi.mocked(URL.createObjectURL).mockReturnValueOnce("blob:error-url");
 

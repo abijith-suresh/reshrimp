@@ -1,4 +1,4 @@
-export type PageInitializerCleanup = (() => void) | undefined;
+type PageInitializerCleanup = (() => void) | undefined;
 
 declare global {
   interface Window {

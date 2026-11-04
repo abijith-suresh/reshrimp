@@ -12,11 +12,6 @@ interface InputProps {
   step?: number | string;
 }
 
-const errorClasses = "border-coral-300 bg-coral-50 focus-visible:ring-coral-500/40";
-const successClasses = "border-mint-300 bg-mint-50 focus-visible:ring-mint-500/40";
-
-export { errorClasses, successClasses };
-
 export default function Input(props: InputProps) {
   return (
     <label class="block">

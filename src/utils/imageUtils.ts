@@ -1,10 +1,3 @@
-export function calculateAspectRatio(width: number, height: number): number {
-  if (height === 0) {
-    throw new Error("Height cannot be zero");
-  }
-  return width / height;
-}
-
 export function createDownloadLink(blob: Blob, filename: string): void {
   const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
@@ -46,7 +39,7 @@ export function calculateHeightFromWidth(
   originalHeight: number,
   targetWidth: number
 ): number {
-  const aspectRatio = calculateAspectRatio(originalWidth, originalHeight);
+  const aspectRatio = originalWidth / originalHeight;
   return Math.max(1, Math.round(targetWidth / aspectRatio));
 }
 
@@ -55,7 +48,7 @@ export function calculateWidthFromHeight(
   originalHeight: number,
   targetHeight: number
 ): number {
-  const aspectRatio = calculateAspectRatio(originalWidth, originalHeight);
+  const aspectRatio = originalWidth / originalHeight;
   return Math.max(1, Math.round(targetHeight * aspectRatio));
 }
 
