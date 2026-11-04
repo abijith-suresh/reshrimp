@@ -199,6 +199,15 @@ describe("canvasToBlobAtFileSizeTarget", () => {
 });
 
 describe("supportsFormat", () => {
+  it("probes with a 1×1 canvas", () => {
+    const { canvas } = makeCanvasMock("image/webp");
+    vi.spyOn(document, "createElement").mockReturnValue(canvas);
+
+    supportsFormat("image/webp");
+
+    expect(canvas).toMatchObject({ width: 1, height: 1 });
+  });
+
   it("returns true when toDataURL output starts with data:{format}", () => {
     const { canvas } = makeCanvasMock("image/webp");
     vi.spyOn(document, "createElement").mockReturnValue(canvas);
