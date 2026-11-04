@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.5](https://github.com/abijith-suresh/reshrimp/compare/v0.0.4...0.0.5) (2026-11-04)
+
+
+### Bug Fixes
+
+* **deps:** resolve bun audit findings ([#244](https://github.com/abijith-suresh/reshrimp/issues/244)) ([51e49ad](https://github.com/abijith-suresh/reshrimp/commit/51e49adf96e5faace323a9967fa6e3ef32254002))
+* make mobile image controls discoverable and coherent ([#227](https://github.com/abijith-suresh/reshrimp/issues/227)) ([32658df](https://github.com/abijith-suresh/reshrimp/commit/32658df5b9fc749d9fc3ab4453b8bb62d6779cdd))
+
 ## [0.0.4](https://github.com/abijith-suresh/reshrimp/compare/v0.0.3...v0.0.4) (2026-09-24)
 
 
