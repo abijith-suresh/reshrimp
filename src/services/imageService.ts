@@ -21,27 +21,45 @@ import {
 } from "./canvasService";
 import { decodeHeicBlob, isHeicBlob } from "./formatDetectionService";
 
-const backgroundRemovalResults = new WeakMap<File, Promise<Blob>>();
+// Keyed by File so repeated edits reuse work and a new upload releases it.
+const backgroundRemovalResults = new WeakMap<File, Promise<File>>();
+const decodedImages = new WeakMap<File, Promise<HTMLImageElement>>();
+const preparedFiles = new WeakSet<File>();
 
-async function getBackgroundRemovedBlob(
-  cacheKeyFile: File,
-  imageFile: File,
-  onProgress?: BackgroundRemovalProgressCallback
-): Promise<Blob> {
-  let result = backgroundRemovalResults.get(cacheKeyFile);
+async function getCached<T>(
+  cache: WeakMap<File, Promise<T>>,
+  key: File,
+  create: () => Promise<T>
+): Promise<T> {
+  let result = cache.get(key);
   if (!result) {
-    result = removeBackground(imageFile, onProgress);
-    backgroundRemovalResults.set(cacheKeyFile, result);
+    result = create();
+    cache.set(key, result);
   }
 
   try {
     return await result;
   } catch (error) {
-    if (backgroundRemovalResults.get(cacheKeyFile) === result) {
-      backgroundRemovalResults.delete(cacheKeyFile);
+    if (cache.get(key) === result) {
+      cache.delete(key);
     }
     throw error;
   }
+}
+
+function getBackgroundRemovedFile(
+  cacheKeyFile: File,
+  imageFile: File,
+  onProgress?: BackgroundRemovalProgressCallback
+): Promise<File> {
+  return getCached(backgroundRemovalResults, cacheKeyFile, async () => {
+    const blob = await removeBackground(imageFile, onProgress);
+    return new File([blob], imageFile.name, { type: "image/png" });
+  });
+}
+
+function decodeImage(file: File): Promise<HTMLImageElement> {
+  return getCached(decodedImages, file, () => loadImage(file));
 }
 
 export function calculateDimensions(
@@ -93,16 +111,23 @@ interface PreparedImageFile {
 
 // Keep the input format when HEIC decoding creates a PNG working file.
 export async function prepareImageFile(file: File): Promise<PreparedImageFile> {
+  if (preparedFiles.has(file)) {
+    return { file, format: file.type };
+  }
+
   const isHeic = isHeicInput(file.type) || (await isHeicBlob(file));
   if (!isHeic) {
+    preparedFiles.add(file);
     return { file, format: file.type };
   }
 
   const decodedBlob = await decodeHeicBlob(file);
+  const preparedFile = new File([decodedBlob], file.name.replace(/\.(?:heic|heif)$/i, ".png"), {
+    type: "image/png",
+  });
+  preparedFiles.add(preparedFile);
   return {
-    file: new File([decodedBlob], file.name.replace(/\.(?:heic|heif)$/i, ".png"), {
-      type: "image/png",
-    }),
+    file: preparedFile,
     format: isHeicInput(file.type) ? file.type : "image/heic",
   };
 }
@@ -157,20 +182,15 @@ export async function processImage(
   let currentFile = (await prepareImageFile(file)).file;
 
   // Check source dimensions before the model downloads.
-  const sourceImage = await loadImage(currentFile);
+  const sourceImage = await decodeImage(currentFile);
 
   assertWithinPixelLimits(sourceImage.width, sourceImage.height, "Image");
 
   if (options.removeBackground) {
-    const transparentBlob = await getBackgroundRemovedBlob(
-      file,
-      currentFile,
-      onBackgroundRemovalProgress
-    );
-    currentFile = new File([transparentBlob], currentFile.name, { type: "image/png" });
+    currentFile = await getBackgroundRemovedFile(file, currentFile, onBackgroundRemovalProgress);
   }
 
-  const img = options.removeBackground ? await loadImage(currentFile) : sourceImage;
+  const img = options.removeBackground ? await decodeImage(currentFile) : sourceImage;
   assertWithinPixelLimits(img.width, img.height, "Image");
 
   let width = img.width;
@@ -200,26 +220,32 @@ export async function processImage(
   let blob: Blob;
   let targetFileSizeStatus: ProcessResult["metadata"]["targetFileSizeStatus"];
 
-  if (options.targetFileSizeBytes !== undefined) {
-    if (supportsBrowserQualityControl(format)) {
-      const targetResult = await canvasToBlobAtFileSizeTarget(
-        canvas,
-        format,
-        options.targetFileSizeBytes
-      );
-      blob = targetResult.blob;
-      targetFileSizeStatus = targetResult.targetReached ? "met" : "unmet";
+  try {
+    if (options.targetFileSizeBytes !== undefined) {
+      if (supportsBrowserQualityControl(format)) {
+        const targetResult = await canvasToBlobAtFileSizeTarget(
+          canvas,
+          format,
+          options.targetFileSizeBytes
+        );
+        blob = targetResult.blob;
+        targetFileSizeStatus = targetResult.targetReached ? "met" : "unmet";
+      } else {
+        blob = await canvasToBlob(canvas, format);
+        targetFileSizeStatus = "unsupported";
+      }
     } else {
-      blob = await canvasToBlob(canvas, format);
-      targetFileSizeStatus = "unsupported";
-    }
-  } else {
-    let quality: number | undefined;
-    if (supportsBrowserQualityControl(format)) {
-      quality = options.quality !== undefined ? options.quality : 0.92;
-    }
+      let quality: number | undefined;
+      if (supportsBrowserQualityControl(format)) {
+        quality = options.quality !== undefined ? options.quality : 0.92;
+      }
 
-    blob = await canvasToBlob(canvas, format, quality);
+      blob = await canvasToBlob(canvas, format, quality);
+    }
+  } finally {
+    // iOS Safari caps total canvas memory; free the backing store now.
+    canvas.width = 0;
+    canvas.height = 0;
   }
 
   return {
@@ -241,7 +267,7 @@ export async function processImage(
 }
 
 export async function getImageMetadata(file: File, format = file.type) {
-  const img = await loadImage(file);
+  const img = await decodeImage(file);
   return {
     width: img.width,
     height: img.height,

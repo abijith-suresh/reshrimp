@@ -332,6 +332,100 @@ describe("processImage", () => {
   });
 });
 
+describe("processImage source reuse", () => {
+  it("decodes the source once across repeated edits", async () => {
+    const file = new File(["png"], "photo.png", { type: "image/png" });
+
+    await processImage(file, {});
+    await processImage(file, { resize: { width: 400, maintainAspectRatio: true } });
+    await processImage(file, { format: "image/jpeg", quality: 0.5 });
+
+    expect(mockLoadImage).toHaveBeenCalledTimes(1);
+    expect(mockIsHeicBlob).toHaveBeenCalledTimes(1);
+  });
+
+  it("reuses the upload's preparation and decode on the first edit", async () => {
+    const upload = new File(["heic"], "photo.heic", { type: "image/heic" });
+    const { file } = await prepareImageFile(upload);
+    await getImageMetadata(file);
+
+    await processImage(file, {});
+
+    expect(mockDecodeHeicBlob).toHaveBeenCalledTimes(1);
+    expect(mockIsHeicBlob).not.toHaveBeenCalled();
+    expect(mockLoadImage).toHaveBeenCalledTimes(1);
+  });
+
+  it("decodes a newly uploaded file", async () => {
+    await processImage(new File(["a"], "a.png", { type: "image/png" }), {});
+    await processImage(new File(["b"], "b.png", { type: "image/png" }), {});
+
+    expect(mockLoadImage).toHaveBeenCalledTimes(2);
+  });
+
+  it("retries decoding after a failed load", async () => {
+    const file = new File(["png"], "photo.png", { type: "image/png" });
+    mockLoadImage.mockRejectedValueOnce(new Error("Failed to load image"));
+
+    await expect(processImage(file, {})).rejects.toThrow("Failed to load image");
+    await expect(processImage(file, {})).resolves.toBeDefined();
+
+    expect(mockLoadImage).toHaveBeenCalledTimes(2);
+  });
+
+  it("decodes the background-removed image once across edits", async () => {
+    const file = new File(["jpg"], "photo.jpg", { type: "image/jpeg" });
+
+    await processImage(file, { removeBackground: true });
+    await processImage(file, {
+      removeBackground: true,
+      resize: { width: 400, maintainAspectRatio: true },
+    });
+
+    // One decode for the source, one for the transparent result.
+    expect(mockLoadImage).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("processImage canvas release", () => {
+  function makeCanvas() {
+    return { width: 400, height: 300 } as HTMLCanvasElement;
+  }
+
+  it("releases the canvas after encoding", async () => {
+    const canvas = makeCanvas();
+    mockResizeOnCanvas.mockReturnValueOnce(canvas);
+
+    await processImage(new File([], "a.png", { type: "image/png" }), {});
+
+    expect(canvas).toMatchObject({ width: 0, height: 0 });
+  });
+
+  it("releases the canvas when encoding fails", async () => {
+    const canvas = makeCanvas();
+    mockResizeOnCanvas.mockReturnValueOnce(canvas);
+    mockCanvasToBlob.mockRejectedValueOnce(new Error("encode failed"));
+
+    await expect(processImage(new File([], "a.png", { type: "image/png" }), {})).rejects.toThrow(
+      "encode failed"
+    );
+
+    expect(canvas).toMatchObject({ width: 0, height: 0 });
+  });
+
+  it("releases the canvas after a file size search", async () => {
+    const canvas = makeCanvas();
+    mockResizeOnCanvas.mockReturnValueOnce(canvas);
+
+    await processImage(new File([], "a.jpg", { type: "image/jpeg" }), {
+      format: "image/jpeg",
+      targetFileSizeBytes: 1000,
+    });
+
+    expect(canvas).toMatchObject({ width: 0, height: 0 });
+  });
+});
+
 describe("prepareImageFile", () => {
   it("returns ordinary input unchanged", async () => {
     const file = new File(["png"], "photo.png", { type: "image/png" });
