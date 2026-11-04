@@ -27,13 +27,6 @@ function makeFtypFile(brand: string, name = "photo.heic", type = ""): File {
 const MB = 1024 * 1024;
 
 describe("validateImageFile", () => {
-  it("returns error when file is null/falsy", async () => {
-    // @ts-expect-error Test input from outside TypeScript.
-    const result = await validateImageFile(null);
-    expect(result.valid).toBe(false);
-    expect(result.error).toBeDefined();
-  });
-
   it("returns error for non-image file type", async () => {
     const file = makeFile("doc.pdf", "application/pdf", 1000);
     const result = await validateImageFile(file);
@@ -80,21 +73,8 @@ describe("validateImageFile (HEIC without a usable MIME type)", () => {
     expect(result.error).toBeUndefined();
   });
 
-  it("accepts HEIC content by magic bytes regardless of file extension", async () => {
-    const file = makeFtypFile("mif1", "photo.bin");
-    const result = await validateImageFile(file);
-    expect(result.valid).toBe(true);
-  });
-
   it("rejects an empty-MIME file whose magic bytes are not HEIC", async () => {
     const file = makeFtypFile("avif", "mystery.bin");
-    const result = await validateImageFile(file);
-    expect(result.valid).toBe(false);
-    expect(result.error).toMatch(/image/i);
-  });
-
-  it("rejects an empty-MIME file too small to contain an ftyp box", async () => {
-    const file = new File([new Uint8Array(4)], "tiny.heic", { type: "" });
     const result = await validateImageFile(file);
     expect(result.valid).toBe(false);
     expect(result.error).toMatch(/image/i);

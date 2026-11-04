@@ -353,7 +353,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     } catch (err) {
       if (isCurrentRun()) {
         setError(err instanceof Error ? err.message : "Processing failed");
-        console.error("Error processing image:", err);
       }
     } finally {
       if (pendingPreviewAbort === previewAbortController) {
@@ -502,10 +501,9 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         setResizeUnit("px");
         setDpiValue(DEFAULT_DPI);
       });
-    } catch (err) {
+    } catch {
       if (!disposed && requestId === uploadRequestId) {
         setError("Failed to load image. Please try another file.");
-        console.error("Error loading image:", err);
       }
     }
   }
@@ -520,9 +518,8 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
     try {
       createDownloadLink(result.blob, filename);
-    } catch (err) {
+    } catch {
       setError("Failed to download image");
-      console.error("Download error:", err);
     }
   }
 
@@ -582,29 +579,23 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     setDpiValue(newDpi);
   }
 
-  function handleWidthInput(val: string): void {
-    if (!maintainAspectRatio()) {
-      setWidthValue(val);
-      return;
-    }
-
+  function handleDimensionInput(changedDimension: "width" | "height", val: string): void {
+    const setChanged = changedDimension === "width" ? setWidthValue : setHeightValue;
     const img = currentImage();
-    if (!img) {
-      setWidthValue(val);
-      return;
-    }
-
-    const linkedDimensions = getLinkedDimensionValues({
-      changedDimension: "width",
-      value: val,
-      resizeUnit: resizeUnit(),
-      dpi: dpiValue(),
-      originalWidth: img.metadata.width,
-      originalHeight: img.metadata.height,
-    });
+    const linkedDimensions =
+      maintainAspectRatio() && img
+        ? getLinkedDimensionValues({
+            changedDimension,
+            value: val,
+            resizeUnit: resizeUnit(),
+            dpi: dpiValue(),
+            originalWidth: img.metadata.width,
+            originalHeight: img.metadata.height,
+          })
+        : null;
 
     if (!linkedDimensions) {
-      setWidthValue(val);
+      setChanged(val);
       return;
     }
 
@@ -612,35 +603,8 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     setHeightValue(linkedDimensions.heightValue);
   }
 
-  function handleHeightInput(val: string): void {
-    if (!maintainAspectRatio()) {
-      setHeightValue(val);
-      return;
-    }
-
-    const img = currentImage();
-    if (!img) {
-      setHeightValue(val);
-      return;
-    }
-
-    const linkedDimensions = getLinkedDimensionValues({
-      changedDimension: "height",
-      value: val,
-      resizeUnit: resizeUnit(),
-      dpi: dpiValue(),
-      originalWidth: img.metadata.width,
-      originalHeight: img.metadata.height,
-    });
-
-    if (!linkedDimensions) {
-      setHeightValue(val);
-      return;
-    }
-
-    setWidthValue(linkedDimensions.widthValue);
-    setHeightValue(linkedDimensions.heightValue);
-  }
+  const handleWidthInput = (val: string) => handleDimensionInput("width", val);
+  const handleHeightInput = (val: string) => handleDimensionInput("height", val);
 
   function handleAspectRatioChange(checked: boolean): void {
     setMaintainAspectRatio(checked);
