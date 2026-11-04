@@ -113,7 +113,10 @@ export async function canvasToBlobAtFileSizeTarget(
 }
 
 export function supportsFormat(format: ImageFormat): boolean {
+  // A 1×1 probe keeps the test encode cheap.
   const canvas = document.createElement("canvas");
+  canvas.width = 1;
+  canvas.height = 1;
   const dataUrl = canvas.toDataURL(format);
   return dataUrl.startsWith(`data:${format}`);
 }
