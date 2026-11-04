@@ -130,13 +130,13 @@ Handwritten CSS is limited to font loading, shared keyframes, global defaults an
 
 Select the test layer that can detect the defect.
 
-| Test layer | Purpose | Location |
-| --- | --- | --- |
-| Service | Validation, dimensions, encoding rules, codec failures, model configuration | Beside each module in `src/` |
-| Context | Session state, concurrent work, debounce delays, URL cleanup | `src/components/app/state/` |
-| Component | Accessible controls and pointer or keyboard input | Beside each component in `src/` |
-| Browser | Image output, metadata removal, network requests, mobile focus | `tests/e2e/` |
-| Asset sync | Model files, manifests, missing or corrupt assets | `scripts/sync-background-removal-assets.test.mjs` |
+| Test layer | Purpose                                                                     | Location                                          |
+| ---------- | --------------------------------------------------------------------------- | ------------------------------------------------- |
+| Service    | Validation, dimensions, encoding rules, codec failures, model configuration | Beside each module in `src/`                      |
+| Context    | Session state, concurrent work, debounce delays, URL cleanup                | `src/components/app/state/`                       |
+| Component  | Accessible controls and pointer or keyboard input                           | Beside each component in `src/`                   |
+| Browser    | Image output, metadata removal, network requests, mobile focus              | `tests/e2e/`                                      |
+| Asset sync | Model files, manifests, missing or corrupt assets                           | `scripts/sync-background-removal-assets.test.mjs` |
 
 Use role and accessible name queries for controls. Use `userEvent.setup()` and await each interaction.
 Use fake timers for debounce tests. If user-event uses fake timers, supply its `advanceTimers` option.
