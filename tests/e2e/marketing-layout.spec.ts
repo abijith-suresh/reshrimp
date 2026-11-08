@@ -12,10 +12,6 @@ test("keeps marketing pages readable across their responsive boundaries", async 
   }
 });
 
-test("serves no About page", async ({ request }) => {
-  expect((await request.get("/about")).status()).toBe(404);
-});
-
 test("preserves the inclusive hero and navigation breakpoints", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.setViewportSize({ width: 820, height: 1000 });

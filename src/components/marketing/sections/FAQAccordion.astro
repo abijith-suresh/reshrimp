@@ -51,7 +51,7 @@ const questionId = `${answerId}-question`;
 <script>
   import { registerPageInitializer } from "../../../lib/pageInitializer";
 
-  function initFaq() {
+  registerPageInitializer("faq:interactions", () => {
     const questions = document.querySelectorAll<HTMLButtonElement>("[data-faq-question]");
     if (!questions.length) return;
 
@@ -77,7 +77,5 @@ const questionId = `${answerId}-question`;
     return () => {
       questions.forEach((question) => question.removeEventListener("click", handleFaqClick));
     };
-  }
-
-  registerPageInitializer("faq:interactions", () => initFaq());
+  });
 </script>

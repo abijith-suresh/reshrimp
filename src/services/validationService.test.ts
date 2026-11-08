@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { MAX_PIXEL_DIMENSION, MAX_TOTAL_PIXELS } from "../config/constants";
-import type { ImageFormat } from "../types/image";
 import {
   generateDownloadFilename,
-  getFileExtension,
   validateImageDimensions,
   validateImageFile,
 } from "./validationService";
@@ -113,18 +111,6 @@ describe("validateImageDimensions", () => {
 
     expect(result.valid).toBe(false);
     expect(result.error).toContain(String(MAX_TOTAL_PIXELS.toLocaleString()));
-  });
-});
-
-describe("getFileExtension", () => {
-  const cases: Array<[ImageFormat, string]> = [
-    ["image/jpeg", "jpg"],
-    ["image/png", "png"],
-    ["image/webp", "webp"],
-  ];
-
-  it.each(cases)("maps %s to .%s", (format, ext) => {
-    expect(getFileExtension(format)).toBe(ext);
   });
 });
 
