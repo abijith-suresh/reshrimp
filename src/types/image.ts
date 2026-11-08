@@ -1,6 +1,3 @@
-/**
- * Supported image formats for conversion
- */
 export type ImageFormat =
   | "image/jpeg"
   | "image/png"
@@ -9,9 +6,6 @@ export type ImageFormat =
   | "image/heic"
   | "image/heif";
 
-/**
- * Image metadata extracted from files
- */
 export interface ImageMetadata {
   width: number;
   height: number;
@@ -20,9 +14,6 @@ export interface ImageMetadata {
   fileName: string;
 }
 
-/**
- * Represents the active image session with original and processed states.
- */
 export interface ProcessedImage {
   file: File;
   originalUrl: string;
@@ -30,9 +21,6 @@ export interface ProcessedImage {
   metadata: ImageMetadata;
 }
 
-/**
- * Result of file validation
- */
 export interface ValidationResult {
   valid: boolean;
   error?: string;

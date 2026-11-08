@@ -18,11 +18,9 @@ export interface AppState {
   maintainAspectRatio: Accessor<boolean>;
   removeBackground: Accessor<boolean>;
   formatValue: Accessor<string>;
-  previousFormatValue: Accessor<string>;
   qualityValue: Accessor<number>;
   compressionMode: Accessor<CompressionMode>;
   targetFileSizeValue: Accessor<string>;
-  targetFileSizeBytes: Accessor<number | null>;
   targetFileSizeInputInvalid: Accessor<boolean>;
   resizeUnit: Accessor<ResizeUnit>;
   dpiValue: Accessor<number>;

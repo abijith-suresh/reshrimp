@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
 import {
-  getImageFormatLabel,
   getInitialOutputFormat,
   getSupportedImageFormatSummary,
   isAcceptedInputFormat,
@@ -23,11 +22,6 @@ describe("imageFormats", () => {
 
   it("falls back to jpeg for unknown upload formats", () => {
     expect(getInitialOutputFormat("image/tiff")).toBe("image/jpeg");
-  });
-
-  it("keeps labels in sync with the supported formats", () => {
-    expect(getImageFormatLabel("image/webp")).toBe("WebP");
-    expect(getImageFormatLabel("image/heif")).toBe("HEIF");
   });
 
   it.each([
