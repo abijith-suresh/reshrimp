@@ -4,7 +4,7 @@ import { Resvg } from "@resvg/resvg-js";
 import type { APIRoute, GetStaticPaths } from "astro";
 import satori from "satori";
 import type { OgPageData } from "../../config/ogData";
-import { ogPageData } from "../../config/ogData";
+import { OG_IMAGE_VERSION, ogPageData } from "../../config/ogData";
 
 const WIDTH = 1200;
 const HEIGHT = 630;
@@ -34,6 +34,10 @@ const COLORS = {
 };
 
 type Node = { type: string; props: Record<string, unknown> };
+
+const brandMarkSrc = `data:image/svg+xml;base64,${Buffer.from(
+  await readFile(resolve(process.cwd(), "public/favicon.svg"))
+).toString("base64")}`;
 
 function box(style: Record<string, unknown>, children?: Node | Node[] | string): Node {
   return { type: "div", props: { style: { display: "flex", ...style }, children } };
@@ -146,12 +150,7 @@ function buildOgImage(data: OgPageData): Node {
       },
       [
         box({ alignItems: "center", gap: "14px" }, [
-          box({
-            width: "18px",
-            height: "18px",
-            borderRadius: "999px",
-            backgroundColor: COLORS.coral,
-          }),
+          { type: "img", props: { src: brandMarkSrc, width: 40, height: 40 } },
           box(
             {
               fontSize: "34px",
@@ -231,13 +230,14 @@ async function renderOgImage(data: OgPageData): Promise<Buffer> {
 }
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  return Object.keys(ogPageData).map((key) => ({
-    params: { route: key },
-  }));
+  return Object.keys(ogPageData).flatMap((key) => [
+    { params: { route: `${key}-${OG_IMAGE_VERSION}` } },
+    { params: { route: key } },
+  ]);
 };
 
 export const GET: APIRoute = async ({ params }) => {
-  const route = params.route as string;
+  const route = (params.route as string).replace(`-${OG_IMAGE_VERSION}`, "");
 
   const data: OgPageData = ogPageData[route];
 

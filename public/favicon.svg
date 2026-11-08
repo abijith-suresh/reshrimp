@@ -1,8 +1,6 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" aria-hidden="true">
-  <circle cx="64" cy="64" r="48" fill="#ff6b6b" />
-  <style>
-    @media (prefers-color-scheme: dark) {
-      circle { fill: #ff6b6b; }
-    }
-  </style>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <title>Reshrimp</title>
+  <rect width="32" height="32" rx="8" fill="#d03d37" />
+  <path d="M13 24v-6a7 7 0 0 1 7-7" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" />
+  <circle cx="24" cy="11" r="3" fill="#f9d460" />
 </svg>

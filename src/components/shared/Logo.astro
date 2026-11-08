@@ -1,6 +1,7 @@
 ---
 import { SITE_NAME } from "../../config/constants";
 import { makeHref } from "../../lib/utils";
+import BrandMark from "./BrandMark";
 
 interface Props {
   href?: string;
@@ -11,10 +12,9 @@ const { href = "/" } = Astro.props;
 
 <a
   href={makeHref(href)}
+  aria-label={`${SITE_NAME} home`}
   class="group/logo inline-flex min-h-11 items-center gap-2 rounded-sm font-display text-title-sm text-fg no-underline"
 >
-  <span
-    class="size-2.5 shrink-0 rounded-full bg-coral transition-transform duration-300 ease-pop group-hover/logo:scale-140"
-  ></span>
-  {SITE_NAME.toLowerCase()}
+  <BrandMark class="transition-transform duration-300 ease-pop group-hover/logo:-rotate-8" />
+  <span translate="no">{SITE_NAME.toLowerCase()}</span>
 </a>

@@ -3,6 +3,7 @@ import { Show } from "solid-js";
 import DownloadSection from "@/components/app/preview/DownloadSection";
 import ImageInfoBar from "@/components/app/preview/ImageInfoBar";
 import { useImageApp } from "@/components/app/state/ImageAppContext";
+import BrandMark from "@/components/shared/BrandMark";
 import { ROUTES, SITE_NAME } from "@/config/constants";
 import { makeHref } from "@/lib/utils";
 
@@ -20,11 +21,10 @@ export default function AppTopBar() {
           class="group/logo inline-flex h-11 items-center gap-2 rounded-md pr-3 pl-2 text-fg no-underline transition-colors duration-150 hover:bg-hover"
         >
           <ArrowLeft class="size-4 text-fg-muted" aria-hidden="true" />
-          <span
-            aria-hidden="true"
-            class="size-2.5 shrink-0 rounded-full bg-coral transition-transform duration-300 ease-pop group-hover/logo:scale-140"
-          />
-          <span class="font-display text-title-sm">{SITE_NAME.toLowerCase()}</span>
+          <BrandMark class="transition-transform duration-300 ease-pop group-hover/logo:-rotate-8" />
+          <span class="font-display text-title-sm" translate="no">
+            {SITE_NAME.toLowerCase()}
+          </span>
         </a>
       </nav>
 
