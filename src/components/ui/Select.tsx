@@ -1,13 +1,4 @@
-import {
-  type Accessor,
-  createEffect,
-  createSignal,
-  createUniqueId,
-  For,
-  onCleanup,
-  Show,
-} from "solid-js";
-import { Portal } from "solid-js/web";
+import { For } from "solid-js";
 import { CONTROL_CLASSES } from "@/components/ui/control";
 
 export interface SelectOption {
@@ -21,318 +12,41 @@ interface SelectProps {
   value: string;
   onChange: (value: string) => void;
   disabled?: boolean;
-  placeholder?: string;
   id?: string;
   ariaLabel?: string;
   class?: string;
 }
 
-interface DropdownPos {
-  /** Set for downward-opening dropdowns (viewport px from top). */
-  top?: number;
-  /** Set for upward-opening dropdowns (viewport px from bottom). */
-  bottom?: number;
-  left: number;
-  width: number;
-  openUpward: boolean;
-}
-
 export default function Select(props: SelectProps) {
-  const triggerId = createUniqueId();
-  const listboxId = createUniqueId();
-
-  // Callback refs so static analysis can see the assignment
-  let triggerRef: HTMLButtonElement | undefined;
-  let listboxRef: HTMLDivElement | undefined;
-
-  const [open, setOpen] = createSignal(false);
-  const [focusedIndex, setFocusedIndex] = createSignal(-1);
-  const [pos, setPos] = createSignal<DropdownPos>({
-    left: 0,
-    width: 0,
-    openUpward: false,
-  });
-
-  // Derive enabled-option indices for keyboard nav
-  const enabledIndices: Accessor<number[]> = () =>
-    props.options.map((o, i) => (o.disabled ? -1 : i)).filter((i) => i !== -1);
-
-  const selectedLabel = () =>
-    props.options.find((o) => o.value === props.value)?.label ?? props.placeholder ?? "";
-
-  // ── Position calculation ────────────────────────────────────────────────
-  function calcPos(): DropdownPos {
-    if (!triggerRef) return { left: 0, width: 0, openUpward: false };
-    const r = triggerRef.getBoundingClientRect();
-    const dialog = triggerRef.closest<HTMLElement>('[role="dialog"]');
-    const dialogRect = dialog?.getBoundingClientRect();
-    const dropdownMaxH = 240;
-    const spaceBelow = window.innerHeight - r.bottom;
-    const openUpward = spaceBelow < dropdownMaxH && r.top > dropdownMaxH;
-    const left = r.left - (dialogRect?.left ?? 0);
-    // Use position:fixed viewport coordinates — no scrollY/scrollX needed.
-    // When the listbox is inside the modal, its transformed sheet becomes the
-    // fixed-position containing block, so convert viewport coordinates to the
-    // dialog's local coordinates.
-    return openUpward
-      ? {
-          bottom: (dialogRect?.bottom ?? window.innerHeight) - r.top + 4,
-          left,
-          width: r.width,
-          openUpward: true,
-        }
-      : { top: r.bottom - (dialogRect?.top ?? 0) + 4, left, width: r.width, openUpward: false };
-  }
-
-  function getPortalTarget(): HTMLElement {
-    return triggerRef?.closest<HTMLElement>('[role="dialog"]') ?? document.body;
-  }
-
-  // ── Open / close ─────────────────────────────────────────────────────────
-  function openDropdown() {
-    if (props.disabled) return;
-    setPos(calcPos());
-    const idx = props.options.findIndex((o) => o.value === props.value);
-    setFocusedIndex(idx >= 0 ? idx : (enabledIndices()[0] ?? -1));
-    setOpen(true);
-    queueMicrotask(() => listboxRef?.focus());
-  }
-
-  function closeDropdown(restoreFocus = true) {
-    setOpen(false);
-    setFocusedIndex(-1);
-    if (restoreFocus) triggerRef?.focus();
-  }
-
-  const focusableSelector =
-    'button:not([disabled]), input:not([disabled]):not([type="hidden"]):not([type="file"]), select:not([disabled]), textarea:not([disabled]), a[href], [tabindex]:not([tabindex="-1"])';
-
-  function focusAdjacentControl(backward: boolean) {
-    const trigger = triggerRef;
-    if (!trigger) return;
-
-    const dialog = trigger.closest<HTMLElement>('[role="dialog"]');
-    const scope = dialog ?? document.body;
-    const focusableElements = Array.from(
-      scope.querySelectorAll<HTMLElement>(focusableSelector)
-    ).filter((element) => {
-      if (element.closest('[inert], [aria-hidden="true"], [role="listbox"]')) return false;
-      const styles = window.getComputedStyle(element);
-      return styles.display !== "none" && styles.visibility !== "hidden";
-    });
-    const triggerIndex = focusableElements.indexOf(trigger);
-    const nextIndex = triggerIndex + (backward ? -1 : 1);
-    (focusableElements[nextIndex] ?? trigger).focus();
-  }
-
-  function selectOption(value: string) {
-    props.onChange(value);
-    closeDropdown();
-  }
-
-  // ── Scroll focused option into view ──────────────────────────────────────
-  createEffect(() => {
-    const idx = focusedIndex();
-    if (!open() || idx < 0 || !listboxRef) return;
-    const el = listboxRef.children[idx] as HTMLElement | undefined;
-    el?.scrollIntoView({ block: "nearest" });
-  });
-
-  // ── Reposition on scroll / resize while open ─────────────────────────────
-  createEffect(() => {
-    if (!open()) return;
-    const update = () => setPos(calcPos());
-    window.addEventListener("scroll", update, { passive: true, capture: true });
-    window.addEventListener("resize", update, { passive: true });
-    onCleanup(() => {
-      window.removeEventListener("scroll", update, { capture: true });
-      window.removeEventListener("resize", update);
-    });
-  });
-
-  // ── Click outside ────────────────────────────────────────────────────────
-  createEffect(() => {
-    if (!open()) return;
-    function handler(e: MouseEvent) {
-      const t = e.target as Node;
-      if (!triggerRef?.contains(t) && !listboxRef?.contains(t)) {
-        setOpen(false);
-        setFocusedIndex(-1);
-      }
-    }
-    // Small delay so the trigger's own click doesn't immediately re-close
-    const id = setTimeout(() => document.addEventListener("mousedown", handler), 0);
-    onCleanup(() => {
-      clearTimeout(id);
-      document.removeEventListener("mousedown", handler);
-    });
-  });
-
-  // ── Keyboard: trigger ────────────────────────────────────────────────────
-  function handleTriggerKeyDown(e: KeyboardEvent) {
-    if (props.disabled) return;
-    switch (e.key) {
-      case "Enter":
-      case " ":
-      case "ArrowDown":
-      case "ArrowUp":
-        e.preventDefault();
-        openDropdown();
-        break;
-    }
-  }
-
-  // ── Keyboard: listbox ─────────────────────────────────────────────────────
-  function handleListKeyDown(e: KeyboardEvent) {
-    const enabled = enabledIndices();
-    if (enabled.length === 0) return;
-
-    switch (e.key) {
-      case "ArrowDown": {
-        e.preventDefault();
-        const cur = focusedIndex();
-        const next = enabled.find((i) => i > cur) ?? enabled[0] ?? 0;
-        setFocusedIndex(next);
-        break;
-      }
-      case "ArrowUp": {
-        e.preventDefault();
-        const cur = focusedIndex();
-        const prev =
-          [...enabled].reverse().find((i) => i < cur) ?? enabled[enabled.length - 1] ?? 0;
-        setFocusedIndex(prev);
-        break;
-      }
-      case "Home":
-        e.preventDefault();
-        setFocusedIndex(enabled[0] ?? 0);
-        break;
-      case "End":
-        e.preventDefault();
-        setFocusedIndex(enabled[enabled.length - 1] ?? 0);
-        break;
-      case "Enter":
-      case " ": {
-        e.preventDefault();
-        const idx = focusedIndex();
-        const opt = props.options[idx];
-        if (opt && !opt.disabled) selectOption(opt.value);
-        break;
-      }
-      case "Escape":
-        e.preventDefault();
-        e.stopPropagation();
-        closeDropdown();
-        break;
-      case "Tab":
-        e.preventDefault();
-        e.stopPropagation();
-        closeDropdown(false);
-        queueMicrotask(() => focusAdjacentControl(e.shiftKey));
-        break;
-    }
-  }
-
   return (
-    <>
-      {/* Trigger */}
-      <button
-        ref={(el) => (triggerRef = el)}
-        type="button"
-        id={props.id ?? triggerId}
+    <div class="relative">
+      <select
+        id={props.id}
         aria-label={props.ariaLabel}
-        aria-haspopup="listbox"
-        aria-expanded={open()}
-        aria-controls={open() ? listboxId : undefined}
-        aria-disabled={props.disabled}
         disabled={props.disabled}
-        class={`group/select flex w-full cursor-pointer items-center justify-between gap-2 text-left ${CONTROL_CLASSES} aria-expanded:outline-2 aria-expanded:outline-offset-2 aria-expanded:outline-ring${props.class ? ` ${props.class}` : ""}`}
-        onClick={() => (open() ? closeDropdown() : openDropdown())}
-        onKeyDown={handleTriggerKeyDown}
+        value={props.value}
+        onChange={(event) => props.onChange(event.currentTarget.value)}
+        class={`w-full appearance-none cursor-pointer pr-8 ${CONTROL_CLASSES}${props.class ? ` ${props.class}` : ""}`}
       >
-        <span class="flex-1 truncate text-fg">{selectedLabel()}</span>
-        <svg
-          class="shrink-0 text-fg-soft transition-transform duration-200 group-aria-expanded/select:rotate-180"
-          width="12"
-          height="12"
-          viewBox="0 0 12 12"
-          fill="none"
-          stroke="currentColor"
-          aria-hidden="true"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M3 4.5l3 3 3-3"
-          />
-        </svg>
-      </button>
-
-      {/* Dropdown portal */}
-      <Show when={open()}>
-        <Portal mount={getPortalTarget()}>
-          <div
-            ref={(el) => (listboxRef = el)}
-            id={listboxId}
-            role="listbox"
-            aria-labelledby={props.id ?? triggerId}
-            aria-activedescendant={
-              focusedIndex() >= 0 ? `${listboxId}-option-${focusedIndex()}` : undefined
-            }
-            tabIndex={-1}
-            class="fixed z-9999 list-none m-0 p-1 bg-surface border border-line-strong rounded-md shadow-md max-h-60 overflow-y-auto origin-top animate-select-in data-[side=above]:origin-bottom data-[side=above]:animate-select-in-up"
-            data-side={pos().openUpward ? "above" : "below"}
-            style={{
-              top: pos().top !== undefined ? `${pos().top}px` : "auto",
-              bottom: pos().bottom !== undefined ? `${pos().bottom}px` : "auto",
-              left: `${pos().left}px`,
-              width: `${pos().width}px`,
-            }}
-            onKeyDown={handleListKeyDown}
-            onMouseLeave={() => setFocusedIndex(-1)}
-          >
-            <For each={props.options}>
-              {(option, index) => (
-                <div
-                  id={`${listboxId}-option-${index()}`}
-                  role="option"
-                  aria-selected={option.value === props.value}
-                  aria-disabled={option.disabled}
-                  tabIndex={-1}
-                  class="flex items-center justify-between px-2.5 py-2 rounded-sm font-body text-sm text-fg cursor-pointer select-none transition-colors duration-150 ease-out aria-selected:font-semibold data-[focused=true]:bg-hover aria-disabled:opacity-40 aria-disabled:cursor-not-allowed aria-disabled:pointer-events-none"
-                  data-focused={index() === focusedIndex()}
-                  onMouseEnter={() => !option.disabled && setFocusedIndex(index())}
-                  onMouseDown={(e) => {
-                    e.preventDefault(); // keep focus on listbox
-                    if (!option.disabled) selectOption(option.value);
-                  }}
-                >
-                  {option.label}
-                  <Show when={option.value === props.value}>
-                    <svg
-                      class="shrink-0 text-primary animate-select-check-in"
-                      width="12"
-                      height="12"
-                      viewBox="0 0 12 12"
-                      fill="none"
-                      stroke="currentColor"
-                      aria-hidden="true"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2.5"
-                        d="M2 6l3 3 5-5"
-                      />
-                    </svg>
-                  </Show>
-                </div>
-              )}
-            </For>
-          </div>
-        </Portal>
-      </Show>
-    </>
+        <For each={props.options}>
+          {(option) => (
+            <option value={option.value} disabled={option.disabled}>
+              {option.label}
+            </option>
+          )}
+        </For>
+      </select>
+      <svg
+        class="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-fg-soft"
+        width="12"
+        height="12"
+        viewBox="0 0 12 12"
+        fill="none"
+        stroke="currentColor"
+        aria-hidden="true"
+      >
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4.5l3 3 3-3" />
+      </svg>
+    </div>
   );
 }

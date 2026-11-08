@@ -1,4 +1,4 @@
-import { createSignal, Show } from "solid-js";
+import { Show } from "solid-js";
 import { useImageApp } from "@/components/app/state/ImageAppContext";
 import Checkbox from "@/components/ui/Checkbox";
 import InfoTooltip from "@/components/ui/InfoTooltip";
@@ -11,7 +11,6 @@ interface InlineTogglesProps {
 
 export default function InlineToggles(props: InlineTogglesProps) {
   const { state, actions } = useImageApp();
-  const [tooltipOpen, setTooltipOpen] = createSignal(false);
   const prefix = props.idPrefix ?? "";
 
   return (
@@ -26,7 +25,7 @@ export default function InlineToggles(props: InlineTogglesProps) {
         />
       </Show>
       <Show when={props.showBackground ?? true}>
-        <div class="flex items-center gap-1.5">
+        <div class="flex flex-col items-start gap-1.5">
           <Checkbox
             id={`${prefix}remove-background-checkbox`}
             label="Remove bg"
@@ -44,8 +43,6 @@ export default function InlineToggles(props: InlineTogglesProps) {
                   the model loads.
                 </>
               }
-              open={tooltipOpen()}
-              onToggle={setTooltipOpen}
             />
           </Show>
         </div>
