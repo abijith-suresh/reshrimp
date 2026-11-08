@@ -256,10 +256,10 @@ async function main() {
 
   await writeFile(resourceMapPath, `${JSON.stringify(resourceMap, null, 2)}\n`);
 
-  console.log(
+  process.stdout.write(
     downloadedCount === 0
-      ? "background-removal assets already up to date"
-      : `downloaded ${downloadedCount} background-removal asset chunk(s)`
+      ? "background-removal assets already up to date\n"
+      : `downloaded ${downloadedCount} background-removal asset chunk(s)\n`
   );
 }
 
