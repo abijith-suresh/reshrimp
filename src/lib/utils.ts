@@ -1,8 +1,3 @@
-/**
- * URL utility functions
- * Centralized to avoid duplication across components
- */
-
 const baseUrl = import.meta.env.BASE_URL;
 
 type ClassValue = string | false | null | undefined;

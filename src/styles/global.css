@@ -31,7 +31,6 @@
 @theme static {
   --color-*: initial;
   --color-white: oklch(1 0 0);
-  --color-black: oklch(0 0 0);
   --color-transparent: transparent;
   --color-current: currentColor;
 
@@ -70,9 +69,7 @@
   --color-yellow-ink: oklch(0.5 0.1 75);
 
   --color-success: var(--color-mint-ink);
-  --color-success-subtle: var(--color-mint-subtle);
   --color-warning: var(--color-yellow-ink);
-  --color-warning-subtle: var(--color-yellow-subtle);
   /* Error crimson, a distinct hue from the coral primary. */
   --color-danger: oklch(0.515 0.2 12);
   --color-danger-subtle: oklch(0.96 0.022 12);
@@ -147,7 +144,6 @@
   --background-image-checker: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M0 0h8v8H0zM8 8h8v8H8z' fill-opacity='0.06'/%3E%3C/svg%3E");
   --animate-rise: rise 700ms var(--ease-reveal) both;
   --animate-rise-late: rise 800ms 120ms var(--ease-reveal) both;
-  --animate-menu-in: menu-in 150ms var(--ease-reveal);
   --animate-feedback-in: slide-in 0.3s ease;
   --animate-sheet-backdrop-in: mobile-sheet-backdrop-in 0.35s ease both;
 }
@@ -228,13 +224,6 @@
   to {
     opacity: 1;
     transform: translateY(0);
-  }
-}
-
-@keyframes menu-in {
-  from {
-    opacity: 0;
-    transform: translateY(-0.25rem) scale(0.98);
   }
 }
 

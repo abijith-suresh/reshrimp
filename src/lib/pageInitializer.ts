@@ -36,8 +36,7 @@ export function registerPageInitializer(
   const run = (isSpaNavigation: boolean) => {
     cleanup?.();
 
-    const nextCleanup = init(isSpaNavigation);
-    cleanup = typeof nextCleanup === "function" ? nextCleanup : undefined;
+    cleanup = init(isSpaNavigation);
   };
 
   // Run on every SPA navigation — cleanup runs before each re-init

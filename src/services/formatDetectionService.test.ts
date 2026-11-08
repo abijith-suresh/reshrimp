@@ -1,4 +1,4 @@
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 
 async function importFormatDetectionService() {
   vi.resetModules();
@@ -6,10 +6,6 @@ async function importFormatDetectionService() {
 }
 
 describe("formatDetectionService", () => {
-  beforeEach(() => {
-    vi.restoreAllMocks();
-  });
-
   afterEach(() => {
     delete window.heic2any;
     document.head.querySelectorAll("script[data-heic2any-loader]").forEach((node) => {

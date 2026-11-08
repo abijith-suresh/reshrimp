@@ -1,23 +1,13 @@
 import type { ImageFormat } from "./image";
 
-/**
- * Supported resize units
- */
 export type ResizeUnit = "px" | "%" | "in" | "cm";
 
-/**
- * Options for resizing images
- */
 export interface ResizeOptions {
   width?: number;
   height?: number;
   maintainAspectRatio: boolean;
 }
 
-/**
- * Complete options for processing an image
- * Combines resize, format conversion, and compression
- */
 export interface ProcessOptions {
   resize?: ResizeOptions;
   format?: ImageFormat;
@@ -27,14 +17,8 @@ export interface ProcessOptions {
   targetFileSizeBytes?: number;
 }
 
-/**
- * Progress callback for background removal operations
- */
 export type BackgroundRemovalProgressCallback = (progress: number) => void;
 
-/**
- * Result of image processing operation
- */
 export interface ProcessResult {
   blob: Blob;
   /** The format requested by the workflow before browser capability fallback. */

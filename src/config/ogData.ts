@@ -1,8 +1,3 @@
-/**
- * OG image metadata for each page route
- * Used by the dynamic OG image generation endpoint
- */
-
 export interface OgPageData {
   title: string;
   description: string;

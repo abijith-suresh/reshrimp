@@ -10,13 +10,6 @@ import { formatFileSize } from "../utils/imageUtils";
 import { isHeicBlob } from "./formatDetectionService";
 
 export async function validateImageFile(file: File): Promise<ValidationResult> {
-  if (!file) {
-    return {
-      valid: false,
-      error: "No file provided",
-    };
-  }
-
   // Some devices export HEIC files without an image MIME type.
   if (!file.type.startsWith("image/")) {
     if (!(await isHeicBlob(file))) {
@@ -39,16 +32,10 @@ export async function validateImageFile(file: File): Promise<ValidationResult> {
     };
   }
 
-  const warnings: string[] = [];
-
-  if (file.size > RECOMMENDED_MAX_SIZE) {
-    warnings.push(`Large file detected (${formatFileSize(file.size)}). Processing may be slow.`);
-  }
-
-  return warnings.length > 0
+  return file.size > RECOMMENDED_MAX_SIZE
     ? {
         valid: true,
-        warning: warnings.join(" "),
+        warning: `Large file detected (${formatFileSize(file.size)}). Processing may be slow.`,
       }
     : {
         valid: true,
@@ -77,7 +64,10 @@ export function validateImageDimensions(
   };
 }
 
-export function getFileExtension(format: ImageFormat): string {
+export function generateDownloadFilename(
+  originalFilename: string,
+  targetFormat: ImageFormat
+): string {
   const extensionMap: Record<ImageFormat, string> = {
     "image/jpeg": "jpg",
     "image/png": "png",
@@ -87,14 +77,7 @@ export function getFileExtension(format: ImageFormat): string {
     "image/heif": "heif",
   };
 
-  return extensionMap[format] || "png";
-}
-
-export function generateDownloadFilename(
-  originalFilename: string,
-  targetFormat: ImageFormat
-): string {
-  const extension = getFileExtension(targetFormat);
+  const extension = extensionMap[targetFormat] || "png";
   const nameWithoutExtension = originalFilename.replace(/\.[^.]+$/, "");
   return `${nameWithoutExtension}-processed.${extension}`;
 }

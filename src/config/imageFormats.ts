@@ -43,10 +43,8 @@ export function getImageFormatLabel(format: ImageFormat): string {
   return IMAGE_FORMAT_LABELS[format];
 }
 
-export function getSupportedImageFormatSummary(
-  formats: ReadonlyArray<ImageFormat> = ACCEPTED_INPUT_FORMATS
-): string {
-  return formats.map((format) => getImageFormatLabel(format)).join(", ");
+export function getSupportedImageFormatSummary(): string {
+  return ACCEPTED_INPUT_FORMATS.map((format) => getImageFormatLabel(format)).join(", ");
 }
 
 export function isAcceptedInputFormat(mimeType: string): mimeType is ImageFormat {
