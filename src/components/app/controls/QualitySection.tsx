@@ -1,6 +1,6 @@
 import { Show } from "solid-js";
 import { useImageApp } from "@/components/app/state/ImageAppContext";
-import SectionHeader from "@/components/ui/SectionHeader";
+import { CONTROL_CLASSES, FIELD_LABEL_CLASSES } from "@/components/ui/control";
 
 interface QualitySectionProps {
   idPrefix?: string;
@@ -14,38 +14,44 @@ export default function QualitySection(props: QualitySectionProps) {
   const sizeModeId = `${props.idPrefix ?? ""}compression-mode-size`;
   const modeAvailable = () => state.controlsActive() && state.qualityControlSupported();
   const isQualityMode = () => state.compressionMode() === "quality";
+  const targetMissed = () => state.processResult()?.metadata.targetFileSizeStatus === "unmet";
+  const segmentClasses =
+    "relative z-10 flex min-w-0 items-center justify-center rounded-sm px-3 text-sm font-medium transition-colors duration-150 disabled:cursor-not-allowed";
 
   return (
     <div class="flex flex-col gap-3">
-      <SectionHeader>Compression</SectionHeader>
-
-      <fieldset class="relative isolate grid min-w-0 grid-cols-2 rounded-lg bg-canvas p-1">
-        <legend class="sr-only">Compression mode</legend>
-        <span
-          aria-hidden="true"
-          class="pointer-events-none absolute inset-y-1 left-1 z-0 w-[calc(50%-4px)] rounded-md bg-surface shadow-sm transition-[transform,translate] duration-150 ease-reveal motion-reduce:transition-none data-[mode=size]:translate-x-full"
-          data-mode={state.compressionMode()}
-        />
-        <button
-          id={qualityModeId}
-          type="button"
-          aria-pressed={state.compressionMode() === "quality"}
-          disabled={!modeAvailable()}
-          class={`relative z-10 flex min-w-0 items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 ${isQualityMode() ? "text-fg" : "text-fg-muted hover:text-fg"}`}
-          onClick={() => actions.setCompressionMode("quality")}
+      <fieldset class="min-w-0">
+        <legend class={`mb-1.5 ${FIELD_LABEL_CLASSES}`}>Compression</legend>
+        <div
+          class="relative isolate grid h-10 grid-cols-2 rounded-md border border-line-strong bg-canvas p-0.5 transition-opacity duration-150 pointer-coarse:h-11"
+          classList={{ "opacity-50": !modeAvailable() }}
         >
-          Quality
-        </button>
-        <button
-          id={sizeModeId}
-          type="button"
-          aria-pressed={state.compressionMode() === "size"}
-          disabled={!modeAvailable()}
-          class={`relative z-10 flex min-w-0 items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 ${!isQualityMode() ? "text-fg" : "text-fg-muted hover:text-fg"}`}
-          onClick={() => actions.setCompressionMode("size")}
-        >
-          Max file size
-        </button>
+          <span
+            aria-hidden="true"
+            class="pointer-events-none absolute inset-y-0.5 left-0.5 right-1/2 z-0 rounded-sm bg-surface shadow-button transition-[translate] duration-150 ease-reveal motion-reduce:transition-none data-[mode=size]:translate-x-full"
+            data-mode={state.compressionMode()}
+          />
+          <button
+            id={qualityModeId}
+            type="button"
+            aria-pressed={state.compressionMode() === "quality"}
+            disabled={!modeAvailable()}
+            class={`${segmentClasses} ${isQualityMode() ? "text-fg" : "text-fg-muted hover:text-fg"}`}
+            onClick={() => actions.setCompressionMode("quality")}
+          >
+            Quality
+          </button>
+          <button
+            id={sizeModeId}
+            type="button"
+            aria-pressed={state.compressionMode() === "size"}
+            disabled={!modeAvailable()}
+            class={`${segmentClasses} ${!isQualityMode() ? "text-fg" : "text-fg-muted hover:text-fg"}`}
+            onClick={() => actions.setCompressionMode("size")}
+          >
+            Max file size
+          </button>
+        </div>
       </fieldset>
 
       <div class="grid">
@@ -54,11 +60,11 @@ export default function QualitySection(props: QualitySectionProps) {
           inert={!isQualityMode()}
           class="col-start-1 row-start-1 flex flex-col gap-3 transition-[opacity,transform,translate,visibility] duration-200 ease-out motion-reduce:transition-none aria-hidden:opacity-0 aria-hidden:invisible aria-hidden:translate-y-1 aria-hidden:pointer-events-none"
         >
-          <div class="flex min-h-12 items-center justify-between gap-3">
+          <div class="flex min-h-11 items-center justify-between gap-3">
             <label for={qualityId} class="text-sm font-medium text-fg">
               Output quality
             </label>
-            <span class="text-sm font-semibold text-primary">{state.qualityValue()}%</span>
+            <span class="text-sm font-semibold text-fg tabular-nums">{state.qualityValue()}%</span>
           </div>
           <input
             id={qualityId}
@@ -66,7 +72,10 @@ export default function QualitySection(props: QualitySectionProps) {
             min={1}
             max={100}
             value={state.qualityValue()}
-            class="w-full h-1.5 rounded-full appearance-none bg-line cursor-pointer slider"
+            class="slider h-1.5 w-full cursor-pointer appearance-none rounded-full disabled:cursor-not-allowed disabled:opacity-50"
+            style={{
+              background: `linear-gradient(to right, var(--color-primary) ${state.qualityValue()}%, var(--color-line-strong) ${state.qualityValue()}%)`,
+            }}
             disabled={!modeAvailable() || !isQualityMode()}
             onInput={(e) =>
               actions.setQualityValue(parseInt((e.target as HTMLInputElement).value, 10))
@@ -99,7 +108,7 @@ export default function QualitySection(props: QualitySectionProps) {
           inert={isQualityMode()}
           class="col-start-1 row-start-1 flex flex-col gap-3 transition-[opacity,transform,translate,visibility] duration-200 ease-out motion-reduce:transition-none aria-hidden:opacity-0 aria-hidden:invisible aria-hidden:translate-y-1 aria-hidden:pointer-events-none"
         >
-          <div class="flex min-h-12 items-center justify-between gap-3">
+          <div class="flex min-h-11 items-center justify-between gap-3">
             <label for={targetFileSizeId} class="text-sm font-medium text-fg">
               Maximum file size (KB)
             </label>
@@ -112,7 +121,7 @@ export default function QualitySection(props: QualitySectionProps) {
               disabled={!modeAvailable() || isQualityMode()}
               aria-invalid={state.targetFileSizeInputInvalid() ? "true" : undefined}
               aria-describedby={`${targetFileSizeId}-help${state.targetFileSizeInputInvalid() ? ` ${targetFileSizeId}-error` : ""}`}
-              class="h-12 w-28 rounded-lg border border-line-strong bg-canvas px-3 font-body text-base text-fg transition-[border-color,box-shadow] duration-200 focus-visible:outline-hidden focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/20 disabled:opacity-50"
+              class={`w-28 ${CONTROL_CLASSES}`}
               onInput={(e) => actions.setTargetFileSizeValue(e.currentTarget.value)}
             />
           </div>
@@ -147,7 +156,11 @@ export default function QualitySection(props: QualitySectionProps) {
           </Show>
           <Show when={state.targetFileSizeNotice()}>
             {(notice) => (
-              <p role="status" aria-live="polite" class="text-xs text-fg-muted">
+              <p
+                role="status"
+                aria-live="polite"
+                class={`text-xs ${targetMissed() ? "font-medium text-warning" : "text-fg-muted"}`}
+              >
                 {notice()}
               </p>
             )}

@@ -1,3 +1,4 @@
+import { ImageUp } from "lucide-solid";
 import type { JSX } from "solid-js";
 
 interface UploadDropzoneProps {
@@ -10,16 +11,18 @@ interface UploadDropzoneProps {
   children: JSX.Element;
 }
 
+// The Source card's compact replace control, shown once an image is loaded.
+// The first image comes in through the preview's empty state.
 export default function UploadDropzone(props: UploadDropzoneProps) {
   return (
     <>
       {/* biome-ignore lint/a11y/useSemanticElements: contains a hidden file input; nesting interactive elements inside a real button would be invalid HTML */}
       <div
-        class="touch-manipulation bg-surface border border-line-strong rounded-lg px-4 py-5 text-center cursor-pointer transition-[border-color,box-shadow] duration-200 hover:border-fg-soft hover:shadow-sm"
-        classList={{ "border-primary bg-coral-subtle": props.isDragOver }}
+        class="flex min-h-14 cursor-pointer touch-manipulation items-center gap-3 rounded-md border border-dashed border-line-strong bg-surface-muted px-3 py-2.5 text-left transition-colors duration-150 hover:border-fg-soft hover:bg-hover data-drag-over:border-primary data-drag-over:bg-coral-subtle"
+        data-drag-over={props.isDragOver ? "" : undefined}
         role="button"
         tabIndex={0}
-        aria-label="Upload image or drag and drop"
+        aria-label="Replace image or drop one here"
         onClick={() => props.onClick()}
         onKeyDown={(e) => props.onKeyDown(e)}
         onDragOver={(e) => {
@@ -37,24 +40,17 @@ export default function UploadDropzone(props: UploadDropzoneProps) {
           if (file) props.onDrop(file);
         }}
       >
-        <div class="flex flex-col items-center gap-2">
-          <div class="w-10 h-10 rounded-full border border-line-strong flex items-center justify-center text-fg-soft mb-1">
-            <svg
-              aria-hidden="true"
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-            >
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-          </div>
-          <span class="text-xs text-fg-muted font-medium">Import image or drop</span>
-          {props.children}
-        </div>
+        <span
+          aria-hidden="true"
+          class="flex size-9 shrink-0 items-center justify-center rounded-sm border border-line bg-surface text-fg-muted"
+        >
+          <ImageUp size={18} />
+        </span>
+        <span class="flex min-w-0 flex-col">
+          <span class="text-sm font-semibold text-fg">Replace image</span>
+          <span class="text-xs text-fg-muted">or drop one here</span>
+        </span>
+        {props.children}
       </div>
     </>
   );

@@ -15,7 +15,7 @@ export default function InlineToggles(props: InlineTogglesProps) {
   const prefix = props.idPrefix ?? "";
 
   return (
-    <div class="flex items-center gap-5 pt-1">
+    <div class="flex items-center gap-5">
       <Show when={props.showAspectRatio ?? true}>
         <Checkbox
           id={`${prefix}maintain-aspect-ratio`}

@@ -1,7 +1,6 @@
 import { ChevronUp, SlidersHorizontal } from "lucide-solid";
 import { createEffect, createSignal, on, onCleanup, onMount, Show } from "solid-js";
-import AppSidebar from "@/components/app/AppSidebar";
-import FloatingBackButton from "@/components/app/FloatingBackButton";
+import AppTopBar from "@/components/app/AppTopBar";
 import PreviewPanel from "@/components/app/PreviewPanel";
 import ProcessPanel from "@/components/app/panels/ProcessPanel";
 import DownloadSection from "@/components/app/preview/DownloadSection";
@@ -12,7 +11,7 @@ import { buttonVariants } from "@/components/ui/button";
 // ── Mobile bottom sheet ─────────────────────────────────────────────────────
 // Two visible states, zero drag logic:
 //   hidden  → no image loaded; sheet is fully off-screen below the viewport
-//   peek    → image loaded; the action pill, info, and download header stay visible
+//   peek    → image loaded; the Edit image handle, info, and Download stay visible
 //   open    → 80dvh panel; tap Done or backdrop to return to peek
 //
 // Toggling is a single boolean tap with no pointer-event math or flick thresholds.
@@ -207,11 +206,13 @@ function MobileSheet() {
         : focusOrigin?.matches('button[aria-haspopup="listbox"]')
           ? focusOrigin
           : null;
-      const appShell = document.querySelector<HTMLElement>("[data-app-shell]");
+      // The top bar and the empty state stay on screen at every size, so only
+      // focus inside controls that disappear needs a new home.
+      const hadDesktopOnlyFocus =
+        !!focusOrigin?.closest("[data-desktop-only]") ||
+        !!listboxTrigger?.closest("[data-desktop-only]");
       if (event.matches) {
         const hadSheetFocus = !!focusOrigin && !!sheetRef?.contains(focusOrigin);
-        const hadMobileBackFocus = !!focusOrigin?.closest("[data-mobile-back-button]");
-        const hadMobileUploadFocus = !!focusOrigin?.closest("[data-mobile-empty-state-upload]");
         lastFocusedElement = null;
         focusedListbox?.dispatchEvent(
           new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true })
@@ -222,39 +223,15 @@ function MobileSheet() {
             if (disposed) return;
             document.querySelector<HTMLElement>("#width-input:not([disabled])")?.focus();
           });
-        } else if (hadMobileBackFocus) {
-          queueMicrotask(() => {
-            if (disposed) return;
-            document
-              .querySelector<HTMLElement>(
-                '[aria-label="App navigation"] a[aria-label="Back to home"]'
-              )
-              ?.focus();
-          });
-        } else if (hadMobileUploadFocus) {
-          queueMicrotask(() => {
-            if (disposed) return;
-            document
-              .querySelector<HTMLElement>(
-                '[data-desktop-controls] [aria-label="Upload image or drag and drop"]'
-              )
-              ?.focus();
-          });
         }
       } else if (state.currentImage()) {
-        const hadAppFocus =
-          (!!focusOrigin && !!appShell?.contains(focusOrigin)) ||
-          (!!listboxTrigger && !!appShell?.contains(listboxTrigger));
         lastFocusedElement = null;
         focusedListbox?.dispatchEvent(
           new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true })
         );
         setSheetState("peek");
-        if (hadAppFocus) queueMicrotask(() => !disposed && controlsToggleRef?.focus());
-      } else if (
-        (!!focusOrigin && !!appShell?.contains(focusOrigin)) ||
-        (!!listboxTrigger && !!appShell?.contains(listboxTrigger))
-      ) {
+        if (hadDesktopOnlyFocus) queueMicrotask(() => !disposed && controlsToggleRef?.focus());
+      } else if (hadDesktopOnlyFocus) {
         lastFocusedElement = null;
         focusedListbox?.dispatchEvent(
           new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true })
@@ -346,7 +323,7 @@ function MobileSheet() {
       {/* Backdrop — tap to collapse when fully open */}
       <Show when={sheetState() === "open"}>
         <div
-          class="animate-sheet-backdrop-in editor:hidden fixed inset-0 z-50 bg-black/20 cursor-pointer"
+          class="animate-sheet-backdrop-in editor:hidden fixed inset-0 z-50 cursor-pointer bg-fg/20"
           onClick={collapseSheet}
           aria-hidden="true"
         />
@@ -361,7 +338,7 @@ function MobileSheet() {
         aria-label="Image controls"
         aria-hidden={sheetState() === "hidden" ? "true" : "false"}
         inert={sheetState() === "hidden"}
-        class="editor:hidden fixed inset-x-0 bottom-0 z-60 flex flex-col bg-surface rounded-t-lg h-app-sheet pl-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)] border-t border-line-strong shadow-mobile-sheet will-change-transform overscroll-contain transition-transform duration-150 ease-sheet [transform:translateY(100%)] data-[sheet-state=peek]:[transform:translateY(calc(100%-var(--spacing-app-sheet-peek)))] data-[sheet-state=open]:[transform:translateY(0%)]"
+        class="editor:hidden fixed inset-x-0 bottom-0 z-60 flex h-app-sheet translate-y-full flex-col rounded-t-lg border-t border-line bg-surface pr-(--safe-area-inset-right) pl-(--safe-area-inset-left) shadow-mobile-sheet will-change-transform overscroll-contain transition-transform duration-150 ease-sheet data-[sheet-state=open]:translate-y-0 data-[sheet-state=peek]:translate-y-[calc(100%-var(--spacing-app-sheet-peek))]"
         onKeyDown={handleSheetKeyDown}
         data-sheet-state={sheetState()}
       >
@@ -372,23 +349,22 @@ function MobileSheet() {
           }}
           class="shrink-0"
         >
-          {/* Action header: when open, renders a standard modal title bar with Done CTA */}
+          <span aria-hidden="true" class="mx-auto mt-2 block h-1 w-9 rounded-full bg-line-strong" />
+          {/* Peek: a quiet handle that opens the controls. Open: a title bar with Done. */}
           <div
             class={
               sheetState() === "open"
-                ? "flex items-center justify-between px-5 pt-2 pb-2 min-h-12"
-                : "px-5 pt-3 pb-2"
+                ? "flex min-h-12 items-center justify-between gap-3 border-b border-line px-4 pt-1 pb-2"
+                : "px-4 pt-2 pb-2"
             }
           >
             <Show when={sheetState() === "open"}>
-              <div class="flex flex-col min-w-0 pr-3">
-                <h2 class="text-xs font-semibold text-fg-muted uppercase tracking-widest">
-                  Edit image
-                </h2>
+              <div class="flex min-w-0 flex-col">
+                <h2 class="text-sm font-semibold text-fg">Edit image</h2>
                 <Show when={img()}>
                   {(currentImg) => (
-                    <p class="text-sm text-fg-muted truncate mt-0.5">
-                      {currentImg().metadata.fileName} · {displayWidth()} × {displayHeight()} px
+                    <p class="truncate text-xs text-fg-muted">
+                      {currentImg().metadata.fileName} · {displayWidth()} × {displayHeight()}px
                     </p>
                   )}
                 </Show>
@@ -400,9 +376,11 @@ function MobileSheet() {
                 controlsToggleRef = element;
               }}
               type="button"
-              class={`${
-                sheetState() === "open" ? "shrink-0" : "w-full justify-between"
-              } ${buttonVariants({ variant: "primary" })}`}
+              class={
+                sheetState() === "open"
+                  ? buttonVariants({ variant: "secondary", size: "sm" })
+                  : `${buttonVariants({ variant: "secondary", fullWidth: true })} justify-between`
+              }
               onClick={toggleSheet}
               aria-controls="mobile-controls-content"
               aria-expanded={sheetState() === "open"}
@@ -412,14 +390,10 @@ function MobileSheet() {
                 fallback={
                   <>
                     <span class="flex items-center gap-2">
-                      <SlidersHorizontal size={17} aria-hidden="true" />
+                      <SlidersHorizontal size={16} class="text-fg-muted" aria-hidden="true" />
                       <span>Edit image</span>
                     </span>
-                    <ChevronUp
-                      size={18}
-                      aria-hidden="true"
-                      class="transition-transform duration-300"
-                    />
+                    <ChevronUp size={18} class="text-fg-muted" aria-hidden="true" />
                   </>
                 }
               >
@@ -432,28 +406,28 @@ function MobileSheet() {
               instead of unmounting, so the header morphs instead of snapping */}
           <div
             id="mobile-peek-affordances"
-            class="max-h-66 opacity-100 overflow-hidden transition-[max-height,opacity] duration-[400ms,350ms] ease-[var(--ease-sheet),ease] aria-hidden:max-h-0 aria-hidden:opacity-0"
+            class="max-h-66 overflow-hidden opacity-100 transition-[max-height,opacity] duration-300 ease-sheet aria-hidden:max-h-0 aria-hidden:opacity-0"
             onTransitionEnd={handleAffordanceTransition}
             aria-hidden={sheetState() === "open" ? "true" : "false"}
             inert={sheetState() === "open"}
           >
             <Show when={img()}>
               {(currentImg) => (
-                <div class="px-5 pb-2">
+                <div class="px-4 pb-1">
                   <ImageInfoBar
                     idPrefix="mobile-"
                     fileName={currentImg().metadata.fileName}
                     width={displayWidth()}
                     height={displayHeight()}
+                    originalFileSize={currentImg().metadata.fileSize}
                     fileSize={displayFileSize()}
-                    sizeDiff={state.sizeDifference()}
                   />
                 </div>
               )}
             </Show>
 
-            {/* Download button — primary CTA reachable directly in peek mode */}
-            <div class="px-5 pt-1 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+            {/* Download: the sheet's single primary action, reachable straight from peek */}
+            <div class="px-4 pt-2 pb-[max(0.75rem,var(--safe-area-inset-bottom))]">
               <DownloadSection idPrefix="mobile-" />
             </div>
           </div>
@@ -463,13 +437,13 @@ function MobileSheet() {
         <div
           id="mobile-controls-content"
           data-sheet-content
-          class="flex-1 overflow-y-auto min-h-0 overscroll-contain pb-[max(1rem,env(safe-area-inset-bottom))]"
+          class="min-h-0 flex-1 overflow-y-auto overscroll-contain bg-canvas pb-[max(1rem,var(--safe-area-inset-bottom))]"
           aria-hidden={sheetState() === "open" ? "false" : "true"}
           inert={sheetState() !== "open"}
         >
-          <ProcessPanel sourceAtBottom idPrefix="mobile-" showDownload={false} />
-          {/* In open modal mode, primary download is available at the end of configurations */}
-          <div class="px-5 pt-1 pb-5">
+          <ProcessPanel sourceAtBottom idPrefix="mobile-" showFormatNotice={false} />
+          {/* When open, Download waits at the end of the controls */}
+          <div class="px-3 pb-2">
             <DownloadSection idPrefix="mobile-modal-" />
           </div>
         </div>
@@ -484,27 +458,26 @@ export default function ImageApp() {
     <ImageAppProvider>
       <div
         data-app-shell
-        class="group/app pt-[env(safe-area-inset-top,0px)] pl-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)] h-dvh overflow-hidden flex flex-row bg-canvas"
+        class="group/app flex h-dvh flex-col overflow-hidden bg-canvas pt-(--safe-area-inset-top) pr-(--safe-area-inset-right) pl-(--safe-area-inset-left)"
       >
-        {/* Desktop icon dock */}
-        <AppSidebar />
+        <h1 class="sr-only">Reshrimp image tool</h1>
+        <AppTopBar />
 
-        {/* Control panel — desktop only */}
-        <div
-          data-desktop-controls
-          class="hidden editor:flex w-app-panel flex-col border-r border-line-strong bg-surface overflow-hidden shrink-0"
-        >
-          <div class="flex flex-col flex-1 overflow-hidden min-h-0">
+        <div class="flex min-h-0 flex-1">
+          {/* Controls panel: Cards on the canvas, desktop only */}
+          <aside
+            data-desktop-only
+            aria-label="Image settings"
+            class="hidden w-app-panel shrink-0 flex-col overflow-y-auto overscroll-contain border-r border-line editor:flex"
+          >
             <ProcessPanel />
+          </aside>
+
+          {/* Preview fills the remaining space on every screen size */}
+          <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
+            <PreviewPanel />
           </div>
         </div>
-
-        {/* Preview — fills remaining space on all screen sizes */}
-        <div class="flex-1 overflow-hidden flex flex-col">
-          <PreviewPanel />
-        </div>
-
-        <FloatingBackButton />
       </div>
 
       {/* Mobile overlays */}

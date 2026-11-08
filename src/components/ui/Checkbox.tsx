@@ -9,28 +9,28 @@ interface CheckboxProps {
 export default function Checkbox(props: CheckboxProps) {
   return (
     <label
-      class="flex items-center gap-2 text-sm text-fg cursor-pointer select-none transition-opacity duration-200"
-      classList={{ "opacity-40 cursor-not-allowed": props.disabled }}
+      class="flex min-h-10 cursor-pointer select-none items-center gap-2.5 text-sm text-fg transition-opacity duration-150 pointer-coarse:min-h-11"
+      classList={{ "opacity-50 cursor-not-allowed": props.disabled }}
     >
-      <span class="relative flex items-center justify-center size-4.5 shrink-0">
+      <span class="relative flex size-5 shrink-0 items-center justify-center">
         <input
           type="checkbox"
           id={props.id}
           checked={props.checked}
           disabled={props.disabled}
           onChange={(e) => props.onChange(e.target.checked)}
-          class="sr-only touch-manipulation"
+          class="peer sr-only touch-manipulation"
         />
         <span
-          class="absolute inset-0 rounded-sm border-[1.5px] transition-[background-color,border-color,box-shadow] duration-200 pointer-events-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
+          class="pointer-events-none absolute inset-0 rounded-xs border transition-colors duration-150 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ring"
           classList={{
             "bg-primary border-primary": props.checked,
-            "bg-surface border-line-strong": !props.checked,
+            "bg-surface border-fg-soft": !props.checked,
           }}
         >
           <svg
             aria-hidden="true"
-            class="absolute inset-0 m-auto h-3 w-3 text-white transition-[opacity,scale] duration-200 ease-pop"
+            class="absolute inset-0 m-auto size-3 text-primary-fg transition-[opacity,scale] duration-150 ease-pop"
             classList={{
               "scale-100 opacity-100": props.checked,
               "scale-75 opacity-0": !props.checked,
