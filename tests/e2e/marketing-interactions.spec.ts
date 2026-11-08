@@ -8,8 +8,8 @@ test("opens the mobile menu, navigates, and restores focus when dismissed", asyn
 
   const closeMenu = page.getByRole("button", { name: "Close menu", exact: true });
   await expect(closeMenu).toHaveAttribute("aria-expanded", "true");
-  await page.getByRole("banner").getByRole("link", { name: "About", exact: true }).tap();
-  await expect(page).toHaveURL(/\/about\/?$/);
+  await page.getByRole("banner").getByRole("link", { name: "FAQ", exact: true }).tap();
+  await expect(page).toHaveURL(/\/faq\/?$/);
   await expect(openMenu).toHaveAttribute("aria-expanded", "false");
 
   await openMenu.tap();

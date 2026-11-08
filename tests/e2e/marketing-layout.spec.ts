@@ -4,12 +4,16 @@ test("keeps marketing pages readable across their responsive boundaries", async 
   await page.emulateMedia({ reducedMotion: "reduce" });
   for (const width of [320, 560, 680, 768, 820, 1024, 1440]) {
     await page.setViewportSize({ width, height: 1000 });
-    for (const route of ["/", "/about", "/privacy", "/faq"]) {
+    for (const route of ["/", "/privacy", "/faq"]) {
       await page.goto(route);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
     }
   }
+});
+
+test("serves no About page", async ({ request }) => {
+  expect((await request.get("/about")).status()).toBe(404);
 });
 
 test("preserves the inclusive hero and navigation breakpoints", async ({ page }) => {
