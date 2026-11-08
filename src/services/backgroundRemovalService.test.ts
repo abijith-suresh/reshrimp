@@ -22,7 +22,7 @@ describe("background removal", () => {
     library.removeBackground.mockResolvedValueOnce(output);
     const config = {
       model: "isnet_fp16",
-      publicPath: window.location.origin + "/background-removal/1.7.0/dist/",
+      publicPath: `${window.location.origin}/background-removal/1.7.0/dist/`,
       device: "cpu",
     };
 
