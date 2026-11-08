@@ -1,45 +1,45 @@
 ---
 import { ArrowLeftRight, Gauge, Scaling, Wand2 } from "lucide-astro";
-import LandingToolRow from "./LandingToolRow.astro";
-import MarketingContainer from "../layout/MarketingContainer.astro";
-import MarketingSectionHeading from "../sections/MarketingSectionHeading.astro";
+import FeatureCard from "../cards/FeatureCard.astro";
+import Section from "../layout/Section.astro";
+
+const tools = [
+  {
+    icon: Scaling,
+    tone: "coral",
+    title: "Resize",
+    description: "Set a new width or height. Keep the original ratio when you need to.",
+  },
+  {
+    icon: ArrowLeftRight,
+    tone: "mint",
+    title: "Convert",
+    description: "Save as JPEG, PNG, WebP, or AVIF.",
+  },
+  {
+    icon: Gauge,
+    tone: "lavender",
+    title: "Compress",
+    description:
+      "Set a maximum size; Reshrimp adjusts JPEG, WebP, or AVIF quality and reports when it cannot meet the target.",
+  },
+  {
+    icon: Wand2,
+    tone: "yellow",
+    title: "Remove a background",
+    description: "Make a transparent PNG in your browser.",
+  },
+] as const;
 ---
 
-<section class="relative z-1 py-marketing-section px-marketing-gutter" id="tools">
-  <MarketingContainer>
-    <MarketingSectionHeading
-      title="What you can do."
-    />
-
-    <div class="flex flex-col">
-      <LandingToolRow
-        number="01"
-        icon={Scaling}
-        color="coral"
-        title="Resize"
-        description="Set a new width or height. Keep the original ratio when you need to."
-      />
-      <LandingToolRow
-        number="02"
-        icon={ArrowLeftRight}
-        color="mint"
-        title="Convert"
-        description="Save as JPEG, PNG, WebP, or AVIF."
-      />
-      <LandingToolRow
-        number="03"
-        icon={Gauge}
-        color="lavender"
-        title="Compress"
-        description="Set a maximum size; Reshrimp adjusts JPEG, WebP, or AVIF quality and reports when it cannot meet the target."
-      />
-      <LandingToolRow
-        number="04"
-        icon={Wand2}
-        color="yellow"
-        title="Remove a background"
-        description="Make a transparent PNG in your browser."
-      />
-    </div>
-  </MarketingContainer>
-</section>
+<Section id="tools" title="What you can do.">
+  <ul class="grid grid-cols-2 gap-4 marketing-mobile:grid-cols-1">
+    {
+      tools.map((tool) => (
+        <FeatureCard icon={tool.icon} tone={tool.tone} title={tool.title}>
+          <p>{tool.description}</p>
+        </FeatureCard>
+      ))
+    }
+  </ul>
+</Section>

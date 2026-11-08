@@ -1,11 +1,11 @@
 ---
 import MarketingLayout from "../layouts/MarketingLayout.astro";
-import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
-import MarketingContainer from "../components/marketing/layout/MarketingContainer.astro";
-import HeroSection from "../components/marketing/hero/HeroSection.astro";
+import Card from "../components/marketing/cards/Card.astro";
+import CtaBand from "../components/marketing/cards/CtaBand.astro";
+import PageHero from "../components/marketing/layout/PageHero.astro";
+import Section from "../components/marketing/layout/Section.astro";
 import FAQAccordion from "../components/marketing/sections/FAQAccordion.astro";
 import ButtonLink from "../components/ui/ButtonLink.astro";
-import PageSection from "../components/ui/PageSection.astro";
 import { Github } from "lucide-astro";
 import { makeHref } from "../lib/utils";
 import { GITHUB_URL, ROUTES } from "../config/constants";
@@ -52,39 +52,19 @@ const faqs = [
   description="Answers about Reshrimp, including privacy, formats, file limits, and processing."
   currentPath="/faq"
 >
-  <MarketingPageWrapper>
-    <HeroSection
-      title="Questions about Reshrimp."
-      subtitle="Privacy, formats, file limits, and processing."
-    />
+  <PageHero title="Questions about Reshrimp." lede="Privacy, formats, file limits, and processing." />
 
-    <PageSection>
-      <MarketingContainer>
-        {
-          faqs.map((faq, i) => (
-            <FAQAccordion question={faq.question} answer={faq.answer} delay={i * 60} />
-          ))
-        }
-      </MarketingContainer>
-    </PageSection>
+  <Section>
+    <Card class="px-8 marketing-mobile:px-6">
+      {faqs.map((faq) => <FAQAccordion question={faq.question} answer={faq.answer} />)}
+    </Card>
+  </Section>
 
-    <PageSection
-      centered
-      containerClass="w-full max-w-marketing-narrow mx-auto"
-    >
-      <h2 class="m-0 text-foreground font-display text-marketing-title-lg leading-none tracking-marketing-tight text-balance" data-reveal data-reveal-delay="0">Still have a question?</h2>
-      <p class="mt-5 mb-8 text-muted-foreground text-marketing-body leading-marketing-body" data-reveal data-reveal-delay="80">
-        Read the source or try the tool.
-      </p>
-      <div class="flex items-center justify-center gap-3 flex-wrap marketing-mobile:[&>a]:w-full" data-reveal data-reveal-delay="160">
-        <ButtonLink href={makeHref(ROUTES.APP)}>
-          Choose an image
-        </ButtonLink>
-        <ButtonLink href={GITHUB_URL} variant="secondary" external={true}>
-          <Github size={18} aria-hidden="true" />
-          View on GitHub
-        </ButtonLink>
-      </div>
-    </PageSection>
-  </MarketingPageWrapper>
+  <CtaBand title="Still have a question?" copy="Read the source or try the tool.">
+    <ButtonLink href={makeHref(ROUTES.APP)}>Open Reshrimp</ButtonLink>
+    <ButtonLink href={GITHUB_URL} variant="secondary" external={true}>
+      <Github size={18} aria-hidden="true" />
+      View on GitHub
+    </ButtonLink>
+  </CtaBand>
 </MarketingLayout>

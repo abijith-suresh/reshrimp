@@ -1,78 +1,97 @@
 ---
-import ButtonLink from "../../ui/ButtonLink.astro";
-import { makeHref } from "../../../lib/utils";
+import { ChevronDown, Download } from "lucide-astro";
 import { ROUTES } from "../../../config/constants";
-import MarketingContainer from "../layout/MarketingContainer.astro";
+import { makeHref } from "../../../lib/utils";
+import ButtonLink from "../../ui/ButtonLink.astro";
+import Container from "../layout/Container.astro";
+
+const fieldClass =
+  "flex h-8 items-center justify-between gap-1 rounded-sm border border-line bg-surface px-2.5 text-xs font-semibold text-fg";
+const labelClass =
+  "mt-1 flex items-center justify-between text-xs font-semibold text-fg first:mt-0";
+const handleClass = "absolute size-2.5 rounded-xs border-2 border-primary bg-surface";
 ---
 
-<section class="relative z-1 pt-marketing-hero px-marketing-gutter pb-marketing-section-compact hero-stack:pt-10 marketing-mobile:pt-8 marketing-mobile:px-4 marketing-mobile:pb-12">
-  <MarketingContainer>
-    <div class="grid grid-cols-[minmax(0,0.82fr)_minmax(520px,1.18fr)] items-center gap-[clamp(2rem,7vw,5rem)] hero-compact:grid-cols-[minmax(0,0.9fr)_minmax(420px,1.1fr)] hero-compact:gap-8 hero-stack:flex hero-stack:flex-col hero-stack:items-stretch hero-stack:gap-10">
-      <div class="relative z-2 animate-landing-copy-in hero-stack:max-w-[40rem]">
-        <h1 class="max-w-[620px] m-0 text-foreground font-display text-marketing-title-xl font-bold leading-none tracking-marketing-tight text-balance marketing-mobile:text-marketing-title-mobile">
+<section class="pt-16 pb-section hero-stack:pt-10" aria-labelledby="hero-title">
+  <Container>
+    <div class="grid grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] items-center gap-12 hero-compact:gap-10 hero-stack:grid-cols-1">
+      <div class="animate-rise hero-stack:max-w-prose">
+        <h1 id="hero-title" class="font-display text-display text-fg text-balance">
           Resize an image.<br />
-          <span class="text-coral-500">Keep it private.</span>
+          <span class="text-primary">Keep it private.</span>
         </h1>
-        <p class="max-w-[35rem] mt-6 mb-0 text-muted-foreground text-marketing-body leading-marketing-body marketing-mobile:mt-5">
+        <p class="mt-6 max-w-md text-lg text-fg-muted text-pretty">
           Resize, convert, compress, or remove a background. Your image stays in your browser.
         </p>
-        <div class="flex items-center flex-wrap gap-4 mt-6 marketing-mobile:items-stretch marketing-mobile:flex-col marketing-mobile:gap-3 marketing-mobile:mt-5">
+        <div class="mt-8">
           <ButtonLink href={makeHref(ROUTES.APP)} size="lg" class="marketing-mobile:w-full">
-            Choose an image
+            Open Reshrimp
           </ButtonLink>
         </div>
       </div>
 
       <figure
-        class="relative min-w-0 m-0 animate-landing-workbench-in hero-stack:w-full hero-stack:max-w-[40rem] hero-stack:mx-auto marketing-mobile:w-[calc(100%+0.75rem)] marketing-mobile:ms-[-0.375rem]"
+        class="relative m-0 min-w-0 animate-rise-late"
         role="img"
         aria-label="Preview of the Reshrimp image workspace with an image preview, resize controls, and output settings"
       >
-        <div class="absolute size-56 rounded-full blur-[40px] opacity-60 pointer-events-none -top-10 -right-4 bg-coral-100"></div>
-        <div class="absolute size-56 rounded-full blur-[40px] opacity-60 pointer-events-none -bottom-12 left-[8%] bg-lavender-100"></div>
-        <div class="relative z-1 overflow-hidden border border-white/90 rounded-xl bg-white/72 shadow-[0_2px_3px_rgba(51,39,76,0.03),0_20px_70px_rgba(51,39,76,0.14)] backdrop-blur-[24px] marketing-mobile:rounded-lg">
-          <div class="flex items-center gap-[0.8rem] min-h-14 px-5 border-b border-[rgba(94,78,126,0.1)] text-soft-foreground text-[0.7rem] font-semibold marketing-mobile:min-h-12 marketing-mobile:px-[0.9rem]">
-            <div class="flex gap-[0.3rem] [&>span]:size-[0.42rem] [&>span]:rounded-full [&>span]:bg-border [&>span:first-child]:bg-coral-300" aria-hidden="true">
-              <span></span><span></span><span></span>
-            </div>
-            <span class="min-w-0 flex-1 truncate" translate="no">image.webp</span>
-          </div>
+        <div class="relative" aria-hidden="true">
+          <span class="absolute -top-5 -left-5 size-20 rounded-full bg-mint-subtle marketing-mobile:-top-3 marketing-mobile:-left-2 marketing-mobile:size-14"></span>
+          <span class="absolute -right-4 -bottom-5 size-24 rotate-12 rounded-xl bg-yellow-subtle marketing-mobile:-right-2 marketing-mobile:size-16"></span>
 
-          <div class="grid grid-cols-[minmax(0,1fr)_11.5rem] min-h-88 marketing-mobile:grid-cols-[minmax(0,1fr)_8.75rem] marketing-mobile:min-h-72">
-            <div class="relative flex items-center justify-center overflow-hidden min-w-0 p-[clamp(1.5rem,4vw,3.5rem)] bg-[rgba(248,247,255,0.72)] marketing-mobile:p-4">
-              <div class="absolute inset-0 opacity-[0.42] bg-transparency-grid text-border-light bg-[position:0_0,0_8px,8px_-8px,-8px_0] bg-size-[16px_16px]" aria-hidden="true"></div>
-              <div class="relative z-1 overflow-hidden w-full max-w-92 aspect-4/3 border-[0.55rem] border-white/78 rounded-[1.2rem] bg-[linear-gradient(145deg,#f8b99d_0%,#ef8f86_42%,#7b739e_100%)] shadow-[0_18px_38px_rgba(54,41,78,0.2)] -rotate-[2.5deg] marketing-mobile:border-[0.35rem]" aria-hidden="true">
-                <div class="absolute top-[12%] right-[12%] w-[24%] aspect-square rounded-full bg-[#ffe3a1] shadow-[0_0_2rem_rgba(255,227,161,0.7)]"></div>
-                <div class="absolute -right-[12%] -bottom-[25%] -left-[12%] h-[65%] rounded-[50%_50%_0_0] bg-[linear-gradient(155deg,#4c6d68_0%,#273a50_100%)] -rotate-8"></div>
-                <div class="absolute bottom-[12%] left-[25%] w-[26%] h-[45%] rounded-[48%_48%_20%_20%] bg-[linear-gradient(180deg,#f6d0ba,#c8676d)] shadow-[0.85rem_0.9rem_0_rgba(33,48,65,0.26)] rotate-8"></div>
-              </div>
+          <div class="relative overflow-hidden rounded-lg border border-line bg-surface shadow-lg">
+            <div class="flex h-12 items-center gap-3 border-b border-line px-4 marketing-mobile:px-3">
+              <span class="flex gap-1.5">
+                <span class="size-2 rounded-full bg-coral"></span>
+                <span class="size-2 rounded-full bg-line-strong"></span>
+                <span class="size-2 rounded-full bg-line-strong"></span>
+              </span>
+              <span class="min-w-0 flex-1 truncate text-xs font-semibold text-fg-muted" translate="no">image.webp</span>
+              <span class="shrink-0 rounded-full bg-mint-subtle px-2.5 py-1 text-xs font-semibold whitespace-nowrap text-mint-ink">
+                2.4 MB → 310 KB
+              </span>
             </div>
 
-            <div class="flex flex-col gap-[0.65rem] py-[1.35rem] px-[1.1rem] border-l border-[rgba(94,78,126,0.1)] bg-white/55 marketing-mobile:py-[0.9rem] marketing-mobile:px-[0.7rem]" aria-hidden="true">
-              <div class="text-foreground text-[0.7rem] font-bold">
-                <span>Resize</span>
+            <div class="flex">
+              <div class="relative flex min-w-0 flex-1 items-center justify-center bg-surface-muted px-10 py-12 marketing-mobile:px-5 marketing-mobile:py-8">
+                <div class="absolute inset-0 bg-transparency-grid bg-size-[16px_16px] bg-[position:0_0,0_8px,8px_-8px,-8px_0] text-line opacity-60"></div>
+                <div class="relative w-full max-w-72 -rotate-2">
+                  <div class="relative aspect-4/3 overflow-hidden rounded-md border-4 border-surface bg-linear-to-b from-coral-subtle to-lavender-subtle shadow-md">
+                    <span class="absolute top-1/8 right-1/6 aspect-square w-1/5 rounded-full bg-yellow"></span>
+                    <span class="absolute -right-1/4 -bottom-1/3 h-2/3 w-5/6 rounded-t-full bg-lavender"></span>
+                    <span class="absolute -bottom-1/3 -left-1/4 h-2/3 w-full rounded-t-full bg-mint"></span>
+                    <span class="absolute bottom-1/8 left-1/4 h-2/5 w-1/5 rounded-t-full rounded-b-md bg-coral shadow-md"></span>
+                  </div>
+                  <span class:list={[handleClass, "-top-1 -left-1"]}></span>
+                  <span class:list={[handleClass, "-top-1 -right-1"]}></span>
+                  <span class:list={[handleClass, "-bottom-1 -left-1"]}></span>
+                  <span class:list={[handleClass, "-right-1 -bottom-1"]}></span>
+                </div>
               </div>
-              <div class="flex items-center justify-between min-h-[2.2rem] px-[0.65rem] border border-border-light rounded-[0.6rem] bg-white/76 text-foreground text-[0.72rem] font-semibold gap-[0.35rem] [&>span]:flex-1 [&>b]:text-soft-foreground [&>b]:font-normal">
-                <span>1200</span>
-                <b>×</b>
-                <span>800</span>
-              </div>
-              <div class="h-px mt-[0.35rem] mb-[0.45rem] bg-border-light"></div>
 
-              <div class="text-foreground text-[0.7rem] font-bold">
-                <span>Format</span>
+              <div class="flex w-48 shrink-0 flex-col gap-2 border-l border-line p-4 marketing-mobile:w-32 marketing-mobile:p-3">
+                <span class={labelClass}>Resize</span>
+                <span class={fieldClass}>
+                  1200 <span class="font-normal text-fg-soft">×</span> 800
+                </span>
+                <span class={labelClass}>Format</span>
+                <span class={fieldClass}>
+                  WebP <ChevronDown size={14} class="text-fg-soft" />
+                </span>
+                <span class={labelClass}>
+                  Quality <span class="text-primary">82%</span>
+                </span>
+                <span class="mt-1 h-1.5 rounded-full bg-line">
+                  <span class="block h-full w-4/5 rounded-full bg-primary"></span>
+                </span>
+                <span class="mt-auto flex h-8 items-center justify-center gap-1.5 rounded-sm bg-primary pt-px text-xs font-semibold text-primary-fg shadow-primary">
+                  <Download size={14} /> Download
+                </span>
               </div>
-              <div class="flex items-center justify-between min-h-[2.2rem] px-[0.65rem] border border-border-light rounded-[0.6rem] bg-white/76 text-foreground text-[0.72rem] font-semibold [&>span]:text-lavender-600 [&>span]:text-marketing-body">WebP <span>⌄</span></div>
-
-              <div class="text-foreground text-[0.7rem] font-bold">
-                <span>Quality</span>
-              </div>
-              <div class="h-[0.3rem] overflow-hidden rounded-full bg-border-light [&>span]:block [&>span]:w-[78%] [&>span]:h-full [&>span]:rounded-[inherit] [&>span]:bg-linear-to-r [&>span]:from-coral-400 [&>span]:to-coral-500"><span></span></div>
-
             </div>
           </div>
         </div>
       </figure>
     </div>
-  </MarketingContainer>
+  </Container>
 </section>

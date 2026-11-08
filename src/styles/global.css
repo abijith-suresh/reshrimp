@@ -24,85 +24,87 @@
   font-display: swap;
 }
 
-/* Shared design tokens: utilities and browser primitives use this one theme. */
+/* Shared design tokens. Marketing pages, the app, and browser primitives use
+   this one theme: Cards structure (neutral canvas, white surfaces, hairline
+   lines) with reshrimp's coral as the single primary. Mint, lavender, and
+   yellow are small accents and status colours only. */
 @theme static {
-  --color-background: oklch(0.9792 0.0106 291.96);
-  --color-card: oklch(1 0 0);
-  --color-warm: oklch(0.9843 0.0096 72.66);
-  --color-foreground: oklch(0.2573 0.0861 281.29);
-  --color-muted-foreground: oklch(0.5334 0.092 280.57);
-  --color-soft-foreground: oklch(0.6849 0.0706 281.57);
-  --color-border: oklch(0.9124 0.0448 288.26);
-  --color-border-light: oklch(0.9522 0.0241 288.49);
+  --color-*: initial;
+  --color-white: oklch(1 0 0);
+  --color-black: oklch(0 0 0);
+  --color-transparent: transparent;
+  --color-current: currentColor;
 
-  --color-coral-50: oklch(0.9395 0.0306 30.18);
-  --color-coral-100: oklch(0.9031 0.0502 25.71);
-  --color-coral-200: oklch(0.847 0.0834 24.41);
-  --color-coral-300: oklch(0.7761 0.1311 23.9);
-  --color-coral-400: oklch(0.7 0.161 23.44);
-  --color-coral-500: oklch(0.6682 0.1874 23.67);
-  --color-coral-600: oklch(0.5502 0.1726 23.73);
-  --color-coral-700: oklch(0.451 0.1573 23.62);
-  --color-coral-800: oklch(0.3503 0.1416 23.68);
-  --color-coral-900: oklch(0.2662 0.1092 29.23);
-  --color-coral-950: oklch(0.209 0.0858 29.23);
+  --color-canvas: oklch(0.975 0.004 70);
+  --color-surface: oklch(1 0 0);
+  --color-surface-muted: oklch(0.985 0.003 70);
+  --color-line: oklch(0.925 0.006 70);
+  --color-line-strong: oklch(0.87 0.008 70);
+  --color-fg: oklch(0.235 0.03 285);
+  --color-fg-muted: oklch(0.47 0.025 285);
+  --color-fg-soft: oklch(0.545 0.02 285);
+  --color-hover: oklch(0.235 0.03 285 / 0.05);
+  --color-selected: oklch(0.235 0.03 285 / 0.08);
 
-  --color-mint-50: oklch(0.9703 0.0414 181.62);
-  --color-mint-100: oklch(0.9295 0.0487 181.98);
-  --color-mint-200: oklch(0.8705 0.065 181.41);
-  --color-mint-300: oklch(0.7806 0.0814 180.6);
-  --color-mint-400: oklch(0.6997 0.0966 181.31);
-  --color-mint-500: oklch(0.6496 0.1124 181.09);
-  --color-mint-600: oklch(0.5527 0.1 180.45);
-  --color-mint-700: oklch(0.4569 0.0835 179.01);
-  --color-mint-800: oklch(0.3594 0.0661 178.14);
-  --color-mint-900: oklch(0.2621 0.0486 176.97);
-  --color-mint-950: oklch(0.1941 0.0373 172.82);
+  /* Primary takes white text at AA (4.8:1) and reads at AA as text on white. */
+  --color-primary: oklch(0.575 0.185 27);
+  --color-primary-hover: oklch(0.525 0.175 27);
+  --color-primary-active: oklch(0.475 0.16 27);
+  --color-primary-fg: oklch(1 0 0);
+  --color-ring: var(--color-primary);
 
-  --color-lavender-50: oklch(0.9603 0.0241 306.97);
-  --color-lavender-100: oklch(0.9232 0.0427 298.82);
-  --color-lavender-200: oklch(0.8651 0.0753 296.68);
-  --color-lavender-300: oklch(0.7801 0.1149 293.77);
-  --color-lavender-400: oklch(0.6994 0.1375 293.67);
-  --color-lavender-500: oklch(0.709 0.1592 293.54);
-  --color-lavender-600: oklch(0.5503 0.1465 293.34);
-  --color-lavender-700: oklch(0.4501 0.1338 293.91);
-  --color-lavender-800: oklch(0.3501 0.1201 293.06);
-  --color-lavender-900: oklch(0.2488 0.1087 293.22);
-  --color-lavender-950: oklch(0.1821 0.101 293.35);
+  /* Accents: a decorative fill, a subtle tint, and an ink that reads at AA on
+     the tint and on white. Coral's fill is the bright brand coral for the
+     logo dot and illustrations, never for text. */
+  --color-coral: oklch(0.68 0.18 25);
+  --color-coral-subtle: oklch(0.955 0.025 27);
+  --color-coral-ink: var(--color-primary-hover);
+  --color-mint: oklch(0.8 0.11 175);
+  --color-mint-subtle: oklch(0.96 0.035 175);
+  --color-mint-ink: oklch(0.48 0.09 175);
+  --color-lavender: oklch(0.75 0.12 295);
+  --color-lavender-subtle: oklch(0.955 0.03 295);
+  --color-lavender-ink: oklch(0.5 0.16 295);
+  --color-yellow: oklch(0.88 0.14 92);
+  --color-yellow-subtle: oklch(0.965 0.05 95);
+  --color-yellow-ink: oklch(0.5 0.1 75);
 
-  --color-yellow-50: oklch(0.9704 0.0423 96.92);
-  --color-yellow-100: oklch(0.9293 0.0508 94.97);
-  --color-yellow-200: oklch(0.8705 0.0667 96.19);
-  --color-yellow-300: oklch(0.7808 0.0827 96.19);
-  --color-yellow-400: oklch(0.6998 0.0992 95.61);
-  --color-yellow-500: oklch(0.9243 0.1151 95.75);
-  --color-yellow-600: oklch(0.5485 0.1057 95.59);
-  --color-yellow-700: oklch(0.4507 0.0925 94.58);
-  --color-yellow-800: oklch(0.3507 0.0718 92.27);
-  --color-yellow-900: oklch(0.2524 0.0516 86.43);
-  --color-yellow-950: oklch(0.1822 0.0386 74.19);
-
-  --color-primary: var(--color-coral-500);
-  --color-primary-foreground: oklch(1 0 0);
-  --color-secondary: var(--color-mint-500);
-  --color-secondary-foreground: oklch(1 0 0);
-  --color-accent: var(--color-lavender-500);
-  --color-accent-foreground: oklch(1 0 0);
-  --color-destructive: var(--color-coral-500);
-  --color-destructive-foreground: oklch(1 0 0);
-  --color-success: var(--color-mint-500);
-  --color-success-foreground: oklch(1 0 0);
-  --color-warning: var(--color-yellow-500);
-  --color-warning-foreground: var(--color-foreground);
-  --color-info: var(--color-lavender-500);
-  --color-info-foreground: oklch(1 0 0);
-  --color-ring: oklch(0.709 0.1592 293.54 / 0.4);
+  --color-success: var(--color-mint-ink);
+  --color-success-subtle: var(--color-mint-subtle);
+  --color-warning: var(--color-yellow-ink);
+  --color-warning-subtle: var(--color-yellow-subtle);
+  /* Error crimson, a distinct hue from the coral primary. */
+  --color-danger: oklch(0.515 0.2 12);
+  --color-danger-subtle: oklch(0.96 0.022 12);
 
   --breakpoint-editor: 56rem;
   --font-display: "Reshrimp Display", "Trebuchet MS", sans-serif;
   --font-body: "Reshrimp Sans", "Trebuchet MS", sans-serif;
   --font-mono: "SF Mono", Menlo, Consolas, monospace;
+
+  /* One type scale. UI steps keep Tailwind's sizes; titles use the display
+     face and carry their own leading and tracking. */
+  --text-*: initial;
+  --text-xs: 0.75rem;
+  --text-xs--line-height: 1rem;
+  --text-sm: 0.875rem;
+  --text-sm--line-height: 1.375rem;
+  --text-base: 1rem;
+  --text-base--line-height: 1.625rem;
+  --text-lg: 1.125rem;
+  --text-lg--line-height: 1.75rem;
+  --text-title-sm: 1.25rem;
+  --text-title-sm--line-height: 1.75rem;
+  --text-title-sm--letter-spacing: -0.02em;
+  --text-title-md: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem);
+  --text-title-md--line-height: 1.15;
+  --text-title-md--letter-spacing: -0.03em;
+  --text-title-lg: clamp(2.125rem, 1.4rem + 2.8vw, 3.5rem);
+  --text-title-lg--line-height: 1.04;
+  --text-title-lg--letter-spacing: -0.045em;
+  --text-display: clamp(2.5rem, 1.5rem + 4vw, 4.5rem);
+  --text-display--line-height: 0.98;
+  --text-display--letter-spacing: -0.05em;
 
   --radius-sm: 8px;
   --radius-md: 12px;
@@ -110,56 +112,39 @@
   --radius-xl: 28px;
   --radius-full: 999px;
 
-  --shadow-2xs: 0 1px 2px oklch(0.2573 0.0861 281.29 / 0.04);
-  --shadow-xs: 0 2px 8px oklch(0.2573 0.0861 281.29 / 0.05);
-  --shadow-sm: 0 2px 16px oklch(0.2573 0.0861 281.29 / 0.06);
-  --shadow-md: 0 8px 30px oklch(0.2573 0.0861 281.29 / 0.1);
-  --shadow-lg: 0 12px 40px oklch(0.2573 0.0861 281.29 / 0.12);
-  --shadow-xl: 0 20px 60px oklch(0.2573 0.0861 281.29 / 0.15);
-  --shadow-glow: 0 4px 24px oklch(0.709 0.1592 293.54 / 0.14);
-  --shadow-coral: 0 4px 14px oklch(0.6682 0.1874 23.67 / 0.3);
+  --shadow-xs: 0 1px 2px oklch(0.235 0.03 285 / 0.06);
+  --shadow-sm: 0 1px 2px oklch(0.235 0.03 285 / 0.05), 0 2px 8px oklch(0.235 0.03 285 / 0.04);
+  --shadow-md: 0 2px 4px oklch(0.235 0.03 285 / 0.05), 0 8px 24px oklch(0.235 0.03 285 / 0.1);
+  --shadow-lg:
+    0 2px 4px oklch(0.235 0.03 285 / 0.04), 0 24px 60px -12px oklch(0.235 0.03 285 / 0.2);
+  --shadow-button: 0 0 0 1px oklch(0.235 0.03 285 / 0.1), 0 1px 2px oklch(0.235 0.03 285 / 0.08);
+  --shadow-primary:
+    inset 0 1px 0 oklch(1 0 0 / 0.18), 0 0 0 1px var(--color-primary-hover),
+    0 1px 2px oklch(0.475 0.16 27 / 0.3), 0 4px 10px -4px oklch(0.575 0.185 27 / 0.45);
+  --shadow-mobile-sheet: 0 -4px 24px oklch(0.235 0.03 285 / 0.1), 0 -1px 0 var(--color-line);
 
   --ease-pop: cubic-bezier(0.34, 1.56, 0.64, 1);
-  --duration-fast: 150ms;
-  --duration-normal: 300ms;
-  --duration-slow: 500ms;
+  --ease-reveal: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+
   --spacing-app-sidebar: 3rem;
   --spacing-app-panel: clamp(18rem, 24vw, 22rem);
   --spacing-app-preview-gutter: clamp(0.75rem, 1.5vw, 1.5rem);
   --spacing-app-sheet: min(80dvh, 42rem);
   --spacing-app-sheet-peek: 9.25rem;
-  --spacing-marketing-gutter: clamp(1rem, 4vw, 2rem);
-  --container-marketing-wide: 72rem;
-  --container-marketing-content: 48rem;
-  --container-marketing-narrow: 32rem;
-  --spacing-marketing-hero: clamp(2rem, 4vw, 3rem);
-  --spacing-marketing-section: clamp(2.5rem, 6vw, 5rem);
-  --spacing-marketing-section-compact: clamp(2rem, 4vw, 3rem);
-  --spacing-marketing-heading-gap: clamp(1.5rem, 3vw, 2.5rem);
-  --text-marketing-title-xl: clamp(2.75rem, 0.7rem + 4.271vw, 4.8rem);
-  --text-marketing-title-lg: clamp(2rem, 0.4rem + 3.333vw, 3.4rem);
-  --text-marketing-title-md: clamp(1.25rem, 0.621rem + 1.571vw, 1.8rem);
-  --text-marketing-title-sm: clamp(1.125rem, 0.696rem + 1.071vw, 1.5rem);
-  --text-marketing-title-mobile: clamp(2.4rem, 0.7rem + 8.5vw, 3.25rem);
-  --text-marketing-body: 1rem;
-  --text-marketing-small: 0.875rem;
-  --text-marketing-caption: 0.75rem;
-  --leading-marketing-body: 1.6;
-  --tracking-marketing-tight: -0.06em;
-  --color-validation-warning: #d97706;
-  --color-chip-yellow: #a16207;
-  --ease-reveal: cubic-bezier(0.22, 1, 0.36, 1);
-  --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+  --spacing-gutter: clamp(1rem, 4vw, 2rem);
+  --spacing-section: clamp(3rem, 6vw, 5rem);
+  --container-page: 72rem;
+  --container-prose: 40rem;
+
   --background-image-transparency-grid:
     linear-gradient(45deg, currentColor 25%, transparent 25%),
     linear-gradient(-45deg, currentColor 25%, transparent 25%),
     linear-gradient(45deg, transparent 75%, currentColor 75%),
     linear-gradient(-45deg, transparent 75%, currentColor 75%);
-  --shadow-mobile-sheet: 0 -4px 24px rgba(30, 27, 75, 0.1), 0 -1px 0 rgba(224, 222, 255, 0.9);
-  --animate-hero-in: marketing-hero-in 700ms var(--ease-reveal) both;
-  --animate-landing-copy-in: landing-copy-in 700ms var(--ease-reveal) both;
-  --animate-landing-workbench-in: landing-workbench-in 800ms 120ms var(--ease-reveal) both;
-  --animate-error-code: popBounceIn 0.6s 0.1s forwards;
+  --animate-rise: rise 700ms var(--ease-reveal) both;
+  --animate-rise-late: rise 800ms 120ms var(--ease-reveal) both;
+  --animate-menu-in: menu-in 150ms var(--ease-reveal);
   --animate-select-in: select-in 180ms var(--ease-reveal);
   --animate-select-in-up: select-in-up 180ms var(--ease-reveal);
   --animate-select-check-in: select-check-in 180ms var(--ease-pop);
@@ -172,8 +157,8 @@
 @custom-variant hero-compact (@media (width <= 1024px));
 @custom-variant hero-stack (@media (width <= 820px));
 @custom-variant marketing-menu (@media (width <= 768px));
-@custom-variant marketing-stack (@media (width <= 680px));
 @custom-variant marketing-mobile (@media (width <= 560px));
+@custom-variant marketing-narrow (@media (width <= 360px));
 
 /* Hover feedback applies only to devices with a precise hovering pointer. */
 @custom-variant hover {
@@ -211,17 +196,6 @@
     transition-delay: 0s !important;
     /* biome-ignore lint/complexity/noImportantStyles: reduced-motion override must beat any specificity */
     scroll-behavior: auto !important;
-  }
-}
-
-@keyframes popBounceIn {
-  from {
-    opacity: 0;
-    transform: translateY(24px) scale(0.97);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
   }
 }
 
@@ -279,29 +253,7 @@
   }
 }
 
-@keyframes landing-copy-in {
-  from {
-    opacity: 0;
-    transform: translateY(1.25rem);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes landing-workbench-in {
-  from {
-    opacity: 0;
-    transform: translateY(1.75rem) rotate(1.5deg);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) rotate(0);
-  }
-}
-
-@keyframes marketing-hero-in {
+@keyframes rise {
   from {
     opacity: 0;
     transform: translateY(1rem);
@@ -312,7 +264,45 @@
   }
 }
 
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-0.25rem) scale(0.98);
+  }
+}
+
 @layer base {
+  /* One focus ring everywhere. Controls that draw their own focus state
+     (inputs, the select trigger) opt out with outline-hidden. */
+  :focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
+  }
+
+  a,
+  button,
+  summary {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Inline links in running text. */
+  p a {
+    color: var(--color-primary);
+    text-decoration-line: underline;
+    text-decoration-color: color-mix(in oklab, var(--color-primary) 35%, transparent);
+    text-underline-offset: 3px;
+    transition: text-decoration-color 150ms ease-out;
+  }
+
+  p a:hover {
+    text-decoration-color: currentColor;
+  }
+
+  ::selection {
+    background: var(--color-coral-subtle);
+    color: var(--color-fg);
+  }
+
   h1,
   h2,
   h3,

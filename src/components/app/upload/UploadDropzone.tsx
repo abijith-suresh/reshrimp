@@ -15,8 +15,8 @@ export default function UploadDropzone(props: UploadDropzoneProps) {
     <>
       {/* biome-ignore lint/a11y/useSemanticElements: contains a hidden file input; nesting interactive elements inside a real button would be invalid HTML */}
       <div
-        class="touch-manipulation bg-card border border-border rounded-lg px-4 py-5 text-center cursor-pointer transition-[border-color,box-shadow] duration-200 hover:border-lavender-500 hover:shadow-sm focus-visible:ring-2 focus-visible:ring-lavender-500/40"
-        classList={{ "border-lavender-500 bg-lavender-50": props.isDragOver }}
+        class="touch-manipulation bg-surface border border-line-strong rounded-lg px-4 py-5 text-center cursor-pointer transition-[border-color,box-shadow] duration-200 hover:border-fg-soft hover:shadow-sm"
+        classList={{ "border-primary bg-coral-subtle": props.isDragOver }}
         role="button"
         tabIndex={0}
         aria-label="Upload image or drag and drop"
@@ -38,7 +38,7 @@ export default function UploadDropzone(props: UploadDropzoneProps) {
         }}
       >
         <div class="flex flex-col items-center gap-2">
-          <div class="w-10 h-10 rounded-full border border-border flex items-center justify-center text-soft-foreground mb-1">
+          <div class="w-10 h-10 rounded-full border border-line-strong flex items-center justify-center text-fg-soft mb-1">
             <svg
               aria-hidden="true"
               width="18"
@@ -52,7 +52,7 @@ export default function UploadDropzone(props: UploadDropzoneProps) {
               <line x1="5" y1="12" x2="19" y2="12" />
             </svg>
           </div>
-          <span class="text-xs text-muted-foreground font-medium">Import image or drop</span>
+          <span class="text-xs text-fg-muted font-medium">Import image or drop</span>
           {props.children}
         </div>
       </div>

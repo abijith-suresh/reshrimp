@@ -1,0 +1,17 @@
+---
+import Container from "./Container.astro";
+
+interface Props {
+  title: string;
+  lede?: string;
+}
+
+const { title, lede } = Astro.props;
+---
+
+<section class="pt-16 pb-10 marketing-mobile:pt-10 marketing-mobile:pb-8">
+  <Container>
+    <h1 class="max-w-3xl font-display text-title-lg text-fg text-balance animate-rise">{title}</h1>
+    {lede && <p class="mt-4 max-w-prose text-lg text-fg-muted text-pretty animate-rise">{lede}</p>}
+  </Container>
+</section>

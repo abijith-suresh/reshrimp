@@ -1,15 +1,16 @@
 ---
 import MarketingLayout from "../layouts/MarketingLayout.astro";
-import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
-import PageSection from "../components/ui/PageSection.astro";
-import MarketingContainer from "../components/marketing/layout/MarketingContainer.astro";
-import HeroSection from "../components/marketing/hero/HeroSection.astro";
-import MarketingContentBlock from "../components/marketing/cards/MarketingContentBlock.astro";
+import { Check, Code, Cpu, EyeOff, Globe } from "lucide-astro";
+import FeatureCard from "../components/marketing/cards/FeatureCard.astro";
+import PageHero from "../components/marketing/layout/PageHero.astro";
+import Section from "../components/marketing/layout/Section.astro";
 import { GITHUB_URL } from "../config/constants";
 
 const PRIVACY_CARDS = [
   {
     title: "How processing works",
+    icon: Cpu,
+    tone: "coral",
     paragraphs: [
       "When you choose an image, the browser reads and changes it in memory. Reshrimp re-encodes the result before download, so uploaded metadata does not carry into the output.",
       "Background removal loads its model and runtime from this app when you use it. Your image stays in the browser.",
@@ -17,6 +18,8 @@ const PRIVACY_CARDS = [
   },
   {
     title: "What we don't do",
+    icon: EyeOff,
+    tone: "mint",
     listItems: [
       "Upload images for processing",
       "Use analytics, tracking cookies, or fingerprinting",
@@ -25,19 +28,23 @@ const PRIVACY_CARDS = [
   },
   {
     title: "Open source verification",
+    icon: Code,
+    tone: "lavender",
     paragraphs: [
       "Reshrimp is open source under the MIT license. You can inspect the code instead of taking our word for it.",
-      `The image-processing code lives in TypeScript services. Read it in the <a href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer" class="text-coral-500 underline underline-offset-2 decoration-[rgba(242,90,90,0.3)] hover:decoration-coral-500 transition-[text-decoration-color]">GitHub repository</a>.`,
+      `The image-processing code lives in TypeScript services. Read it in the <a href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer">GitHub repository</a>.`,
     ],
   },
   {
     title: "Third-party services",
+    icon: Globe,
+    tone: "yellow",
     paragraphs: [
       "The site is static, so the first visit needs a network connection to load the app.",
       "Background removal may load model and runtime files from this app. Those are app assets, not image uploads.",
     ],
   },
-];
+] as const;
 ---
 
 <MarketingLayout
@@ -45,31 +52,33 @@ const PRIVACY_CARDS = [
   description="How Reshrimp processes images in your browser without uploads or tracking."
   currentPath="/privacy"
 >
-  <MarketingPageWrapper>
-    <HeroSection
-      title="Your image stays in your browser."
-      subtitle="Reshrimp processes images locally. It does not upload them or track you."
-    />
+  <PageHero
+    title="Your image stays in your browser."
+    lede="Reshrimp processes images locally. It does not upload them or track you."
+  />
 
-    <PageSection>
-      <MarketingContainer>
-        {
-          PRIVACY_CARDS.map((card) => (
-            <MarketingContentBlock>
-              <h2>{card.title}</h2>
-              {card.paragraphs &&
-                card.paragraphs.map((p) => (
-                  <p set:html={p} />
+  <Section>
+    <div class="grid grid-cols-2 gap-4 marketing-mobile:grid-cols-1">
+      {
+        PRIVACY_CARDS.map((card) => (
+          <FeatureCard as="section" level={2} icon={card.icon} tone={card.tone} title={card.title}>
+            {"paragraphs" in card &&
+              card.paragraphs.map((p) => (
+                <p set:html={p} />
+              ))}
+            {"listItems" in card && (
+              <ul class="grid gap-2">
+                {card.listItems.map((item) => (
+                  <li class="flex gap-3">
+                    <Check size={20} strokeWidth={2.25} aria-hidden="true" class="mt-1 shrink-0 text-success" />
+                    {item}
+                  </li>
                 ))}
-              {card.listItems && (
-                <ul class="grid gap-3 m-0 p-0 list-none [&>li]:relative [&>li]:ps-6 [&>li]:text-muted-foreground [&>li]:text-marketing-small [&>li]:leading-marketing-body [&>li]:before:absolute [&>li]:before:top-2 [&>li]:before:start-0 [&>li]:before:size-2 [&>li]:before:rounded-full [&>li]:before:bg-mint-500 [&>li]:before:content-['']">
-                  {card.listItems.map((item) => <li>{item}</li>)}
-                </ul>
-              )}
-            </MarketingContentBlock>
-          ))
-        }
-      </MarketingContainer>
-    </PageSection>
-  </MarketingPageWrapper>
+              </ul>
+            )}
+          </FeatureCard>
+        ))
+      }
+    </div>
+  </Section>
 </MarketingLayout>

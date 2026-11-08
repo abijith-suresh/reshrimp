@@ -15,12 +15,12 @@ interface InputProps {
 export default function Input(props: InputProps) {
   return (
     <label class="block">
-      <span class="block text-xs text-muted-foreground mb-1 font-medium">{props.label}</span>
+      <span class="block text-xs text-fg-muted mb-1 font-medium">{props.label}</span>
       <input
         id={props.id}
         type={props.type ?? "number"}
         inputMode={props.inputMode}
-        class="w-full px-3 py-2.5 border border-border rounded-lg font-body text-base editor:text-sm text-foreground bg-background transition-[border-color,box-shadow] duration-200 focus-visible:outline-hidden focus-visible:border-lavender-500 focus-visible:ring-2 focus-visible:ring-ring"
+        class="w-full px-3 py-2.5 border border-line-strong rounded-lg font-body text-base editor:text-sm text-fg bg-canvas transition-[border-color,box-shadow] duration-200 focus-visible:outline-hidden focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/20"
         min={props.type === "text" ? undefined : (props.min ?? "0.001")}
         max={props.type === "text" ? undefined : (props.max ?? "100000")}
         step={props.type === "text" ? undefined : (props.step ?? "any")}

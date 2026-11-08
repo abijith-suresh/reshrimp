@@ -1,0 +1,37 @@
+---
+import Container from "./Container.astro";
+
+interface Props {
+  id?: string;
+  title?: string;
+  class?: string;
+}
+
+const { id, title, class: className } = Astro.props;
+const headingId = title
+  ? `${
+      id ??
+      title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "")
+    }-title`
+  : undefined;
+---
+
+<section
+  id={id}
+  aria-labelledby={headingId}
+  class:list={["scroll-mt-20 pb-section", className]}
+>
+  <Container>
+    {
+      title && (
+        <h2 id={headingId} class="mb-8 max-w-3xl font-display text-title-lg text-fg text-balance marketing-mobile:mb-6">
+          {title}
+        </h2>
+      )
+    }
+    <slot />
+  </Container>
+</section>

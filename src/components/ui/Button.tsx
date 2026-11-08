@@ -5,14 +5,7 @@ import { cn } from "@/lib/utils";
 type ButtonProps = JSX.ButtonHTMLAttributes<HTMLButtonElement> & ButtonVariantProps;
 
 export default function Button(props: ButtonProps) {
-  const [local, rest] = splitProps(props, [
-    "children",
-    "class",
-    "variant",
-    "tone",
-    "size",
-    "fullWidth",
-  ]);
+  const [local, rest] = splitProps(props, ["children", "class", "variant", "size", "fullWidth"]);
 
   return (
     <button
@@ -20,7 +13,6 @@ export default function Button(props: ButtonProps) {
       class={cn(
         buttonVariants({
           variant: local.variant,
-          tone: local.tone,
           size: local.size,
           fullWidth: local.fullWidth,
         }),

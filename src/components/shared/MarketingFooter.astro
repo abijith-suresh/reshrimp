@@ -1,7 +1,9 @@
 ---
-import { GITHUB_URL, SITE_NAME, ROUTES } from "../../config/constants";
+import { GITHUB_URL, ROUTES, SITE_NAME } from "../../config/constants";
 import { makeHref } from "../../lib/utils";
-import MarketingContainer from "../marketing/layout/MarketingContainer.astro";
+import Container from "../marketing/layout/Container.astro";
+import { buttonVariants } from "../ui/button";
+import Logo from "./Logo.astro";
 
 interface FooterLink {
   label: string;
@@ -11,32 +13,30 @@ interface FooterLink {
 
 const footerLinks: FooterLink[] = [
   { label: "Privacy", href: makeHref(ROUTES.PRIVACY) },
-  { label: "About", href: makeHref(ROUTES.ABOUT) },
   { label: "FAQ", href: makeHref(ROUTES.FAQ) },
   { label: "GitHub", href: GITHUB_URL, external: true },
 ];
 ---
 
-<footer class="relative z-1 border-t border-border-light py-8 px-marketing-gutter">
-  <MarketingContainer>
-    <div class="w-full flex items-center justify-between gap-6 marketing-mobile:items-start marketing-mobile:flex-col marketing-mobile:gap-4">
-      <div class="flex items-center text-marketing-caption text-soft-foreground">
-        <span>&copy; {new Date().getFullYear()} {SITE_NAME}</span>
-      </div>
-      <nav class="flex flex-wrap justify-end gap-y-2 gap-x-5 marketing-mobile:justify-start" aria-label="Footer navigation">
-        {
-          footerLinks.map((link) => (
-            <a
-              href={link.href}
-              target={link.external ? "_blank" : undefined}
-              rel={link.external ? "noopener noreferrer" : undefined}
-              class="inline-flex items-center min-h-10 text-marketing-small font-medium text-muted-foreground no-underline transition-colors duration-fast ease-[ease] touch-manipulation hover:text-coral-500 focus-visible:outline-none focus-visible:shadow-[0_0_0_2px_rgba(167,139,250,0.4)] focus-visible:rounded-[4px]"
-            >
-              {link.label}
-            </a>
-          ))
-        }
-      </nav>
+<footer class="border-t border-line bg-surface">
+  <Container class="flex items-center justify-between gap-6 py-6 marketing-mobile:flex-col marketing-mobile:items-start marketing-mobile:gap-3">
+    <div class="flex items-center gap-4">
+      <Logo />
+      <span class="text-sm text-fg-soft">&copy; {new Date().getFullYear()} {SITE_NAME}</span>
     </div>
-  </MarketingContainer>
+    <nav class="-mx-3 flex flex-wrap items-center gap-1" aria-label="Footer navigation">
+      {
+        footerLinks.map((link) => (
+          <a
+            href={link.href}
+            target={link.external ? "_blank" : undefined}
+            rel={link.external ? "noopener noreferrer" : undefined}
+            class={buttonVariants({ variant: "ghost", size: "sm" })}
+          >
+            {link.label}
+          </a>
+        ))
+      }
+    </nav>
+  </Container>
 </footer>

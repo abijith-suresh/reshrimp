@@ -26,7 +26,7 @@ export default function ProcessPanel(props: ProcessPanelProps) {
   const showDpi = () => state.resizeUnit() === "in" || state.resizeUnit() === "cm";
 
   const sourceSection = (
-    <div class="flex flex-col gap-2 border-b border-border-light px-5 py-3 pt-5 pb-3">
+    <div class="flex flex-col gap-2 border-b border-line px-5 py-3 pt-5 pb-3">
       <SectionHeader>Source</SectionHeader>
       <div class="mt-2">
         <UploadArea idPrefix={props.idPrefix} />
@@ -35,7 +35,7 @@ export default function ProcessPanel(props: ProcessPanelProps) {
   );
 
   const resizeSection = (
-    <div class="flex flex-col gap-2 border-b border-border-light px-5 py-3">
+    <div class="flex flex-col gap-2 border-b border-line px-5 py-3">
       <SectionHeader>Resize</SectionHeader>
       <DimensionInputs idPrefix={props.idPrefix} />
       <div class="flex gap-2">
@@ -53,10 +53,10 @@ export default function ProcessPanel(props: ProcessPanelProps) {
   );
 
   const outputSection = (
-    <div class="flex flex-col gap-3 border-b border-border-light px-5 py-3">
+    <div class="flex flex-col gap-3 border-b border-line px-5 py-3">
       <SectionHeader>Output</SectionHeader>
       <div class="flex flex-col gap-1.5">
-        <span class="text-xs font-medium text-muted-foreground">Format</span>
+        <span class="text-xs font-medium text-fg-muted">Format</span>
         <FormatSelect idPrefix={props.idPrefix} />
       </div>
       <QualitySection idPrefix={props.idPrefix} />
@@ -64,7 +64,7 @@ export default function ProcessPanel(props: ProcessPanelProps) {
   );
 
   const backgroundSection = (
-    <div class="flex flex-col gap-2 border-b border-border-light px-5 py-3">
+    <div class="flex flex-col gap-2 border-b border-line px-5 py-3">
       <SectionHeader>Background</SectionHeader>
       <InlineToggles idPrefix={props.idPrefix} showAspectRatio={false} showBackground />
     </div>

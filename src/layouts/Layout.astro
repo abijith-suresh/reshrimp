@@ -12,6 +12,7 @@ interface Props {
   ogImagePath?: string;
   viewportFitCover?: boolean;
   preloadDisplayFont?: boolean;
+  bodyClass?: string;
 }
 
 const {
@@ -20,6 +21,7 @@ const {
   ogImagePath,
   viewportFitCover = false,
   preloadDisplayFont = true,
+  bodyClass,
 } = Astro.props;
 const base = import.meta.env.BASE_URL.replace(/\/$/, "");
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site);
@@ -52,7 +54,7 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
-    <meta name="theme-color" content="#f8f7ff" />
+    <meta name="theme-color" content="#ffffff" />
 
     {preloadDisplayFont && (
       <link rel="preload" href={displayFontUrl} as="font" type="font/woff2" crossorigin />
@@ -81,12 +83,12 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
     <!-- SPA Navigation -->
     <ClientRouter />
   </head>
-  <body class="font-body bg-background text-foreground antialiased selection:bg-lavender-500 selection:text-card">
+  <body class:list={["bg-canvas font-body text-fg antialiased", bodyClass]}>
     <a
       href="#main-content"
       data-global-skip-link
       class:list={[
-        "sr-only focus:not-sr-only focus:absolute z-50 p-2 bg-coral-500 text-white rounded-md font-semibold",
+        "sr-only focus:not-sr-only focus:absolute z-200 rounded-md bg-primary px-4 py-2.5 font-semibold text-primary-fg",
         viewportFitCover
           ? "focus:top-[calc(env(safe-area-inset-top,0px)+1rem)] focus:left-[calc(env(safe-area-inset-left,0px)+1rem)]"
           : "focus:top-4 focus:left-4",
@@ -95,67 +97,9 @@ const ogImage = new URL(ogImagePath ?? deriveOgImagePath(Astro.url.pathname), As
       Skip to main content
     </a>
     <slot name="before-main" />
-    <main id="main-content" transition:animate="fade">
+    <main id="main-content" class="flex-1" transition:animate="fade">
       <slot />
     </main>
     <slot name="after-main" />
   </body>
 </html>
-
-<script>
-  import { registerPageInitializer } from "../lib/pageInitializer";
-
-  // ── Scroll reveal via Intersection Observer ──────────────────────────
-  function initReveal() {
-    const els = document.querySelectorAll<HTMLElement>("[data-reveal]");
-    if (!els.length || !window.matchMedia("(prefers-reduced-motion: no-preference)").matches) return;
-
-    // If a script starts after the browser has painted, don't hide visible
-    // content and then reveal it again. Keep the first viewport settled while
-    // retaining scroll reveals for content farther down the page.
-    const viewportHeight = window.innerHeight;
-    els.forEach((el) => {
-      const rect = el.getBoundingClientRect();
-      if (rect.top < viewportHeight && rect.bottom > 0) {
-        delete el.dataset.revealState;
-      } else {
-        el.dataset.revealState = "pending";
-      }
-    });
-
-    // Apply staggered delays from data-reveal-delay attribute
-    els.forEach((el) => {
-      const delay = el.dataset.revealDelay;
-      if (delay) el.style.transitionDelay = `${delay}ms`;
-    });
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            delete (entry.target as HTMLElement).dataset.revealState;
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: "0px" }
-    );
-
-    els.forEach((el) => observer.observe(el));
-
-    return () => {
-      observer.disconnect();
-      els.forEach((el) => delete el.dataset.revealState);
-    };
-  }
-
-  registerPageInitializer("layout:interactions", () => {
-    const cleanups = [initReveal()].filter(
-      (cleanup): cleanup is () => void => typeof cleanup === "function"
-    );
-
-    return () => {
-      cleanups.forEach((cleanup) => cleanup());
-    };
-  });
-</script>

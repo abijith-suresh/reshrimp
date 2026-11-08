@@ -231,7 +231,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     const sign = diff > 0 ? "+" : "";
     return {
       text: `Change: ${sign}${formatFileSize(Math.abs(diff))} (${sign}${pct}%)`,
-      className: diff > 0 ? "font-medium text-coral-500" : "font-medium text-mint-600",
+      className: diff > 0 ? "font-medium text-danger" : "font-medium text-success",
     };
   });
 

@@ -87,8 +87,10 @@ test("shows a corrupt upload error and can load a valid image afterwards", async
   await page.goto("/app");
   const chooser = page.waitForEvent("filechooser");
   const mobileUpload = page.getByRole("button", { name: "Upload image", exact: true });
+  const sourceUpload = page.getByRole("button", { name: "Upload image or drag and drop" });
+  await expect(mobileUpload.or(sourceUpload)).toBeVisible();
   if (await mobileUpload.isVisible()) await mobileUpload.click();
-  else await page.getByRole("button", { name: "Upload image or drag and drop" }).click();
+  else await sourceUpload.click();
   await (await chooser).setFiles({
     name: "corrupt.png",
     mimeType: "image/png",

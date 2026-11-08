@@ -1,0 +1,13 @@
+---
+// The one page width. The header, every section, and the footer share it, so
+// the logo, nav, and content line up.
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+---
+
+<div class:list={["mx-auto w-full max-w-page px-gutter", className]}>
+  <slot />
+</div>

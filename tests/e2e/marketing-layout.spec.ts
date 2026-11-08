@@ -4,12 +4,16 @@ test("keeps marketing pages readable across their responsive boundaries", async 
   await page.emulateMedia({ reducedMotion: "reduce" });
   for (const width of [320, 560, 680, 768, 820, 1024, 1440]) {
     await page.setViewportSize({ width, height: 1000 });
-    for (const route of ["/", "/about", "/privacy", "/faq"]) {
+    for (const route of ["/", "/privacy", "/faq"]) {
       await page.goto(route);
       await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBe(width);
     }
   }
+});
+
+test("serves no About page", async ({ request }) => {
+  expect((await request.get("/about")).status()).toBe(404);
 });
 
 test("preserves the inclusive hero and navigation breakpoints", async ({ page }) => {
@@ -34,7 +38,7 @@ test("preserves the inclusive hero and navigation breakpoints", async ({ page })
   await expect(menu).toBeFocused();
   await page.setViewportSize({ width: 769, height: 1000 });
   await expect(menu).toBeHidden();
-  await expect(page.getByRole("banner").getByRole("link", { name: "Use Reshrimp" })).toBeVisible();
+  await expect(page.getByRole("banner").getByRole("link", { name: "Open Reshrimp" })).toBeVisible();
 });
 
 test("opens FAQ answers with the keyboard and respects live reduced motion", async ({ page }) => {

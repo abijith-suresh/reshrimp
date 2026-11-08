@@ -16,7 +16,6 @@ export const ROUTES = {
   HOME: "/",
   APP: "/app",
   PRIVACY: "/privacy",
-  ABOUT: "/about",
   FAQ: "/faq",
 } as const;
 

@@ -18,13 +18,13 @@ export default function EmptyState(props: EmptyStateProps) {
       id="sbs-empty-state"
       class="flex-1 flex flex-col items-center justify-center text-center p-8 transition-opacity duration-300"
     >
-      {props.icon ?? <Image class="w-12 h-12 text-soft-foreground opacity-30 mb-3" />}
-      <p class="font-body text-sm font-medium text-muted-foreground m-0 mb-1">{props.title}</p>
-      <p class="text-xs text-soft-foreground m-0">{props.subtitle}</p>
+      {props.icon ?? <Image class="w-12 h-12 text-fg-soft opacity-30 mb-3" />}
+      <p class="font-body text-sm font-medium text-fg-muted m-0 mb-1">{props.title}</p>
+      <p class="text-xs text-fg-soft m-0">{props.subtitle}</p>
 
       <Show when={props.validationError}>
         {(message) => (
-          <p class="mt-3 text-sm text-coral-500 editor:hidden" role="status">
+          <p class="mt-3 text-sm text-danger editor:hidden" role="status">
             {message()}
           </p>
         )}
@@ -32,7 +32,7 @@ export default function EmptyState(props: EmptyStateProps) {
 
       <Show when={props.validationWarning}>
         {(message) => (
-          <p class="mt-3 text-sm text-yellow-600 editor:hidden" role="status">
+          <p class="mt-3 text-sm text-warning editor:hidden" role="status">
             {message()}
           </p>
         )}
@@ -43,7 +43,7 @@ export default function EmptyState(props: EmptyStateProps) {
         <button
           data-mobile-empty-state-upload
           type="button"
-          class="mt-6 editor:hidden inline-flex items-center gap-2 px-5 py-2.5 bg-coral-500 text-white text-sm font-semibold rounded-full shadow-[0_4px_14px_rgba(242,90,90,0.3)] hover:bg-coral-600 active:scale-95 transition-[background-color,transform] duration-200 focus-visible:ring-2 focus-visible:ring-lavender-500 focus-visible:ring-offset-2"
+          class="mt-6 editor:hidden inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-fg text-sm font-semibold rounded-full shadow-primary hover:bg-primary-hover active:scale-95 transition-[background-color,transform] duration-200"
           onClick={() => props.onUploadClick?.()}
         >
           <Upload class="w-4 h-4" aria-hidden="true" />

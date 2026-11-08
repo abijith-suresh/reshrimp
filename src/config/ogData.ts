@@ -21,11 +21,6 @@ export const ogPageData: Record<string, OgPageData> = {
     description: "Resize, convert, and compress images right in your browser.",
     label: "App",
   },
-  about: {
-    title: "About Reshrimp",
-    description: "Built for privacy. No servers, no tracking, no uploads.",
-    label: "About",
-  },
   faq: {
     title: "FAQ",
     description: "Common questions about Reshrimp and client-side image processing.",

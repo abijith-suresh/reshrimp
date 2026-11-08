@@ -9,10 +9,10 @@ interface CheckboxProps {
 export default function Checkbox(props: CheckboxProps) {
   return (
     <label
-      class="flex items-center gap-2 text-sm text-foreground cursor-pointer select-none transition-opacity duration-200"
+      class="flex items-center gap-2 text-sm text-fg cursor-pointer select-none transition-opacity duration-200"
       classList={{ "opacity-40 cursor-not-allowed": props.disabled }}
     >
-      <span class="relative flex items-center justify-center w-[18px] h-[18px] shrink-0">
+      <span class="relative flex items-center justify-center size-4.5 shrink-0">
         <input
           type="checkbox"
           id={props.id}
@@ -22,15 +22,15 @@ export default function Checkbox(props: CheckboxProps) {
           class="sr-only touch-manipulation"
         />
         <span
-          class="absolute inset-0 rounded-sm border-[1.5px] transition-[background-color,border-color,box-shadow] duration-200 pointer-events-none focus-within:ring-2 focus-within:ring-lavender-500 focus-within:ring-offset-2"
+          class="absolute inset-0 rounded-sm border-[1.5px] transition-[background-color,border-color,box-shadow] duration-200 pointer-events-none focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2"
           classList={{
-            "bg-lavender-500 border-lavender-500": props.checked,
-            "bg-white border-border": !props.checked,
+            "bg-primary border-primary": props.checked,
+            "bg-surface border-line-strong": !props.checked,
           }}
         >
           <svg
             aria-hidden="true"
-            class="absolute inset-0 m-auto h-3 w-3 text-white transition-[opacity,scale] duration-200 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
+            class="absolute inset-0 m-auto h-3 w-3 text-white transition-[opacity,scale] duration-200 ease-pop"
             classList={{
               "scale-100 opacity-100": props.checked,
               "scale-75 opacity-0": !props.checked,

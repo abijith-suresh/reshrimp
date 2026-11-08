@@ -1,35 +1,40 @@
 ---
-import MarketingSectionHeading from "../sections/MarketingSectionHeading.astro";
-import MarketingContainer from "../layout/MarketingContainer.astro";
+import { ShieldCheck } from "lucide-astro";
+import Card from "../cards/Card.astro";
+import IconTile from "../cards/IconTile.astro";
+import Section from "../layout/Section.astro";
+
+const steps = [
+  { title: "Choose an image", body: "Drop a file in or choose one from your device." },
+  { title: "Set the options", body: "Choose dimensions, a format, and a quality or size target." },
+  { title: "Download the result", body: "Save the file when the preview looks right." },
+];
 ---
 
-<section class="relative z-1 py-marketing-section px-marketing-gutter scroll-mt-16" id="workflow">
-  <MarketingContainer>
-    <MarketingSectionHeading title="Upload. Change. Download." />
-
-    <ol class="grid grid-cols-3 gap-8 m-0 p-0 list-none marketing-stack:flex marketing-stack:flex-col marketing-stack:gap-0">
-      <li class="relative flex flex-col gap-6 min-h-20 pt-5 border-t border-border marketing-stack:grid marketing-stack:grid-cols-[3rem_minmax(0,1fr)] marketing-stack:gap-4 marketing-stack:min-h-0 marketing-stack:py-5 marketing-stack:not-last:after:absolute marketing-stack:not-last:after:-bottom-2 marketing-stack:not-last:after:left-[1.1rem] marketing-stack:not-last:after:w-px marketing-stack:not-last:after:h-5 marketing-stack:not-last:after:bg-border marketing-stack:not-last:after:content-['']" data-reveal>
-        <span class="text-coral-500 font-mono text-marketing-caption tabular-nums">01</span>
-        <div>
-          <h3 class="m-0 mb-2 text-foreground font-display text-marketing-title-sm tracking-[-0.035em]">Choose an image</h3>
-          <p class="max-w-60 m-0 text-muted-foreground text-marketing-small leading-marketing-body marketing-stack:max-w-marketing-narrow">Drop a file in or choose one from your device.</p>
-        </div>
-      </li>
-      <li class="relative flex flex-col gap-6 min-h-20 pt-5 border-t border-border marketing-stack:grid marketing-stack:grid-cols-[3rem_minmax(0,1fr)] marketing-stack:gap-4 marketing-stack:min-h-0 marketing-stack:py-5 marketing-stack:not-last:after:absolute marketing-stack:not-last:after:-bottom-2 marketing-stack:not-last:after:left-[1.1rem] marketing-stack:not-last:after:w-px marketing-stack:not-last:after:h-5 marketing-stack:not-last:after:bg-border marketing-stack:not-last:after:content-['']" data-reveal>
-        <span class="text-coral-500 font-mono text-marketing-caption tabular-nums">02</span>
-        <div>
-          <h3 class="m-0 mb-2 text-foreground font-display text-marketing-title-sm tracking-[-0.035em]">Set the options</h3>
-          <p class="max-w-60 m-0 text-muted-foreground text-marketing-small leading-marketing-body marketing-stack:max-w-marketing-narrow">Choose dimensions, a format, and a quality or size target.</p>
-        </div>
-      </li>
-      <li class="relative flex flex-col gap-6 min-h-20 pt-5 border-t border-border marketing-stack:grid marketing-stack:grid-cols-[3rem_minmax(0,1fr)] marketing-stack:gap-4 marketing-stack:min-h-0 marketing-stack:py-5 marketing-stack:not-last:after:absolute marketing-stack:not-last:after:-bottom-2 marketing-stack:not-last:after:left-[1.1rem] marketing-stack:not-last:after:w-px marketing-stack:not-last:after:h-5 marketing-stack:not-last:after:bg-border marketing-stack:not-last:after:content-['']" data-reveal>
-        <span class="text-coral-500 font-mono text-marketing-caption tabular-nums">03</span>
-        <div>
-          <h3 class="m-0 mb-2 text-foreground font-display text-marketing-title-sm tracking-[-0.035em]">Download the result</h3>
-          <p class="max-w-60 m-0 text-muted-foreground text-marketing-small leading-marketing-body marketing-stack:max-w-marketing-narrow">Save the file when the preview looks right.</p>
-        </div>
-      </li>
+<Section id="workflow" title="Upload. Change. Download.">
+  <Card class="overflow-hidden">
+    <ol class="grid grid-cols-3 divide-x divide-line hero-stack:grid-cols-1 hero-stack:divide-x-0 hero-stack:divide-y">
+      {
+        steps.map((step, index) => (
+          <li class="p-8 marketing-mobile:p-6">
+            <span
+              aria-hidden="true"
+              class="grid size-11 place-items-center rounded-full bg-coral-subtle font-mono text-base text-coral-ink tabular-nums"
+            >
+              {index + 1}
+            </span>
+            <h3 class="mt-6 font-display text-title-md text-fg text-balance">{step.title}</h3>
+            <p class="mt-3 text-lg text-fg-muted text-pretty">{step.body}</p>
+          </li>
+        ))
+      }
     </ol>
-
-  </MarketingContainer>
-</section>
+    <div class="flex items-center gap-5 border-t border-line bg-surface-muted px-8 py-6 marketing-mobile:flex-col marketing-mobile:items-start marketing-mobile:gap-4 marketing-mobile:p-6">
+      <IconTile icon={ShieldCheck} tone="mint" />
+      <p class="text-lg text-fg-muted text-pretty">
+        <strong class="font-semibold text-fg">Every step runs in your browser.</strong>{" "}
+        Reshrimp does not upload images, require an account, or track you.
+      </p>
+    </div>
+  </Card>
+</Section>

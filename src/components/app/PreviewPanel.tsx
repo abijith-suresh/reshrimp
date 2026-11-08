@@ -21,7 +21,7 @@ export default function PreviewPanel() {
   }
 
   return (
-    <div class="relative h-full flex flex-col bg-background overflow-hidden">
+    <div class="relative h-full flex flex-col bg-canvas overflow-hidden">
       {/* Hidden file input for the mobile EmptyState upload button */}
       <input
         ref={(el) => {
@@ -64,8 +64,8 @@ export default function PreviewPanel() {
 
           return (
             <div class="flex-1 flex flex-col min-h-0">
-              <div class="relative flex-auto min-h-0 mt-app-preview-gutter mx-app-preview-gutter max-editor:transition-[margin-bottom] max-editor:duration-slow max-editor:ease-sheet max-editor:group-data-[sheet-state=peek]/app:mb-[calc(var(--spacing-app-sheet-peek)+var(--spacing-app-preview-gutter))] max-editor:group-data-[sheet-state=open]/app:mb-[calc(100dvh-var(--spacing-app-sheet)+var(--spacing-app-preview-gutter))]">
-                <div class="absolute inset-0 flex-1 overflow-hidden flex items-center justify-center bg-background bg-transparency-grid text-border bg-size-[16px_16px] bg-[position:0_0,0_8px,8px_-8px,-8px_0] border border-border-light rounded-md">
+              <div class="relative flex-auto min-h-0 mt-app-preview-gutter mx-app-preview-gutter max-editor:transition-[margin-bottom] max-editor:duration-150 max-editor:ease-sheet max-editor:group-data-[sheet-state=peek]/app:mb-[calc(var(--spacing-app-sheet-peek)+var(--spacing-app-preview-gutter))] max-editor:group-data-[sheet-state=open]/app:mb-[calc(100dvh-var(--spacing-app-sheet)+var(--spacing-app-preview-gutter))]">
+                <div class="absolute inset-0 flex-1 overflow-hidden flex items-center justify-center bg-canvas bg-transparency-grid text-line-strong bg-size-[16px_16px] bg-[position:0_0,0_8px,8px_-8px,-8px_0] border border-line rounded-md">
                   <img
                     id="preview-image"
                     src={previewUrl()}
@@ -104,11 +104,11 @@ export default function PreviewPanel() {
       <Show when={state.isProcessing() && state.progressLabel()}>
         {(label) => (
           <div
-            class="pointer-events-none absolute top-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border border-border-light bg-card px-3.5 py-2 text-foreground shadow-sm"
+            class="pointer-events-none absolute top-4 left-1/2 z-20 flex -translate-x-1/2 items-center gap-2 rounded-full border border-line bg-surface px-3.5 py-2 text-fg shadow-sm"
             role="status"
             aria-live="polite"
           >
-            <span class="h-2 w-2 shrink-0 rounded-full bg-coral-500" aria-hidden="true" />
+            <span class="h-2 w-2 shrink-0 rounded-full bg-primary" aria-hidden="true" />
             <span class="text-xs font-medium whitespace-nowrap">{label()}</span>
           </div>
         )}

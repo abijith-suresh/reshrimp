@@ -213,7 +213,7 @@ export default function InfoTooltip(props: InfoTooltipProps) {
       <button
         id={props.id ? `${props.id}-icon` : undefined}
         type="button"
-        class="inline-flex items-center justify-center w-5 h-5 p-0 text-muted-foreground bg-transparent border-none rounded-full cursor-pointer transition-colors duration-200 hover:text-lavender-500 focus-visible:outline-2 focus-visible:outline-lavender-500 focus-visible:outline-offset-2"
+        class="inline-flex items-center justify-center w-5 h-5 p-0 text-fg-muted bg-transparent border-none rounded-full cursor-pointer transition-colors duration-200 hover:text-fg"
         aria-label={props.ariaLabel}
         ref={setTriggerEl}
         onFocus={handleFocus}
@@ -239,7 +239,7 @@ export default function InfoTooltip(props: InfoTooltipProps) {
               tooltipEl = element;
             }}
             id={props.id ? `${props.id}-tooltip` : undefined}
-            class="fixed z-9999 block -translate-x-1/2 px-[0.65rem] py-2 text-xs leading-[1.4] text-foreground bg-card border border-border rounded-md shadow-md pointer-events-none after:content-[''] after:absolute after:top-full after:left-(--tooltip-arrow-left) after:-translate-x-1/2 after:border-5 after:border-transparent after:border-t-border data-[side=below]:after:top-auto data-[side=below]:after:bottom-full data-[side=below]:after:border-t-transparent data-[side=below]:after:border-b-border"
+            class="fixed z-9999 block -translate-x-1/2 px-2.5 py-2 text-xs leading-snug text-fg bg-surface border border-line-strong rounded-md shadow-md pointer-events-none after:content-[''] after:absolute after:top-full after:left-(--tooltip-arrow-left) after:-translate-x-1/2 after:border-5 after:border-transparent after:border-t-line-strong data-[side=below]:after:top-auto data-[side=below]:after:bottom-full data-[side=below]:after:border-t-transparent data-[side=below]:after:border-b-line-strong"
             data-side={pos().placement}
             role="tooltip"
             style={{
