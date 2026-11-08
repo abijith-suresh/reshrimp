@@ -1,0 +1,25 @@
+---
+// One card in a two-column grid: an icon tile, a title, and the body.
+import Card from "./Card.astro";
+import IconTile from "./IconTile.astro";
+import type { Props as IconTileProps } from "./IconTile.astro";
+
+interface Props {
+  icon: IconTileProps["icon"];
+  tone: IconTileProps["tone"];
+  title: string;
+  as?: "li" | "section";
+  level?: 2 | 3;
+}
+
+const { icon, tone, title, as = "li", level = 3 } = Astro.props;
+const Heading = level === 2 ? "h2" : "h3";
+---
+
+<Card as={as} class="p-8 marketing-mobile:p-6">
+  <IconTile icon={icon} tone={tone} />
+  <Heading class="mt-6 font-display text-title-md text-fg text-balance">{title}</Heading>
+  <div class="mt-3 text-lg text-fg-muted text-pretty [&>*+*]:mt-3">
+    <slot />
+  </div>
+</Card>

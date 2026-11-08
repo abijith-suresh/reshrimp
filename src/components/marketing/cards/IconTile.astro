@@ -3,7 +3,7 @@ type IconComponent = (
   props: astroHTML.JSX.SVGAttributes & { size?: number; strokeWidth?: number }
 ) => unknown;
 
-interface Props {
+export interface Props {
   icon: IconComponent;
   tone: "coral" | "mint" | "lavender" | "yellow";
 }

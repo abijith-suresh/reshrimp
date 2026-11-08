@@ -1,7 +1,6 @@
 ---
 import { ArrowLeftRight, Gauge, Scaling, Wand2 } from "lucide-astro";
-import Card from "../cards/Card.astro";
-import IconTile from "../cards/IconTile.astro";
+import FeatureCard from "../cards/FeatureCard.astro";
 import Section from "../layout/Section.astro";
 
 const tools = [
@@ -34,14 +33,12 @@ const tools = [
 ---
 
 <Section id="tools" title="What you can do.">
-  <ul class="grid grid-cols-4 gap-4 hero-compact:grid-cols-2 marketing-mobile:grid-cols-1">
+  <ul class="grid grid-cols-2 gap-4 marketing-mobile:grid-cols-1">
     {
       tools.map((tool) => (
-        <Card as="li" class="p-6 marketing-mobile:p-5">
-          <IconTile icon={tool.icon} tone={tool.tone} />
-          <h3 class="mt-5 font-display text-title-sm text-fg">{tool.title}</h3>
-          <p class="mt-2 text-base text-fg-muted text-pretty">{tool.description}</p>
-        </Card>
+        <FeatureCard icon={tool.icon} tone={tool.tone} title={tool.title}>
+          <p>{tool.description}</p>
+        </FeatureCard>
       ))
     }
   </ul>

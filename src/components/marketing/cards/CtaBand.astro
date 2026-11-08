@@ -1,0 +1,22 @@
+---
+// The closing band above the footer: a title, one line, and the actions,
+// set straight on the canvas.
+import Section from "../layout/Section.astro";
+
+interface Props {
+  title: string;
+  copy: string;
+}
+
+const { title, copy } = Astro.props;
+---
+
+<Section>
+  <div class="mx-auto flex max-w-3xl flex-col items-center pt-8 text-center marketing-mobile:items-stretch marketing-mobile:pt-4 marketing-mobile:text-start">
+    <h2 class="font-display text-title-lg text-fg text-balance">{title}</h2>
+    <p class="mt-4 text-lg text-fg-muted text-pretty">{copy}</p>
+    <div class="mt-8 flex flex-wrap items-center justify-center gap-3 marketing-mobile:flex-col marketing-mobile:items-stretch">
+      <slot />
+    </div>
+  </div>
+</Section>

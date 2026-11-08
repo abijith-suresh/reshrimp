@@ -96,9 +96,9 @@
   --text-title-sm: 1.25rem;
   --text-title-sm--line-height: 1.75rem;
   --text-title-sm--letter-spacing: -0.02em;
-  --text-title-md: clamp(1.5rem, 1.2rem + 1.2vw, 2.125rem);
-  --text-title-md--line-height: 1.12;
-  --text-title-md--letter-spacing: -0.035em;
+  --text-title-md: clamp(1.375rem, 1.2rem + 0.6vw, 1.75rem);
+  --text-title-md--line-height: 1.15;
+  --text-title-md--letter-spacing: -0.03em;
   --text-title-lg: clamp(2.125rem, 1.4rem + 2.8vw, 3.5rem);
   --text-title-lg--line-height: 1.04;
   --text-title-lg--letter-spacing: -0.045em;

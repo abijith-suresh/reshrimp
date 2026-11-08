@@ -1,6 +1,7 @@
 ---
+import { ShieldCheck } from "lucide-astro";
 import Card from "../cards/Card.astro";
-import Row from "../cards/Row.astro";
+import IconTile from "../cards/IconTile.astro";
 import Section from "../layout/Section.astro";
 
 const steps = [
@@ -11,13 +12,29 @@ const steps = [
 ---
 
 <Section id="workflow" title="Upload. Change. Download.">
-  <Card as="ol" class="divide-y divide-line">
-    {
-      steps.map((step, index) => (
-        <Row marker={String(index + 1).padStart(2, "0")} title={step.title}>
-          <p>{step.body}</p>
-        </Row>
-      ))
-    }
+  <Card class="overflow-hidden">
+    <ol class="grid grid-cols-3 divide-x divide-line hero-stack:grid-cols-1 hero-stack:divide-x-0 hero-stack:divide-y">
+      {
+        steps.map((step, index) => (
+          <li class="p-8 marketing-mobile:p-6">
+            <span
+              aria-hidden="true"
+              class="grid size-11 place-items-center rounded-full bg-coral-subtle font-mono text-base text-coral-ink tabular-nums"
+            >
+              {index + 1}
+            </span>
+            <h3 class="mt-6 font-display text-title-md text-fg text-balance">{step.title}</h3>
+            <p class="mt-3 text-lg text-fg-muted text-pretty">{step.body}</p>
+          </li>
+        ))
+      }
+    </ol>
+    <div class="flex items-center gap-5 border-t border-line bg-surface-muted px-8 py-6 marketing-mobile:flex-col marketing-mobile:items-start marketing-mobile:gap-4 marketing-mobile:p-6">
+      <IconTile icon={ShieldCheck} tone="mint" />
+      <p class="text-lg text-fg-muted text-pretty">
+        <strong class="font-semibold text-fg">Every step runs in your browser.</strong>{" "}
+        Reshrimp does not upload images, require an account, or track you.
+      </p>
+    </div>
   </Card>
 </Section>

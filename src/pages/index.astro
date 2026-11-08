@@ -1,9 +1,8 @@
 ---
 import MarketingLayout from "../layouts/MarketingLayout.astro";
-import CtaCard from "../components/marketing/cards/CtaCard.astro";
+import CtaBand from "../components/marketing/cards/CtaBand.astro";
 import ButtonLink from "../components/ui/ButtonLink.astro";
 import LandingHero from "../components/marketing/landing/LandingHero.astro";
-import LandingPrivacy from "../components/marketing/landing/LandingPrivacy.astro";
 import LandingTools from "../components/marketing/landing/LandingTools.astro";
 import LandingWorkflow from "../components/marketing/landing/LandingWorkflow.astro";
 import { ROUTES, SITE_DESCRIPTION, SITE_NAME } from "../config/constants";
@@ -45,11 +44,10 @@ const jsonLd = {
   <LandingHero />
   <LandingTools />
   <LandingWorkflow />
-  <LandingPrivacy />
-  <CtaCard
+  <CtaBand
     title="Ready to change an image?"
     copy="Choose an image, make the change you need, and download the result."
   >
     <ButtonLink href={makeHref(ROUTES.APP)} size="lg">Open Reshrimp</ButtonLink>
-  </CtaCard>
+  </CtaBand>
 </MarketingLayout>

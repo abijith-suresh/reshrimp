@@ -18,7 +18,7 @@ const questionId = `${answerId}-question`;
   <button
     type="button"
     data-faq-question
-    class="group/question flex min-h-11 w-full cursor-pointer touch-manipulation items-center justify-between gap-4 rounded-sm py-5 text-start text-base font-semibold text-fg transition-colors duration-150 ease-out hover:text-primary focus-visible:-outline-offset-2"
+    class="group/question flex min-h-11 w-full cursor-pointer touch-manipulation items-center justify-between gap-4 rounded-sm py-6 text-start text-lg font-semibold text-fg transition-colors duration-150 ease-out hover:text-primary focus-visible:-outline-offset-2"
     id={questionId}
     aria-expanded="false"
     aria-controls={answerId}
@@ -41,7 +41,7 @@ const questionId = `${answerId}-question`;
   >
     <div class="overflow-hidden">
       <p
-        class="max-w-prose translate-y-1.5 pb-5 text-base text-fg-muted text-pretty opacity-0 transition-[opacity,translate] delay-75 duration-300 ease-out group-data-[open=true]/faq:translate-y-0 group-data-[open=true]/faq:opacity-100"
+        class="max-w-prose translate-y-1.5 pb-6 text-lg text-fg-muted text-pretty opacity-0 transition-[opacity,translate] delay-75 duration-300 ease-out group-data-[open=true]/faq:translate-y-0 group-data-[open=true]/faq:opacity-100"
         set:html={answer}
       />
     </div>

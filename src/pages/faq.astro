@@ -1,7 +1,7 @@
 ---
 import MarketingLayout from "../layouts/MarketingLayout.astro";
 import Card from "../components/marketing/cards/Card.astro";
-import CtaCard from "../components/marketing/cards/CtaCard.astro";
+import CtaBand from "../components/marketing/cards/CtaBand.astro";
 import PageHero from "../components/marketing/layout/PageHero.astro";
 import Section from "../components/marketing/layout/Section.astro";
 import FAQAccordion from "../components/marketing/sections/FAQAccordion.astro";
@@ -55,16 +55,16 @@ const faqs = [
   <PageHero title="Questions about Reshrimp." lede="Privacy, formats, file limits, and processing." />
 
   <Section>
-    <Card class="px-6 marketing-mobile:px-5">
+    <Card class="px-8 marketing-mobile:px-6">
       {faqs.map((faq) => <FAQAccordion question={faq.question} answer={faq.answer} />)}
     </Card>
   </Section>
 
-  <CtaCard title="Still have a question?" copy="Read the source or try the tool.">
+  <CtaBand title="Still have a question?" copy="Read the source or try the tool.">
     <ButtonLink href={makeHref(ROUTES.APP)}>Open Reshrimp</ButtonLink>
     <ButtonLink href={GITHUB_URL} variant="secondary" external={true}>
       <Github size={18} aria-hidden="true" />
       View on GitHub
     </ButtonLink>
-  </CtaCard>
+  </CtaBand>
 </MarketingLayout>
