@@ -42,6 +42,8 @@
   --color-fg: oklch(0.235 0.03 285);
   --color-fg-muted: oklch(0.47 0.025 285);
   --color-fg-soft: oklch(0.545 0.02 285);
+  /* Brand mark tile; matches the favicon and OG image. */
+  --color-ink: #1e1b4b;
   --color-hover: oklch(0.235 0.03 285 / 0.05);
   --color-selected: oklch(0.235 0.03 285 / 0.08);
 
