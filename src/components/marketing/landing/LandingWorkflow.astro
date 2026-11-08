@@ -1,35 +1,23 @@
 ---
-import MarketingSectionHeading from "../sections/MarketingSectionHeading.astro";
-import MarketingContainer from "../layout/MarketingContainer.astro";
+import Card from "../cards/Card.astro";
+import Row from "../cards/Row.astro";
+import Section from "../layout/Section.astro";
+
+const steps = [
+  { title: "Choose an image", body: "Drop a file in or choose one from your device." },
+  { title: "Set the options", body: "Choose dimensions, a format, and a quality or size target." },
+  { title: "Download the result", body: "Save the file when the preview looks right." },
+];
 ---
 
-<section class="relative z-1 py-marketing-section px-marketing-gutter scroll-mt-16" id="workflow">
-  <MarketingContainer>
-    <MarketingSectionHeading title="Upload. Change. Download." />
-
-    <ol class="grid grid-cols-3 gap-8 m-0 p-0 list-none marketing-stack:flex marketing-stack:flex-col marketing-stack:gap-0">
-      <li class="relative flex flex-col gap-6 min-h-20 pt-5 border-t border-border marketing-stack:grid marketing-stack:grid-cols-[3rem_minmax(0,1fr)] marketing-stack:gap-4 marketing-stack:min-h-0 marketing-stack:py-5 marketing-stack:not-last:after:absolute marketing-stack:not-last:after:-bottom-2 marketing-stack:not-last:after:left-[1.1rem] marketing-stack:not-last:after:w-px marketing-stack:not-last:after:h-5 marketing-stack:not-last:after:bg-border marketing-stack:not-last:after:content-['']" data-reveal>
-        <span class="text-coral-500 font-mono text-marketing-caption tabular-nums">01</span>
-        <div>
-          <h3 class="m-0 mb-2 text-foreground font-display text-marketing-title-sm tracking-[-0.035em]">Choose an image</h3>
-          <p class="max-w-60 m-0 text-muted-foreground text-marketing-small leading-marketing-body marketing-stack:max-w-marketing-narrow">Drop a file in or choose one from your device.</p>
-        </div>
-      </li>
-      <li class="relative flex flex-col gap-6 min-h-20 pt-5 border-t border-border marketing-stack:grid marketing-stack:grid-cols-[3rem_minmax(0,1fr)] marketing-stack:gap-4 marketing-stack:min-h-0 marketing-stack:py-5 marketing-stack:not-last:after:absolute marketing-stack:not-last:after:-bottom-2 marketing-stack:not-last:after:left-[1.1rem] marketing-stack:not-last:after:w-px marketing-stack:not-last:after:h-5 marketing-stack:not-last:after:bg-border marketing-stack:not-last:after:content-['']" data-reveal>
-        <span class="text-coral-500 font-mono text-marketing-caption tabular-nums">02</span>
-        <div>
-          <h3 class="m-0 mb-2 text-foreground font-display text-marketing-title-sm tracking-[-0.035em]">Set the options</h3>
-          <p class="max-w-60 m-0 text-muted-foreground text-marketing-small leading-marketing-body marketing-stack:max-w-marketing-narrow">Choose dimensions, a format, and a quality or size target.</p>
-        </div>
-      </li>
-      <li class="relative flex flex-col gap-6 min-h-20 pt-5 border-t border-border marketing-stack:grid marketing-stack:grid-cols-[3rem_minmax(0,1fr)] marketing-stack:gap-4 marketing-stack:min-h-0 marketing-stack:py-5 marketing-stack:not-last:after:absolute marketing-stack:not-last:after:-bottom-2 marketing-stack:not-last:after:left-[1.1rem] marketing-stack:not-last:after:w-px marketing-stack:not-last:after:h-5 marketing-stack:not-last:after:bg-border marketing-stack:not-last:after:content-['']" data-reveal>
-        <span class="text-coral-500 font-mono text-marketing-caption tabular-nums">03</span>
-        <div>
-          <h3 class="m-0 mb-2 text-foreground font-display text-marketing-title-sm tracking-[-0.035em]">Download the result</h3>
-          <p class="max-w-60 m-0 text-muted-foreground text-marketing-small leading-marketing-body marketing-stack:max-w-marketing-narrow">Save the file when the preview looks right.</p>
-        </div>
-      </li>
-    </ol>
-
-  </MarketingContainer>
-</section>
+<Section id="workflow" title="Upload. Change. Download.">
+  <Card as="ol" class="divide-y divide-line">
+    {
+      steps.map((step, index) => (
+        <Row marker={String(index + 1).padStart(2, "0")} title={step.title}>
+          <p>{step.body}</p>
+        </Row>
+      ))
+    }
+  </Card>
+</Section>

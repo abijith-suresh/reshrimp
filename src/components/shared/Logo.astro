@@ -1,10 +1,20 @@
 ---
-const { href = "/" } = Astro.props;
-import { makeHref } from "../../lib/utils";
 import { SITE_NAME } from "../../config/constants";
+import { makeHref } from "../../lib/utils";
+
+interface Props {
+  href?: string;
+}
+
+const { href = "/" } = Astro.props;
 ---
 
-<a href={makeHref(href)} class="group/logo flex items-center gap-2 font-display text-[1.2rem] font-bold text-foreground no-underline transition-opacity duration-200 hover:opacity-80">
-  <span class="size-2.5 rounded-full bg-coral-500 shrink-0 transition-transform duration-normal ease-pop group-hover/logo:scale-140"></span>
+<a
+  href={makeHref(href)}
+  class="group/logo inline-flex min-h-11 items-center gap-2 rounded-sm font-display text-title-sm text-fg no-underline"
+>
+  <span
+    class="size-2.5 shrink-0 rounded-full bg-coral transition-transform duration-300 ease-pop group-hover/logo:scale-140"
+  ></span>
   {SITE_NAME.toLowerCase()}
 </a>

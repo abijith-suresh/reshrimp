@@ -59,7 +59,7 @@ export default function UploadArea(props: UploadAreaProps) {
           onClick={(e) => e.stopPropagation()}
           onChange={handleFileInput}
         />
-        <p class="text-xs text-soft-foreground m-0 mt-1">
+        <p class="text-xs text-fg-soft m-0 mt-1">
           JPEG, PNG, WebP · max {formatFileSize(MAX_FILE_SIZE)}
         </p>
       </UploadDropzone>

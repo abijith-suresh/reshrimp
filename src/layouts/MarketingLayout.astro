@@ -13,7 +13,12 @@ interface Props {
 const { title, description, ogImagePath, currentPath = "/" } = Astro.props;
 ---
 
-<Layout title={title} description={description} ogImagePath={ogImagePath}>
+<Layout
+  title={title}
+  description={description}
+  ogImagePath={ogImagePath}
+  bodyClass="flex min-h-dvh flex-col overflow-x-clip"
+>
   <Fragment slot="head">
     <slot name="head" />
   </Fragment>

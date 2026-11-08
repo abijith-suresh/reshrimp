@@ -34,7 +34,7 @@ test("preserves the inclusive hero and navigation breakpoints", async ({ page })
   await expect(menu).toBeFocused();
   await page.setViewportSize({ width: 769, height: 1000 });
   await expect(menu).toBeHidden();
-  await expect(page.getByRole("banner").getByRole("link", { name: "Use Reshrimp" })).toBeVisible();
+  await expect(page.getByRole("banner").getByRole("link", { name: "Open Reshrimp" })).toBeVisible();
 });
 
 test("opens FAQ answers with the keyboard and respects live reduced motion", async ({ page }) => {

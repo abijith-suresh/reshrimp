@@ -1,12 +1,13 @@
 ---
 import MarketingLayout from "../layouts/MarketingLayout.astro";
-import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
-import LandingFinalCta from "../components/marketing/landing/LandingFinalCta.astro";
+import CtaCard from "../components/marketing/cards/CtaCard.astro";
+import ButtonLink from "../components/ui/ButtonLink.astro";
 import LandingHero from "../components/marketing/landing/LandingHero.astro";
 import LandingPrivacy from "../components/marketing/landing/LandingPrivacy.astro";
 import LandingTools from "../components/marketing/landing/LandingTools.astro";
 import LandingWorkflow from "../components/marketing/landing/LandingWorkflow.astro";
-import { SITE_NAME, SITE_DESCRIPTION } from "../config/constants";
+import { ROUTES, SITE_DESCRIPTION, SITE_NAME } from "../config/constants";
+import { makeHref } from "../lib/utils";
 
 const siteUrl = new URL(Astro.url.pathname, Astro.site).href;
 const jsonLd = {
@@ -41,11 +42,14 @@ const jsonLd = {
   <Fragment slot="head">
     <script is:inline type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
   </Fragment>
-  <MarketingPageWrapper>
-    <LandingHero />
-    <LandingTools />
-    <LandingWorkflow />
-    <LandingPrivacy />
-    <LandingFinalCta />
-  </MarketingPageWrapper>
+  <LandingHero />
+  <LandingTools />
+  <LandingWorkflow />
+  <LandingPrivacy />
+  <CtaCard
+    title="Ready to change an image?"
+    copy="Choose an image, make the change you need, and download the result."
+  >
+    <ButtonLink href={makeHref(ROUTES.APP)} size="lg">Open Reshrimp</ButtonLink>
+  </CtaCard>
 </MarketingLayout>

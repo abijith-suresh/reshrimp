@@ -11,8 +11,7 @@ interface Props extends ButtonVariantProps {
 const {
   href,
   variant = "primary",
-  tone = "coral",
-  size = "default",
+  size = "md",
   fullWidth = false,
   external = false,
   class: className,
@@ -24,7 +23,7 @@ const {
   href={href}
   target={external ? "_blank" : undefined}
   rel={external ? "noopener noreferrer" : undefined}
-  class={cn(buttonVariants({ variant, tone, size, fullWidth }), className)}
+  class={cn(buttonVariants({ variant, size, fullWidth }), className)}
 >
   <slot />
 </a>

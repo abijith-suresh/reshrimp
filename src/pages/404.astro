@@ -1,7 +1,8 @@
 ---
 import ButtonLink from "../components/ui/ButtonLink.astro";
+import Card from "../components/marketing/cards/Card.astro";
+import Section from "../components/marketing/layout/Section.astro";
 import MarketingLayout from "../layouts/MarketingLayout.astro";
-import MarketingPageWrapper from "../components/marketing/layout/MarketingPageWrapper.astro";
 import { makeHref } from "../lib/utils";
 import { ROUTES } from "../config/constants";
 ---
@@ -11,25 +12,12 @@ import { ROUTES } from "../config/constants";
   description="The page you're looking for doesn't exist. Resize, convert, and compress images right in your browser with Reshrimp."
   currentPath={ROUTES.HOME}
 >
-  <MarketingPageWrapper>
-    <div class="flex items-center justify-center min-h-[calc(100vh-200px)] p-16 relative z-10">
-      <div class="max-w-[500px] text-center">
-        <div class="opacity-0 animate-error-code">
-          <span
-            class="inline-block font-display font-extrabold leading-none bg-linear-to-br from-coral-500 to-lavender-500 bg-clip-text text-transparent text-[clamp(5rem,15vw,8rem)] tracking-[-0.03em]"
-            >404</span
-          >
-          <h1 class="font-display text-base font-extrabold mt-4 mb-4 tracking-tight">
-            Page not found
-          </h1>
-          <p class="text-lg text-muted-foreground leading-[1.7] m-0 mb-10 max-w-[360px] mx-auto">
-            That page does not exist.
-          </p>
-          <ButtonLink href={makeHref(ROUTES.HOME)}>
-            Back home
-          </ButtonLink>
-        </div>
-      </div>
-    </div>
-  </MarketingPageWrapper>
+  <Section class="pt-16 marketing-mobile:pt-10">
+    <Card class="mx-auto flex max-w-xl animate-rise flex-col items-center px-8 py-12 text-center marketing-mobile:px-5 marketing-mobile:py-10">
+      <span class="font-display text-display text-primary" aria-hidden="true">404</span>
+      <h1 class="mt-4 font-display text-title-md text-fg">Page not found</h1>
+      <p class="mt-2 text-base text-fg-muted">That page does not exist.</p>
+      <ButtonLink href={makeHref(ROUTES.HOME)} class="mt-8">Back home</ButtonLink>
+    </Card>
+  </Section>
 </MarketingLayout>

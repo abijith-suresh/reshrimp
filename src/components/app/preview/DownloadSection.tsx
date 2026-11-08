@@ -17,7 +17,7 @@ export default function DownloadSection(props: DownloadSectionProps) {
         {(message) => (
           <p
             id={`${prefix}format-fallback-warning`}
-            class="w-full text-xs leading-relaxed text-yellow-600"
+            class="w-full text-xs leading-relaxed text-warning"
             role="status"
           >
             {message()}
@@ -27,7 +27,6 @@ export default function DownloadSection(props: DownloadSectionProps) {
       <Button
         id={`${prefix}download-button`}
         variant="primary"
-        tone="mint"
         fullWidth={true}
         disabled={!state.downloadActive()}
         onClick={() => actions.handleDownload()}

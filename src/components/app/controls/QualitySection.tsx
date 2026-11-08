@@ -19,11 +19,11 @@ export default function QualitySection(props: QualitySectionProps) {
     <div class="flex flex-col gap-3">
       <SectionHeader>Compression</SectionHeader>
 
-      <fieldset class="relative isolate grid min-w-0 grid-cols-2 rounded-lg bg-background p-1">
+      <fieldset class="relative isolate grid min-w-0 grid-cols-2 rounded-lg bg-canvas p-1">
         <legend class="sr-only">Compression mode</legend>
         <span
           aria-hidden="true"
-          class="pointer-events-none absolute inset-y-1 left-1 z-0 w-[calc(50%-4px)] rounded-md bg-card shadow-sm transition-[transform,translate] duration-normal ease-reveal motion-reduce:transition-none data-[mode=size]:translate-x-full"
+          class="pointer-events-none absolute inset-y-1 left-1 z-0 w-[calc(50%-4px)] rounded-md bg-surface shadow-sm transition-[transform,translate] duration-150 ease-reveal motion-reduce:transition-none data-[mode=size]:translate-x-full"
           data-mode={state.compressionMode()}
         />
         <button
@@ -31,7 +31,7 @@ export default function QualitySection(props: QualitySectionProps) {
           type="button"
           aria-pressed={state.compressionMode() === "quality"}
           disabled={!modeAvailable()}
-          class={`relative z-10 flex min-w-0 items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 ${isQualityMode() ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+          class={`relative z-10 flex min-w-0 items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 ${isQualityMode() ? "text-fg" : "text-fg-muted hover:text-fg"}`}
           onClick={() => actions.setCompressionMode("quality")}
         >
           Quality
@@ -41,7 +41,7 @@ export default function QualitySection(props: QualitySectionProps) {
           type="button"
           aria-pressed={state.compressionMode() === "size"}
           disabled={!modeAvailable()}
-          class={`relative z-10 flex min-w-0 items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 ${!isQualityMode() ? "text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+          class={`relative z-10 flex min-w-0 items-center justify-center rounded-md px-3 py-2 text-sm font-medium transition-colors duration-200 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50 ${!isQualityMode() ? "text-fg" : "text-fg-muted hover:text-fg"}`}
           onClick={() => actions.setCompressionMode("size")}
         >
           Max file size
@@ -55,10 +55,10 @@ export default function QualitySection(props: QualitySectionProps) {
           class="col-start-1 row-start-1 flex flex-col gap-3 transition-[opacity,transform,translate,visibility] duration-200 ease-out motion-reduce:transition-none aria-hidden:opacity-0 aria-hidden:invisible aria-hidden:translate-y-1 aria-hidden:pointer-events-none"
         >
           <div class="flex min-h-12 items-center justify-between gap-3">
-            <label for={qualityId} class="text-sm font-medium text-foreground">
+            <label for={qualityId} class="text-sm font-medium text-fg">
               Output quality
             </label>
-            <span class="text-sm font-semibold text-coral-500">{state.qualityValue()}%</span>
+            <span class="text-sm font-semibold text-primary">{state.qualityValue()}%</span>
           </div>
           <input
             id={qualityId}
@@ -66,13 +66,13 @@ export default function QualitySection(props: QualitySectionProps) {
             min={1}
             max={100}
             value={state.qualityValue()}
-            class="w-full h-1.5 rounded-[3px] appearance-none bg-border-light cursor-pointer slider"
+            class="w-full h-1.5 rounded-full appearance-none bg-line cursor-pointer slider"
             disabled={!modeAvailable() || !isQualityMode()}
             onInput={(e) =>
               actions.setQualityValue(parseInt((e.target as HTMLInputElement).value, 10))
             }
           />
-          <p class="text-xs text-muted-foreground">
+          <p class="text-xs text-fg-muted">
             <Show
               when={!state.controlsActive()}
               fallback={
@@ -100,7 +100,7 @@ export default function QualitySection(props: QualitySectionProps) {
           class="col-start-1 row-start-1 flex flex-col gap-3 transition-[opacity,transform,translate,visibility] duration-200 ease-out motion-reduce:transition-none aria-hidden:opacity-0 aria-hidden:invisible aria-hidden:translate-y-1 aria-hidden:pointer-events-none"
         >
           <div class="flex min-h-12 items-center justify-between gap-3">
-            <label for={targetFileSizeId} class="text-sm font-medium text-foreground">
+            <label for={targetFileSizeId} class="text-sm font-medium text-fg">
               Maximum file size (KB)
             </label>
             <input
@@ -112,11 +112,11 @@ export default function QualitySection(props: QualitySectionProps) {
               disabled={!modeAvailable() || isQualityMode()}
               aria-invalid={state.targetFileSizeInputInvalid() ? "true" : undefined}
               aria-describedby={`${targetFileSizeId}-help${state.targetFileSizeInputInvalid() ? ` ${targetFileSizeId}-error` : ""}`}
-              class="h-12 w-28 rounded-lg border border-border bg-background px-3 font-body text-base text-foreground transition-[border-color,box-shadow] duration-200 focus-visible:outline-hidden focus-visible:border-lavender-500 focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-50"
+              class="h-12 w-28 rounded-lg border border-line-strong bg-canvas px-3 font-body text-base text-fg transition-[border-color,box-shadow] duration-200 focus-visible:outline-hidden focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/20 disabled:opacity-50"
               onInput={(e) => actions.setTargetFileSizeValue(e.currentTarget.value)}
             />
           </div>
-          <p id={`${targetFileSizeId}-help`} class="text-xs text-muted-foreground">
+          <p id={`${targetFileSizeId}-help`} class="text-xs text-fg-muted">
             <Show
               when={!state.controlsActive()}
               fallback={
@@ -141,13 +141,13 @@ export default function QualitySection(props: QualitySectionProps) {
             </Show>
           </p>
           <Show when={state.targetFileSizeInputInvalid()}>
-            <p id={`${targetFileSizeId}-error`} role="alert" class="text-xs text-coral-600">
+            <p id={`${targetFileSizeId}-error`} role="alert" class="text-xs text-danger">
               Enter a size greater than 0 KB.
             </p>
           </Show>
           <Show when={state.targetFileSizeNotice()}>
             {(notice) => (
-              <p role="status" aria-live="polite" class="text-xs text-muted-foreground">
+              <p role="status" aria-live="polite" class="text-xs text-fg-muted">
                 {notice()}
               </p>
             )}

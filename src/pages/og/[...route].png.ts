@@ -15,169 +15,195 @@ async function loadFont(filename: string): Promise<ArrayBuffer> {
   return buffer.buffer as ArrayBuffer;
 }
 
-function buildOgImage(data: OgPageData): Record<string, unknown> {
-  return {
-    type: "div",
-    props: {
-      style: {
-        width: "100%",
-        height: "100%",
-        display: "flex",
-        flexDirection: "column",
-        justifyContent: "center",
-        padding: "60px 80px",
-        backgroundColor: "#f8f7ff",
-        position: "relative",
-        overflow: "hidden",
-      },
-      children: [
-        // Decorative blob — top right (coral)
-        {
-          type: "div",
-          props: {
-            style: {
-              position: "absolute",
-              top: "-60px",
-              right: "-40px",
-              width: "320px",
-              height: "320px",
-              borderRadius: "62% 38% 46% 54% / 60% 44% 56% 40%",
-              background: "rgba(242, 90, 90, 0.15)",
-            },
-          },
-        },
-        // Decorative blob — bottom left (lavender)
-        {
-          type: "div",
-          props: {
-            style: {
-              position: "absolute",
-              bottom: "-80px",
-              left: "-60px",
-              width: "400px",
-              height: "400px",
-              borderRadius: "44% 56% 38% 62% / 52% 60% 40% 48%",
-              background: "rgba(167, 139, 250, 0.12)",
-            },
-          },
-        },
-        // Small decorative blob — center right (coral, subtle)
-        {
-          type: "div",
-          props: {
-            style: {
-              position: "absolute",
-              top: "280px",
-              right: "180px",
-              width: "140px",
-              height: "140px",
-              borderRadius: "50% 50% 38% 62% / 60% 40% 60% 40%",
-              background: "rgba(242, 90, 90, 0.08)",
-            },
-          },
-        },
-        // Label chip
-        ...(data.label
-          ? [
-              {
-                type: "div",
-                props: {
-                  style: {
-                    display: "flex",
-                    marginBottom: "24px",
-                  },
-                  children: {
-                    type: "div",
-                    props: {
-                      style: {
-                        padding: "8px 20px",
-                        borderRadius: "100px",
-                        backgroundColor: "rgba(242, 90, 90, 0.12)",
-                        color: "#f25a5a",
-                        fontSize: "20px",
-                        fontFamily: "Plus Jakarta Sans SemiBold",
-                        letterSpacing: "0.02em",
-                      },
-                      children: data.label,
-                    },
-                  },
-                },
-              },
-            ]
-          : []),
-        // Title
-        {
-          type: "div",
-          props: {
-            style: {
-              fontSize: "56px",
-              fontFamily: "Bricolage Grotesque",
-              fontWeight: 700,
-              color: "#1a1a2e",
-              lineHeight: 1.15,
-              marginBottom: "20px",
-              maxWidth: "900px",
-            },
-            children: data.title,
-          },
-        },
-        // Description
-        {
-          type: "div",
-          props: {
-            style: {
-              fontSize: "24px",
-              fontFamily: "Plus Jakarta Sans",
-              color: "#64748b",
-              lineHeight: 1.5,
-              maxWidth: "800px",
-            },
-            children: data.description,
-          },
-        },
-        // Bottom branding
-        {
-          type: "div",
-          props: {
-            style: {
-              display: "flex",
-              alignItems: "center",
-              position: "absolute",
-              bottom: "50px",
-              left: "80px",
-            },
-            children: [
-              // Coral dot
-              {
-                type: "div",
-                props: {
-                  style: {
-                    width: "16px",
-                    height: "16px",
-                    borderRadius: "50%",
-                    backgroundColor: "#f25a5a",
-                    marginRight: "12px",
-                  },
-                },
-              },
-              {
-                type: "div",
-                props: {
-                  style: {
-                    fontSize: "22px",
-                    fontFamily: "Plus Jakarta Sans SemiBold",
-                    color: "#1a1a2e",
-                    letterSpacing: "-0.01em",
-                  },
-                  children: "reshrimp",
-                },
-              },
-            ],
-          },
-        },
-      ],
+// Satori cannot read CSS variables, so these mirror the theme tokens in
+// src/styles/global.css as sRGB hex.
+const COLORS = {
+  canvas: "#f8f6f4",
+  surface: "#ffffff",
+  line: "#e9e6e2",
+  fg: "#1c1c2c",
+  fgMuted: "#595969",
+  primary: "#d03d37",
+  coral: "#f3625d",
+  coralSubtle: "#ffeae7",
+  coralInk: "#ba312c",
+  mint: "#66d5ba",
+  lavender: "#b39ef2",
+  lavenderSubtle: "#f1edff",
+  yellow: "#f9d460",
+};
+
+type Node = { type: string; props: Record<string, unknown> };
+
+function box(style: Record<string, unknown>, children?: Node | Node[] | string): Node {
+  return { type: "div", props: { style: { display: "flex", ...style }, children } };
+}
+
+// The hero illustration's photo: sky, sun, two hills, and the coral subject,
+// framed in white with the resize handles.
+function photo(): Node {
+  const handle = (position: Record<string, string>) =>
+    box({
+      position: "absolute",
+      width: "18px",
+      height: "18px",
+      borderRadius: "4px",
+      border: `4px solid ${COLORS.primary}`,
+      backgroundColor: COLORS.surface,
+      ...position,
+    });
+
+  return box(
+    {
+      position: "absolute",
+      top: "128px",
+      right: "84px",
+      width: "340px",
+      height: "268px",
+      transform: "rotate(-3deg)",
     },
-  };
+    [
+      box(
+        {
+          position: "relative",
+          width: "100%",
+          height: "100%",
+          overflow: "hidden",
+          borderRadius: "18px",
+          border: `8px solid ${COLORS.surface}`,
+          backgroundImage: `linear-gradient(180deg, ${COLORS.coralSubtle}, ${COLORS.lavenderSubtle})`,
+          boxShadow: "0 12px 32px rgba(28, 28, 44, 0.14)",
+        },
+        [
+          box({
+            position: "absolute",
+            top: "30px",
+            right: "50px",
+            width: "64px",
+            height: "64px",
+            borderRadius: "999px",
+            backgroundColor: COLORS.yellow,
+          }),
+          box({
+            position: "absolute",
+            right: "-80px",
+            bottom: "-90px",
+            width: "280px",
+            height: "180px",
+            borderRadius: "140px 140px 0 0",
+            backgroundColor: COLORS.lavender,
+          }),
+          box({
+            position: "absolute",
+            left: "-80px",
+            bottom: "-90px",
+            width: "340px",
+            height: "180px",
+            borderRadius: "170px 170px 0 0",
+            backgroundColor: COLORS.mint,
+          }),
+          box({
+            position: "absolute",
+            left: "82px",
+            bottom: "30px",
+            width: "64px",
+            height: "100px",
+            borderRadius: "32px 32px 12px 12px",
+            backgroundColor: COLORS.coral,
+          }),
+        ]
+      ),
+      handle({ top: "-9px", left: "-9px" }),
+      handle({ top: "-9px", right: "-9px" }),
+      handle({ bottom: "-9px", left: "-9px" }),
+      handle({ bottom: "-9px", right: "-9px" }),
+    ]
+  );
+}
+
+function buildOgImage(data: OgPageData): Node {
+  return box(
+    {
+      width: `${WIDTH}px`,
+      height: `${HEIGHT}px`,
+      alignItems: "center",
+      justifyContent: "center",
+      backgroundColor: COLORS.canvas,
+    },
+    box(
+      {
+        position: "relative",
+        // Satori sizes boxes content-box: subtract the padding and border.
+        width: `${WIDTH - 96 - 128 - 4}px`,
+        height: `${HEIGHT - 96 - 112 - 4}px`,
+        flexDirection: "column",
+        justifyContent: "space-between",
+        padding: "56px 64px",
+        borderRadius: "32px",
+        border: `2px solid ${COLORS.line}`,
+        backgroundColor: COLORS.surface,
+        boxShadow: "0 2px 8px rgba(28, 28, 44, 0.05)",
+      },
+      [
+        box({ alignItems: "center", gap: "14px" }, [
+          box({
+            width: "18px",
+            height: "18px",
+            borderRadius: "999px",
+            backgroundColor: COLORS.coral,
+          }),
+          box(
+            {
+              fontSize: "34px",
+              fontFamily: "Bricolage Grotesque",
+              color: COLORS.fg,
+              letterSpacing: "-0.02em",
+            },
+            "reshrimp"
+          ),
+          ...(data.label
+            ? [
+                box(
+                  {
+                    marginLeft: "12px",
+                    padding: "6px 16px",
+                    borderRadius: "999px",
+                    backgroundColor: COLORS.coralSubtle,
+                    color: COLORS.coralInk,
+                    fontSize: "20px",
+                    fontFamily: "Plus Jakarta Sans SemiBold",
+                  },
+                  data.label
+                ),
+              ]
+            : []),
+        ]),
+        box({ flexDirection: "column", maxWidth: "560px" }, [
+          box(
+            {
+              fontSize: "64px",
+              fontFamily: "Bricolage Grotesque",
+              color: COLORS.fg,
+              lineHeight: 1.04,
+              letterSpacing: "-0.04em",
+            },
+            data.title
+          ),
+          box(
+            {
+              marginTop: "20px",
+              fontSize: "26px",
+              fontFamily: "Plus Jakarta Sans",
+              color: COLORS.fgMuted,
+              lineHeight: 1.45,
+            },
+            data.description
+          ),
+        ]),
+        photo(),
+      ]
+    )
+  );
 }
 
 async function renderOgImage(data: OgPageData): Promise<Buffer> {

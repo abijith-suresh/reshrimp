@@ -1,11 +1,12 @@
 ---
+import { ChevronDown } from "lucide-astro";
+
 interface Props {
   question: string;
   answer: string;
-  delay?: number;
 }
 
-const { question, answer, delay = 0 } = Astro.props;
+const { question, answer } = Astro.props;
 const answerId = `faq-answer-${question
   .toLowerCase()
   .replace(/\s+/g, "-")
@@ -13,24 +14,25 @@ const answerId = `faq-answer-${question
 const questionId = `${answerId}-question`;
 ---
 
-<div data-faq-item class="group/faq border-t border-border last:border-b" data-reveal data-reveal-delay={String(delay)}>
+<div data-faq-item class="group/faq border-t border-line first:border-t-0">
   <button
     type="button"
     data-faq-question
-    class="group/question flex items-center justify-between w-full gap-4 py-5 border-0 bg-transparent text-foreground font-display text-marketing-small font-semibold leading-[1.35] text-start touch-manipulation transition-colors duration-fast ease-[ease] cursor-pointer hover:text-coral-600 focus-visible:outline-2 focus-visible:outline-lavender-500 focus-visible:outline-offset-[-2px] focus-visible:rounded-[0.35rem]"
+    class="group/question flex min-h-11 w-full cursor-pointer touch-manipulation items-center justify-between gap-4 rounded-sm py-5 text-start text-base font-semibold text-fg transition-colors duration-150 ease-out hover:text-primary focus-visible:-outline-offset-2"
     id={questionId}
     aria-expanded="false"
     aria-controls={answerId}
   >
     {question}
-    <span
+    <ChevronDown
+      size={20}
       aria-hidden="true"
-      class="text-xl leading-[inherit] font-normal text-coral-500 shrink-0 transition-transform duration-normal ease-pop group-aria-expanded/question:rotate-45"
-    >+</span>
+      class="shrink-0 text-fg-soft transition-transform duration-300 ease-reveal group-aria-expanded/question:rotate-180"
+    />
   </button>
   <div
     data-faq-body
-    class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-normal ease-reveal motion-reduce:transition-none aria-[hidden=false]:grid-rows-[1fr]"
+    class="grid grid-rows-[0fr] transition-[grid-template-rows] duration-300 ease-reveal motion-reduce:transition-none aria-[hidden=false]:grid-rows-[1fr]"
     role="region"
     id={answerId}
     aria-labelledby={questionId}
@@ -39,7 +41,7 @@ const questionId = `${answerId}-question`;
   >
     <div class="overflow-hidden">
       <p
-        class="opacity-0 max-w-[44rem] pb-5 m-0 text-muted-foreground text-marketing-small leading-marketing-body translate-y-1.5 transition-[opacity,transform,translate] duration-normal ease-[ease] delay-[80ms] group-data-[open=true]/faq:opacity-100 group-data-[open=true]/faq:translate-y-0 [&_a]:text-coral-500 [&_a]:underline [&_a]:decoration-[rgba(242,90,90,0.3)] [&_a]:underline-offset-2 [&_a]:transition-[text-decoration-color] [&_a]:duration-200 [&_a]:hover:decoration-coral-500"
+        class="max-w-prose translate-y-1.5 pb-5 text-base text-fg-muted text-pretty opacity-0 transition-[opacity,translate] delay-75 duration-300 ease-out group-data-[open=true]/faq:translate-y-0 group-data-[open=true]/faq:opacity-100"
         set:html={answer}
       />
     </div>

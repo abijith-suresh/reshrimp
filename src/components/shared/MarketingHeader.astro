@@ -1,7 +1,10 @@
 ---
+import { Menu, X } from "lucide-astro";
 import { ROUTES } from "../../config/constants";
 import { makeHref } from "../../lib/utils";
-import MarketingContainer from "../marketing/layout/MarketingContainer.astro";
+import Container from "../marketing/layout/Container.astro";
+import ButtonLink from "../ui/ButtonLink.astro";
+import { buttonVariants } from "../ui/button";
 import Logo from "./Logo.astro";
 
 interface Props {
@@ -10,86 +13,85 @@ interface Props {
 
 const { currentPath = "/" } = Astro.props;
 
-const headerLinks = [{ label: "About", href: ROUTES.ABOUT }];
+const headerLinks = [
+  { label: "About", href: ROUTES.ABOUT },
+  { label: "Privacy", href: ROUTES.PRIVACY },
+  { label: "FAQ", href: ROUTES.FAQ },
+];
+const ariaCurrent = (href: string) => (currentPath === href ? "page" : undefined);
 ---
 
-<header class="sticky top-0 z-100 bg-background border-b border-border-light transition-[box-shadow,border-color] duration-fast ease-[ease] data-[scrolled=true]:shadow-xs data-[scrolled=true]:border-border" id="header" transition:animate="none">
-  <MarketingContainer>
-    <nav class="w-full flex justify-between items-center py-3 px-marketing-gutter marketing-menu:px-4">
-    <Logo />
+<header
+  id="header"
+  transition:animate="none"
+  class="sticky top-0 z-100 border-b border-line bg-surface transition-shadow duration-150 data-[scrolled=true]:shadow-sm"
+>
+  <Container>
+    <nav class="relative flex h-16 items-center justify-between gap-4" aria-label="Main">
+      <Logo />
 
-    <div class="flex items-center gap-2 marketing-menu:hidden">
-      {
-        headerLinks.map((link) => (
-          <a
-            href={makeHref(link.href)}
-            class="text-marketing-small font-medium text-muted-foreground no-underline py-2 px-3 rounded-md transition-colors duration-200 ease-[ease] touch-manipulation hover:text-foreground hover:bg-border-light focus-visible:outline-none focus-visible:shadow-[0_0_0_2px_rgba(167,139,250,0.4)] aria-[current=page]:text-coral-700 aria-[current=page]:font-semibold aria-[current=page]:bg-coral-50"
-            aria-current={currentPath === link.href ? "page" : undefined}
-          >
-            {link.label}
-          </a>
-        ))
-      }
-      <a href={makeHref(ROUTES.APP)} class="inline-flex items-center justify-center min-h-10 px-4 rounded-md bg-coral-500 text-white text-marketing-small font-semibold no-underline shadow-sm transition-[background-color,box-shadow,transform,scale] duration-fast ease-[ease] touch-manipulation [-webkit-tap-highlight-color:transparent] hover:bg-coral-600 active:scale-98 active:shadow-2xs focus-visible:outline-2 focus-visible:outline-lavender-500 focus-visible:outline-offset-3">Use Reshrimp</a>
-    </div>
+      <div class="flex items-center gap-1 marketing-menu:gap-2">
+        <div class="flex items-center gap-1 marketing-menu:hidden">
+          {
+            headerLinks.map((link) => (
+              <a
+                href={makeHref(link.href)}
+                class={buttonVariants({ variant: "ghost", size: "sm" })}
+                aria-current={ariaCurrent(link.href)}
+              >
+                {link.label}
+              </a>
+            ))
+          }
+        </div>
+        <ButtonLink href={makeHref(ROUTES.APP)} size="sm" class="ms-2 marketing-menu:ms-0 marketing-narrow:hidden">
+          Open Reshrimp
+        </ButtonLink>
 
-    <button
-      type="button"
-      class="group/menu relative hidden cursor-pointer text-foreground bg-transparent border-none p-1 rounded-md transition-[background-color,transform,scale] duration-fast ease-[ease] [-webkit-tap-highlight-color:transparent] hover:bg-card active:scale-96 marketing-menu:flex marketing-menu:items-center marketing-menu:justify-center marketing-menu:size-10 focus-visible:outline-none focus-visible:shadow-[0_0_0_2px_rgba(167,139,250,0.4)]"
-      id="mobile-menu-btn"
-      aria-label="Open menu"
-      aria-expanded="false"
-      aria-controls="mobile-menu-panel"
-    >
-      <svg
-        class="absolute inset-0 m-auto transition-[opacity,transform,scale,rotate] duration-fast ease-[ease,cubic-bezier(0.2,0.8,0.2,1),cubic-bezier(0.2,0.8,0.2,1),cubic-bezier(0.2,0.8,0.2,1)] group-aria-expanded/menu:opacity-0 group-aria-expanded/menu:scale-70 group-aria-expanded/menu:rotate-8"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="2"
-        stroke-linecap="round"
+        <button
+          type="button"
+          class="group/menu relative hidden size-11 cursor-pointer items-center justify-center rounded-md bg-surface text-fg-muted shadow-button transition-[background-color,color,scale] duration-150 ease-out hover:bg-surface-muted hover:text-fg active:scale-96 aria-expanded:bg-surface-muted aria-expanded:text-fg marketing-menu:inline-flex"
+          id="mobile-menu-btn"
+          aria-label="Open menu"
+          aria-expanded="false"
+          aria-controls="mobile-menu-panel"
+        >
+          <Menu
+            size={20}
+            aria-hidden="true"
+            class="absolute transition-[opacity,scale] duration-150 ease-out group-aria-expanded/menu:scale-75 group-aria-expanded/menu:opacity-0"
+          />
+          <X
+            size={20}
+            aria-hidden="true"
+            class="absolute scale-75 opacity-0 transition-[opacity,scale] duration-150 ease-out group-aria-expanded/menu:scale-100 group-aria-expanded/menu:opacity-100"
+          />
+        </button>
+      </div>
+
+      <div
+        id="mobile-menu-panel"
+        class="invisible absolute top-full right-0 mt-2 grid w-56 origin-top-right -translate-y-1 scale-98 gap-1 rounded-lg border border-line bg-surface p-2 opacity-0 shadow-md transition-[opacity,translate,scale,visibility] duration-150 ease-out aria-[hidden=false]:visible aria-[hidden=false]:translate-y-0 aria-[hidden=false]:scale-100 aria-[hidden=false]:opacity-100"
         aria-hidden="true"
+        inert
       >
-        <line x1="3" y1="6" x2="21" y2="6"></line>
-        <line x1="3" y1="12" x2="21" y2="12"></line>
-        <line x1="3" y1="18" x2="21" y2="18"></line>
-      </svg>
-      <svg
-        class="absolute inset-0 m-auto transition-[opacity,transform,scale,rotate] duration-fast ease-[ease,cubic-bezier(0.2,0.8,0.2,1),cubic-bezier(0.2,0.8,0.2,1),cubic-bezier(0.2,0.8,0.2,1)] opacity-0 scale-70 -rotate-8 group-aria-expanded/menu:opacity-100 group-aria-expanded/menu:scale-100 group-aria-expanded/menu:rotate-0"
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        stroke-width="1.8"
-        stroke-linecap="round"
-        aria-hidden="true"
-      >
-        <line x1="6" y1="6" x2="18" y2="18"></line>
-        <line x1="18" y1="6" x2="6" y2="18"></line>
-      </svg>
-    </button>
+        {
+          headerLinks.map((link) => (
+            <a
+              href={makeHref(link.href)}
+              class="flex min-h-11 items-center rounded-md px-3 text-base text-fg-muted no-underline transition-colors duration-150 ease-out hover:bg-hover hover:text-fg focus-visible:-outline-offset-2 aria-[current=page]:bg-selected aria-[current=page]:font-semibold aria-[current=page]:text-fg"
+              aria-current={ariaCurrent(link.href)}
+            >
+              {link.label}
+            </a>
+          ))
+        }
+        <div class="mt-1 hidden marketing-narrow:grid">
+          <ButtonLink href={makeHref(ROUTES.APP)}>Open Reshrimp</ButtonLink>
+        </div>
+      </div>
     </nav>
-  </MarketingContainer>
-
-  <div class="absolute top-full inset-x-0 invisible overflow-hidden pointer-events-none opacity-0 -translate-y-2 bg-background border-b border-border-light shadow-sm transition-[opacity,transform,translate,visibility] duration-[300ms,300ms,300ms,0s] ease-[var(--ease-reveal),var(--ease-reveal),var(--ease-reveal),linear] delay-[0s,0s,0s,300ms] aria-[hidden=false]:visible aria-[hidden=false]:pointer-events-auto aria-[hidden=false]:opacity-100 aria-[hidden=false]:translate-y-0 aria-[hidden=false]:delay-0" id="mobile-menu-panel" aria-hidden="true" inert>
-    <div class="flex flex-col gap-1 pt-2 px-marketing-gutter pb-6">
-      {
-        headerLinks.map((link) => (
-          <a
-            href={makeHref(link.href)}
-            class="text-marketing-small font-medium text-muted-foreground no-underline py-2 px-3 rounded-md transition-colors duration-fast ease-[ease] touch-manipulation hover:text-foreground hover:bg-card focus-visible:outline-none focus-visible:shadow-[0_0_0_2px_rgba(167,139,250,0.4)] focus-visible:rounded-[4px] aria-[current=page]:text-coral-500 aria-[current=page]:font-semibold"
-            aria-current={currentPath === link.href ? "page" : undefined}
-          >
-            {link.label}
-          </a>
-        ))
-      }
-      <a href={makeHref(ROUTES.APP)} class="text-marketing-small font-semibold text-white no-underline py-2 px-3 rounded-md transition-colors duration-fast ease-[ease] touch-manipulation mt-2 bg-coral-500 text-center hover:text-white hover:bg-coral-600 focus-visible:outline-none focus-visible:shadow-[0_0_0_2px_rgba(167,139,250,0.4)] focus-visible:rounded-[4px]">Use Reshrimp</a>
-    </div>
-  </div>
+  </Container>
 </header>
 
 <script>

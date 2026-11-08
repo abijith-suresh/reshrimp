@@ -361,7 +361,7 @@ function MobileSheet() {
         aria-label="Image controls"
         aria-hidden={sheetState() === "hidden" ? "true" : "false"}
         inert={sheetState() === "hidden"}
-        class="editor:hidden fixed inset-x-0 bottom-0 z-60 flex flex-col bg-card rounded-t-lg h-app-sheet pl-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)] border-t border-border shadow-mobile-sheet will-change-transform overscroll-contain transition-transform duration-slow ease-sheet [transform:translateY(100%)] data-[sheet-state=peek]:[transform:translateY(calc(100%-var(--spacing-app-sheet-peek)))] data-[sheet-state=open]:[transform:translateY(0%)]"
+        class="editor:hidden fixed inset-x-0 bottom-0 z-60 flex flex-col bg-surface rounded-t-lg h-app-sheet pl-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)] border-t border-line-strong shadow-mobile-sheet will-change-transform overscroll-contain transition-transform duration-150 ease-sheet [transform:translateY(100%)] data-[sheet-state=peek]:[transform:translateY(calc(100%-var(--spacing-app-sheet-peek)))] data-[sheet-state=open]:[transform:translateY(0%)]"
         onKeyDown={handleSheetKeyDown}
         data-sheet-state={sheetState()}
       >
@@ -382,12 +382,12 @@ function MobileSheet() {
           >
             <Show when={sheetState() === "open"}>
               <div class="flex flex-col min-w-0 pr-3">
-                <h2 class="text-xs font-semibold text-muted-foreground uppercase tracking-[0.12em]">
+                <h2 class="text-xs font-semibold text-fg-muted uppercase tracking-widest">
                   Edit image
                 </h2>
                 <Show when={img()}>
                   {(currentImg) => (
-                    <p class="text-sm text-muted-foreground truncate mt-0.5">
+                    <p class="text-sm text-fg-muted truncate mt-0.5">
                       {currentImg().metadata.fileName} · {displayWidth()} × {displayHeight()} px
                     </p>
                   )}
@@ -402,7 +402,7 @@ function MobileSheet() {
               type="button"
               class={`${
                 sheetState() === "open" ? "shrink-0" : "w-full justify-between"
-              } ${buttonVariants({ variant: "primary", tone: "coral" })}`}
+              } ${buttonVariants({ variant: "primary" })}`}
               onClick={toggleSheet}
               aria-controls="mobile-controls-content"
               aria-expanded={sheetState() === "open"}
@@ -484,7 +484,7 @@ export default function ImageApp() {
     <ImageAppProvider>
       <div
         data-app-shell
-        class="group/app pt-[env(safe-area-inset-top,0px)] pl-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)] h-dvh overflow-hidden flex flex-row bg-background"
+        class="group/app pt-[env(safe-area-inset-top,0px)] pl-[env(safe-area-inset-left,0px)] pr-[env(safe-area-inset-right,0px)] h-dvh overflow-hidden flex flex-row bg-canvas"
       >
         {/* Desktop icon dock */}
         <AppSidebar />
@@ -492,7 +492,7 @@ export default function ImageApp() {
         {/* Control panel — desktop only */}
         <div
           data-desktop-controls
-          class="hidden editor:flex w-app-panel flex-col border-r border-border bg-card overflow-hidden shrink-0"
+          class="hidden editor:flex w-app-panel flex-col border-r border-line-strong bg-surface overflow-hidden shrink-0"
         >
           <div class="flex flex-col flex-1 overflow-hidden min-h-0">
             <ProcessPanel />

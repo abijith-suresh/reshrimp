@@ -245,13 +245,13 @@ export default function Select(props: SelectProps) {
         aria-controls={open() ? listboxId : undefined}
         aria-disabled={props.disabled}
         disabled={props.disabled}
-        class={`group/select flex w-full items-center justify-between gap-2 px-3 py-2 border border-border rounded-md font-body text-sm text-foreground bg-background cursor-pointer text-left transition-[border-color,box-shadow] duration-200 hover:border-lavender-500 hover:bg-lavender-50 focus-visible:outline-hidden focus-visible:border-lavender-500 focus-visible:shadow-[0_0_0_3px_rgba(167,139,250,0.15)] aria-expanded:border-lavender-500 aria-expanded:shadow-[0_0_0_3px_rgba(167,139,250,0.15)] disabled:opacity-50 disabled:cursor-not-allowed${props.class ? ` ${props.class}` : ""}`}
+        class={`group/select flex w-full items-center justify-between gap-2 px-3 py-2 border border-line-strong rounded-md font-body text-sm text-fg bg-canvas cursor-pointer text-left transition-[border-color,box-shadow] duration-200 hover:border-fg-soft focus-visible:outline-hidden focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/20 aria-expanded:border-ring aria-expanded:ring-3 aria-expanded:ring-ring/20 disabled:opacity-50 disabled:cursor-not-allowed${props.class ? ` ${props.class}` : ""}`}
         onClick={() => (open() ? closeDropdown() : openDropdown())}
         onKeyDown={handleTriggerKeyDown}
       >
-        <span class="flex-1 truncate text-foreground">{selectedLabel()}</span>
+        <span class="flex-1 truncate text-fg">{selectedLabel()}</span>
         <svg
-          class="shrink-0 text-lavender-500 transition-transform duration-200 group-aria-expanded/select:rotate-180"
+          class="shrink-0 text-fg-soft transition-transform duration-200 group-aria-expanded/select:rotate-180"
           width="12"
           height="12"
           viewBox="0 0 12 12"
@@ -280,7 +280,7 @@ export default function Select(props: SelectProps) {
               focusedIndex() >= 0 ? `${listboxId}-option-${focusedIndex()}` : undefined
             }
             tabIndex={-1}
-            class="fixed z-9999 list-none m-0 p-1 bg-card border border-border rounded-md shadow-md max-h-60 overflow-y-auto origin-top animate-select-in data-[side=above]:origin-bottom data-[side=above]:animate-select-in-up"
+            class="fixed z-9999 list-none m-0 p-1 bg-surface border border-line-strong rounded-md shadow-md max-h-60 overflow-y-auto origin-top animate-select-in data-[side=above]:origin-bottom data-[side=above]:animate-select-in-up"
             data-side={pos().openUpward ? "above" : "below"}
             style={{
               top: pos().top !== undefined ? `${pos().top}px` : "auto",
@@ -299,7 +299,7 @@ export default function Select(props: SelectProps) {
                   aria-selected={option.value === props.value}
                   aria-disabled={option.disabled}
                   tabIndex={-1}
-                  class="flex items-center justify-between px-[0.65rem] py-[0.45rem] rounded-sm font-body text-[0.85rem] text-foreground cursor-pointer select-none transition-colors duration-160 ease-[ease] aria-selected:font-semibold aria-selected:text-lavender-600 data-[focused=true]:bg-lavender-50 data-[focused=true]:text-lavender-600 aria-disabled:opacity-40 aria-disabled:cursor-not-allowed aria-disabled:pointer-events-none"
+                  class="flex items-center justify-between px-2.5 py-2 rounded-sm font-body text-sm text-fg cursor-pointer select-none transition-colors duration-160 ease-out aria-selected:font-semibold data-[focused=true]:bg-hover aria-disabled:opacity-40 aria-disabled:cursor-not-allowed aria-disabled:pointer-events-none"
                   data-focused={index() === focusedIndex()}
                   onMouseEnter={() => !option.disabled && setFocusedIndex(index())}
                   onMouseDown={(e) => {
@@ -310,7 +310,7 @@ export default function Select(props: SelectProps) {
                   {option.label}
                   <Show when={option.value === props.value}>
                     <svg
-                      class="shrink-0 text-lavender-600 animate-select-check-in"
+                      class="shrink-0 text-primary animate-select-check-in"
                       width="12"
                       height="12"
                       viewBox="0 0 12 12"
