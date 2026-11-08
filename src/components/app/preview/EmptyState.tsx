@@ -1,55 +1,85 @@
-import { Image, Upload } from "lucide-solid";
-import type { JSX } from "solid-js";
-import { Show } from "solid-js";
+import { ImageUp, ShieldCheck } from "lucide-solid";
+import { createSignal, type JSX, Show } from "solid-js";
+import { MAX_FILE_SIZE } from "@/config/constants";
+import { formatFileSize } from "@/utils/imageUtils";
 
 interface EmptyStateProps {
-  icon?: JSX.Element;
-  title: string;
-  subtitle: string;
   validationError?: string;
   validationWarning?: string;
-  /** When provided, renders a mobile-only "Upload image" CTA button. */
-  onUploadClick?: () => void;
+  onChoose: () => void;
+  onDrop: (file: File) => void;
+  /** Extra content under the card, such as a load error. */
+  children?: JSX.Element;
 }
 
+// The single call to choose or drop the first image, on every screen size.
 export default function EmptyState(props: EmptyStateProps) {
+  const [dragOver, setDragOver] = createSignal(false);
+
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: a drop target only; the button inside is the keyboard and pointer control
     <div
       id="sbs-empty-state"
-      class="flex-1 flex flex-col items-center justify-center text-center p-8 transition-opacity duration-300"
+      class="flex flex-1 items-center justify-center overflow-y-auto p-4 editor:p-8"
+      onDragOver={(e) => {
+        e.preventDefault();
+        setDragOver(true);
+      }}
+      onDragLeave={(e) => {
+        if (!e.currentTarget.contains(e.relatedTarget as Node | null)) setDragOver(false);
+      }}
+      onDrop={(e) => {
+        e.preventDefault();
+        setDragOver(false);
+        const file = e.dataTransfer?.files[0];
+        if (file) props.onDrop(file);
+      }}
     >
-      {props.icon ?? <Image class="w-12 h-12 text-fg-soft opacity-30 mb-3" />}
-      <p class="font-body text-sm font-medium text-fg-muted m-0 mb-1">{props.title}</p>
-      <p class="text-xs text-fg-soft m-0">{props.subtitle}</p>
-
-      <Show when={props.validationError}>
-        {(message) => (
-          <p class="mt-3 text-sm text-danger editor:hidden" role="status">
-            {message()}
-          </p>
-        )}
-      </Show>
-
-      <Show when={props.validationWarning}>
-        {(message) => (
-          <p class="mt-3 text-sm text-warning editor:hidden" role="status">
-            {message()}
-          </p>
-        )}
-      </Show>
-
-      <Show when={props.onUploadClick}>
-        {/* Mobile-only upload CTA — on desktop the sidebar UploadArea is always visible */}
+      <div class="flex w-full max-w-md flex-col items-center gap-4 text-center">
         <button
-          data-mobile-empty-state-upload
           type="button"
-          class="mt-6 editor:hidden inline-flex items-center gap-2 px-5 py-2.5 bg-primary text-primary-fg text-sm font-semibold rounded-full shadow-primary hover:bg-primary-hover active:scale-95 transition-[background-color,transform] duration-200"
-          onClick={() => props.onUploadClick?.()}
+          class="group flex w-full cursor-pointer touch-manipulation flex-col items-center gap-1 rounded-lg border-2 border-dashed border-line-strong bg-surface px-6 py-12 transition-colors duration-150 hover:border-fg-soft data-drag-over:border-primary data-drag-over:bg-coral-subtle"
+          data-drag-over={dragOver() ? "" : undefined}
+          aria-describedby="empty-state-formats"
+          onClick={() => props.onChoose()}
         >
-          <Upload class="w-4 h-4" aria-hidden="true" />
-          Upload image
+          <span
+            aria-hidden="true"
+            class="mb-3 flex size-12 items-center justify-center rounded-md bg-coral-subtle text-coral-ink transition-transform duration-150 ease-pop group-hover:scale-105"
+          >
+            <ImageUp size={24} strokeWidth={1.75} />
+          </span>
+          <span class="font-display text-title-sm text-fg">Choose an image</span>
+          <span class="text-sm text-fg-muted">or drop it here</span>
         </button>
-      </Show>
+
+        <p id="empty-state-formats" class="text-xs text-fg-muted">
+          JPEG, PNG, WebP · up to {formatFileSize(MAX_FILE_SIZE)}
+        </p>
+
+        <Show when={props.validationError}>
+          {(message) => (
+            <p class="text-sm font-medium text-danger" role="status">
+              {message()}
+            </p>
+          )}
+        </Show>
+
+        <Show when={!props.validationError && props.validationWarning}>
+          {(message) => (
+            <p class="text-sm font-medium text-warning" role="status">
+              {message()}
+            </p>
+          )}
+        </Show>
+
+        {props.children}
+
+        <p class="flex items-center gap-1.5 text-xs text-fg-muted">
+          <ShieldCheck size={14} class="shrink-0 text-success" aria-hidden="true" />
+          Your image stays on this device. Nothing is uploaded.
+        </p>
+      </div>
     </div>
   );
 }

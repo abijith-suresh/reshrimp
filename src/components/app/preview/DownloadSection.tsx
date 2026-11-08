@@ -5,6 +5,8 @@ import Button from "@/components/ui/Button";
 
 interface DownloadSectionProps {
   idPrefix?: string;
+  /** Top-bar form: a compact button; the format notice lives in the Output card. */
+  compact?: boolean;
 }
 
 export default function DownloadSection(props: DownloadSectionProps) {
@@ -12,28 +14,32 @@ export default function DownloadSection(props: DownloadSectionProps) {
   const prefix = props.idPrefix ?? "";
 
   return (
-    <div id={`${prefix}download-section`} class="flex flex-col items-center gap-2 pt-3">
-      <Show when={state.formatNotice()}>
-        {(message) => (
-          <p
-            id={`${prefix}format-fallback-warning`}
-            class="w-full text-xs leading-relaxed text-warning"
-            role="status"
-          >
-            {message()}
-          </p>
-        )}
+    <div
+      id={`${prefix}download-section`}
+      class={props.compact ? "flex" : "flex flex-col items-center gap-2"}
+    >
+      <Show when={!props.compact && state.formatNotice()}>
+        {(message) => <FormatNotice id={`${prefix}format-fallback-warning`} message={message()} />}
       </Show>
       <Button
         id={`${prefix}download-button`}
         variant="primary"
-        fullWidth={true}
+        size={props.compact ? "sm" : "md"}
+        fullWidth={!props.compact}
         disabled={!state.downloadActive()}
         onClick={() => actions.handleDownload()}
       >
-        <Download class="w-4 h-4" aria-hidden="true" />
+        <Download class="size-4" aria-hidden="true" />
         <span>Download</span>
       </Button>
     </div>
+  );
+}
+
+export function FormatNotice(props: { id: string; message: string }) {
+  return (
+    <p id={props.id} class="w-full text-xs font-medium text-warning" role="status">
+      {props.message}
+    </p>
   );
 }

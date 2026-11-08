@@ -106,6 +106,7 @@
   --text-display--line-height: 0.98;
   --text-display--letter-spacing: -0.05em;
 
+  --radius-xs: 6px;
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 20px;
@@ -127,8 +128,7 @@
   --ease-reveal: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 
-  --spacing-app-sidebar: 3rem;
-  --spacing-app-panel: clamp(18rem, 24vw, 22rem);
+  --spacing-app-panel: clamp(19rem, 26vw, 23rem);
   --spacing-app-preview-gutter: clamp(0.75rem, 1.5vw, 1.5rem);
   --spacing-app-sheet: min(80dvh, 42rem);
   --spacing-app-sheet-peek: 9.25rem;
@@ -142,6 +142,9 @@
     linear-gradient(-45deg, currentColor 25%, transparent 25%),
     linear-gradient(45deg, transparent 75%, currentColor 75%),
     linear-gradient(-45deg, transparent 75%, currentColor 75%);
+  /* Neutral 16px checkerboard behind the preview, so transparency reads
+     without tinting the image. It darkens whatever surface sits beneath. */
+  --background-image-checker: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M0 0h8v8H0zM8 8h8v8H8z' fill-opacity='0.06'/%3E%3C/svg%3E");
   --animate-rise: rise 700ms var(--ease-reveal) both;
   --animate-rise-late: rise 800ms 120ms var(--ease-reveal) both;
   --animate-menu-in: menu-in 150ms var(--ease-reveal);

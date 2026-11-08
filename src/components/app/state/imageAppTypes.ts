@@ -2,11 +2,6 @@ import type { Accessor } from "solid-js";
 import type { ImageFormat, ProcessedImage, ValidationResult } from "@/types/image";
 import type { ProcessResult, ResizeUnit } from "@/types/processing";
 
-export interface SizeDiff {
-  text: string;
-  className: string;
-}
-
 export type CompressionMode = "quality" | "size";
 
 export interface AppState {
@@ -38,7 +33,6 @@ export interface AppState {
   downloadActive: Accessor<boolean>;
   widthPlaceholder: Accessor<string>;
   heightPlaceholder: Accessor<string>;
-  sizeDifference: Accessor<SizeDiff | null>;
   formatNotice: Accessor<string | null>;
   targetFileSizeNotice: Accessor<string | null>;
 }

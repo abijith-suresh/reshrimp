@@ -8,6 +8,7 @@ import {
   Show,
 } from "solid-js";
 import { Portal } from "solid-js/web";
+import { CONTROL_CLASSES } from "@/components/ui/control";
 
 export interface SelectOption {
   value: string;
@@ -245,7 +246,7 @@ export default function Select(props: SelectProps) {
         aria-controls={open() ? listboxId : undefined}
         aria-disabled={props.disabled}
         disabled={props.disabled}
-        class={`group/select flex w-full items-center justify-between gap-2 px-3 py-2 border border-line-strong rounded-md font-body text-sm text-fg bg-canvas cursor-pointer text-left transition-[border-color,box-shadow] duration-200 hover:border-fg-soft focus-visible:outline-hidden focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/20 aria-expanded:border-ring aria-expanded:ring-3 aria-expanded:ring-ring/20 disabled:opacity-50 disabled:cursor-not-allowed${props.class ? ` ${props.class}` : ""}`}
+        class={`group/select flex w-full cursor-pointer items-center justify-between gap-2 text-left ${CONTROL_CLASSES} aria-expanded:outline-2 aria-expanded:outline-offset-2 aria-expanded:outline-ring${props.class ? ` ${props.class}` : ""}`}
         onClick={() => (open() ? closeDropdown() : openDropdown())}
         onKeyDown={handleTriggerKeyDown}
       >
@@ -299,7 +300,7 @@ export default function Select(props: SelectProps) {
                   aria-selected={option.value === props.value}
                   aria-disabled={option.disabled}
                   tabIndex={-1}
-                  class="flex items-center justify-between px-2.5 py-2 rounded-sm font-body text-sm text-fg cursor-pointer select-none transition-colors duration-160 ease-out aria-selected:font-semibold data-[focused=true]:bg-hover aria-disabled:opacity-40 aria-disabled:cursor-not-allowed aria-disabled:pointer-events-none"
+                  class="flex items-center justify-between px-2.5 py-2 rounded-sm font-body text-sm text-fg cursor-pointer select-none transition-colors duration-150 ease-out aria-selected:font-semibold data-[focused=true]:bg-hover aria-disabled:opacity-40 aria-disabled:cursor-not-allowed aria-disabled:pointer-events-none"
                   data-focused={index() === focusedIndex()}
                   onMouseEnter={() => !option.disabled && setFocusedIndex(index())}
                   onMouseDown={(e) => {

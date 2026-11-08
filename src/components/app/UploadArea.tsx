@@ -1,9 +1,7 @@
 import { useImageApp } from "@/components/app/state/ImageAppContext";
 import UploadDropzone from "@/components/app/upload/UploadDropzone";
 import ValidationMessages from "@/components/app/upload/ValidationMessages";
-import { MAX_FILE_SIZE } from "@/config/constants";
 import { UPLOAD_ACCEPT_ATTRIBUTE } from "@/config/imageFormats";
-import { formatFileSize } from "@/utils/imageUtils";
 
 interface UploadAreaProps {
   idPrefix?: string;
@@ -36,7 +34,7 @@ export default function UploadArea(props: UploadAreaProps) {
   }
 
   return (
-    <div class="flex flex-col gap-4">
+    <div class="flex flex-col">
       <UploadDropzone
         isDragOver={state.isDragOver()}
         onDragOver={() => actions.setIsDragOver(true)}
@@ -59,9 +57,6 @@ export default function UploadArea(props: UploadAreaProps) {
           onClick={(e) => e.stopPropagation()}
           onChange={handleFileInput}
         />
-        <p class="text-xs text-fg-soft m-0 mt-1">
-          JPEG, PNG, WebP · max {formatFileSize(MAX_FILE_SIZE)}
-        </p>
       </UploadDropzone>
       <ValidationMessages validation={state.validation()} />
     </div>

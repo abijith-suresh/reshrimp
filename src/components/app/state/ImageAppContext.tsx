@@ -40,13 +40,7 @@ import {
   revokeImageSessionUrls,
   revokeProcessedObjectUrl,
 } from "./imageAppObjectUrls";
-import type {
-  AppActions,
-  AppState,
-  CompressionMode,
-  ImageAppContextValue,
-  SizeDiff,
-} from "./imageAppTypes";
+import type { AppActions, AppState, CompressionMode, ImageAppContextValue } from "./imageAppTypes";
 
 function createDebouncedTask(fn: () => void, ms: number) {
   let timer: ReturnType<typeof setTimeout> | undefined;
@@ -220,19 +214,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     const px = img.metadata.height;
     const display = convertFromPx(px, resizeUnit(), px, dpiValue());
     return formatResizeValue(display, resizeUnit());
-  });
-
-  const sizeDifference = createMemo<SizeDiff | null>(() => {
-    const img = currentImage();
-    const result = lastCompletedResult();
-    if (!img || !result) return null;
-    const diff = result.metadata.fileSize - img.metadata.fileSize;
-    const pct = ((diff / img.metadata.fileSize) * 100).toFixed(1);
-    const sign = diff > 0 ? "+" : "";
-    return {
-      text: `Change: ${sign}${formatFileSize(Math.abs(diff))} (${sign}${pct}%)`,
-      className: diff > 0 ? "font-medium text-danger" : "font-medium text-success",
-    };
   });
 
   const formatNotice = createMemo<string | null>(() => {
@@ -646,7 +627,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     downloadActive,
     widthPlaceholder,
     heightPlaceholder,
-    sizeDifference,
     formatNotice,
     targetFileSizeNotice,
   };

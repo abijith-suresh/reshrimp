@@ -1,19 +1,17 @@
 import { Show } from "solid-js";
 import EmptyState from "@/components/app/preview/EmptyState";
 import ErrorDisplay from "@/components/app/preview/ErrorDisplay";
-import ImageInfoBar from "@/components/app/preview/ImageInfoBar";
 import { useImageApp } from "@/components/app/state/ImageAppContext";
 import { UPLOAD_ACCEPT_ATTRIBUTE } from "@/config/imageFormats";
 
 export default function PreviewPanel() {
   const { state, actions } = useImageApp();
 
-  // Dedicated file input for the EmptyState mobile upload CTA.
-  // Keeps it separate from the UploadArea input inside ProcessPanel to
-  // avoid duplicate IDs when both are rendered in the DOM.
-  let mobileUploadRef: HTMLInputElement | undefined;
+  // The empty state's own file input. The Source card has a separate one, so
+  // the two never share an ID.
+  let emptyStateInputRef: HTMLInputElement | undefined;
 
-  function handleMobileFileChange(e: Event) {
+  function handleEmptyStateFileChange(e: Event) {
     const file = (e.target as HTMLInputElement).files?.[0];
     if (!file) return;
     void actions.handleFileUpload(file);
@@ -21,35 +19,30 @@ export default function PreviewPanel() {
   }
 
   return (
-    <div class="relative h-full flex flex-col bg-canvas overflow-hidden">
-      {/* Hidden file input for the mobile EmptyState upload button */}
-      <input
-        ref={(el) => {
-          mobileUploadRef = el;
-        }}
-        type="file"
-        class="sr-only"
-        accept={UPLOAD_ACCEPT_ATTRIBUTE}
-        tabIndex={-1}
-        aria-hidden="true"
-        onChange={handleMobileFileChange}
-      />
-
+    <div class="relative flex h-full flex-col overflow-hidden bg-canvas">
       <Show when={!state.currentImage()}>
+        <label for="empty-state-file-input" class="sr-only">
+          Upload image
+        </label>
+        <input
+          ref={(el) => {
+            emptyStateInputRef = el;
+          }}
+          id="empty-state-file-input"
+          type="file"
+          class="hidden"
+          accept={UPLOAD_ACCEPT_ATTRIBUTE}
+          tabIndex={-1}
+          onChange={handleEmptyStateFileChange}
+        />
         <EmptyState
-          title="Upload an image to get started"
-          subtitle="Your preview will appear here"
           validationError={state.validation()?.error}
           validationWarning={state.validation()?.warning}
-          onUploadClick={() => mobileUploadRef?.click()}
-        />
-        <Show when={state.error()}>
-          {(msg) => (
-            <div class="px-4 pb-3">
-              <ErrorDisplay message={msg()} />
-            </div>
-          )}
-        </Show>
+          onChoose={() => emptyStateInputRef?.click()}
+          onDrop={(file) => void actions.handleFileUpload(file)}
+        >
+          <Show when={state.error()}>{(msg) => <ErrorDisplay message={msg()} />}</Show>
+        </EmptyState>
       </Show>
 
       <Show when={state.currentImage()}>
@@ -58,40 +51,26 @@ export default function PreviewPanel() {
             state.lastCompletedResult()?.metadata.width ?? img().metadata.width;
           const displayHeight = () =>
             state.lastCompletedResult()?.metadata.height ?? img().metadata.height;
-          const displayFileSize = () =>
-            state.lastCompletedResult()?.metadata.fileSize ?? img().metadata.fileSize;
           const previewUrl = () => img().processedUrl ?? img().originalUrl;
 
           return (
-            <div class="flex-1 flex flex-col min-h-0">
-              <div class="relative flex-auto min-h-0 mt-app-preview-gutter mx-app-preview-gutter max-editor:transition-[margin-bottom] max-editor:duration-150 max-editor:ease-sheet max-editor:group-data-[sheet-state=peek]/app:mb-[calc(var(--spacing-app-sheet-peek)+var(--spacing-app-preview-gutter))] max-editor:group-data-[sheet-state=open]/app:mb-[calc(100dvh-var(--spacing-app-sheet)+var(--spacing-app-preview-gutter))]">
-                <div class="absolute inset-0 flex-1 overflow-hidden flex items-center justify-center bg-canvas bg-transparency-grid text-line-strong bg-size-[16px_16px] bg-[position:0_0,0_8px,8px_-8px,-8px_0] border border-line rounded-md">
+            <div class="flex min-h-0 flex-1 flex-col">
+              <div class="relative mx-app-preview-gutter mt-app-preview-gutter mb-app-preview-gutter min-h-0 flex-auto max-editor:transition-[margin-bottom] max-editor:duration-150 max-editor:ease-sheet max-editor:group-data-[sheet-state=peek]/app:mb-[calc(var(--spacing-app-sheet-peek)+var(--spacing-app-preview-gutter))] max-editor:group-data-[sheet-state=open]/app:mb-[calc(100dvh-var(--spacing-app-sheet)+var(--spacing-app-preview-gutter))]">
+                <div class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-lg border border-line bg-surface bg-checker shadow-xs">
                   <img
                     id="preview-image"
                     src={previewUrl()}
                     alt="Preview"
                     width={displayWidth()}
                     height={displayHeight()}
-                    class="max-w-full max-h-full object-contain"
+                    class="max-h-full max-w-full object-contain"
                   />
                 </div>
               </div>
 
-              {/* Info strip — desktop only; on mobile it lives in the snap-sheet mini header */}
-              <div class="shrink-0 py-3 px-app-preview-gutter hidden editor:block">
-                <ImageInfoBar
-                  idPrefix="desktop-"
-                  fileName={img().metadata.fileName}
-                  width={displayWidth()}
-                  height={displayHeight()}
-                  fileSize={displayFileSize()}
-                  sizeDiff={state.sizeDifference()}
-                />
-              </div>
-
               <Show when={state.error()}>
                 {(msg) => (
-                  <div class="px-4 pb-3">
+                  <div class="px-app-preview-gutter pb-app-preview-gutter">
                     <ErrorDisplay message={msg()} />
                   </div>
                 )}
@@ -108,8 +87,11 @@ export default function PreviewPanel() {
             role="status"
             aria-live="polite"
           >
-            <span class="h-2 w-2 shrink-0 rounded-full bg-primary" aria-hidden="true" />
-            <span class="text-xs font-medium whitespace-nowrap">{label()}</span>
+            <span
+              class="size-2 shrink-0 animate-pulse rounded-full bg-primary"
+              aria-hidden="true"
+            />
+            <span class="whitespace-nowrap text-xs font-medium">{label()}</span>
           </div>
         )}
       </Show>

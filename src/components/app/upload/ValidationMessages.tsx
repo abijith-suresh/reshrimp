@@ -10,14 +10,14 @@ export default function ValidationMessages(props: ValidationMessagesProps) {
     <>
       <Show when={props.validation?.error}>
         {(msg) => (
-          <div class="mt-2 text-sm text-danger" role="status">
+          <div class="mt-2 text-xs font-medium text-danger" role="status">
             {msg()}
           </div>
         )}
       </Show>
       <Show when={!props.validation?.error && props.validation?.warning}>
         {(msg) => (
-          <div class="mt-2 text-sm text-warning" role="status">
+          <div class="mt-2 text-xs font-medium text-warning" role="status">
             {msg()}
           </div>
         )}
