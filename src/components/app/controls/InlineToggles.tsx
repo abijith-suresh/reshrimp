@@ -1,7 +1,6 @@
 import { Show } from "solid-js";
 import { useImageApp } from "@/components/app/state/ImageAppContext";
 import Checkbox from "@/components/ui/Checkbox";
-import InfoTooltip from "@/components/ui/InfoTooltip";
 
 interface InlineTogglesProps {
   idPrefix?: string;
@@ -34,16 +33,9 @@ export default function InlineToggles(props: InlineTogglesProps) {
             disabled={!state.controlsActive()}
           />
           <Show when={state.removeBackground()}>
-            <InfoTooltip
-              id={`${prefix}bg-removal-info-tip`}
-              ariaLabel="Background removal info"
-              content={
-                <>
-                  Format is fixed to PNG to preserve transparency. First run may take a moment while
-                  the model loads.
-                </>
-              }
-            />
+            <p class="text-xs text-fg-muted">
+              Exports PNG to keep transparency. The first run loads the model.
+            </p>
           </Show>
         </div>
       </Show>

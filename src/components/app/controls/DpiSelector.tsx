@@ -1,6 +1,5 @@
 import { useImageApp } from "@/components/app/state/ImageAppContext";
 import { FIELD_LABEL_CLASSES } from "@/components/ui/control";
-import InfoTooltip from "@/components/ui/InfoTooltip";
 import type { SelectOption } from "@/components/ui/Select";
 import Select from "@/components/ui/Select";
 import { DPI_OPTIONS } from "@/config/constants";
@@ -31,16 +30,7 @@ export default function DpiSelector(props: DpiSelectorProps) {
         onChange={(v) => actions.handleDpiChange(Number(v))}
         disabled={!state.controlsActive()}
       />
-      <InfoTooltip
-        id={`${prefix}dpi-info-tip`}
-        ariaLabel="DPI info"
-        content={
-          <>
-            DPI (dots per inch) sets how many pixels map to one inch. Use <strong>96</strong> for
-            screen or digital exports, <strong>300</strong> for print-quality output.
-          </>
-        }
-      />
+      <p class="mt-1.5 text-xs text-fg-muted">96 for screens, 300 for print.</p>
     </div>
   );
 }

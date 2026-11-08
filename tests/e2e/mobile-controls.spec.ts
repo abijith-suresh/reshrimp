@@ -45,15 +45,7 @@ test("converts physical dimensions, keeps DPI help in the dialog, and downloads 
   await dialog
     .getByRole("combobox", { name: "Resolution: 96 DPI", exact: true })
     .selectOption("300");
-  const toggle = dialog.getByRole("button", { name: "DPI info", exact: true });
-  await toggle.click();
-  const help = dialog.locator(`#${await toggle.getAttribute("aria-controls")}`);
-  await expect(toggle).toHaveAttribute("aria-expanded", "true");
-  await expect(help).toBeVisible();
-  await expect(help).toContainText("DPI (dots per inch)");
-  await toggle.click();
-  await expect(toggle).toHaveAttribute("aria-expanded", "false");
-  await expect(help).toBeHidden();
+  await expect(dialog.getByText("96 for screens, 300 for print.")).toBeVisible();
   await expect(dialog).toBeVisible();
 
   await dialog.getByRole("textbox", { name: "Width", exact: true }).fill("1");
