@@ -26,8 +26,9 @@ test("exports AVIF when the encoder supports it, otherwise explains and names th
         canvas.toBlob((blob) => resolve(blob?.type === "image/avif"), "image/avif");
       })
   );
-  await page.getByRole("button", { name: "Output format", exact: true }).click();
-  await page.getByRole("option", { name: "AVIF", exact: true }).click();
+  await page
+    .getByRole("combobox", { name: "Output format", exact: true })
+    .selectOption({ label: "AVIF" });
   await expect(page.getByRole("slider", { name: "Output quality" })).toBeEnabled();
   const output = await downloadImage(page);
   const metadata = await readMetadata(output.bytes);
@@ -64,8 +65,8 @@ test("loads the HEIC decoder on demand and converts a real HEIC image to a usabl
   expect(decoderRequests).toEqual([]);
   const heicPath = fileURLToPath(new URL("./fixtures/landmarks.heic", import.meta.url));
   await uploadImage(page, heicPath);
-  await expect(page.getByRole("button", { name: "Output format", exact: true })).toHaveText(
-    "JPEG",
+  await expect(page.getByRole("combobox", { name: "Output format", exact: true })).toHaveValue(
+    "image/jpeg",
     {
       timeout: 20_000,
     }

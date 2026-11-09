@@ -29,8 +29,9 @@ for (const format of [
     await openImageControls(page);
     await page.getByRole("textbox", { name: "Width", exact: true }).fill("256");
     await expect(page.getByRole("textbox", { name: "Height", exact: true })).toHaveValue("192");
-    await page.getByRole("button", { name: "Output format", exact: true }).click();
-    await page.getByRole("option", { name: format.label, exact: true }).click();
+    await page
+      .getByRole("combobox", { name: "Output format", exact: true })
+      .selectOption({ label: format.label });
     await expect(page.getByAltText("Preview")).toHaveAttribute("width", "256");
 
     const output = await downloadImage(page);
@@ -168,8 +169,9 @@ for (const format of ["PNG", "JPEG", "WebP"]) {
     await uploadImage(page, fileURLToPath(new URL("./fixtures/landmarks.png", import.meta.url)));
     await openImageControls(page);
     await page.getByRole("textbox", { name: "Width", exact: true }).fill("80");
-    await page.getByRole("button", { name: "Output format", exact: true }).click();
-    await page.getByRole("option", { name: format, exact: true }).click();
+    await page
+      .getByRole("combobox", { name: "Output format", exact: true })
+      .selectOption({ label: format });
     await expect(page.getByAltText("Preview")).toHaveAttribute("width", "80");
     const output = await downloadImage(page);
     const image = await decodePixels(output.bytes);

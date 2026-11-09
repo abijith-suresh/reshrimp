@@ -1,5 +1,5 @@
 import { useImageApp } from "@/components/app/state/ImageAppContext";
-import Field from "@/components/ui/Field";
+import { FIELD_LABEL_CLASSES } from "@/components/ui/control";
 import type { SelectOption } from "@/components/ui/Select";
 import Select from "@/components/ui/Select";
 import type { ResizeUnit } from "@/types/processing";
@@ -20,7 +20,10 @@ export default function UnitSelector(props: UnitSelectorProps) {
   const prefix = props.idPrefix ?? "";
 
   return (
-    <Field label="Unit">
+    <div>
+      <label for={`${prefix}unit-select`} class={`mb-1.5 block ${FIELD_LABEL_CLASSES}`}>
+        Unit
+      </label>
       <Select
         id={`${prefix}unit-select`}
         ariaLabel={`Unit: ${state.resizeUnit()}`}
@@ -29,6 +32,6 @@ export default function UnitSelector(props: UnitSelectorProps) {
         onChange={(v) => actions.handleUnitChange(v as ResizeUnit)}
         disabled={!state.controlsActive()}
       />
-    </Field>
+    </div>
   );
 }

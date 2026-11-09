@@ -142,11 +142,11 @@
   /* Neutral 16px checkerboard behind the preview, so transparency reads
      without tinting the image. It darkens whatever surface sits beneath. */
   --background-image-checker: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Cpath d='M0 0h8v8H0zM8 8h8v8H8z' fill-opacity='0.06'/%3E%3C/svg%3E");
+  /* The select picker's check, painted in currentColor through a mask. */
+  --mask-check: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 6l3 3 5-5'/%3E%3C/svg%3E");
   --animate-rise: rise 700ms var(--ease-reveal) both;
   --animate-rise-late: rise 800ms 120ms var(--ease-reveal) both;
   --animate-select-in: select-in 180ms var(--ease-reveal);
-  --animate-select-in-up: select-in-up 180ms var(--ease-reveal);
-  --animate-select-check-in: select-check-in 180ms var(--ease-pop);
   --animate-feedback-in: slide-in 0.3s ease;
   --animate-sheet-backdrop-in: mobile-sheet-backdrop-in 0.35s ease both;
 }
@@ -158,6 +158,11 @@
 @custom-variant marketing-menu (@media (width <= 768px));
 @custom-variant marketing-mobile (@media (width <= 560px));
 @custom-variant marketing-narrow (@media (width <= 360px));
+
+/* The customizable select picker (appearance: base-select). Browsers without
+   it keep the styled closed control and their native option list. */
+@custom-variant base-select (@supports (appearance: base-select));
+@custom-variant picker (&::picker(select));
 
 /* Hover feedback applies only to devices with a precise hovering pointer. */
 @custom-variant hover {
@@ -201,29 +206,7 @@
 @keyframes select-in {
   from {
     opacity: 0;
-    transform: translateY(-6px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes select-in-up {
-  from {
-    opacity: 0;
-    transform: translateY(6px) scale(0.98);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-@keyframes select-check-in {
-  from {
-    opacity: 0;
-    transform: scale(0.7);
+    transform: scale(0.98);
   }
   to {
     opacity: 1;

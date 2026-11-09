@@ -29,7 +29,7 @@ test("runs background removal with same-origin assets and exports a transparent 
   await removeBackground.focus();
   await removeBackground.press("Space");
   await expect(removeBackground).toBeChecked();
-  await expect(page.getByRole("button", { name: "Output format", exact: true })).toBeDisabled();
+  await expect(page.getByRole("combobox", { name: "Output format", exact: true })).toBeDisabled();
   await expect(page.getByRole("slider", { name: "Output quality", exact: true })).toBeDisabled();
   await expect(page.getByRole("button", { name: "Download", exact: true })).toBeEnabled({
     timeout: 60_000,
