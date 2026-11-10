@@ -28,13 +28,16 @@ test("preserves the inclusive hero and navigation breakpoints", async ({ page })
   await page.setViewportSize({ width: 768, height: 1000 });
   const menu = page.getByRole("button", { name: "Open menu", exact: true });
   await expect(menu).toBeVisible();
+  const banner = page.getByRole("banner");
+  await expect(banner.getByRole("link", { name: "Open Reshrimp" })).toBeHidden();
   await menu.click();
   await expect(page.getByRole("button", { name: "Close menu", exact: true })).toBeVisible();
+  await expect(banner.getByRole("link", { name: "Open Reshrimp" })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(menu).toBeFocused();
   await page.setViewportSize({ width: 769, height: 1000 });
   await expect(menu).toBeHidden();
-  await expect(page.getByRole("banner").getByRole("link", { name: "Open Reshrimp" })).toBeVisible();
+  await expect(banner.getByRole("link", { name: "Open Reshrimp" })).toBeVisible();
 });
 
 test("opens FAQ answers with the keyboard and respects live reduced motion", async ({ page }) => {

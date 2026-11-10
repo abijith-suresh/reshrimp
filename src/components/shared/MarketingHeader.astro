@@ -29,7 +29,7 @@ const ariaCurrent = (href: string) => (currentPath === href ? "page" : undefined
     <nav class="relative flex h-16 items-center justify-between gap-4" aria-label="Main">
       <Logo />
 
-      <div class="flex items-center gap-1 marketing-menu:gap-2">
+      <div class="flex items-center gap-1">
         <div class="flex items-center gap-1 marketing-menu:hidden">
           {
             headerLinks.map((link) => (
@@ -43,7 +43,7 @@ const ariaCurrent = (href: string) => (currentPath === href ? "page" : undefined
             ))
           }
         </div>
-        <ButtonLink href={makeHref(ROUTES.APP)} size="sm" class="ms-2 marketing-menu:ms-0 marketing-narrow:hidden">
+        <ButtonLink href={makeHref(ROUTES.APP)} size="sm" class="ms-2 marketing-menu:hidden">
           Open Reshrimp
         </ButtonLink>
 
@@ -85,7 +85,7 @@ const ariaCurrent = (href: string) => (currentPath === href ? "page" : undefined
             </a>
           ))
         }
-        <div class="mt-1 hidden marketing-narrow:grid">
+        <div class="mt-1 grid">
           <ButtonLink href={makeHref(ROUTES.APP)}>Open Reshrimp</ButtonLink>
         </div>
       </div>

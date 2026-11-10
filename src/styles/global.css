@@ -157,7 +157,6 @@
 @custom-variant hero-stack (@media (width <= 820px));
 @custom-variant marketing-menu (@media (width <= 768px));
 @custom-variant marketing-mobile (@media (width <= 560px));
-@custom-variant marketing-narrow (@media (width <= 360px));
 
 /* The customizable select picker (appearance: base-select). Browsers without
    it keep the styled closed control and their native option list. */
