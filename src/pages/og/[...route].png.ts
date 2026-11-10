@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import { Resvg } from "@resvg/resvg-js";
 import type { APIRoute, GetStaticPaths } from "astro";
 import satori from "satori";
+import { BRAND_MARK_PATH } from "../../config/brandMark";
 import type { OgPageData } from "../../config/ogData";
 import { OG_IMAGE_VERSION, ogPageData } from "../../config/ogData";
 
@@ -35,9 +36,8 @@ const COLORS = {
 
 type Node = { type: string; props: Record<string, unknown> };
 
-const brandMarkSrc = `data:image/svg+xml;base64,${Buffer.from(
-  await readFile(resolve(process.cwd(), "public/favicon.svg"))
-).toString("base64")}`;
+const brandMarkSvg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="${BRAND_MARK_PATH}" fill="${COLORS.coral}" fill-rule="evenodd" stroke="${COLORS.coral}" stroke-width="1" stroke-linejoin="round"/></svg>`;
+const brandMarkSrc = `data:image/svg+xml;base64,${Buffer.from(brandMarkSvg).toString("base64")}`;
 
 function box(style: Record<string, unknown>, children?: Node | Node[] | string): Node {
   return { type: "div", props: { style: { display: "flex", ...style }, children } };
@@ -149,8 +149,8 @@ function buildOgImage(data: OgPageData): Node {
         boxShadow: "0 2px 8px rgba(28, 28, 44, 0.05)",
       },
       [
-        box({ alignItems: "center", gap: "14px" }, [
-          { type: "img", props: { src: brandMarkSrc, width: 40, height: 40 } },
+        box({ alignItems: "center", gap: "10px" }, [
+          { type: "img", props: { src: brandMarkSrc, width: 56, height: 56 } },
           box(
             {
               fontSize: "34px",

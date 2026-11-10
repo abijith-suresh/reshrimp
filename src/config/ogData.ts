@@ -30,4 +30,4 @@ export const ogPageData: Record<string, OgPageData> = {
 
 // Bump when the image design changes: a new filename makes crawlers fetch the
 // redesign instead of their cached copy. Unversioned URLs keep working.
-export const OG_IMAGE_VERSION = "v3";
+export const OG_IMAGE_VERSION = "v4";
