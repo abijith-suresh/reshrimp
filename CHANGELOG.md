@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.0.6](https://github.com/abijith-suresh/reshrimp/compare/v0.0.5...v0.0.6) (2026-11-11)
+
+
+### Features
+
+* shrinking-curl brand mark ([#254](https://github.com/abijith-suresh/reshrimp/issues/254)) ([44badca](https://github.com/abijith-suresh/reshrimp/commit/44badcaac501cdce24b5f4621e256d36ef278dc8))
+
+
+### Bug Fixes
+
+* match the footer to the page background ([#260](https://github.com/abijith-suresh/reshrimp/issues/260)) ([92a6d05](https://github.com/abijith-suresh/reshrimp/commit/92a6d050ebe3b7ffc22f400f41d51393d409b7fb))
+* move header CTA into the mobile menu ([#259](https://github.com/abijith-suresh/reshrimp/issues/259)) ([92a65d3](https://github.com/abijith-suresh/reshrimp/commit/92a65d35a96fb0b540d766f4ffd2c15f823f1fa1))
+
 ## [0.0.5](https://github.com/abijith-suresh/reshrimp/compare/v0.0.4...0.0.5) (2026-11-04)
 
 
