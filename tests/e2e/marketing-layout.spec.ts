@@ -12,6 +12,16 @@ test("keeps marketing pages readable across their responsive boundaries", async 
   }
 });
 
+test("paints the footer with the page background so Safari's toolbar area matches", async ({
+  page,
+}) => {
+  await page.goto("/");
+  const backgroundOf = (selector: string) =>
+    page.locator(selector).evaluate((element) => getComputedStyle(element).backgroundColor);
+  expect(await backgroundOf("footer")).toBe("rgba(0, 0, 0, 0)");
+  expect(await backgroundOf("body")).not.toBe("rgba(0, 0, 0, 0)");
+});
+
 test("preserves the inclusive hero and navigation breakpoints", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.setViewportSize({ width: 820, height: 1000 });
