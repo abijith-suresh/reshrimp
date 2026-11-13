@@ -26,6 +26,7 @@ const onnxruntimeWebGpuStub = fileURLToPath(
 // https://astro.build/config
 export default defineConfig({
   site: "https://reshrimp.vercel.app",
+  trailingSlash: "never",
   integrations: [solid(), sitemap()],
   vite: {
     build: {

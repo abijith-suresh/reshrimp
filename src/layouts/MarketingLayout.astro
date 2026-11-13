@@ -7,16 +7,18 @@ interface Props {
   title: string;
   description?: string;
   ogImagePath?: string;
+  noindex?: boolean;
   currentPath?: string;
 }
 
-const { title, description, ogImagePath, currentPath = "/" } = Astro.props;
+const { title, description, ogImagePath, noindex, currentPath = "/" } = Astro.props;
 ---
 
 <Layout
   title={title}
   description={description}
   ogImagePath={ogImagePath}
+  noindex={noindex}
   bodyClass="flex min-h-dvh flex-col overflow-x-clip"
 >
   <Fragment slot="head">
