@@ -52,9 +52,9 @@ test("targets a reachable size and reports an impossible limit without changing 
   const limit = page.getByRole("textbox", { name: "Maximum file size (KB)", exact: true });
   await limit.fill("40");
   // Size targeting runs several canvas encodes, which can be slow in CI Firefox.
-  await expect(page.getByRole("status").filter({ hasText: "Output fits within" })).toBeVisible({
-    timeout: 20_000,
-  });
+  await expect(
+    page.getByRole("status").filter({ hasText: "Output fits within 40 KB." })
+  ).toBeVisible({ timeout: 20_000 });
   const fitting = await downloadImage(page);
   // Portals count a kilobyte as 1,000 bytes.
   expect(fitting.bytes.length).toBeLessThanOrEqual(40_000);

@@ -22,7 +22,7 @@ function makeFtypFile(brand: string, name = "photo.heic", type = ""): File {
   return new File([bytes], name, { type });
 }
 
-const MB = 1024 * 1024;
+const MB = 1_000_000;
 
 describe("validateImageFile", () => {
   it("returns error for non-image file type", async () => {

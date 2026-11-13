@@ -28,10 +28,11 @@ export function formatFileSize(bytes: number): string {
   if (bytes === 0) return "0 B";
 
   const units = ["B", "KB", "MB", "GB"];
-  const k = 1024;
+  // Decimal units, matching how portals count a size limit.
+  const k = 1000;
   const i = Math.floor(Math.log(bytes) / Math.log(k));
 
-  return `${(bytes / k ** i).toFixed(1)} ${units[i]}`;
+  return `${Number((bytes / k ** i).toFixed(1))} ${units[i]}`;
 }
 
 export function calculateHeightFromWidth(
