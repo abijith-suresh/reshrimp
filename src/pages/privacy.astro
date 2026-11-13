@@ -6,42 +6,46 @@ import PageHero from "../components/marketing/layout/PageHero.astro";
 import Section from "../components/marketing/layout/Section.astro";
 import { GITHUB_URL } from "../config/constants";
 
+const SERVICES_URL = `${GITHUB_URL}/tree/main/src/services`;
+const NOTICES_URL = `${GITHUB_URL}/blob/main/THIRD_PARTY_NOTICES.md`;
+
 const PRIVACY_CARDS = [
   {
     title: "How processing works",
     icon: Cpu,
     tone: "coral",
     paragraphs: [
-      "When you choose an image, the browser reads and changes it in memory. Reshrimp re-encodes the result before download, so uploaded metadata does not carry into the output.",
-      "Background removal loads its model and runtime from this app when you use it. Your image stays in the browser.",
+      "When you choose an image, your browser reads it and changes it in memory. Reshrimp draws the result on a canvas and encodes a new file, so the original file's metadata, such as camera details and GPS location, does not carry over.",
+      "Remove background needs a model. The first time you turn it on, your browser downloads about 100 MB of model files from this site, once. Your image still never leaves your device.",
     ],
   },
   {
-    title: "What we don't do",
+    title: "What Reshrimp does not do",
     icon: EyeOff,
     tone: "mint",
     listItems: [
-      "Upload images for processing",
-      "Use analytics, tracking cookies, or fingerprinting",
-      "Require accounts or collect personal information",
+      "Upload your image, for processing or anything else",
+      "Use analytics, cookies, local storage, or fingerprinting",
+      "Ask for an account, a name, or an email address",
     ],
   },
   {
-    title: "Open source verification",
+    title: "Check it yourself",
     icon: Code,
     tone: "lavender",
     paragraphs: [
-      "Reshrimp is open source under the MIT license. You can inspect the code instead of taking our word for it.",
-      `The image-processing code lives in TypeScript services. Read it in the <a href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer">GitHub repository</a>.`,
+      "Open your browser's developer tools, switch to the Network tab, and process an image. No request carries the image.",
+      `The code is on <a href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer">GitHub</a>, and the image processing is in <a href="${SERVICES_URL}" target="_blank" rel="noopener noreferrer"><code>src/services</code></a>.`,
+      `Reshrimp's own code is MIT-licensed. Remove background uses @imgly/background-removal, which is AGPL-3.0, and HEIC decoding uses libheif, which is LGPL-3.0. See the <a href="${NOTICES_URL}" target="_blank" rel="noopener noreferrer">third-party notices</a>.`,
     ],
   },
   {
-    title: "Third-party services",
+    title: "Hosting and the network",
     icon: Globe,
     tone: "yellow",
     paragraphs: [
-      "The site is static, so the first visit needs a network connection to load the app.",
-      "Background removal may load model and runtime files from this app. Those are app assets, not image uploads.",
+      "The site is hosted on Vercel. Like any web host, Vercel sees ordinary request details, such as your IP address and browser type, when pages and files load. It never receives your image.",
+      "Reshrimp needs a connection each time you open it; it does not work offline. The background-removal model comes from this site, not from another company's CDN.",
     ],
   },
 ] as const;
@@ -49,12 +53,12 @@ const PRIVACY_CARDS = [
 
 <MarketingLayout
   title="Reshrimp | Privacy"
-  description="How Reshrimp processes images in your browser without uploads or tracking."
+  description="Your image never leaves your device. What Reshrimp does, and what the host can see."
   currentPath="/privacy"
 >
   <PageHero
-    title="Your image stays in your browser."
-    lede="Reshrimp processes images locally. It does not upload them or track you."
+    title="Your image never leaves your device."
+    lede="Reshrimp changes your image inside your browser. It does not upload the image, and it does not track you."
   />
 
   <Section>

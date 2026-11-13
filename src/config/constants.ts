@@ -2,7 +2,7 @@ export const GITHUB_URL = "https://github.com/abijith-suresh/reshrimp";
 
 export const SITE_NAME = "Reshrimp";
 export const SITE_DESCRIPTION =
-  "Resize, convert, compress, and remove backgrounds in your browser. Nothing gets uploaded. Nothing gets tracked.";
+  "Make an image fit a form's pixel size, format, and file-size limit, or remove its background. It runs in your browser, so your image never leaves your device.";
 
 export const ROUTES = {
   HOME: "/",

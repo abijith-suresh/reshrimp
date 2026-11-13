@@ -1,3 +1,5 @@
+import { SITE_DESCRIPTION } from "./constants";
+
 export interface OgPageData {
   title: string;
   description: string;
@@ -6,28 +8,29 @@ export interface OgPageData {
 
 export const ogPageData: Record<string, OgPageData> = {
   index: {
-    title: "Reshrimp",
-    description:
-      "Privacy-first image processing in your browser. Nothing uploaded. Nothing tracked.",
-    label: "Image Tool",
+    title: "Fit your photo to the form.",
+    description: SITE_DESCRIPTION,
+    label: "Image tool",
   },
   app: {
-    title: "Image Processor",
-    description: "Resize, convert, and compress images right in your browser.",
+    title: "Resize and compress.",
+    description:
+      "Set the pixel size, format, and max file size. Your image never leaves your device.",
     label: "App",
   },
   faq: {
     title: "FAQ",
-    description: "Common questions about Reshrimp and client-side image processing.",
+    description: "Formats, limits, max file size, and what happens to your image.",
     label: "Help",
   },
   privacy: {
-    title: "Privacy Policy",
-    description: "Your images never leave your device. Here is exactly how we handle data.",
+    title: "Privacy",
+    description:
+      "Your image never leaves your device. What Reshrimp does, and what the host can see.",
     label: "Privacy",
   },
 };
 
 // Bump when the image design changes: a new filename makes crawlers fetch the
 // redesign instead of their cached copy. Unversioned URLs keep working.
-export const OG_IMAGE_VERSION = "v4";
+export const OG_IMAGE_VERSION = "v5";

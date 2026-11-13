@@ -10,49 +10,77 @@ import { Github } from "lucide-astro";
 import { makeHref } from "../lib/utils";
 import { GITHUB_URL, ROUTES } from "../config/constants";
 
+const github = (path: string, label: string) =>
+  `<a href="${GITHUB_URL}${path}" target="_blank" rel="noopener noreferrer">${label}</a>`;
+
 const faqs = [
   {
     question: "Is Reshrimp free?",
-    answer: "Yes. It has no account or paid tier. The code is open source under the MIT license.",
-  },
-  {
-    question: "How does privacy work?",
     answer:
-      "All image processing happens in your browser. Reshrimp does not upload your image, use analytics, or track you. Background removal loads its model and runtime from this app when you use it.",
+      "Yes. There is no account and no paid tier. You can use the site, and the images you make with it, for any purpose, including commercial work.",
   },
   {
-    question: "What image formats are supported?",
+    question: "Is my image uploaded anywhere?",
     answer:
-      "Reshrimp reads JPEG, PNG, WebP, AVIF, HEIC, and HEIF. You can export JPEG, PNG, WebP, or AVIF.",
+      "No. Reshrimp changes the image inside your browser and has no analytics or tracking. The site is hosted on Vercel, which sees ordinary request details such as your IP address when pages load, but it never receives the image.",
   },
   {
-    question: "What's the maximum file size?",
+    question: "Which formats can I open and save?",
     answer:
-      "The upload limit is 50MB per image. For JPEG, WebP, and AVIF output, you can also set a maximum file size in the editor. Reshrimp adjusts quality to try to meet it, but the target is best effort; your device's available memory can also reduce the practical upload limit.",
+      "Reshrimp opens JPEG, PNG, WebP, AVIF, and HEIC/HEIF, so iPhone photos work. It saves JPEG, PNG, or WebP, and HEIC photos save as JPEG unless you pick another format. If your browser cannot save the format you picked, Reshrimp tells you and saves a PNG.",
   },
   {
-    question: "Where's the source code?",
-    answer: `The project is open source on <a href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer">GitHub</a>. The image-processing code lives in TypeScript services.`,
-  },
-  {
-    question: "Can I use it for commercial purposes?",
+    question: "How big an image can I open?",
     answer:
-      "Yes. You can use Reshrimp and the images you process with it for commercial work. The tool is MIT-licensed.",
+      "Up to 50 MB, 16,384 px on each side, and 32 megapixels in total. Some 48 MP and 50 MP phone photos are over that. Take the photo at the camera's standard resolution, or open a smaller copy.",
   },
   {
-    question: "How do the quality settings work?",
+    question: "Can I get a file under a certain size?",
     answer:
-      "The quality slider controls JPEG, WebP, and AVIF output from 0 to 100%. Or set a maximum output size and let Reshrimp adjust quality for you. It may not be possible to meet every target; the editor reports when the smallest result is still over the limit. PNG and transparent background-removal exports stay lossless. The preview updates after processing so you can review the result before downloading.",
+      "Yes, for JPEG and WebP. Set the pixel size first, then choose Max file size and enter the limit in KB, and Reshrimp lowers the quality until the file fits. The target is best effort, because Reshrimp never changes the pixel size to meet it. If the file is still too big, Reshrimp says so; reduce the pixel size or switch to JPEG and try again.",
+  },
+  {
+    question: "How does the quality setting work?",
+    answer:
+      "For JPEG and WebP, quality runs from 1 to 100. Lower values make smaller files with more visible compression. PNG and background-removed images are lossless, so they have no quality setting or size target.",
+  },
+  {
+    question: "The form asks for 300 DPI. Does Reshrimp set that?",
+    answer:
+      "No. The DPI setting only converts inches or cm into pixels, and it is not written into the file. If the form gives a print size, enter it in inches or cm with the DPI it asks for, and Reshrimp works out the pixels.",
+  },
+  {
+    question: "Can I crop?",
+    answer:
+      "No. Reshrimp resizes the whole image. For a different shape, crop the photo in your phone's photo app first, then resize it here. If you turn off Keep aspect ratio, the image stretches to the width and height you enter.",
+  },
+  {
+    question: "What happens to transparent areas if I save as JPEG?",
+    answer: "They turn white, because JPEG has no transparency. Choose PNG or WebP to keep them.",
+  },
+  {
+    question: "How big is the background-removal download?",
+    answer:
+      "About 100 MB, made up of an 88 MB model and a 12 MB runtime. Your browser downloads it from this site the first time you turn on Remove background, and shows progress while it loads. You only download it once.",
+  },
+  {
+    question: "Which browsers work?",
+    answer:
+      "Automated tests run on the engines behind Chrome, Firefox, and Safari, including a mobile Chrome screen size. Remove background is tested only on Chrome's engine, so it may not work in Firefox or Safari.",
+  },
+  {
+    question: "Is the code open source?",
+    answer: `Yes, it is on ${github("", "GitHub")}, and the image processing is in ${github("/tree/main/src/services", "<code>src/services</code>")}. Reshrimp's own code is MIT-licensed. Remove background uses @imgly/background-removal, which is AGPL-3.0, and HEIC decoding uses libheif (LGPL-3.0). If you reuse or self-host the code, read those licenses first; the ${github("/blob/main/THIRD_PARTY_NOTICES.md", "third-party notices")} list them.`,
   },
 ];
 ---
 
 <MarketingLayout
   title="Reshrimp | FAQ"
-  description="Answers about Reshrimp, including privacy, formats, file limits, and processing."
+  description="Formats, limits, max file size, DPI, cropping, background removal, and what happens to your image."
   currentPath="/faq"
 >
-  <PageHero title="Questions about Reshrimp." lede="Privacy, formats, file limits, and processing." />
+  <PageHero title="Questions about Reshrimp." lede="Formats, limits, max file size, and what happens to your image." />
 
   <Section>
     <Card class="px-8 marketing-mobile:px-6">
@@ -60,11 +88,14 @@ const faqs = [
     </Card>
   </Section>
 
-  <CtaBand title="Still have a question?" copy="Read the source or try the tool.">
+  <CtaBand
+    title="Question not answered here?"
+    copy="Open an issue on GitHub, or try Reshrimp with your own image."
+  >
     <ButtonLink href={makeHref(ROUTES.APP)}>Open Reshrimp</ButtonLink>
-    <ButtonLink href={GITHUB_URL} variant="secondary" external={true}>
+    <ButtonLink href={`${GITHUB_URL}/issues`} variant="secondary" external={true}>
       <Github size={18} aria-hidden="true" />
-      View on GitHub
+      Open an issue
     </ButtonLink>
   </CtaBand>
 </MarketingLayout>

@@ -8,26 +8,29 @@ const tools = [
     icon: Scaling,
     tone: "coral",
     title: "Resize",
-    description: "Set a new width or height. Keep the original ratio when you need to.",
+    description:
+      "Enter the width and height in pixels, or in inches or cm at a DPI you choose. Keep aspect ratio stops the photo from stretching.",
   },
   {
     icon: ArrowLeftRight,
     tone: "mint",
     title: "Convert",
-    description: "Save as JPEG, PNG, WebP, or AVIF.",
+    description:
+      "Open JPEG, PNG, WebP, AVIF, or an iPhone HEIC photo. Save it as JPEG, PNG, or WebP if your browser supports WebP.",
   },
   {
     icon: Gauge,
     tone: "lavender",
     title: "Compress",
     description:
-      "Set a maximum size; Reshrimp adjusts JPEG, WebP, or AVIF quality and reports when it cannot meet the target.",
+      "Pick a quality, or set a max file size and Reshrimp lowers JPEG or WebP quality until the file fits. The size target is best effort. If it cannot be met, Reshrimp tells you.",
   },
   {
     icon: Wand2,
     tone: "yellow",
-    title: "Remove a background",
-    description: "Make a transparent PNG in your browser.",
+    title: "Remove background",
+    description:
+      "Cut out the subject and save a transparent PNG. The first time you use it, your browser downloads about 100 MB of model files from this site, once.",
   },
 ] as const;
 ---
