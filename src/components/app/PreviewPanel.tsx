@@ -55,7 +55,7 @@ export default function PreviewPanel() {
 
           return (
             <div class="flex min-h-0 flex-1 flex-col">
-              <div class="relative mx-app-preview-gutter mt-app-preview-gutter mb-app-preview-gutter min-h-0 flex-auto max-editor:transition-[margin-bottom] max-editor:duration-150 max-editor:ease-sheet max-editor:group-data-[sheet-state=peek]/app:mb-[calc(var(--spacing-app-sheet-peek)+var(--spacing-app-preview-gutter))] max-editor:group-data-[sheet-state=open]/app:mb-[calc(100dvh-var(--spacing-app-sheet)+var(--spacing-app-preview-gutter))]">
+              <div class="relative mx-app-preview-gutter mt-app-preview-gutter mb-app-preview-gutter min-h-0 flex-auto max-editor:transition-[margin-bottom] max-editor:duration-150 max-editor:ease-sheet max-editor:group-data-[sheet-state=peek]/app:mb-[calc(var(--spacing-app-sheet-peek)+var(--spacing-app-preview-gutter))] max-editor:group-data-[sheet-state=open]/app:mb-[calc(var(--spacing-app-sheet)+var(--spacing-app-preview-gutter))]">
                 <div class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-lg border border-line bg-surface bg-checker shadow-xs">
                   <img
                     id="preview-image"
@@ -68,9 +68,10 @@ export default function PreviewPanel() {
                 </div>
               </div>
 
+              {/* On phones the error shows in the sheet, beside Download */}
               <Show when={state.error()}>
                 {(msg) => (
-                  <div class="px-app-preview-gutter pb-app-preview-gutter">
+                  <div class="px-app-preview-gutter pb-app-preview-gutter max-editor:hidden">
                     <ErrorDisplay message={msg()} />
                   </div>
                 )}

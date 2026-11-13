@@ -7,7 +7,6 @@ interface ErrorDisplayProps {
 export default function ErrorDisplay(props: ErrorDisplayProps) {
   return (
     <div
-      id="error-message"
       class="w-full animate-feedback-in rounded-md border border-danger/20 bg-danger-subtle px-4 py-3 text-left"
       role="alert"
     >
@@ -15,9 +14,7 @@ export default function ErrorDisplay(props: ErrorDisplayProps) {
         <CircleAlert class="mt-0.5 size-4 shrink-0 text-danger" aria-hidden="true" />
         <div>
           <h3 class="mb-0.5 text-sm font-semibold text-danger">Processing error</h3>
-          <p id="error-text" class="text-xs text-danger">
-            {props.message}
-          </p>
+          <p class="text-xs text-danger">{props.message}</p>
         </div>
       </div>
     </div>
