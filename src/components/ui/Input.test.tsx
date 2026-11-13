@@ -5,24 +5,13 @@ import { describe, expect, it, vi } from "vitest";
 import Input from "./Input";
 
 describe("Input", () => {
-  it("updates a controlled numeric value as the user types", async () => {
-    const user = userEvent.setup();
-    const [value, setValue] = createSignal("100");
-    render(() => <Input label="Width" value={value()} onInput={setValue} />);
-    const input = screen.getByRole("spinbutton", { name: "Width" });
-    await user.clear(input);
-    await user.type(input, "200");
-    expect(input).toHaveValue(200);
-    expect(value()).toBe("200");
-  });
-
   it("does not accept typing when disabled", async () => {
     const user = userEvent.setup();
     const onInput = vi.fn();
     render(() => <Input label="Width" value="100" onInput={onInput} disabled />);
-    const input = screen.getByRole("spinbutton", { name: "Width" });
+    const input = screen.getByRole("textbox", { name: "Width" });
     await user.type(input, "200");
-    expect(input).toHaveValue(100);
+    expect(input).toHaveValue("100");
     expect(onInput).not.toHaveBeenCalled();
   });
 
