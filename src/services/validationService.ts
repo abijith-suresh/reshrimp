@@ -77,7 +77,7 @@ export function generateDownloadFilename(
     "image/heif": "heif",
   };
 
-  const extension = extensionMap[targetFormat] || "png";
+  const extension = extensionMap[targetFormat];
   const nameWithoutExtension = originalFilename.replace(/\.[^.]+$/, "");
   return `${nameWithoutExtension}-processed.${extension}`;
 }
