@@ -1,7 +1,6 @@
 version: 2
 
 updates:
-  # npm projects: set package-ecosystem to "npm".
   - package-ecosystem: "bun"
     directory: "/"
     schedule:
@@ -10,6 +9,15 @@ updates:
       time: "09:00"
       timezone: "Asia/Kolkata"
     open-pull-requests-limit: 10
+    ignore:
+      # Must match @imgly/background-removal's peer range and the mirrored wasm files.
+      - dependency-name: "onnxruntime-web"
+      # astro check does not support TypeScript 7 yet.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      # Playwright 1.65's Firefox times out on WebP downloads in the e2e suite.
+      - dependency-name: "@playwright/test"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
     labels:
       - "dependencies"
     commit-message:
