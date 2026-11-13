@@ -458,6 +458,17 @@ describe("prepareImageFile", () => {
     expect(prepared.format).toBe("image/heic");
     expect(mockDecodeHeicBlob).toHaveBeenCalledWith(file);
   });
+
+  it("falls back to the original file when HEIC decoding fails", async () => {
+    const file = new File(["jpeg bytes"], "photo.heic", { type: "image/heic" });
+    mockDecodeHeicBlob.mockRejectedValue(new Error("ERR_LIBHEIF format not supported"));
+
+    await expect(prepareImageFile(file)).resolves.toEqual({ file, format: "image/heic" });
+    await expect(getImageMetadata(file)).resolves.toMatchObject({ width: 800, height: 600 });
+    expect(mockLoadImage).toHaveBeenCalledWith(file);
+    await prepareImageFile(file);
+    expect(mockDecodeHeicBlob).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("getImageMetadata", () => {

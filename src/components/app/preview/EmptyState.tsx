@@ -1,6 +1,7 @@
 import { ImageUp, ShieldCheck } from "lucide-solid";
 import { createSignal, type JSX, Show } from "solid-js";
 import { MAX_FILE_SIZE } from "@/config/constants";
+import { getSupportedImageFormatSummary } from "@/config/imageFormats";
 import { formatFileSize } from "@/utils/imageUtils";
 
 interface EmptyStateProps {
@@ -54,7 +55,7 @@ export default function EmptyState(props: EmptyStateProps) {
         </button>
 
         <p id="empty-state-formats" class="text-xs text-fg-muted">
-          JPEG, PNG, WebP · up to {formatFileSize(MAX_FILE_SIZE)}
+          {getSupportedImageFormatSummary()} · up to {formatFileSize(MAX_FILE_SIZE)}
         </p>
 
         <Show when={props.validationError}>
