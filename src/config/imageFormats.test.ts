@@ -12,10 +12,11 @@ import {
 describe("imageFormats", () => {
   it("returns the uploaded format when it is directly convertible", () => {
     expect(getInitialOutputFormat("image/png")).toBe("image/png");
-    expect(getInitialOutputFormat("image/avif")).toBe("image/avif");
+    expect(getInitialOutputFormat("image/webp")).toBe("image/webp");
   });
 
-  it("falls back to jpeg for heic/heif uploads", () => {
+  it("falls back to jpeg for avif, heic and heif uploads", () => {
+    expect(getInitialOutputFormat("image/avif")).toBe("image/jpeg");
     expect(getInitialOutputFormat("image/heic")).toBe("image/jpeg");
     expect(getInitialOutputFormat("image/heif")).toBe("image/jpeg");
   });
@@ -42,7 +43,7 @@ describe("imageFormats", () => {
     ["image/jpeg", true],
     ["image/png", true],
     ["image/webp", true],
-    ["image/avif", true],
+    ["image/avif", false],
     ["image/heic", false],
   ])("reports convertible output support for %s as %s", (format, expected) => {
     expect(
@@ -60,17 +61,19 @@ describe("imageFormats", () => {
   });
 
   it("reports browser quality control support", () => {
+    expect(supportsBrowserQualityControl("image/jpeg")).toBe(true);
     expect(supportsBrowserQualityControl("image/webp")).toBe(true);
     expect(supportsBrowserQualityControl("image/png")).toBe(false);
+    expect(supportsBrowserQualityControl("image/avif")).toBe(false);
   });
 
   it("provides a readable summary of supported upload formats", () => {
-    expect(getSupportedImageFormatSummary()).toBe("JPEG, PNG, WebP, AVIF, HEIC, HEIF");
+    expect(getSupportedImageFormatSummary()).toBe("JPEG, PNG, WebP, AVIF, HEIC");
   });
 
   it("keeps the file-picker filter aligned with accepted input formats", () => {
     expect(UPLOAD_ACCEPT_ATTRIBUTE).toBe(
-      "image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif"
+      "image/jpeg,image/png,image/webp,image/avif,image/heic,image/heif,.heic,.heif"
     );
   });
 });

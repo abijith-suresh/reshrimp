@@ -17,6 +17,7 @@ import {
   supportsBrowserQualityControl,
 } from "@/config/imageFormats";
 import { preloadBackgroundRemoval } from "@/services/backgroundRemovalService";
+import { getBestFormat } from "@/services/canvasService";
 import { getImageMetadata, prepareImageFile, processImage } from "@/services/imageService";
 import {
   buildProcessOptions,
@@ -180,9 +181,10 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       : getInitialOutputFormat(image.metadata.format);
   });
 
+  // Check the format that will be encoded: a browser without the encoder falls back to PNG.
   const qualityControlSupported = createMemo(() => {
     const format = currentOutputFormat();
-    return format !== null && supportsBrowserQualityControl(format);
+    return format !== null && supportsBrowserQualityControl(getBestFormat(format));
   });
 
   const targetFileSizeBytes = createMemo(() => {
