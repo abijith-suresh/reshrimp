@@ -20,17 +20,19 @@ export default function DpiSelector(props: DpiSelectorProps) {
   return (
     <div>
       <label for={`${prefix}dpi-select`} class={`mb-1.5 block ${FIELD_LABEL_CLASSES}`}>
-        Resolution
+        DPI
       </label>
       <Select
         id={`${prefix}dpi-select`}
-        ariaLabel={`Resolution: ${state.dpiValue()} DPI`}
+        ariaLabel="DPI"
         options={dpiOptions}
         value={String(state.dpiValue())}
         onChange={(v) => actions.handleDpiChange(Number(v))}
         disabled={!state.controlsActive()}
       />
-      <p class="mt-1.5 text-xs text-fg-muted">96 for screens, 300 for print.</p>
+      <p class="mt-1.5 text-xs text-fg-muted">
+        Converts inches and cm to pixels. Not saved in the file.
+      </p>
     </div>
   );
 }

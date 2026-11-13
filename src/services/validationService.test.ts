@@ -29,14 +29,18 @@ describe("validateImageFile", () => {
     const file = makeFile("doc.pdf", "application/pdf", 1000);
     const result = await validateImageFile(file);
     expect(result.valid).toBe(false);
-    expect(result.error).toMatch(/image/i);
+    expect(result.error).toBe(
+      "That file is not an image. Choose a JPEG, PNG, WebP, AVIF, or HEIC file."
+    );
   });
 
-  it("returns error for unsupported image format and includes format name in message", async () => {
+  it("returns error for unsupported image format without exposing the MIME type", async () => {
     const file = makeFile("image.bmp", "image/bmp", 1000);
     const result = await validateImageFile(file);
     expect(result.valid).toBe(false);
-    expect(result.error).toContain("image/bmp");
+    expect(result.error).toBe(
+      "Reshrimp cannot open this kind of file. Use JPEG, PNG, WebP, AVIF, or HEIC."
+    );
   });
 
   it.each([
@@ -50,12 +54,12 @@ describe("validateImageFile", () => {
     if (status === "rejected") {
       expect(result).toEqual({
         valid: false,
-        error: expect.stringContaining("exceeds maximum limit"),
+        error: expect.stringContaining("The limit is 50 MB. Choose a smaller file."),
       });
     } else if (status === "warning") {
       expect(result).toEqual({
         valid: true,
-        warning: expect.stringContaining("Large file detected"),
+        warning: expect.stringContaining("This is a large file"),
       });
     } else {
       expect(result).toEqual({ valid: true });
@@ -94,7 +98,7 @@ describe("validateImageDimensions", () => {
       height: 100,
     });
     expect(result.valid).toBe(false);
-    expect(result.error).toContain(String(MAX_PIXEL_DIMENSION));
+    expect(result.error).toContain(MAX_PIXEL_DIMENSION.toLocaleString());
   });
 
   it("rejects height beyond the maximum pixel limit", () => {
@@ -103,14 +107,17 @@ describe("validateImageDimensions", () => {
       height: MAX_PIXEL_DIMENSION + 1,
     });
     expect(result.valid).toBe(false);
-    expect(result.error).toContain(String(MAX_PIXEL_DIMENSION));
+    expect(result.error).toContain(MAX_PIXEL_DIMENSION.toLocaleString());
   });
 
   it("rejects dimensions over the total pixel budget", () => {
     const result = validateImageDimensions({ width: 8000, height: 4001 });
 
     expect(result.valid).toBe(false);
-    expect(result.error).toContain(String(MAX_TOTAL_PIXELS.toLocaleString()));
+    expect(result.error).toBe(
+      "This image is 8000 × 4001 px (32.1 megapixels). Reshrimp opens images up to 32 megapixels. Make it smaller in another app, then choose it again."
+    );
+    expect(MAX_TOTAL_PIXELS).toBe(32_000_000);
   });
 });
 

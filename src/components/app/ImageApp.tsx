@@ -12,7 +12,7 @@ import { buttonVariants } from "@/components/ui/button";
 // ── Mobile bottom sheet ─────────────────────────────────────────────────────
 // Two visible states, zero drag logic:
 //   hidden  → no image loaded; sheet is fully off-screen below the viewport
-//   peek    → image loaded; the Edit image handle, info, and Download stay visible
+//   peek    → image loaded; the Settings handle, info, and Download stay visible
 //   open    → 80dvh panel; tap Done or backdrop to return to peek
 //
 // Toggling is a single boolean tap with no pointer-event math or flick thresholds.
@@ -307,7 +307,7 @@ function MobileSheet() {
           sheetRef = element;
         }}
         tabIndex={-1}
-        aria-label="Image controls"
+        aria-label="Settings"
         aria-hidden={sheetState() === "hidden" ? "true" : "false"}
         inert={sheetState() === "hidden"}
         class="editor:hidden fixed inset-x-0 bottom-0 z-60 flex h-app-sheet translate-y-full flex-col rounded-t-lg border-t border-line bg-surface pr-(--safe-area-inset-right) pl-(--safe-area-inset-left) shadow-mobile-sheet will-change-transform overscroll-contain transition-transform duration-150 ease-sheet data-[sheet-state=open]:translate-y-0 data-[sheet-state=peek]:translate-y-[calc(100%-var(--spacing-app-sheet-peek))]"
@@ -332,11 +332,11 @@ function MobileSheet() {
           >
             <Show when={sheetState() === "open"}>
               <div class="flex min-w-0 flex-col">
-                <h2 class="text-sm font-semibold text-fg">Edit image</h2>
+                <h2 class="text-sm font-semibold text-fg">Settings</h2>
                 <Show when={img()}>
                   {(currentImg) => (
                     <p class="truncate text-xs text-fg-muted">
-                      {currentImg().metadata.fileName} · {displayWidth()} × {displayHeight()}px
+                      {currentImg().metadata.fileName} · {displayWidth()} × {displayHeight()} px
                     </p>
                   )}
                 </Show>
@@ -363,7 +363,7 @@ function MobileSheet() {
                   <>
                     <span class="flex items-center gap-2">
                       <SlidersHorizontal size={16} class="text-fg-muted" aria-hidden="true" />
-                      <span>Edit image</span>
+                      <span>Settings</span>
                     </span>
                     <ChevronUp size={18} class="text-fg-muted" aria-hidden="true" />
                   </>
@@ -454,14 +454,14 @@ function AppShell() {
         data-app-shell
         class="group/app flex h-dvh flex-col overflow-hidden bg-canvas pt-(--safe-area-inset-top) pr-(--safe-area-inset-right) pl-(--safe-area-inset-left)"
       >
-        <h1 class="sr-only">Reshrimp image tool</h1>
+        <h1 class="sr-only">Reshrimp</h1>
         <AppTopBar />
 
         <div class="flex min-h-0 flex-1">
           {/* Controls panel: Cards on the canvas, desktop only */}
           <aside
             data-desktop-only
-            aria-label="Image settings"
+            aria-label="Settings"
             class="hidden w-app-panel shrink-0 flex-col overflow-y-auto overscroll-contain border-r border-line editor:flex"
           >
             <ProcessPanel />

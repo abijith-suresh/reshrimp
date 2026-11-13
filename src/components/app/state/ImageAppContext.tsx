@@ -222,7 +222,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     const requestedFormat = result.requestedFormat;
     if (requestedFormat === result.metadata.format) return null;
 
-    return `Your browser could not export ${getImageFormatLabel(requestedFormat)}. Downloaded as ${getImageFormatLabel(result.metadata.format)} instead.`;
+    return `Your browser cannot save ${getImageFormatLabel(requestedFormat)}, so this will download as ${getImageFormatLabel(result.metadata.format)}. Choose JPEG for a smaller file.`;
   });
 
   const targetFileSizeNotice = createMemo<string | null>(() => {
@@ -233,12 +233,12 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     if (targetBytes === undefined || status === undefined) return null;
 
     if (status === "met") {
-      return `Output fits within ${formatFileSize(targetBytes)}.`;
+      return `The file is ${formatFileSize(metadata.fileSize)}, within your ${formatFileSize(targetBytes)} limit.`;
     }
     if (status === "unmet") {
-      return `Could not meet ${formatFileSize(targetBytes)}. Smallest result: ${formatFileSize(metadata.fileSize)}.`;
+      return `Could not get under ${formatFileSize(targetBytes)}. The smallest result is ${formatFileSize(metadata.fileSize)}. Make the width and height smaller, or use JPEG, then try again.`;
     }
-    return "This browser could not apply a size target to the output format.";
+    return "Max file size does not apply to PNG. Choose JPEG to set one.";
   });
 
   async function handleProcess(): Promise<void> {
@@ -288,7 +288,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     } else if (options.removeBackground) {
       setProgressLabel("Removing background\u2026");
     } else if (options.targetFileSizeBytes !== undefined) {
-      setProgressLabel("Adjusting quality for size target\u2026");
+      setProgressLabel("Adjusting quality for max file size\u2026");
     }
 
     let previewAbortController: AbortController | null = null;
@@ -326,7 +326,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       revokeProcessedObjectUrl(previousProcessedUrl);
     } catch (err) {
       if (isCurrentRun()) {
-        setError(err instanceof Error ? err.message : "Processing failed");
+        setError(err instanceof Error ? err.message : "Could not process this image. Try again.");
       }
     } finally {
       if (pendingPreviewAbort === previewAbortController) {
@@ -483,7 +483,9 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       });
     } catch {
       if (!disposed && requestId === uploadRequestId) {
-        setError("Failed to load image. Please try another file.");
+        setError(
+          "Could not open this image. It may be damaged, or in a format your browser cannot read. Try another file."
+        );
       }
     } finally {
       // A failed upload leaves an earlier image's active run in place.
@@ -502,7 +504,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     try {
       createDownloadLink(result.blob, filename);
     } catch {
-      setError("Failed to download image");
+      setError("The download did not start. Try again.");
     }
   }
 

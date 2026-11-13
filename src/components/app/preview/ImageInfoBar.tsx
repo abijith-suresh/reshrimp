@@ -35,7 +35,7 @@ export default function ImageInfoBar(props: ImageInfoBarProps) {
         ·
       </span>
       <span class="shrink-0 whitespace-nowrap">
-        {props.width} &times; {props.height}px
+        {props.width} &times; {props.height} px
       </span>
       <span class="shrink-0 text-fg-soft" aria-hidden="true">
         ·

@@ -49,11 +49,11 @@ test("targets a reachable size and reports an impossible limit without changing 
   await uploadImage(page);
   await openImageControls(page);
   await page.getByRole("button", { name: "Max file size", exact: true }).click();
-  const limit = page.getByRole("textbox", { name: "Maximum file size (KB)", exact: true });
+  const limit = page.getByRole("textbox", { name: "Max file size (KB)", exact: true });
   await limit.fill("40");
   // Size targeting runs several canvas encodes, which can be slow in CI Firefox.
   await expect(
-    page.getByRole("status").filter({ hasText: "Output fits within 40 KB." })
+    page.getByRole("status").filter({ hasText: "within your 40 KB limit." })
   ).toBeVisible({ timeout: 20_000 });
   const fitting = await downloadImage(page);
   // Portals count a kilobyte as 1,000 bytes.
@@ -61,7 +61,7 @@ test("targets a reachable size and reports an impossible limit without changing 
   expect(await decodeImage(fitting.bytes)).toMatchObject({ width: 512, height: 384 });
 
   await limit.fill("0.001");
-  await expect(page.getByRole("status").filter({ hasText: "Could not meet" })).toBeVisible({
+  await expect(page.getByRole("status").filter({ hasText: "Could not get under" })).toBeVisible({
     timeout: 20_000,
   });
   const smallest = await downloadImage(page);
@@ -75,10 +75,12 @@ test("blocks an invalid size, then recovers when it is corrected", async ({ page
   await uploadImage(page);
   await openImageControls(page);
   await page.getByRole("button", { name: "Max file size", exact: true }).click();
-  const limit = page.getByRole("textbox", { name: "Maximum file size (KB)", exact: true });
+  const limit = page.getByRole("textbox", { name: "Max file size (KB)", exact: true });
   await limit.fill("0");
   await expect(limit).toHaveAttribute("aria-invalid", "true");
-  await expect(page.getByRole("alert")).toHaveText("Enter a size greater than 0 KB.");
+  await expect(page.getByRole("alert")).toHaveText(
+    "Enter a number above 0, in KB. For example, 50."
+  );
   await expect(page.getByRole("button", { name: "Download", exact: true })).toBeDisabled();
   await limit.fill("40");
   await expect(page.getByRole("alert")).toHaveCount(0);
@@ -96,7 +98,10 @@ test("shows a corrupt upload error and can load a valid image afterwards", async
   });
   await expect(
     page
-      .getByText("Failed to load image. Please try another file.", { exact: true })
+      .getByText(
+        "Could not open this image. It may be damaged, or in a format your browser cannot read. Try another file.",
+        { exact: true }
+      )
       .filter({ visible: true })
   ).toBeVisible();
   await uploadImage(page);
@@ -169,7 +174,7 @@ test("allows independent dimensions when the ratio is unlocked", async ({ page }
   await page.goto("/app");
   await uploadImage(page);
   await openImageControls(page);
-  const lock = page.getByRole("checkbox", { name: "Lock ratio", exact: true });
+  const lock = page.getByRole("checkbox", { name: "Keep aspect ratio", exact: true });
   await expect(lock).toBeChecked();
   await lock.focus();
   await lock.press("Space");

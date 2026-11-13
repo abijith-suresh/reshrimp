@@ -22,7 +22,7 @@ export default function PreviewPanel() {
     <div class="relative flex h-full flex-col overflow-hidden bg-canvas">
       <Show when={!state.currentImage()}>
         <label for="empty-state-file-input" class="sr-only">
-          Upload image
+          Choose an image
         </label>
         <input
           ref={(el) => {

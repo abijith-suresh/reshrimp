@@ -17,7 +17,7 @@ export default function AppTopBar() {
       <nav aria-label="App navigation" class="flex min-w-0 shrink-0 items-center">
         <a
           href={makeHref(ROUTES.HOME)}
-          aria-label={`Back to ${SITE_NAME.toLowerCase()} home`}
+          aria-label={`Back to ${SITE_NAME} home`}
           class="group/logo inline-flex h-11 items-center gap-2 rounded-md pr-3 pl-2 text-fg no-underline transition-colors duration-150 hover:bg-hover"
         >
           <ArrowLeft class="size-4 text-fg-muted" aria-hidden="true" />

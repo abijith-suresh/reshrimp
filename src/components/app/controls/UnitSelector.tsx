@@ -26,7 +26,7 @@ export default function UnitSelector(props: UnitSelectorProps) {
       </label>
       <Select
         id={`${prefix}unit-select`}
-        ariaLabel={`Unit: ${state.resizeUnit()}`}
+        ariaLabel="Unit"
         options={unitOptions}
         value={state.resizeUnit()}
         onChange={(v) => actions.handleUnitChange(v as ResizeUnit)}
