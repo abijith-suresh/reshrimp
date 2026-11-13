@@ -31,7 +31,10 @@ describe("createDownloadLink", () => {
     expect(document.body.removeChild).not.toHaveBeenCalled();
     expect(URL.revokeObjectURL).not.toHaveBeenCalled();
 
-    vi.runAllTimers();
+    // iOS Safari can read the blob only after the user confirms the download.
+    vi.advanceTimersByTime(59_999);
+    expect(URL.revokeObjectURL).not.toHaveBeenCalled();
+    vi.advanceTimersByTime(1);
 
     expect(document.body.removeChild).toHaveBeenCalledWith(link);
     expect(URL.revokeObjectURL).toHaveBeenCalledWith("blob:mock-url");

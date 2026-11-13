@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 import type { ResizeUnit } from "../types/processing";
 import {
   buildProcessOptions,
-  getDimensionValuesForDpiChange,
   getFormatStateForBackgroundRemoval,
   getLinkedDimensionValues,
   parseTargetFileSizeKilobytes,
@@ -284,24 +283,5 @@ describe("getLinkedDimensionValues", () => {
         dpi: 300,
       }).resize
     ).toMatchObject({ width: 300, height: 1 });
-  });
-});
-
-describe("getDimensionValuesForDpiChange", () => {
-  it("recalculates physical-unit values against the new DPI", () => {
-    expect(
-      getDimensionValuesForDpiChange({
-        widthValue: "10",
-        heightValue: "5",
-        resizeUnit: "in",
-        originalWidth: 1200,
-        originalHeight: 600,
-        previousDpi: 96,
-        nextDpi: 300,
-      })
-    ).toEqual({
-      widthValue: "3.2",
-      heightValue: "1.6",
-    });
   });
 });

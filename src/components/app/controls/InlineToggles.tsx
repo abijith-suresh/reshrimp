@@ -33,8 +33,9 @@ export default function InlineToggles(props: InlineTogglesProps) {
             disabled={!state.controlsActive()}
           />
           <Show when={state.removeBackground()}>
-            <p class="text-xs text-fg-muted">
-              Exports PNG to keep transparency. The first run loads the model.
+            <p class={state.modelDownloadNotice() ? "text-xs text-fg" : "text-xs text-fg-muted"}>
+              {state.modelDownloadNotice() ??
+                "Exports PNG to keep transparency. The first run loads the model."}
             </p>
           </Show>
         </div>

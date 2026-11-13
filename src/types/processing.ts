@@ -17,7 +17,10 @@ export interface ProcessOptions {
   targetFileSizeBytes?: number;
 }
 
-export type BackgroundRemovalProgressCallback = (progress: number) => void;
+export type BackgroundRemovalProgressCallback = (
+  stage: "download" | "compute",
+  progress: number
+) => void;
 
 export interface ProcessResult {
   blob: Blob;
