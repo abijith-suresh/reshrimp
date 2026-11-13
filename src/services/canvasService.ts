@@ -22,7 +22,8 @@ export async function loadImage(file: File): Promise<HTMLImageElement> {
 export function resizeOnCanvas(
   img: HTMLImageElement,
   width: number,
-  height: number
+  height: number,
+  format?: ImageFormat
 ): HTMLCanvasElement {
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -35,6 +36,12 @@ export function resizeOnCanvas(
 
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = "high";
+
+  // JPEG has no alpha channel; transparent pixels would otherwise encode as black.
+  if (format === "image/jpeg") {
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, width, height);
+  }
 
   ctx.drawImage(img, 0, 0, width, height);
 
