@@ -10,4 +10,4 @@
 
 `astronaut.jpg` is a 256 × 256 derivative of NASA's portrait of Eileen Collins, taken from [scikit-image 0.24.0](https://github.com/scikit-image/scikit-image/blob/v0.24.0/skimage/data/astronaut.png) and resized/encoded with Sharp at JPEG quality 90. [scikit-image documents the image as public domain](https://scikit-image.org/docs/stable/api/skimage.data.html#skimage.data.astronaut). The background test checks the face at 110,55 and the wall at 245,15, plus substantial opaque and transparent regions. It must reject both untouched and fully erased images.
 
-Keep the JPEG metadata-bearing. The browser suite parses its EXIF before using it to test metadata removal.
+Keep `metadata.jpg` and `oriented.jpg` metadata-bearing. The browser suite parses their EXIF before using them to test metadata removal and orientation. `astronaut.jpg` has no such requirement.

@@ -6,13 +6,14 @@ This document describes the development workflow for Reshrimp.
 
 Read these documents first:
 
-- `AGENTS.md` for product truth and hard rules
+- `AGENTS.md` for what the product is and where each fact lives
+- § Gotchas below for the rules that are easy to break
 
 Do not expand product scope unless § The Project in `AGENTS.md` is updated first.
 
 ## Setup
 
-`mise.toml` is the only source for the Bun and Node versions. Install them with [mise](https://mise.jdx.dev), then install dependencies from the repository root.
+`mise.toml` is the source of truth for the Bun and Node versions. The `packageManager` field in `package.json` repeats the Bun version and must match it. Install the pinned versions with [mise](https://mise.jdx.dev), then install dependencies from the repository root.
 
 ```bash
 mise install
@@ -37,7 +38,7 @@ bun run test:e2e:build
 
 Run `bun run verify` before pushing. Run `bun run test:e2e:build` for browser validation as well: it builds the app and then runs the browser tests. `bun run test:e2e` runs the browser tests alone against the existing build, matching what CI does after its build step.
 
-Pull request CI calls the pinned central CI workflow (type checking, linting, formatting, unit tests, build, and the Playwright browser suite) and the pinned central dependency review workflow, and reports both through the required `gate` check. Pull request titles, Dependabot auto-merge, and releases also call pinned central workflows.
+Pull request CI calls the pinned central CI workflow (type checking, linting, formatting, unit tests, build, and the Playwright browser suite) and the pinned central dependency review workflow, and reports both through the required `gate` check. The central CI workflow installs dependencies, then runs `type-check`, `lint`, `format:check`, `test`, `build`, and `test:e2e`. It does not run `test:coverage` or `test:asset-sync`; those run only in `bun run verify`, which the `pre-push` hook runs on your machine. Pull request titles, Dependabot auto-merge, and releases also call pinned central workflows.
 
 Background-removal assets are mirrored before `dev` and `build` through the configured package scripts. If assets are missing locally, that step needs network access.
 
@@ -47,7 +48,7 @@ Background-removal assets are mirrored before `dev` and `build` through the conf
 2. Create a focused branch.
 3. Make the smallest correct change.
 4. Keep public copy, product truth, and implementation aligned.
-5. Run `bun run verify` and `bun run test:e2e:build` before push. Add focused tests for the behavior you touched; CI owns the full suite.
+5. Run `bun run verify` and `bun run test:e2e:build` before push. Add focused tests for the behavior you touched.
 6. Open one focused pull request.
 7. Stop and wait for review or merge feedback before starting unrelated work.
 
@@ -100,14 +101,16 @@ These do not follow from reading the tree, and breaking one changes the product:
 - One image at a time; batch and editor/workspace flows are out of scope until § The Project changes first.
 - Background-removal model/runtime assets must come from the app origin (origin-pinned `publicPath`, mirrored at build time); never a third-party CDN.
 - User image bytes never cross the network — no uploads, beacons, or error reports containing image content.
-- Business logic belongs in `src/services/` or shared helpers, not UI components. `validationService` is the single gate for validation and download naming.
+- Business logic belongs in `src/services/` or shared helpers, not UI components. `validationService` validates uploads and names downloads, and `imageService` checks resize targets and pixel limits before it processes an image.
+- `package.json` `overrides` pins seven transitive packages (`baseline-browser-mapping`, `browserslist`, `fflate`, `js-yaml`, `nanoid`, `postcss`, `protobufjs`) to fixed versions. They were added in #202 to clear `bun audit` findings. Run `bun audit` before removing or changing one.
+- `onnxruntime-web` is pinned to exactly `1.21.0` because `@imgly/background-removal` 1.7.0 declares that exact peer dependency, and the wasm files mirrored from IMG.LY's data package are built to go with it. Change the version and the mirrored assets together.
 
 ## Versioning And Releases
 
 Releases are automated by release-please from Conventional Commits. Versioning restarted at `0.0.1` for a fresh development phase.
 
-- While the project is in private development, versions stay in the `0.0.x` range: before 1.0, both `feat:` and `fix:` commits bump the patch version (`bump-patch-for-minor-pre-major` in the release-please config).
-- The first real release (`0.1.0`) is cut deliberately by the maintainer, via a `Release-As: 0.1.0` footer on the release PR or a breaking change; `1.0.0` is earned later.
+- Versions stay in the `0.0.x` range until the maintainer cuts `0.1.0` deliberately: before 1.0, both `feat:` and `fix:` commits bump the patch version (`bump-patch-for-minor-pre-major` in the release-please config).
+- To cut `0.1.0`, merge a commit to `main` with `Release-As: 0.1.0` in the commit body (for example `git commit --allow-empty -m "chore: release 0.1.0" -m "Release-As: 0.1.0"`). release-please reads it from the commit message on `main`, not from the release PR. `1.0.0` is earned later.
 - Release PRs and tags are created automatically after conventional commits land on `main`.
 
 ## Code Style
@@ -123,7 +126,7 @@ Releases are automated by release-please from Conventional Commits. Versioning r
 
 ## Styling
 
-Use Tailwind utility classes for component styling, layout, responsive rules, and interaction states in both Astro and SolidJS. Shared values belong in the single `@theme` block in `src/styles/global.css`. Colours come from its semantic tokens (`canvas`, `surface`, `line`, `fg`, `primary`, the mint, lavender, and yellow accents, and `success`, `warning`, `danger`); do not write raw colour values in components. Text sizes come from its one type scale, and buttons from `buttonVariants` in `src/components/ui/button.ts`. Use the existing spacing scale and theme utilities before adding arbitrary values. Keep complete class names in source, including explicit maps for color variants, so Tailwind can detect them.
+Use Tailwind utility classes for component styling, layout, responsive rules, and interaction states in both Astro and SolidJS. Shared values belong in the single `@theme` block in `src/styles/global.css`. Colours come from its semantic tokens (`canvas`, `surface`, `line`, `fg`, `primary`, the coral, mint, lavender, and yellow accents, and `success`, `warning`, `danger`); do not write raw colour values in components. Text sizes come from its one type scale, and buttons from `buttonVariants` in `src/components/ui/button.ts`. Use the existing spacing scale and theme utilities before adding arbitrary values. Keep complete class names in source, including explicit maps for color variants, so Tailwind can detect them.
 
 Do not add scoped component styles, `@apply` component classes, or a parallel set of CSS variables. Shared UI components own repeated markup and utility classes. Use `aria-*` or `data-*` state variants for open, selected, and hidden states. Inline styles are for values calculated at runtime, such as portal coordinates and measured sheet heights.
 
@@ -166,8 +169,7 @@ Each test checks browser and worker requests against the local build files.
 Physical devices are outside this test suite.
 
 Geometry tests use 500 generated inputs per property with a fixed seed.
-Keep explicit boundary cases. Coverage includes all source TypeScript modules.
-Do not lower thresholds to remove a test.
+Keep explicit boundary cases. Coverage includes all source TypeScript modules, and `bun run verify` enforces its thresholds (`test:coverage`). CI does not run coverage. Do not lower thresholds to remove a test.
 
 Use temporary faults to confirm that a test detects its target defect.
 Restore the code before the full checks.
