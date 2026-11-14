@@ -2,7 +2,6 @@
 import { GITHUB_URL, ROUTES, SITE_NAME } from "../../config/constants";
 import { makeHref } from "../../lib/utils";
 import Container from "../marketing/layout/Container.astro";
-import { buttonVariants } from "../ui/button";
 import Logo from "./Logo.astro";
 
 interface FooterLink {
@@ -11,30 +10,54 @@ interface FooterLink {
   external?: boolean;
 }
 
-const footerLinks: FooterLink[] = [
-  { label: "Privacy", href: makeHref(ROUTES.PRIVACY) },
-  { label: "FAQ", href: makeHref(ROUTES.FAQ) },
-  { label: "GitHub", href: GITHUB_URL, external: true },
+const footerColumns: { title: string; links: FooterLink[] }[] = [
+  {
+    title: "Product",
+    links: [
+      { label: "Open the app", href: makeHref(ROUTES.APP) },
+      { label: "Privacy", href: makeHref(ROUTES.PRIVACY) },
+      { label: "FAQ", href: makeHref(ROUTES.FAQ) },
+    ],
+  },
+  {
+    title: "Project",
+    links: [
+      { label: "GitHub", href: GITHUB_URL, external: true },
+      { label: "Report an issue", href: `${GITHUB_URL}/issues`, external: true },
+    ],
+  },
 ];
 ---
 
 <footer class="border-t border-line">
-  <Container class="flex items-center justify-between gap-6 py-6 marketing-mobile:flex-col marketing-mobile:items-start marketing-mobile:gap-3">
-    <div class="flex items-center gap-4">
+  <Container class="flex justify-between gap-12 py-12 marketing-menu:flex-col marketing-menu:gap-10 marketing-mobile:py-10">
+    <div class="max-w-xs">
       <Logo />
-      <span class="text-sm text-fg-soft">&copy; {new Date().getFullYear()} {SITE_NAME}</span>
+      <p class="mt-2 text-base text-fg-muted text-pretty">
+        Resize, compress, and convert images without uploading them.
+      </p>
+      <p class="mt-6 text-sm text-fg-soft">&copy; {new Date().getFullYear()} {SITE_NAME}</p>
     </div>
-    <nav class="-mx-3 flex flex-wrap items-center gap-1" aria-label="Footer navigation">
+    <nav class="grid grid-cols-[auto_auto] gap-x-16 gap-y-8 marketing-mobile:gap-x-12" aria-label="Footer navigation">
       {
-        footerLinks.map((link) => (
-          <a
-            href={link.href}
-            target={link.external ? "_blank" : undefined}
-            rel={link.external ? "noopener noreferrer" : undefined}
-            class={buttonVariants({ variant: "ghost", size: "sm" })}
-          >
-            {link.label}
-          </a>
+        footerColumns.map((column) => (
+          <div>
+            <p class="text-sm font-semibold text-fg">{column.title}</p>
+            <ul class="mt-3 grid gap-1">
+              {column.links.map((link) => (
+                <li>
+                  <a
+                    href={link.href}
+                    target={link.external ? "_blank" : undefined}
+                    rel={link.external ? "noopener noreferrer" : undefined}
+                    class="-mx-1 inline-flex min-h-8 items-center rounded-xs px-1 text-sm text-fg-muted no-underline transition-colors duration-150 ease-out hover:text-fg pointer-coarse:min-h-11"
+                  >
+                    {link.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
         ))
       }
     </nav>
