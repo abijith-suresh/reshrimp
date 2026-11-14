@@ -5,15 +5,9 @@ import IconTile from "../cards/IconTile.astro";
 import Section from "../layout/Section.astro";
 
 const steps = [
-  { title: "Choose an image", body: "Drop a file in or choose one from your device." },
-  {
-    title: "Set the options",
-    body: "Enter the pixel size, pick a format, then set a quality or a max file size.",
-  },
-  {
-    title: "Download the result",
-    body: "Check the preview and the new file size, then save the file.",
-  },
+  { title: "Choose an image", body: "Drop it in or pick a file." },
+  { title: "Set the options", body: "Pick the size, format, and file size limit." },
+  { title: "Download the result", body: "Check the preview, then save." },
 ];
 ---
 
@@ -38,8 +32,8 @@ const steps = [
     <div class="flex items-center gap-5 border-t border-line bg-surface-muted px-8 py-6 marketing-mobile:flex-col marketing-mobile:items-start marketing-mobile:gap-4 marketing-mobile:p-6">
       <IconTile icon={ShieldCheck} tone="mint" />
       <p class="text-lg text-fg-muted text-pretty">
-        <strong class="font-semibold text-fg">Every step runs in your browser.</strong>{" "}
-        Your image never leaves your device. Reshrimp has no accounts and no tracking.
+        <strong class="font-semibold text-fg">Everything happens in your browser.</strong>{" "}
+        No upload, no account, no tracking.
       </p>
     </div>
   </Card>
