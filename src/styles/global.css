@@ -149,6 +149,21 @@
   --animate-select-in: select-in 180ms var(--ease-reveal);
   --animate-feedback-in: slide-in 0.3s ease;
   --animate-sheet-backdrop-in: mobile-sheet-backdrop-in 0.35s ease both;
+  /* The landing hero demo: one 14s clock shared by every part, so they stay in
+     step. No fill mode, so reduced motion falls back to the resting frame. */
+  --animate-hero-picture: hero-picture 14s ease-in-out infinite;
+  --animate-hero-backdrop: hero-backdrop 14s ease-in-out infinite;
+  --animate-hero-focus: hero-focus 14s ease-in-out infinite;
+  --animate-hero-resize: hero-resize 14s ease-in-out infinite;
+  --animate-hero-format: hero-format 14s ease-in-out infinite;
+  --animate-hero-size: hero-size 14s ease-in-out infinite;
+  --animate-hero-disabled: hero-disabled 14s ease-in-out infinite;
+  --animate-hero-badge-original: hero-badge-original 14s ease-in-out infinite;
+  --animate-hero-badge-result: hero-badge-result 14s ease-in-out infinite;
+  --animate-hero-badge-size: hero-badge-size 14s ease-in-out infinite;
+  --animate-hero-badge-cutout: hero-badge-cutout 14s ease-in-out infinite;
+  --animate-hero-checkbox: hero-checkbox 14s ease-in-out infinite;
+  --animate-hero-check: hero-check 14s ease-in-out infinite;
 }
 
 /* Broad variants precede narrow ones so narrower layouts win at shared widths.
@@ -242,6 +257,211 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Landing hero demo, 14s in two scenes that each start from the original photo.
+   Smaller (0-7s): resize, convert to WebP, set a 50 KB limit, size counts down.
+   Cut out (7.6-14s): Remove bg ticks, which in the app forces PNG and turns
+   off the size limit, and the background drops away from the bird.
+   Tickers are columns of 1rem rows; each stop names the row in view. */
+@keyframes hero-picture {
+  0%,
+  6%,
+  54%,
+  100% {
+    scale: 1.15;
+  }
+  13%,
+  50% {
+    scale: 1;
+  }
+}
+
+@keyframes hero-backdrop {
+  0%,
+  62%,
+  99%,
+  100% {
+    opacity: 1;
+  }
+  69%,
+  95% {
+    opacity: 0;
+  }
+}
+
+/* One field's highlight; each field offsets it with an animation delay. */
+@keyframes hero-focus {
+  0%,
+  16%,
+  100% {
+    border-color: var(--color-line);
+    box-shadow: 0 0 0 0 transparent;
+  }
+  2%,
+  14% {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-coral-subtle);
+  }
+}
+
+@keyframes hero-resize {
+  0%,
+  5%,
+  54%,
+  100% {
+    translate: 0 0;
+  }
+  8%,
+  50% {
+    translate: 0 -1rem;
+  }
+}
+
+/* Rows: WebP, JPEG, PNG. */
+@keyframes hero-format {
+  0%,
+  18.5%,
+  54%,
+  60.5%,
+  99%,
+  100% {
+    translate: 0 -1rem;
+  }
+  21.5%,
+  50% {
+    translate: 0 0;
+  }
+  63.5%,
+  95% {
+    translate: 0 -2rem;
+  }
+}
+
+@keyframes hero-size {
+  0%,
+  30%,
+  54%,
+  100% {
+    translate: 0 0;
+  }
+  33%,
+  50% {
+    translate: 0 -1rem;
+  }
+}
+
+/* Format and size limit while background removal is on. */
+@keyframes hero-disabled {
+  0%,
+  60.5%,
+  99%,
+  100% {
+    opacity: 1;
+  }
+  63.5%,
+  95% {
+    opacity: 0.45;
+  }
+}
+
+@keyframes hero-badge-original {
+  0%,
+  12%,
+  54%,
+  68%,
+  99%,
+  100% {
+    opacity: 1;
+  }
+  14.5%,
+  50%,
+  70.5%,
+  95% {
+    opacity: 0;
+  }
+}
+
+@keyframes hero-badge-result {
+  0%,
+  12%,
+  54%,
+  100% {
+    opacity: 0;
+  }
+  14.5%,
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Rows: 96, 74, 63, 54, 46 KB. */
+@keyframes hero-badge-size {
+  0%,
+  23%,
+  56%,
+  100% {
+    translate: 0 0;
+  }
+  25%,
+  34.5% {
+    translate: 0 -1rem;
+  }
+  36%,
+  37.5% {
+    translate: 0 -2rem;
+  }
+  39%,
+  40% {
+    translate: 0 -3rem;
+  }
+  42%,
+  54% {
+    translate: 0 -4rem;
+  }
+}
+
+@keyframes hero-badge-cutout {
+  0%,
+  68%,
+  99%,
+  100% {
+    opacity: 0;
+  }
+  70.5%,
+  95% {
+    opacity: 1;
+  }
+}
+
+@keyframes hero-checkbox {
+  0%,
+  58.5%,
+  99%,
+  100% {
+    border-color: var(--color-fg-soft);
+    background-color: var(--color-surface);
+  }
+  60.5%,
+  95% {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary);
+  }
+}
+
+@keyframes hero-check {
+  0%,
+  58.5%,
+  99%,
+  100% {
+    opacity: 0;
+    scale: 0.75;
+  }
+  60.5%,
+  95% {
+    opacity: 1;
+    scale: 1;
   }
 }
 
