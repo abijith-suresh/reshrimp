@@ -25,10 +25,27 @@ test("runs background removal with same-origin assets and exports a transparent 
   await uploadImage(page, subjectPath);
   await openImageControls(page);
   await expect(page.getByRole("button", { name: "Download", exact: true })).toBeEnabled();
+  // The model loads only when someone asks for background removal. Two seconds
+  // covers the idle preload this replaced.
+  await page.waitForTimeout(2_000);
+  expect(assetRequests).toEqual([]);
+  // Hold the model download until its notice has been seen.
+  const assetsReleased = Promise.withResolvers<void>();
+  await page.route("**/background-removal/**", async (route) => {
+    await assetsReleased.promise;
+    await route.continue();
+  });
   const removeBackground = page.getByRole("checkbox", { name: "Remove bg", exact: true });
   await removeBackground.focus();
   await removeBackground.press("Space");
   await expect(removeBackground).toBeChecked();
+  await expect(
+    page
+      .getByText("Downloading the background-removal model (about 100 MB, first time only)")
+      .filter({ visible: true })
+  ).toBeVisible();
+  await expect(page.getByRole("status")).toHaveText(/Downloading model/);
+  assetsReleased.resolve();
   await expect(page.getByRole("combobox", { name: "Output format", exact: true })).toBeDisabled();
   await expect(page.getByRole("slider", { name: "Output quality", exact: true })).toBeDisabled();
   await expect(page.getByRole("button", { name: "Download", exact: true })).toBeEnabled({

@@ -121,26 +121,6 @@ export function buildProcessOptions(input: BuildProcessOptionsInput): ProcessOpt
   };
 }
 
-function updateDimensionForDpi(
-  value: string,
-  unit: ResizeUnit,
-  originalPx: number,
-  previousDpi: number,
-  nextDpi: number
-): string {
-  if (!value) {
-    return "";
-  }
-
-  const numericValue = parseDimensionInput(value);
-  if (numericValue === undefined || !Number.isFinite(numericValue)) {
-    return "";
-  }
-
-  const px = convertToPx(numericValue, unit, originalPx, previousDpi);
-  return formatResizeValue(convertFromPx(px, unit, originalPx, nextDpi), unit);
-}
-
 export function getLinkedDimensionValues(input: {
   changedDimension: "width" | "height";
   value: string;
@@ -183,43 +163,6 @@ export function getLinkedDimensionValues(input: {
       input.resizeUnit
     ),
     heightValue: input.value,
-  };
-}
-
-export function getDimensionValuesForDpiChange(input: {
-  widthValue: string;
-  heightValue: string;
-  resizeUnit: ResizeUnit;
-  originalWidth: number;
-  originalHeight: number;
-  previousDpi: number;
-  nextDpi: number;
-}): {
-  widthValue: string;
-  heightValue: string;
-} {
-  if (input.resizeUnit === "px" || input.resizeUnit === "%") {
-    return {
-      widthValue: input.widthValue,
-      heightValue: input.heightValue,
-    };
-  }
-
-  return {
-    widthValue: updateDimensionForDpi(
-      input.widthValue,
-      input.resizeUnit,
-      input.originalWidth,
-      input.previousDpi,
-      input.nextDpi
-    ),
-    heightValue: updateDimensionForDpi(
-      input.heightValue,
-      input.resizeUnit,
-      input.originalHeight,
-      input.previousDpi,
-      input.nextDpi
-    ),
   };
 }
 

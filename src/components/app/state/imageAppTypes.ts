@@ -10,6 +10,7 @@ export interface AppState {
   lastCompletedResult: Accessor<ProcessResult | null>;
   isProcessing: Accessor<boolean>;
   progressLabel: Accessor<string | null>;
+  modelDownloadNotice: Accessor<string | null>;
   error: Accessor<string | null>;
   validation: Accessor<ValidationResult | null>;
   isDragOver: Accessor<boolean>;

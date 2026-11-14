@@ -1,6 +1,9 @@
 import { renderHook } from "@solidjs/testing-library";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { preloadBackgroundRemoval } from "@/services/backgroundRemovalService";
+import {
+  isBackgroundRemovalModelLoaded,
+  preloadBackgroundRemoval,
+} from "@/services/backgroundRemovalService";
 import { getImageMetadata, prepareImageFile, processImage } from "@/services/imageService";
 import { mockImageLoading, mockObjectUrls } from "@/test/mocks";
 import type { ImageMetadata } from "@/types/image";
@@ -13,7 +16,11 @@ vi.mock("@/services/imageService", () => ({
   prepareImageFile: vi.fn(),
   processImage: vi.fn(),
 }));
-vi.mock("@/services/backgroundRemovalService", () => ({ preloadBackgroundRemoval: vi.fn() }));
+vi.mock("@/services/backgroundRemovalService", () => ({
+  BACKGROUND_REMOVAL_DOWNLOAD_BYTES: 99_998_062,
+  isBackgroundRemovalModelLoaded: vi.fn(),
+  preloadBackgroundRemoval: vi.fn(),
+}));
 vi.mock("@/utils/imageUtils", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/utils/imageUtils")>()),
   createDownloadLink: vi.fn(),
@@ -23,8 +30,10 @@ const metadata = vi.mocked(getImageMetadata);
 const prepare = vi.mocked(prepareImageFile);
 const process = vi.mocked(processImage);
 const preload = vi.mocked(preloadBackgroundRemoval);
+const modelLoaded = vi.mocked(isBackgroundRemovalModelLoaded);
 const download = vi.mocked(createDownloadLink);
 const source = () => new File(["source"], "photo.png", { type: "image/png" });
+const jpeg = () => new File(["source"], "photo.jpg", { type: "image/jpeg" });
 function result(content = "output", width = 1200, height = 800): ProcessResult {
   const blob = new Blob([content], { type: "image/png" });
   return {
@@ -43,11 +52,6 @@ beforeEach(() => {
   const urls = mockObjectUrls();
   let id = 0;
   urls.createObjectURL.mockImplementation(() => `blob:session-${++id}`);
-  vi.stubGlobal(
-    "requestIdleCallback",
-    vi.fn(() => 1)
-  );
-  vi.stubGlobal("cancelIdleCallback", vi.fn());
   // jsdom has no encoder; report every format as supported unless a test says otherwise.
   vi.spyOn(HTMLCanvasElement.prototype, "toDataURL").mockImplementation(
     (type = "image/png") => `data:${type};base64,`
@@ -62,6 +66,7 @@ beforeEach(() => {
   }));
   process.mockReset().mockResolvedValue(result());
   preload.mockReset().mockResolvedValue(undefined);
+  modelLoaded.mockReset().mockReturnValue(false);
   download.mockReset();
 });
 
@@ -256,7 +261,7 @@ describe("image sessions", () => {
 
   it("ignores progress and failures from a previous image", async () => {
     const pending = Promise.withResolvers<ProcessResult>();
-    let reportProgress: ((value: number) => void) | undefined;
+    let reportProgress: ((stage: "download" | "compute", value: number) => void) | undefined;
     process.mockImplementationOnce((_file, _options, progress) => {
       reportProgress = progress;
       return pending.promise;
@@ -266,11 +271,11 @@ describe("image sessions", () => {
     } = session();
     await actions.handleFileUpload(source());
     actions.handleRemoveBackgroundChange(true);
-    reportProgress?.(0.25);
-    expect(state.progressLabel()).toBe("Removing background 25%…");
+    reportProgress?.("download", 0.25);
+    expect(state.progressLabel()).toBe("Downloading model 20%…");
     await actions.handleFileUpload(source());
     await vi.advanceTimersByTimeAsync(400);
-    reportProgress?.(0.9);
+    reportProgress?.("download", 0.9);
     pending.reject(new Error("Old run failed"));
     await vi.advanceTimersByTimeAsync(0);
     expect(state.error()).toBeNull();
@@ -297,7 +302,7 @@ describe("image sessions", () => {
     expect(process).toHaveBeenCalledTimes(1);
   });
 
-  it("processes edits made during an active run after it settles", async () => {
+  it("processes edits immediately while an older run is still pending", async () => {
     const pending = Promise.withResolvers<ProcessResult>();
     process.mockReturnValueOnce(pending.promise);
     const {
@@ -306,15 +311,7 @@ describe("image sessions", () => {
     await actions.handleFileUpload(source());
     await vi.advanceTimersByTimeAsync(400);
     actions.handleWidthInput("600");
-    await vi.advanceTimersByTimeAsync(400);
-    expect(process).toHaveBeenCalledTimes(1);
-    const stale = result("outdated dimensions");
-    pending.resolve(stale);
-    await vi.advanceTimersByTimeAsync(0);
-    expect(state.downloadActive()).toBe(false);
-    expect(vi.mocked(URL.createObjectURL).mock.calls.some(([blob]) => blob === stale.blob)).toBe(
-      false
-    );
+    expect(state.isProcessing()).toBe(false);
     await vi.advanceTimersByTimeAsync(400);
     expect(process).toHaveBeenLastCalledWith(
       expect.any(File),
@@ -322,6 +319,138 @@ describe("image sessions", () => {
       undefined
     );
     expect(state.downloadActive()).toBe(true);
+    expect(state.isProcessing()).toBe(false);
+    const current = state.currentImage();
+    const stale = result("outdated dimensions");
+    pending.resolve(stale);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(state.currentImage()).toBe(current);
+    expect(state.downloadActive()).toBe(true);
+    expect(vi.mocked(URL.createObjectURL).mock.calls.some(([blob]) => blob === stale.blob)).toBe(
+      false
+    );
+  });
+
+  it("responds at once when background removal is turned off during the model download", async () => {
+    const removal = Promise.withResolvers<ProcessResult>();
+    const {
+      result: { actions, state },
+    } = session();
+    await actions.handleFileUpload(source());
+    await vi.advanceTimersByTimeAsync(400);
+    process.mockReturnValueOnce(removal.promise);
+    actions.handleRemoveBackgroundChange(true);
+    expect(state.progressLabel()).toBe("Downloading model…");
+    actions.handleRemoveBackgroundChange(false);
+    expect(state.progressLabel()).toBeNull();
+    expect(state.modelDownloadNotice()).toBeNull();
+    await vi.advanceTimersByTimeAsync(400);
+    expect(state.downloadActive()).toBe(true);
+    expect(state.isProcessing()).toBe(false);
+    removal.resolve(result("transparent"));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(state.downloadActive()).toBe(true);
+    expect(process).toHaveBeenCalledTimes(3);
+  });
+
+  it("processes once and keeps the result when background removal changes the format", async () => {
+    const {
+      result: { actions, state },
+    } = session();
+    await actions.handleFileUpload(jpeg());
+    await vi.advanceTimersByTimeAsync(400);
+    process.mockClear();
+    actions.handleRemoveBackgroundChange(true);
+    await vi.advanceTimersByTimeAsync(0);
+    expect(state.downloadActive()).toBe(true);
+    await vi.advanceTimersByTimeAsync(1000);
+    expect(process).toHaveBeenCalledExactlyOnceWith(
+      expect.any(File),
+      expect.objectContaining({ format: "image/png", removeBackground: true }),
+      expect.any(Function)
+    );
+    expect(state.downloadActive()).toBe(true);
+  });
+
+  it.each([
+    [
+      "choosing PNG",
+      (actions: ReturnType<typeof useImageApp>["actions"]) => {
+        actions.setFormatValue("image/png");
+      },
+    ],
+    [
+      "removing the background",
+      (actions: ReturnType<typeof useImageApp>["actions"]) => {
+        actions.handleRemoveBackgroundChange(true);
+      },
+    ],
+  ])("processes after %s with an empty size target", async (_name, change) => {
+    const {
+      result: { actions, state },
+    } = session();
+    await actions.handleFileUpload(jpeg());
+    await vi.advanceTimersByTimeAsync(400);
+    process.mockClear();
+    actions.setCompressionMode("size");
+    await vi.advanceTimersByTimeAsync(400);
+    expect(process).not.toHaveBeenCalled();
+    change(actions);
+    await vi.advanceTimersByTimeAsync(400);
+    expect(process).toHaveBeenCalledOnce();
+    expect(state.downloadActive()).toBe(true);
+  });
+
+  it("shows a busy state while an upload is prepared", async () => {
+    const preparation = Promise.withResolvers<{ file: File; format: string }>();
+    prepare.mockReturnValueOnce(preparation.promise);
+    const {
+      result: { actions, state },
+    } = session();
+    const file = source();
+    const upload = actions.handleFileUpload(file);
+    expect(state.isProcessing()).toBe(true);
+    expect(state.progressLabel()).toBe("Loading image…");
+    preparation.resolve({ file, format: file.type });
+    await upload;
+    expect(state.isProcessing()).toBe(false);
+    expect(state.progressLabel()).toBeNull();
+  });
+
+  it("clears the busy state when an upload is rejected", async () => {
+    const {
+      result: { actions, state },
+    } = session();
+    await actions.handleFileUpload(new File(["pdf"], "document.pdf", { type: "application/pdf" }));
+    expect(state.isProcessing()).toBe(false);
+    expect(state.progressLabel()).toBeNull();
+  });
+
+  it("keeps typed physical sizes when the DPI changes", async () => {
+    const {
+      result: { actions, state },
+    } = session();
+    await actions.handleFileUpload(source());
+    await vi.advanceTimersByTimeAsync(400);
+    actions.handleDpiChange(300);
+    await vi.advanceTimersByTimeAsync(400);
+    expect(process).toHaveBeenCalledTimes(1);
+    actions.handleUnitChange("in");
+    actions.handleWidthInput("2");
+    await vi.advanceTimersByTimeAsync(400);
+    expect(process).toHaveBeenLastCalledWith(
+      expect.any(File),
+      expect.objectContaining({ resize: expect.objectContaining({ width: 600 }) }),
+      undefined
+    );
+    actions.handleDpiChange(96);
+    expect(state.widthValue()).toBe("2");
+    await vi.advanceTimersByTimeAsync(400);
+    expect(process).toHaveBeenLastCalledWith(
+      expect.any(File),
+      expect.objectContaining({ resize: expect.objectContaining({ width: 192 }) }),
+      undefined
+    );
   });
 
   it.each(["preparation", "metadata"] as const)(
@@ -399,52 +528,63 @@ describe("image sessions", () => {
   });
 });
 
-describe("model preloading", () => {
-  it("waits for idle time and reuses the preload when background removal is toggled", async () => {
+describe("background-removal model", () => {
+  it("loads only after background removal is requested, and only once", async () => {
     const {
       result: { actions },
-      cleanup,
     } = session();
+    await actions.handleFileUpload(source());
+    await vi.advanceTimersByTimeAsync(5000);
     expect(preload).not.toHaveBeenCalled();
-    const idle = vi.mocked(window.requestIdleCallback).mock.calls[0][0];
-    idle({ didTimeout: false, timeRemaining: () => 50 });
-    await vi.advanceTimersByTimeAsync(0);
-    expect(preload).toHaveBeenCalledTimes(1);
     actions.handleRemoveBackgroundChange(true);
     actions.handleRemoveBackgroundChange(false);
     actions.handleRemoveBackgroundChange(true);
     expect(preload).toHaveBeenCalledTimes(1);
-    cleanup();
-    expect(window.cancelIdleCallback).toHaveBeenCalledWith(1);
   });
 
-  it.each([
-    { saveData: true, effectiveType: "4g", downlink: 10 },
-    { saveData: false, effectiveType: "3g", downlink: 10 },
-    { saveData: false, effectiveType: "4g", downlink: 3 },
-  ])("avoids automatic downloads with connection %j", async (connection) => {
-    vi.stubGlobal("navigator", { connection });
-    session();
-    await vi.advanceTimersByTimeAsync(5000);
-    expect(window.requestIdleCallback).not.toHaveBeenCalled();
-    expect(preload).not.toHaveBeenCalled();
+  it("explains the one-time download, its progress, and when removal starts", async () => {
+    const removal = Promise.withResolvers<ProcessResult>();
+    let reportProgress: ((stage: "download" | "compute", value: number) => void) | undefined;
+    const {
+      result: { actions, state },
+    } = session();
+    await actions.handleFileUpload(source());
+    await vi.advanceTimersByTimeAsync(400);
+    process.mockImplementationOnce((_file, _options, progress) => {
+      reportProgress = progress;
+      return removal.promise;
+    });
+    actions.handleRemoveBackgroundChange(true);
+    expect(state.modelDownloadNotice()).toBe(
+      "Downloading the background-removal model (about 100 MB, first time only)…"
+    );
+    await vi.advanceTimersByTimeAsync(0);
+    reportProgress?.("download", 0.47);
+    reportProgress?.("download", 0.49);
+    expect(state.progressLabel()).toBe("Downloading model 40%…");
+    expect(state.modelDownloadNotice()).toBe(
+      "Downloading the background-removal model (about 100 MB, first time only) 40%"
+    );
+    reportProgress?.("compute", 0.25);
+    expect(state.progressLabel()).toBe("Removing background…");
+    expect(state.modelDownloadNotice()).toBe("Model downloaded. Removing background…");
+    removal.resolve(result("transparent"));
+    await vi.advanceTimersByTimeAsync(0);
+    expect(state.modelDownloadNotice()).toBeNull();
+    expect(state.downloadActive()).toBe(true);
   });
 
-  it("uses the fallback delay when idle callbacks and connection information are unavailable", async () => {
-    vi.stubGlobal("requestIdleCallback", undefined);
-    const { cleanup } = session();
-    await vi.advanceTimersByTimeAsync(1999);
-    expect(preload).not.toHaveBeenCalled();
-    await vi.advanceTimersByTimeAsync(1);
-    expect(preload).toHaveBeenCalledTimes(1);
-    cleanup();
-  });
-
-  it("cancels scheduled preloading on unmount", async () => {
-    const { cleanup } = session();
-    cleanup();
-    expect(window.cancelIdleCallback).toHaveBeenCalledWith(1);
-    await vi.advanceTimersByTimeAsync(5000);
-    expect(preload).not.toHaveBeenCalled();
+  it("skips the download notice once the model is loaded", async () => {
+    modelLoaded.mockReturnValue(true);
+    const removal = Promise.withResolvers<ProcessResult>();
+    const {
+      result: { actions, state },
+    } = session();
+    await actions.handleFileUpload(source());
+    await vi.advanceTimersByTimeAsync(400);
+    process.mockReturnValueOnce(removal.promise);
+    actions.handleRemoveBackgroundChange(true);
+    expect(state.progressLabel()).toBe("Removing background…");
+    expect(state.modelDownloadNotice()).toBeNull();
   });
 });

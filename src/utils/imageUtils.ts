@@ -18,10 +18,11 @@ export function createDownloadLink(blob: Blob, filename: string): void {
     throw error;
   }
 
+  // iOS Safari reads the blob after the user confirms the download.
   setTimeout(() => {
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-  }, 100);
+  }, 60_000);
 }
 
 export function formatFileSize(bytes: number): string {

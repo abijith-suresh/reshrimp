@@ -7,7 +7,6 @@ import {
   type JSX,
   on,
   onCleanup,
-  onMount,
   useContext,
 } from "solid-js";
 import { DEFAULT_DPI } from "@/config/constants";
@@ -16,13 +15,16 @@ import {
   getInitialOutputFormat,
   supportsBrowserQualityControl,
 } from "@/config/imageFormats";
-import { preloadBackgroundRemoval } from "@/services/backgroundRemovalService";
+import {
+  BACKGROUND_REMOVAL_DOWNLOAD_BYTES,
+  isBackgroundRemovalModelLoaded,
+  preloadBackgroundRemoval,
+} from "@/services/backgroundRemovalService";
 import { getBestFormat } from "@/services/canvasService";
 import { getImageMetadata, prepareImageFile, processImage } from "@/services/imageService";
 import {
   buildProcessOptions,
   formatResizeValue,
-  getDimensionValuesForDpiChange,
   getFormatStateForBackgroundRemoval,
   getLinkedDimensionValues,
   parseTargetFileSizeKilobytes,
@@ -58,42 +60,6 @@ function createDebouncedTask(fn: () => void, ms: number) {
   };
 }
 
-type NetworkInformation = {
-  saveData?: boolean;
-  effectiveType?: string;
-  downlink?: number;
-};
-
-type IdleWindow = Window & {
-  requestIdleCallback?: (callback: () => void, options?: { timeout: number }) => number;
-  cancelIdleCallback?: (handle: number) => void;
-};
-
-const PRELOAD_FALLBACK_DELAY_MS = 2000;
-
-function scheduleBackgroundRemovalPreload(callback: () => void): () => void {
-  const network = (navigator as Navigator & { connection?: NetworkInformation }).connection;
-  // Skip automatic model downloads on slow connections or when data saving is enabled.
-  if (
-    network?.saveData ||
-    (network?.effectiveType !== undefined && network.effectiveType !== "4g") ||
-    (network?.downlink !== undefined && network.downlink < 8)
-  ) {
-    return () => {};
-  }
-
-  const idleWindow = window as IdleWindow;
-  if (idleWindow.requestIdleCallback) {
-    const handle = idleWindow.requestIdleCallback(callback, {
-      timeout: PRELOAD_FALLBACK_DELAY_MS,
-    });
-    return () => idleWindow.cancelIdleCallback?.(handle);
-  }
-
-  const timeout = window.setTimeout(callback, PRELOAD_FALLBACK_DELAY_MS);
-  return () => window.clearTimeout(timeout);
-}
-
 const ImageAppContext = createContext<ImageAppContextValue>();
 
 export function ImageAppProvider(props: { children: JSX.Element }) {
@@ -112,13 +78,11 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   let uploadRequestId = 0;
   let disposed = false;
   let processingRevision = 0;
-  // Process edits made during an active run after that run completes.
-  let pendingReprocess = false;
   let preloadRequested = false;
-  let cancelScheduledPreload: (() => void) | undefined;
 
   const [isProcessing, setIsProcessing] = createSignal(false);
   const [progressLabel, setProgressLabel] = createSignal<string | null>(null);
+  const [modelDownloadNotice, setModelDownloadNotice] = createSignal<string | null>(null);
 
   const [error, setError] = createSignal<string | null>(null);
   const [validation, setValidation] = createSignal<ValidationResult | null>(null);
@@ -143,8 +107,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
   onCleanup(() => {
     disposed = true;
-    cancelScheduledPreload?.();
-    cancelScheduledPreload = undefined;
     debouncedProcess.cancel();
     pendingPreviewAbort?.abort();
     pendingPreviewAbort = null;
@@ -154,17 +116,52 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   function warmBackgroundRemoval(): void {
     if (preloadRequested) return;
     preloadRequested = true;
-    cancelScheduledPreload?.();
-    cancelScheduledPreload = undefined;
     void preloadBackgroundRemoval().catch(() => {
       // The processing path can retry with a fresh library initialization key.
       preloadRequested = false;
     });
   }
 
-  onMount(() => {
-    cancelScheduledPreload = scheduleBackgroundRemovalPreload(warmBackgroundRemoval);
-  });
+  function clearProgress(): void {
+    batch(() => {
+      setIsProcessing(false);
+      setProgressLabel(null);
+      setModelDownloadNotice(null);
+    });
+  }
+
+  // Background-removal results are shared by every run of one image, so any
+  // progress from this image describes the work the active run is waiting on.
+  function showBackgroundRemovalProgress(
+    session: number,
+    stage: "download" | "compute",
+    progress: number
+  ): void {
+    if (disposed || sessionId() !== session || activeRunId === null || !removeBackground()) {
+      return;
+    }
+    if (stage === "download") {
+      showModelDownload(Math.floor(progress * 10) * 10);
+      return;
+    }
+    batch(() => {
+      setProgressLabel("Removing background\u2026");
+      if (modelDownloadNotice() !== null) {
+        setModelDownloadNotice("Model downloaded. Removing background\u2026");
+      }
+    });
+  }
+
+  function showModelDownload(percent: number | null): void {
+    const size = Math.round(BACKGROUND_REMOVAL_DOWNLOAD_BYTES / 1_000_000);
+    const suffix = percent === null ? "\u2026" : ` ${percent}%`;
+    batch(() => {
+      setProgressLabel(`Downloading model${percent === null ? "" : ` ${percent}%`}\u2026`);
+      setModelDownloadNotice(
+        `Downloading the background-removal model (about ${size} MB, first time only)${suffix}`
+      );
+    });
+  }
 
   const controlsActive = createMemo(() => currentImage() !== null);
   const formatSelectDisabled = createMemo(() => removeBackground());
@@ -250,11 +247,6 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     const img = currentImage();
     if (!img) return;
 
-    if (activeRunSession !== null) {
-      pendingReprocess = true;
-      return;
-    }
-
     const session = sessionId();
     const runId = ++nextRunId;
     const runRevision = processingRevision;
@@ -287,10 +279,13 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       setProcessResult(null);
       setIsProcessing(true);
       setProgressLabel("Updating preview\u2026");
+      setModelDownloadNotice(null);
       setError(null);
     });
 
-    if (options.removeBackground) {
+    if (options.removeBackground && !isBackgroundRemovalModelLoaded()) {
+      showModelDownload(null);
+    } else if (options.removeBackground) {
       setProgressLabel("Removing background\u2026");
     } else if (options.targetFileSizeBytes !== undefined) {
       setProgressLabel("Adjusting quality for size target\u2026");
@@ -303,11 +298,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         img.file,
         options,
         options.removeBackground
-          ? (progress: number) => {
-              if (!isCurrentRun()) return;
-              const pct = Math.round(progress * 100);
-              setProgressLabel(`Removing background ${pct}%\u2026`);
-            }
+          ? (stage, progress) => showBackgroundRemovalProgress(session, stage, progress)
           : undefined
       );
 
@@ -344,16 +335,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       const ownsRun = activeRunSession === session && activeRunId === runId;
       if (ownsRun) activeRunSession = null;
       if (ownsRun) activeRunId = null;
-      if (ownsRun && !disposed) {
-        batch(() => {
-          setIsProcessing(false);
-          setProgressLabel(null);
-        });
-        if (pendingReprocess) {
-          pendingReprocess = false;
-          debouncedProcess.run();
-        }
-      }
+      if (ownsRun && !disposed) clearProgress();
     }
   }
 
@@ -371,7 +353,8 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         () =>
           qualityControlSupported() && compressionMode() === "size" ? targetFileSizeValue() : null,
         resizeUnit,
-        dpiValue,
+        // DPI only affects physical units.
+        () => (resizeUnit() === "in" || resizeUnit() === "cm" ? dpiValue() : null),
         maintainAspectRatio,
         removeBackground,
       ],
@@ -381,21 +364,32 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
         processingRevision += 1;
 
+        // Edits must not wait for an outdated run. Its result is discarded.
+        activeRunSession = null;
+        activeRunId = null;
         pendingPreviewAbort?.abort();
         pendingPreviewAbort = null;
-        setProcessResult(null);
+        batch(() => {
+          setProcessResult(null);
+          clearProgress();
+        });
 
         if (targetFileSizeInputInvalid()) {
           debouncedProcess.cancel();
           return;
         }
 
-        if (compressionMode() === "size" && !targetFileSizeValue().trim()) {
+        if (
+          qualityControlSupported() &&
+          compressionMode() === "size" &&
+          !targetFileSizeValue().trim()
+        ) {
           debouncedProcess.cancel();
           return;
         }
 
         if (removeBackground()) {
+          debouncedProcess.cancel();
           void handleProcess();
           return;
         }
@@ -408,6 +402,11 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
 
   async function handleFileUpload(file: File): Promise<void> {
     const requestId = ++uploadRequestId;
+    batch(() => {
+      setIsProcessing(true);
+      setProgressLabel("Loading image\u2026");
+      setModelDownloadNotice(null);
+    });
 
     try {
       const validationResult = await validateImageFile(file);
@@ -458,18 +457,16 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
         pendingPreviewAbort?.abort();
         pendingPreviewAbort = null;
         debouncedProcess.cancel();
-        setIsProcessing(false);
+        clearProgress();
         setCurrentImage((previousImage) => {
           revokeImageSessionUrls(previousImage);
           return processedImage;
         });
         // The new session starts its own processing run.
-        pendingReprocess = false;
         setSessionId((id) => id + 1);
         setProcessResult(null);
         setLastCompletedResult(null);
         setError(null);
-        setProgressLabel(null);
         setTargetFileSizeValue("");
 
         setWidthValue(String(metadata.width));
@@ -488,6 +485,9 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       if (!disposed && requestId === uploadRequestId) {
         setError("Failed to load image. Please try another file.");
       }
+    } finally {
+      // A failed upload leaves an earlier image's active run in place.
+      if (!disposed && requestId === uploadRequestId && activeRunId === null) clearProgress();
     }
   }
 
@@ -513,9 +513,11 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       previousFormatValue: previousFormatValue(),
     });
 
-    setPreviousFormatValue(nextFormatState.previousFormatValue);
-    setFormatValue(nextFormatState.formatValue);
-    setRemoveBackground(checked);
+    batch(() => {
+      setPreviousFormatValue(nextFormatState.previousFormatValue);
+      setFormatValue(nextFormatState.formatValue);
+      setRemoveBackground(checked);
+    });
 
     if (checked) warmBackgroundRemoval();
   }
@@ -523,42 +525,28 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
   function handleUnitChange(newUnit: ResizeUnit): void {
     const img = currentImage();
 
-    if (img) {
-      const nextDimensions = rebaseDimensionValues({
-        widthValue: widthValue(),
-        heightValue: heightValue(),
-        oldUnit: resizeUnit(),
-        newUnit,
-        originalWidth: img.metadata.width,
-        originalHeight: img.metadata.height,
-        dpi: dpiValue(),
-      });
+    batch(() => {
+      if (img) {
+        const nextDimensions = rebaseDimensionValues({
+          widthValue: widthValue(),
+          heightValue: heightValue(),
+          oldUnit: resizeUnit(),
+          newUnit,
+          originalWidth: img.metadata.width,
+          originalHeight: img.metadata.height,
+          dpi: dpiValue(),
+        });
 
-      setWidthValue(nextDimensions.widthValue);
-      setHeightValue(nextDimensions.heightValue);
-    }
+        setWidthValue(nextDimensions.widthValue);
+        setHeightValue(nextDimensions.heightValue);
+      }
 
-    setResizeUnit(newUnit);
+      setResizeUnit(newUnit);
+    });
   }
 
   function handleDpiChange(newDpi: number): void {
-    const img = currentImage();
-
-    if (img) {
-      const nextDimensions = getDimensionValuesForDpiChange({
-        widthValue: widthValue(),
-        heightValue: heightValue(),
-        resizeUnit: resizeUnit(),
-        originalWidth: img.metadata.width,
-        originalHeight: img.metadata.height,
-        previousDpi: dpiValue(),
-        nextDpi: newDpi,
-      });
-
-      setWidthValue(nextDimensions.widthValue);
-      setHeightValue(nextDimensions.heightValue);
-    }
-
+    // Typed physical sizes stay as entered; the pixel result follows the DPI.
     setDpiValue(newDpi);
   }
 
@@ -582,8 +570,10 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
       return;
     }
 
-    setWidthValue(linkedDimensions.widthValue);
-    setHeightValue(linkedDimensions.heightValue);
+    batch(() => {
+      setWidthValue(linkedDimensions.widthValue);
+      setHeightValue(linkedDimensions.heightValue);
+    });
   }
 
   const handleWidthInput = (val: string) => handleDimensionInput("width", val);
@@ -606,6 +596,7 @@ export function ImageAppProvider(props: { children: JSX.Element }) {
     lastCompletedResult,
     isProcessing,
     progressLabel,
+    modelDownloadNotice,
     error,
     validation,
     isDragOver,

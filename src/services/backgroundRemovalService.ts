@@ -11,10 +11,31 @@ type BackgroundRemovalConfig = {
   publicPath: string;
   device: "cpu";
   fetchArgs?: RequestInit;
-  progress?: (key: string, current: number, total: number) => void;
+  progress: (key: string, current: number, total: number) => void;
 };
 
+// Model plus runtime files listed in scripts/background-removal-resources.json.
+export const BACKGROUND_REMOVAL_DOWNLOAD_BYTES = 99_998_062;
+
 let initializationRetryAttempt = 0;
+let modelLoaded = false;
+let progressListener: BackgroundRemovalProgressCallback | undefined;
+const downloadedBytes = new Map<string, number>();
+
+// The library memoizes initialization by config without its functions, so the
+// first caller's progress callback receives every later event. Route events
+// through one stable function to whichever run is currently listening.
+function reportProgress(key: string, current: number, total: number): void {
+  if (total === 0) return;
+  if (key.startsWith("fetch:")) {
+    downloadedBytes.set(key, current);
+    let downloaded = 0;
+    for (const bytes of downloadedBytes.values()) downloaded += bytes;
+    progressListener?.("download", Math.min(downloaded / BACKGROUND_REMOVAL_DOWNLOAD_BYTES, 1));
+    return;
+  }
+  progressListener?.("compute", Math.min(current / total, 1));
+}
 
 function getBackgroundRemovalConfig(): BackgroundRemovalConfig {
   return {
@@ -30,11 +51,13 @@ function getBackgroundRemovalConfig(): BackgroundRemovalConfig {
           },
         }
       : {}),
+    progress: reportProgress,
   };
 }
 
 function advanceInitializationRetry(): void {
   initializationRetryAttempt += 1;
+  downloadedBytes.clear();
 }
 
 function loadBackgroundRemovalModule() {
@@ -46,15 +69,30 @@ function loadBackgroundRemovalModule() {
   return backgroundRemovalModulePromise;
 }
 
-// Call during idle time to load the runtime and model.
-export async function preloadBackgroundRemoval(): Promise<void> {
-  const { preload } = await loadBackgroundRemovalModule();
+async function initialize(): Promise<typeof import("@imgly/background-removal")> {
+  let library: typeof import("@imgly/background-removal");
   try {
-    await preload(getBackgroundRemovalConfig());
+    library = await loadBackgroundRemovalModule();
+    await library.preload(getBackgroundRemovalConfig());
   } catch (error) {
+    // A new model cache key lets the next attempt retry initialization.
     advanceInitializationRetry();
-    throw error;
+    throw new Error(
+      "Could not download the background-removal model. Check your connection and try again.",
+      { cause: error }
+    );
   }
+  modelLoaded = true;
+  return library;
+}
+
+export function isBackgroundRemovalModelLoaded(): boolean {
+  return modelLoaded;
+}
+
+// Starts loading the runtime and model.
+export async function preloadBackgroundRemoval(): Promise<void> {
+  await initialize();
 }
 
 // Progress values range from 0 to 1. The output is a transparent PNG.
@@ -62,24 +100,7 @@ export async function removeBackground(
   imageFile: File,
   onProgress?: BackgroundRemovalProgressCallback
 ): Promise<Blob> {
-  const config = getBackgroundRemovalConfig();
-
-  if (onProgress) {
-    config.progress = (_key: string, current: number, total: number) => {
-      if (total === 0) return;
-      const progress = Math.min(current / total, 1);
-      onProgress(progress);
-    };
-  }
-
-  const { preload, removeBackground: imglyRemoveBackground } = await loadBackgroundRemovalModule();
-  try {
-    // Only initialization failures require a new model cache key.
-    await preload(config);
-  } catch (error) {
-    advanceInitializationRetry();
-    throw error;
-  }
-
-  return imglyRemoveBackground(imageFile, config);
+  progressListener = onProgress;
+  const { removeBackground: imglyRemoveBackground } = await initialize();
+  return imglyRemoveBackground(imageFile, getBackgroundRemovalConfig());
 }
