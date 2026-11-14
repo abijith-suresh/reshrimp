@@ -4,7 +4,7 @@ import {
   MAX_TOTAL_PIXELS,
   RECOMMENDED_MAX_SIZE,
 } from "../config/constants";
-import { getSupportedImageFormatSummary, isAcceptedInputFormat } from "../config/imageFormats";
+import { isAcceptedInputFormat } from "../config/imageFormats";
 import type { ImageFormat, ImageMetadata, ValidationResult } from "../types/image";
 import { formatFileSize } from "../utils/imageUtils";
 import { isHeicBlob } from "./formatDetectionService";
@@ -15,27 +15,27 @@ export async function validateImageFile(file: File): Promise<ValidationResult> {
     if (!(await isHeicBlob(file))) {
       return {
         valid: false,
-        error: "File must be an image",
+        error: "That file is not an image. Choose a JPEG, PNG, WebP, AVIF, or HEIC file.",
       };
     }
   } else if (!isAcceptedInputFormat(file.type)) {
     return {
       valid: false,
-      error: `Unsupported image format: ${file.type}. Supported formats: ${getSupportedImageFormatSummary()}`,
+      error: "Reshrimp cannot open this kind of file. Use JPEG, PNG, WebP, AVIF, or HEIC.",
     };
   }
 
   if (file.size > MAX_FILE_SIZE) {
     return {
       valid: false,
-      error: `File size (${formatFileSize(file.size)}) exceeds maximum limit of ${formatFileSize(MAX_FILE_SIZE)}`,
+      error: `This file is ${formatFileSize(file.size)}. The limit is ${formatFileSize(MAX_FILE_SIZE)}. Choose a smaller file.`,
     };
   }
 
   return file.size > RECOMMENDED_MAX_SIZE
     ? {
         valid: true,
-        warning: `Large file detected (${formatFileSize(file.size)}). Processing may be slow.`,
+        warning: `This is a large file (${formatFileSize(file.size)}), so each change may take a few seconds.`,
       }
     : {
         valid: true,
@@ -48,14 +48,14 @@ export function validateImageDimensions(
   if (metadata.width > MAX_PIXEL_DIMENSION || metadata.height > MAX_PIXEL_DIMENSION) {
     return {
       valid: false,
-      error: `Image dimensions (${metadata.width}×${metadata.height}) exceed the maximum of ${MAX_PIXEL_DIMENSION}px per side`,
+      error: `This image is ${metadata.width} × ${metadata.height} px. Reshrimp opens images up to ${MAX_PIXEL_DIMENSION.toLocaleString()} px per side. Make it smaller in another app, then choose it again.`,
     };
   }
 
   if (metadata.width * metadata.height > MAX_TOTAL_PIXELS) {
     return {
       valid: false,
-      error: `Image dimensions (${metadata.width}×${metadata.height}) exceed the maximum pixel budget of ${MAX_TOTAL_PIXELS.toLocaleString()} pixels`,
+      error: `This image is ${metadata.width} × ${metadata.height} px (${Math.ceil((metadata.width * metadata.height) / 100_000) / 10} megapixels). Reshrimp opens images up to ${MAX_TOTAL_PIXELS / 1_000_000} megapixels. Make it smaller in another app, then choose it again.`,
     };
   }
 

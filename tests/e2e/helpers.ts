@@ -63,7 +63,7 @@ export { expect };
 
 export async function openImageControls(page: Page) {
   await expect(page.getByAltText("Preview")).toBeVisible();
-  const edit = page.getByRole("button", { name: "Edit image", exact: true });
+  const edit = page.getByRole("button", { name: "Settings", exact: true });
   if (await edit.isVisible()) await edit.click();
 }
 
@@ -71,7 +71,7 @@ export async function uploadImage(page: Page, file = imagePath) {
   // The empty state takes the first image; the Source card replaces it.
   const emptyStateUpload = page.getByRole("button", { name: "Choose an image or drop it here" });
   const sourceUpload = page.getByRole("button", { name: "Replace image or drop one here" });
-  const edit = page.getByRole("button", { name: "Edit image", exact: true });
+  const edit = page.getByRole("button", { name: "Settings", exact: true });
   await expect(emptyStateUpload.or(sourceUpload).or(edit)).toBeVisible();
   if (await edit.isVisible()) await openImageControls(page);
   const fileChooser = page.waitForEvent("filechooser");

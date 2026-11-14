@@ -35,7 +35,7 @@ test("runs background removal with same-origin assets and exports a transparent 
     await assetsReleased.promise;
     await route.continue();
   });
-  const removeBackground = page.getByRole("checkbox", { name: "Remove bg", exact: true });
+  const removeBackground = page.getByRole("checkbox", { name: "Remove background", exact: true });
   await removeBackground.focus();
   await removeBackground.press("Space");
   await expect(removeBackground).toBeChecked();

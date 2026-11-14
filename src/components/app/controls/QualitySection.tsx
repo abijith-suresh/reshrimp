@@ -89,16 +89,14 @@ export default function QualitySection(props: QualitySectionProps) {
                   when={!state.qualityControlSupported()}
                   fallback="Higher quality usually creates a larger file."
                 >
-                  <Show
-                    when={state.removeBackground()}
-                    fallback="Choose JPEG, WebP, or AVIF to adjust quality."
-                  >
-                    Turn off background removal to adjust quality. PNG stays lossless.
+                  <Show when={state.removeBackground()} fallback="Choose JPEG to adjust quality.">
+                    Turn off background removal to adjust quality. PNG files have no quality
+                    setting.
                   </Show>
                 </Show>
               }
             >
-              Upload an image to adjust output quality.
+              Choose an image to adjust output quality.
             </Show>
           </p>
         </div>
@@ -110,7 +108,7 @@ export default function QualitySection(props: QualitySectionProps) {
         >
           <div class="flex min-h-11 items-center justify-between gap-3">
             <label for={targetFileSizeId} class="text-sm font-medium text-fg">
-              Maximum file size (KB)
+              Max file size (KB)
             </label>
             <input
               id={targetFileSizeId}
@@ -133,25 +131,26 @@ export default function QualitySection(props: QualitySectionProps) {
                   when={!state.qualityControlSupported()}
                   fallback={
                     state.targetFileSizeValue().trim() === ""
-                      ? "Enter a size to let Reshrimp adjust quality automatically."
-                      : "Best effort. Quality adjusts automatically to try to stay within this size."
+                      ? "Enter a size in KB. Lowers quality to fit. Does not change the pixel size."
+                      : "Best effort. Lowers quality to fit. Does not change the pixel size."
                   }
                 >
                   <Show
                     when={state.removeBackground()}
-                    fallback="Choose JPEG, WebP, or AVIF to set a size target. PNG stays lossless."
+                    fallback="Choose JPEG to set a max file size. PNG files cannot be shrunk this way."
                   >
-                    Turn off background removal to target a size. PNG stays lossless.
+                    Turn off background removal to set a max file size. PNG files cannot be shrunk
+                    this way.
                   </Show>
                 </Show>
               }
             >
-              Upload an image to set a size target.
+              Choose an image to set a max file size.
             </Show>
           </p>
           <Show when={state.targetFileSizeInputInvalid()}>
             <p id={`${targetFileSizeId}-error`} role="alert" class="text-xs text-danger">
-              Enter a size greater than 0 KB.
+              Enter a number above 0, in KB. For example, 50.
             </p>
           </Show>
           <Show when={state.targetFileSizeNotice()}>

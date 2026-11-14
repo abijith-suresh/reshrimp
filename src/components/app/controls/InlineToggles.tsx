@@ -17,7 +17,7 @@ export default function InlineToggles(props: InlineTogglesProps) {
       <Show when={props.showAspectRatio ?? true}>
         <Checkbox
           id={`${prefix}maintain-aspect-ratio`}
-          label="Lock ratio"
+          label="Keep aspect ratio"
           checked={state.maintainAspectRatio()}
           onChange={actions.handleAspectRatioChange}
           disabled={!state.controlsActive()}
@@ -27,7 +27,7 @@ export default function InlineToggles(props: InlineTogglesProps) {
         <div class="flex flex-col items-start gap-1.5">
           <Checkbox
             id={`${prefix}remove-background-checkbox`}
-            label="Remove bg"
+            label="Remove background"
             checked={state.removeBackground()}
             onChange={actions.handleRemoveBackgroundChange}
             disabled={!state.controlsActive()}
@@ -35,7 +35,7 @@ export default function InlineToggles(props: InlineTogglesProps) {
           <Show when={state.removeBackground()}>
             <p class={state.modelDownloadNotice() ? "text-xs text-fg" : "text-xs text-fg-muted"}>
               {state.modelDownloadNotice() ??
-                "Exports PNG to keep transparency. The first run loads the model."}
+                "Saves as PNG to keep transparency. The first use downloads about 100 MB and can take a minute."}
             </p>
           </Show>
         </div>

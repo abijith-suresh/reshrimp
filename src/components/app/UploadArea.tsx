@@ -44,7 +44,7 @@ export default function UploadArea(props: UploadAreaProps) {
         onKeyDown={handleKeyDown}
       >
         <label for={fileInputId} class="sr-only">
-          Upload image
+          Replace image
         </label>
         <input
           ref={(el) => {

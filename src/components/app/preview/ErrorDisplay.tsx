@@ -13,7 +13,7 @@ export default function ErrorDisplay(props: ErrorDisplayProps) {
       <div class="flex gap-3">
         <CircleAlert class="mt-0.5 size-4 shrink-0 text-danger" aria-hidden="true" />
         <div>
-          <h3 class="mb-0.5 text-sm font-semibold text-danger">Processing error</h3>
+          <h3 class="mb-0.5 text-sm font-semibold text-danger">Something went wrong</h3>
           <p class="text-xs text-danger">{props.message}</p>
         </div>
       </div>

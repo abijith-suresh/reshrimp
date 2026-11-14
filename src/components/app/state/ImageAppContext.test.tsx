@@ -522,7 +522,7 @@ describe("image sessions", () => {
     actions.setFormatValue("image/webp");
     expect(state.qualityControlSupported()).toBe(false);
     await vi.advanceTimersByTimeAsync(400);
-    expect(state.formatNotice()).toContain("could not export WebP");
+    expect(state.formatNotice()).toContain("cannot save WebP");
     actions.handleDownload();
     expect(download).toHaveBeenCalledWith(fallback.blob, "photo-processed.png");
   });

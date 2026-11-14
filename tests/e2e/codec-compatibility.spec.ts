@@ -42,9 +42,7 @@ test("exports WebP when the encoder supports it, otherwise names the PNG fallbac
   });
   expect(output.name).toBe(`landmarks-processed.${canEncodeWebp ? "webp" : "png"}`);
   if (!canEncodeWebp) {
-    await expect(
-      page.getByRole("status").filter({ hasText: "could not export WebP" })
-    ).toBeVisible();
+    await expect(page.getByRole("status").filter({ hasText: "cannot save WebP" })).toBeVisible();
   }
 });
 

@@ -15,7 +15,7 @@ it("applies linked dimensions and enables download after processing", async () =
   // jsdom displays both panels. Select the desktop controls for this test.
   const controls = within(view.container.querySelector("[data-app-shell]") as HTMLElement);
   await user.upload(
-    controls.getByLabelText("Upload image", { exact: true }),
+    controls.getByLabelText("Choose an image", { exact: true }),
     new File(["source"], "photo.png", { type: "image/png" })
   );
   await vi.advanceTimersByTimeAsync(400);

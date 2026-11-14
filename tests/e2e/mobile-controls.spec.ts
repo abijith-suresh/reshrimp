@@ -16,11 +16,11 @@ test("keeps focus in mobile controls and returns focus after closing the dialog"
 }) => {
   await page.goto("/app");
   await uploadImage(page);
-  const edit = page.getByRole("button", { name: "Edit image", exact: true });
+  const edit = page.getByRole("button", { name: "Settings", exact: true });
   await expect(edit).toBeVisible();
   await expect(page.getByRole("textbox", { name: "Width", exact: true })).toHaveCount(0);
   await edit.click();
-  const dialog = page.getByRole("dialog", { name: "Image controls" });
+  const dialog = page.getByRole("dialog", { name: "Settings" });
   const done = dialog.getByRole("button", { name: "Done", exact: true });
   await expect(dialog).toBeFocused();
   await expect(dialog.getByRole("button", { name: "Download", exact: true })).toBeEnabled();
@@ -29,10 +29,12 @@ test("keeps focus in mobile controls and returns focus after closing the dialog"
   await page.keyboard.press("Tab");
   await expect(done).toBeFocused();
 
-  const unit = dialog.getByRole("combobox", { name: "Unit: px", exact: true });
+  const unit = dialog.getByRole("combobox", { name: "Unit", exact: true });
   await unit.focus();
   await page.keyboard.press("Tab");
-  await expect(dialog.getByRole("checkbox", { name: "Lock ratio", exact: true })).toBeFocused();
+  await expect(
+    dialog.getByRole("checkbox", { name: "Keep aspect ratio", exact: true })
+  ).toBeFocused();
   await page.keyboard.press("Escape");
   await expect(dialog).toHaveCount(0);
   await expect(edit).toBeFocused();
@@ -44,12 +46,12 @@ test("converts physical dimensions, keeps DPI help in the dialog, and downloads 
   await page.goto("/app");
   await uploadImage(page);
   await openImageControls(page);
-  const dialog = page.getByRole("dialog", { name: "Image controls" });
-  await dialog.getByRole("combobox", { name: "Unit: px", exact: true }).selectOption("in");
-  await dialog
-    .getByRole("combobox", { name: "Resolution: 96 DPI", exact: true })
-    .selectOption("300");
-  await expect(dialog.getByText("96 for screens, 300 for print.")).toBeVisible();
+  const dialog = page.getByRole("dialog", { name: "Settings" });
+  await dialog.getByRole("combobox", { name: "Unit", exact: true }).selectOption("in");
+  await dialog.getByRole("combobox", { name: "DPI", exact: true }).selectOption("300");
+  await expect(
+    dialog.getByText("Converts inches and cm to pixels. Not saved in the file.")
+  ).toBeVisible();
   await expect(dialog).toBeVisible();
 
   await dialog.getByRole("textbox", { name: "Width", exact: true }).fill("1");
@@ -63,14 +65,14 @@ test("moves focus to visible desktop controls when the viewport grows", async ({
   await page.goto("/app");
   await uploadImage(page);
   await openImageControls(page);
-  const dialog = page.getByRole("dialog", { name: "Image controls" });
-  const unit = dialog.getByRole("combobox", { name: "Unit: px", exact: true });
+  const dialog = page.getByRole("dialog", { name: "Settings" });
+  const unit = dialog.getByRole("combobox", { name: "Unit", exact: true });
   await unit.focus();
   await page.setViewportSize({ width: 1200, height: 800 });
   await expect(page.getByRole("dialog")).toHaveCount(0);
   await expect(page.getByRole("textbox", { name: "Width", exact: true })).toBeFocused();
   await page.setViewportSize({ width: 393, height: 851 });
-  await expect(page.getByRole("button", { name: "Edit image", exact: true })).toBeFocused();
+  await expect(page.getByRole("button", { name: "Settings", exact: true })).toBeFocused();
 });
 
 test("shows processing errors in the sheet beside Download and keeps the preview above it", async ({
@@ -79,7 +81,7 @@ test("shows processing errors in the sheet beside Download and keeps the preview
   await page.goto("/app");
   await uploadImage(page);
   await openImageControls(page);
-  const dialog = page.getByRole("dialog", { name: "Image controls" });
+  const dialog = page.getByRole("dialog", { name: "Settings" });
   // The preview frame, not the image, so the check holds for any aspect ratio.
   const previewFrame = page.getByAltText("Preview").locator("xpath=../..");
   const bottom = async (locator: typeof dialog) => {
@@ -99,7 +101,7 @@ test("shows processing errors in the sheet beside Download and keeps the preview
   await expect(openError).toBeInViewport();
 
   await dialog.getByRole("button", { name: "Done", exact: true }).click();
-  const sheet = page.getByRole("region", { name: "Image controls" });
+  const sheet = page.getByRole("region", { name: "Settings" });
   const peekError = sheet.getByRole("alert");
   await expect(peekError).toBeInViewport({ ratio: 1 });
   await expect(page.getByRole("alert").filter({ visible: true })).toHaveCount(1);
