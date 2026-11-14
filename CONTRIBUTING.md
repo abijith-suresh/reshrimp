@@ -1,189 +1,74 @@
 # Contributing
 
-This document describes the development workflow for Reshrimp.
+Bug reports and issues are welcome. For a code change, open an issue first so the approach is agreed before you write it.
 
-## Before You Start
-
-Read these documents first:
-
-- `AGENTS.md` for what the product is and where each fact lives
-- § Gotchas below for the rules that are easy to break
-
-Do not expand product scope unless § The Project in `AGENTS.md` is updated first.
+Read `AGENTS.md` first for what the product is. Reshrimp handles one image at a time, in the browser. Batch and editor flows, server-side processing, accounts, ads, and analytics are out of scope.
 
 ## Setup
 
-`mise.toml` is the source of truth for the Bun and Node versions. The `packageManager` field in `package.json` repeats the Bun version and must match it. Install the pinned versions with [mise](https://mise.jdx.dev), then install dependencies from the repository root.
+`mise.toml` pins the Bun and Node versions, and the `packageManager` field in `package.json` must match its Bun version.
 
 ```bash
 mise install
-mise exec -- bun install --frozen-lockfile
-```
-
-The commands below assume mise is activated in your shell; otherwise prefix them with `mise exec --`. The Git hooks run through `mise exec`, so they use the pinned versions either way.
-
-## Commands
-
-```bash
+bun install --frozen-lockfile
 bun run dev
-bun run type-check
-bun run lint
-bun run format:check
-bun run test
-bun run build
-bun run verify
-bun run test:e2e
-bun run test:e2e:build
 ```
 
-Run `bun run verify` before pushing. Run `bun run test:e2e:build` for browser validation as well: it builds the app and then runs the browser tests. `bun run test:e2e` runs the browser tests alone against the existing build, matching what CI does after its build step.
+The first `bun run dev` or `bun run build` downloads about 100 MB of background-removal model files into `public/background-removal/`, so it needs network access. Run the commands below with `mise exec --` if mise is not activated in your shell.
 
-Pull request CI calls the pinned central CI workflow (type checking, linting, formatting, unit tests, build, and the Playwright browser suite) and the pinned central dependency review workflow, and reports both through the required `gate` check. The central CI workflow installs dependencies, then runs `type-check`, `lint`, `format:check`, `test`, `build`, and `test:e2e`. It does not run `test:coverage` or `test:asset-sync`; those run only in `bun run verify`, which the `pre-push` hook runs on your machine. Pull request titles, Dependabot auto-merge, and releases also call pinned central workflows.
+## Checks
 
-Background-removal assets are mirrored before `dev` and `build` through the configured package scripts. If assets are missing locally, that step needs network access.
+| Command                  | What it does                                                                                            |
+| ------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `bun run verify`         | Type check, lint, format check, unit tests with coverage, asset-sync tests, and build. Run before push. |
+| `bun run test:e2e:build` | Build, then run the Playwright browser tests.                                                           |
+| `bun run format`         | Fix formatting (Biome).                                                                                 |
 
-## Workflow
+The `pre-push` hook runs `bun run verify`. CI runs the same checks except coverage and the asset-sync tests, then adds the browser tests. Install the browsers once with `bunx playwright install chromium firefox webkit`.
 
-1. Start from the latest `main`.
-2. Create a focused branch.
-3. Make the smallest correct change.
-4. Keep public copy, product truth, and implementation aligned.
-5. Run `bun run verify` and `bun run test:e2e:build` before push. Add focused tests for the behavior you touched.
-6. Open one focused pull request.
-7. Stop and wait for review or merge feedback before starting unrelated work.
+Add a focused test for the behavior you change, at the layer that can catch the bug:
 
-Never commit straight to `main`. Squash merge pull requests.
+| Layer      | Location                                                |
+| ---------- | ------------------------------------------------------- |
+| Service    | Beside each module in `src/`                            |
+| Context    | `src/components/app/state/`                             |
+| Component  | Beside each component in `src/`                         |
+| Browser    | `tests/e2e/` (image output, metadata removal, requests) |
+| Asset sync | `scripts/sync-background-removal-assets.test.mjs`       |
 
-## Branches
+Do not lower the coverage thresholds to remove a test.
 
-Use kebab-case branch names with a conventional prefix.
+## Making a change
 
-Examples:
+1. Branch from the latest `main` with a kebab-case name and a type prefix, such as `fix/background-removal-progress`.
+2. Keep the change small and focused. Do not commit to `main`.
+3. Use Conventional Commits for commits and for the PR title, for example `fix: keep png transparency after background removal`. The allowed types are in `commitlint.config.ts`, and the header is at most 72 characters. Pull requests are squash merged, so the title becomes the commit.
+4. Run `bun run verify` and open one pull request.
 
-- `feat/target-file-size-export`
-- `fix/background-removal-progress`
-- `docs/refresh-product-copy`
-- `refactor/simplify-image-workflow`
-- `chore/prune-stale-branches`
+Releases are automated from the commit messages.
 
-## Commits And Pull Requests
+## Rules that break the product
 
-Use Conventional Commits for commits and PR titles. The allowed types and header rules live in commitlint.config.ts.
+- Canvas re-encoding is the privacy boundary. EXIF, GPS, and other metadata must not survive into an output.
+- Image bytes never leave the browser. No uploads, beacons, or error reports that contain image content.
+- Revoke object URLs when they are replaced, when a new file loads, when the app unmounts, and on a processing error.
+- Load background removal and HEIC decoding lazily. They must not enter the initial bundle.
+- Serve the background-removal model and runtime from the app origin (the origin-pinned `publicPath`, mirrored at build time), never from a third-party CDN.
+- Keep processing logic in `src/services/` or shared helpers, not in UI components. `validationService` validates uploads and names downloads, and `imageService` checks resize targets and pixel limits before it processes an image.
+- Do not describe features that are not implemented.
 
-Examples:
+## Pinned dependencies
 
-- `feat: add target file size export`
-- `fix: preserve png transparency after background removal`
-- `docs: clarify privacy copy`
+- `onnxruntime-web` is pinned to exactly 1.21.0. `@imgly/background-removal` 1.7.0 requires that exact version, and the model files mirrored from IMG.LY go with it. Change them together.
+- The `overrides` block in `package.json` pins transitive packages to clear audit findings. Run `bun audit` before you remove or change one.
 
-## Product Guardrails
+## Code style
 
-Current contributions should preserve these constraints:
-
-- one image at a time
-- browser-local processing
-- no server-side image processing
-- no accounts or authentication
-- no ads, tracking, or analytics
-- no batch UI unless § The Project in `AGENTS.md` changes first
-- no editor/workspace expansion unless § The Project in `AGENTS.md` changes first
-- no public copy for unimplemented features
-
-Target file-size export is implemented for JPEG, WebP, and AVIF. Its limit is best-effort; PNG and background-removal output are lossless and do not support a size target.
-
-## Gotchas
-
-These do not follow from reading the tree, and breaking one changes the product:
-
-- Canvas re-encoding is the privacy boundary: uploaded metadata (EXIF/GPS) must not survive into outputs.
-- Object URLs must be revoked on all four paths — when replaced, when a new file is loaded, when the app unmounts, and on processing error.
-- Heavy dependencies (background removal, HEIC decoding) must load lazily, never in the initial bundle.
-- One image at a time; batch and editor/workspace flows are out of scope until § The Project changes first.
-- Background-removal model/runtime assets must come from the app origin (origin-pinned `publicPath`, mirrored at build time); never a third-party CDN.
-- User image bytes never cross the network — no uploads, beacons, or error reports containing image content.
-- Business logic belongs in `src/services/` or shared helpers, not UI components. `validationService` validates uploads and names downloads, and `imageService` checks resize targets and pixel limits before it processes an image.
-- `package.json` `overrides` pins seven transitive packages (`baseline-browser-mapping`, `browserslist`, `fflate`, `js-yaml`, `nanoid`, `postcss`, `protobufjs`) to fixed versions. They were added in #202 to clear `bun audit` findings. Run `bun audit` before removing or changing one.
-- `onnxruntime-web` is pinned to exactly `1.21.0` because `@imgly/background-removal` 1.7.0 declares that exact peer dependency, and the wasm files mirrored from IMG.LY's data package are built to go with it. Change the version and the mirrored assets together.
-
-## Versioning And Releases
-
-Releases are automated by release-please from Conventional Commits. Versioning restarted at `0.0.1` for a fresh development phase.
-
-- Versions stay in the `0.0.x` range until the maintainer cuts `0.1.0` deliberately: before 1.0, both `feat:` and `fix:` commits bump the patch version (`bump-patch-for-minor-pre-major` in the release-please config).
-- To cut `0.1.0`, merge a commit to `main` with `Release-As: 0.1.0` in the commit body (for example `git commit --allow-empty -m "chore: release 0.1.0" -m "Release-As: 0.1.0"`). release-please reads it from the commit message on `main`, not from the release PR. `1.0.0` is earned later.
-- Release PRs and tags are created automatically after conventional commits land on `main`.
-
-## Code Style
-
-- Follow the established Astro, SolidJS, TypeScript, and Tailwind patterns.
-- Keep image-processing logic in `src/services/` or shared helpers.
-- Keep UI components focused on state display and user interaction.
-- Prefer clear explicit modules over generic registries or workflow engines.
-- Prefer deletion over dormant abstractions.
-- Avoid speculative abstractions for future features.
-- Use existing design tokens and spacing patterns before adding one-off values.
-- Add comments only when they explain non-obvious behavior.
-
-## Styling
-
-Use Tailwind utility classes for component styling, layout, responsive rules, and interaction states in both Astro and SolidJS. Shared values belong in the single `@theme` block in `src/styles/global.css`. Colours come from its semantic tokens (`canvas`, `surface`, `line`, `fg`, `primary`, the coral, mint, lavender, and yellow accents, and `success`, `warning`, `danger`); do not write raw colour values in components. Text sizes come from its one type scale, and buttons from `buttonVariants` in `src/components/ui/button.ts`. Use the existing spacing scale and theme utilities before adding arbitrary values. Keep complete class names in source, including explicit maps for color variants, so Tailwind can detect them.
-
-Do not add scoped component styles, `@apply` component classes, or a parallel set of CSS variables. Shared UI components own repeated markup and utility classes. Use `aria-*` or `data-*` state variants for open, selected, and hidden states. Inline styles are for values calculated at runtime, such as portal coordinates and measured sheet heights.
-
-Handwritten CSS is limited to font loading, shared keyframes, global defaults (including the one focus ring) and reduced-motion overrides, and browser-specific selectors. Range-input thumbs and safe-area values read by positioning code live in `src/styles/browser-primitives.css`. Component rules must not be added to that file. Hover feedback uses the shared precise-pointer `hover` variant. Shared marketing variants preserve the existing inclusive breakpoints; retain visible keyboard focus and touch behavior.
-
-## Tests
-
-Select the test layer that can detect the defect.
-
-| Test layer | Purpose                                                                     | Location                                          |
-| ---------- | --------------------------------------------------------------------------- | ------------------------------------------------- |
-| Service    | Validation, dimensions, encoding rules, codec failures, model configuration | Beside each module in `src/`                      |
-| Context    | Session state, concurrent work, debounce delays, URL cleanup                | `src/components/app/state/`                       |
-| Component  | Accessible controls and pointer or keyboard input                           | Beside each component in `src/`                   |
-| Browser    | Image output, metadata removal, network requests, mobile focus              | `tests/e2e/`                                      |
-| Asset sync | Model files, manifests, missing or corrupt assets                           | `scripts/sync-background-removal-assets.test.mjs` |
-
-Use role and accessible name queries for controls. Use `userEvent.setup()` and await each interaction.
-Use fake timers for debounce tests. If user-event uses fake timers, supply its `advanceTimers` option.
-Test context actions with `renderHook`.
-
-Mock only browser features that jsdom does not provide. The helpers in `src/test/mocks.ts` are separate.
-Global cleanup restores spies, globals, and timers. Do not duplicate a browser test with a mocked image pipeline.
-
-Install the browsers, then run the browser tests:
-
-```bash
-bunx playwright install chromium firefox webkit
-bun run test:e2e:build
-```
-
-If Linux libraries are missing, use `bunx playwright install --with-deps chromium firefox webkit`.
-
-`bun run test:e2e:build` builds the app, then `bun run test:e2e` runs Playwright against that build. The preview server serves it on port 4322, so `bun run test:e2e` needs an up-to-date `dist/` from `bun run build`; CI runs the same build-then-`test:e2e` sequence.
-The tests use desktop Chromium, Firefox, and WebKit, plus mobile Chromium emulation.
-Sharp checks downloaded pixels and metadata outside the browser.
-HEIC conversion uses the actual library.
-Background removal runs in the Chromium project only, where the model runtime is supported.
-Each test checks browser and worker requests against the local build files.
-Physical devices are outside this test suite.
-
-Geometry tests use 500 generated inputs per property with a fixed seed.
-Keep explicit boundary cases. Coverage includes all source TypeScript modules, and `bun run verify` enforces its thresholds (`test:coverage`). CI does not run coverage. Do not lower thresholds to remove a test.
-
-Use temporary faults to confirm that a test detects its target defect.
-Restore the code before the full checks.
-See [Testing Library](https://testing-library.com/docs/guiding-principles/) and [Playwright](https://playwright.dev/docs/best-practices/) for test guidance.
-
-Browser failures save traces and screenshots in `test-results/`.
-Open a trace with `bunx playwright show-trace <trace.zip>`.
-See `tests/e2e/fixtures/README.md` for image sources.
+- Follow the existing Astro, SolidJS, TypeScript, and Tailwind patterns, and prefer small explicit modules over generic abstractions.
+- Style with Tailwind utility classes. Shared values live in the `@theme` block in `src/styles/global.css`. Use its semantic colour tokens and type scale instead of raw values, and `buttonVariants` in `src/components/ui/button.ts` for buttons.
+- Do not add scoped component styles or `@apply` classes. Handwritten CSS is for font loading, shared keyframes, global defaults, and browser-specific selectors.
+- Add comments only where the behavior is not obvious.
 
 ## Documentation
 
-Documentation is part of the product.
-
-- Update `README.md` only with user-facing current behavior, and keep public copy honest and specific to what is implemented.
-- Update § The Project in `AGENTS.md` before changing product promises or scope.
-- Update this file when development workflow changes.
-- Update `AGENTS.md` when the product's intent or philosophy changes.
+Update `README.md` only for behavior that exists today. Update `AGENTS.md` before you change what the product promises.
