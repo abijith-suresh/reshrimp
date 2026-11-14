@@ -4,6 +4,7 @@ import AppTopBar from "@/components/app/AppTopBar";
 import PreviewPanel from "@/components/app/PreviewPanel";
 import ProcessPanel from "@/components/app/panels/ProcessPanel";
 import DownloadSection from "@/components/app/preview/DownloadSection";
+import ErrorDisplay from "@/components/app/preview/ErrorDisplay";
 import ImageInfoBar from "@/components/app/preview/ImageInfoBar";
 import { ImageAppProvider, useImageApp } from "@/components/app/state/ImageAppContext";
 import { buttonVariants } from "@/components/ui/button";
@@ -59,11 +60,11 @@ function MobileSheet() {
   // Freeze the peek height from the settled peek layout before the open
   // transition starts.  Measuring later races the collapse animation and
   // would briefly point the slide at a wrong offset.
+  // Set on the root so the preview's bottom margin follows the same height.
   function capturePeekHeight() {
     const height = sheetHeaderRef?.getBoundingClientRect().height;
-    if (height && sheetRef) {
-      sheetRef.style.setProperty("--spacing-app-sheet-peek", `${height}px`);
-    }
+    if (height)
+      document.documentElement.style.setProperty("--spacing-app-sheet-peek", `${height}px`);
   }
 
   // While the header is collapsing or re-expanding, the peek height is in flux;
@@ -124,14 +125,6 @@ function MobileSheet() {
       current = current.parentElement;
     }
     return false;
-  }
-
-  function findSelectListbox(element: HTMLElement | null): HTMLElement | null {
-    if (!element) return null;
-    const nestedListbox = element.closest<HTMLElement>('[role="listbox"]');
-    if (nestedListbox) return nestedListbox;
-    const controlledId = element.getAttribute("aria-controls");
-    return controlledId ? document.getElementById(controlledId) : null;
   }
 
   function handleSheetKeyDown(event: KeyboardEvent) {
@@ -199,24 +192,12 @@ function MobileSheet() {
           : lastFocusedElement && isHidden(lastFocusedElement)
             ? lastFocusedElement
             : activeHtmlElement;
-      const focusedListbox = findSelectListbox(focusOrigin);
-      const listboxTriggerId = focusedListbox?.getAttribute("aria-labelledby");
-      const listboxTrigger = listboxTriggerId
-        ? document.getElementById(listboxTriggerId)
-        : focusOrigin?.matches('button[aria-haspopup="listbox"]')
-          ? focusOrigin
-          : null;
       // The top bar and the empty state stay on screen at every size, so only
       // focus inside controls that disappear needs a new home.
-      const hadDesktopOnlyFocus =
-        !!focusOrigin?.closest("[data-desktop-only]") ||
-        !!listboxTrigger?.closest("[data-desktop-only]");
+      const hadDesktopOnlyFocus = !!focusOrigin?.closest("[data-desktop-only]");
       if (event.matches) {
         const hadSheetFocus = !!focusOrigin && !!sheetRef?.contains(focusOrigin);
         lastFocusedElement = null;
-        focusedListbox?.dispatchEvent(
-          new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true })
-        );
         setSheetState("hidden");
         if (hadSheetFocus) {
           queueMicrotask(() => {
@@ -226,16 +207,10 @@ function MobileSheet() {
         }
       } else if (state.currentImage()) {
         lastFocusedElement = null;
-        focusedListbox?.dispatchEvent(
-          new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true })
-        );
         setSheetState("peek");
         if (hadDesktopOnlyFocus) queueMicrotask(() => !disposed && controlsToggleRef?.focus());
       } else if (hadDesktopOnlyFocus) {
         lastFocusedElement = null;
-        focusedListbox?.dispatchEvent(
-          new KeyboardEvent("keydown", { key: "Escape", bubbles: true, cancelable: true })
-        );
         queueMicrotask(() => {
           if (disposed) return;
           document.querySelector<HTMLElement>("#sbs-empty-state button:not([disabled])")?.focus();
@@ -245,11 +220,7 @@ function MobileSheet() {
     editorBreakpoint?.addEventListener("change", handleBreakpointChange);
 
     const updatePeekHeight = () => {
-      if (sheetState() !== "peek" || headerTransitions()) return;
-      const height = sheetHeaderRef?.getBoundingClientRect().height;
-      if (height && sheetRef) {
-        sheetRef.style.setProperty("--spacing-app-sheet-peek", `${height}px`);
-      }
+      if (sheetState() === "peek" && !headerTransitions()) capturePeekHeight();
     };
     const resizeObserver =
       typeof ResizeObserver === "function" && sheetHeaderRef
@@ -305,6 +276,7 @@ function MobileSheet() {
   onCleanup(() => {
     disposed = true;
     window.clearTimeout(headerTransitionFallback);
+    document.documentElement.style.removeProperty("--spacing-app-sheet-peek");
     document.querySelector<HTMLElement>("[data-app-shell]")?.removeAttribute("inert");
     document.querySelector<HTMLElement>("[data-global-skip-link]")?.removeAttribute("inert");
   });
@@ -427,7 +399,10 @@ function MobileSheet() {
             </Show>
 
             {/* Download: the sheet's single primary action, reachable straight from peek */}
-            <div class="px-4 pt-2 pb-[max(0.75rem,var(--safe-area-inset-bottom))]">
+            <div class="flex flex-col gap-2 px-4 pt-2 pb-[max(0.75rem,var(--safe-area-inset-bottom))]">
+              <Show when={sheetState() === "peek" && state.error()}>
+                {(msg) => <ErrorDisplay message={msg()} />}
+              </Show>
               <DownloadSection idPrefix="mobile-" />
             </div>
           </div>
@@ -443,7 +418,10 @@ function MobileSheet() {
         >
           <ProcessPanel sourceAtBottom idPrefix="mobile-" showFormatNotice={false} />
           {/* When open, Download waits at the end of the controls */}
-          <div class="px-3 pb-2">
+          <div class="flex flex-col gap-2 px-3 pb-2">
+            <Show when={sheetState() === "open" && state.error()}>
+              {(msg) => <ErrorDisplay message={msg()} />}
+            </Show>
             <DownloadSection idPrefix="mobile-modal-" />
           </div>
         </div>
@@ -453,9 +431,25 @@ function MobileSheet() {
 }
 
 // ── Root app shell ──────────────────────────────────────────────────────────
-export default function ImageApp() {
+function AppShell() {
+  const { actions } = useImageApp();
+
+  // A file dropped outside the drop targets would otherwise open in the tab
+  // and end the session. Drops the targets already handled are skipped.
+  function handleDragOver(event: DragEvent) {
+    if (event.dataTransfer?.types.includes("Files")) event.preventDefault();
+  }
+
+  function handleDrop(event: DragEvent) {
+    if (event.defaultPrevented || !event.dataTransfer?.types.includes("Files")) return;
+    event.preventDefault();
+    const file = event.dataTransfer.files[0];
+    if (file) void actions.handleFileUpload(file);
+  }
+
   return (
-    <ImageAppProvider>
+    // biome-ignore lint/a11y/noStaticElementInteractions: a page-wide drop target; the upload buttons are the keyboard and pointer controls
+    <div class="contents" onDragOver={handleDragOver} onDrop={handleDrop}>
       <div
         data-app-shell
         class="group/app flex h-dvh flex-col overflow-hidden bg-canvas pt-(--safe-area-inset-top) pr-(--safe-area-inset-right) pl-(--safe-area-inset-left)"
@@ -482,6 +476,14 @@ export default function ImageApp() {
 
       {/* Mobile overlays */}
       <MobileSheet />
+    </div>
+  );
+}
+
+export default function ImageApp() {
+  return (
+    <ImageAppProvider>
+      <AppShell />
     </ImageAppProvider>
   );
 }
