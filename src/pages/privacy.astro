@@ -1,54 +1,20 @@
 ---
 import MarketingLayout from "../layouts/MarketingLayout.astro";
-import { Check, Code, Cpu, EyeOff, Globe } from "lucide-astro";
-import FeatureCard from "../components/marketing/cards/FeatureCard.astro";
+import { Check, Github } from "lucide-astro";
+import Card from "../components/marketing/cards/Card.astro";
 import PageHero from "../components/marketing/layout/PageHero.astro";
 import Section from "../components/marketing/layout/Section.astro";
+import ButtonLink from "../components/ui/ButtonLink.astro";
 import { GITHUB_URL } from "../config/constants";
 
-const SERVICES_URL = `${GITHUB_URL}/tree/main/src/services`;
-const NOTICES_URL = `${GITHUB_URL}/blob/main/THIRD_PARTY_NOTICES.md`;
-
-const PRIVACY_CARDS = [
-  {
-    title: "How processing works",
-    icon: Cpu,
-    tone: "coral",
-    paragraphs: [
-      "When you choose an image, your browser reads it and changes it in memory. Reshrimp draws the result on a canvas and encodes a new file, so the original file's metadata, such as camera details and GPS location, does not carry over.",
-      "Remove background needs a model. The first time you turn it on, your browser downloads about 100 MB of model files from this site, once. Your image still never leaves your device.",
-    ],
-  },
-  {
-    title: "What Reshrimp does not do",
-    icon: EyeOff,
-    tone: "mint",
-    listItems: [
-      "Upload your image, for processing or anything else",
-      "Use analytics, cookies, local storage, or fingerprinting",
-      "Ask for an account, a name, or an email address",
-    ],
-  },
-  {
-    title: "Check it yourself",
-    icon: Code,
-    tone: "lavender",
-    paragraphs: [
-      "Open your browser's developer tools, switch to the Network tab, and process an image. No request carries the image.",
-      `The code is on <a href="${GITHUB_URL}" target="_blank" rel="noopener noreferrer">GitHub</a>, and the image processing is in <a href="${SERVICES_URL}" target="_blank" rel="noopener noreferrer"><code>src/services</code></a>.`,
-      `Reshrimp's own code is MIT-licensed. Remove background uses @imgly/background-removal, which is AGPL-3.0, and HEIC decoding uses libheif, which is LGPL-3.0. See the <a href="${NOTICES_URL}" target="_blank" rel="noopener noreferrer">third-party notices</a>.`,
-    ],
-  },
-  {
-    title: "Hosting and the network",
-    icon: Globe,
-    tone: "yellow",
-    paragraphs: [
-      "The site is hosted on Vercel. Like any web host, Vercel sees ordinary request details, such as your IP address and browser type, when pages and files load. It never receives your image.",
-      "Reshrimp needs a connection each time you open it; it does not work offline. The background-removal model comes from this site, not from another company's CDN.",
-    ],
-  },
-] as const;
+const CLAIMS = [
+  "No upload. Your image is never sent anywhere.",
+  "No account, cookies, or tracking.",
+  "Saved files drop the original's location and camera data.",
+  "Remove background downloads a model from this site once, about 100 MB.",
+  "Reshrimp's host, Vercel, sees normal page requests like your IP address, never your image.",
+  "Reshrimp needs an internet connection to open.",
+];
 ---
 
 <MarketingLayout
@@ -58,31 +24,36 @@ const PRIVACY_CARDS = [
 >
   <PageHero
     title="Your image never leaves your device."
-    lede="Reshrimp changes your image inside your browser. It does not upload the image, and it does not track you."
+    lede="Reshrimp edits your image inside your browser. Nothing is uploaded."
   />
 
   <Section>
-    <div class="grid grid-cols-2 gap-4 marketing-mobile:grid-cols-1">
-      {
-        PRIVACY_CARDS.map((card) => (
-          <FeatureCard as="section" level={2} icon={card.icon} tone={card.tone} title={card.title}>
-            {"paragraphs" in card &&
-              card.paragraphs.map((p) => (
-                <p set:html={p} />
-              ))}
-            {"listItems" in card && (
-              <ul class="grid gap-2">
-                {card.listItems.map((item) => (
-                  <li class="flex gap-3">
-                    <Check size={20} strokeWidth={2.25} aria-hidden="true" class="mt-1 shrink-0 text-success" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </FeatureCard>
-        ))
-      }
+    <div class="grid max-w-3xl grid-cols-1 gap-4">
+      <Card class="p-8 marketing-mobile:p-6">
+        <ul class="grid gap-4 text-lg text-fg-muted text-pretty">
+          {
+            CLAIMS.map((claim) => (
+              <li class="flex gap-3">
+                <Check size={20} strokeWidth={2.25} aria-hidden="true" class="mt-1 shrink-0 text-success" />
+                {claim}
+              </li>
+            ))
+          }
+        </ul>
+      </Card>
+
+      <Card as="section" class="p-8 marketing-mobile:p-6">
+        <h2 class="font-display text-title-md text-fg text-balance">Check it yourself</h2>
+        <p class="mt-3 text-lg text-fg-muted text-pretty">
+          Open your browser's Network tab and edit a photo. No request carries the image.
+        </p>
+        <div class="mt-6">
+          <ButtonLink href={GITHUB_URL} variant="secondary" external={true}>
+            <Github size={18} aria-hidden="true" />
+            View on GitHub
+          </ButtonLink>
+        </div>
+      </Card>
     </div>
   </Section>
 </MarketingLayout>
