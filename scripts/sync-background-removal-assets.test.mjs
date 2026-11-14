@@ -14,6 +14,21 @@ const trustedResourceMap = JSON.parse(
 );
 const assetKey = "/onnxruntime-web/ort-wasm-simd-threaded.wasm";
 
+const backgroundRemovalConfigSource = await readFile(
+  new URL("../src/config/backgroundRemoval.ts", import.meta.url),
+  "utf8"
+);
+const backgroundRemovalScriptSource = await readFile(
+  new URL("./sync-background-removal-assets.mjs", import.meta.url),
+  "utf8"
+);
+
+function readStringConstant(source, name) {
+  const match = source.match(new RegExp(`const ${name} = "([^"]+)"`));
+  assert.ok(match, `${name} should be declared as a string constant`);
+  return match[1];
+}
+
 function cloneResourceMap() {
   return structuredClone(trustedResourceMap);
 }
@@ -31,6 +46,16 @@ test("the checked-in manifest is valid and content-addressed", () => {
     getResourceMapFingerprint(trustedResourceMap),
     "365f54a52994efd52b3d3d3ba2318af68d280df19f214f2f1f1cc87368f7adfa"
   );
+});
+
+test("the mirror script and the app config use the same asset version and model", () => {
+  for (const name of ["BACKGROUND_REMOVAL_DATA_VERSION", "BACKGROUND_REMOVAL_MODEL"]) {
+    assert.equal(
+      readStringConstant(backgroundRemovalConfigSource, name),
+      readStringConstant(backgroundRemovalScriptSource, name),
+      `${name} differs between the script and src/config/backgroundRemoval.ts`
+    );
+  }
 });
 
 test("rejects path-like or remote chunk names", () => {

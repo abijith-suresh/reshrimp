@@ -1,11 +1,12 @@
 ---
 import AppLayout from "../layouts/AppLayout.astro";
 import ImageApp from "../components/app/ImageApp";
+import { SITE_DESCRIPTION } from "../config/constants";
 ---
 
 <AppLayout
-  title="Reshrimp — Image Processor"
-  description="Resize, convert, and compress images privately in your browser. No uploads, no tracking."
+  title="Reshrimp | Resize, convert, and compress an image"
+  description={SITE_DESCRIPTION}
 >
   <ImageApp client:only="solid-js" />
 </AppLayout>

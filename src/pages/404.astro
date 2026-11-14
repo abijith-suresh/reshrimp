@@ -5,11 +5,14 @@ import Section from "../components/marketing/layout/Section.astro";
 import MarketingLayout from "../layouts/MarketingLayout.astro";
 import { makeHref } from "../lib/utils";
 import { ROUTES } from "../config/constants";
+import { OG_IMAGE_VERSION } from "../config/ogData";
 ---
 
 <MarketingLayout
-  title="404 — Page Not Found | Reshrimp"
-  description="The page you're looking for doesn't exist. Resize, convert, and compress images right in your browser with Reshrimp."
+  title="Reshrimp | Page not found"
+  description="This page does not exist."
+  ogImagePath={`/og/index-${OG_IMAGE_VERSION}.png`}
+  noindex
   currentPath={ROUTES.HOME}
 >
   <Section class="pt-16 marketing-mobile:pt-10">

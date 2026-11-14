@@ -129,15 +129,20 @@ export async function prepareImageFile(file: File): Promise<PreparedImageFile> {
     return { file, format: file.type };
   }
 
-  const decodedBlob = await decodeHeicBlob(file);
+  const format = isHeicInput(file.type) ? file.type : "image/heic";
+  let decodedBlob: Blob;
+  try {
+    decodedBlob = await decodeHeicBlob(file);
+  } catch {
+    // Mislabelled files and HEIC variants the browser reads natively still load directly.
+    preparedFiles.add(file);
+    return { file, format };
+  }
   const preparedFile = new File([decodedBlob], file.name.replace(/\.(?:heic|heif)$/i, ".png"), {
     type: "image/png",
   });
   preparedFiles.add(preparedFile);
-  return {
-    file: preparedFile,
-    format: isHeicInput(file.type) ? file.type : "image/heic",
-  };
+  return { file: preparedFile, format };
 }
 
 const maxSide = MAX_PIXEL_DIMENSION.toLocaleString("en-US");

@@ -11,41 +11,39 @@ import { decodePixels, pixelAt, readMetadata } from "./imageAssertions";
 
 const landmarksPath = fileURLToPath(new URL("./fixtures/landmarks.png", import.meta.url));
 
-test("exports AVIF when the encoder supports it, otherwise explains and names the PNG fallback", async ({
+test("exports WebP when the encoder supports it, otherwise names the PNG fallback and turns off quality", async ({
   page,
 }) => {
   await page.goto("/app");
   await uploadImage(page, landmarksPath);
   await openImageControls(page);
+  const formatSelect = page.getByRole("combobox", { name: "Output format", exact: true });
+  // AVIF is read but never offered: Chromium and Firefox canvases cannot encode it.
+  await expect(formatSelect.getByRole("option")).toHaveText(["JPEG", "PNG", "WebP"]);
   // Test the encoder separately from the app's format check.
-  const canEncodeAvif = await page.evaluate(
+  const canEncodeWebp = await page.evaluate(
     () =>
       new Promise<boolean>((resolve) => {
         const canvas = document.createElement("canvas");
         canvas.width = canvas.height = 1;
-        canvas.toBlob((blob) => resolve(blob?.type === "image/avif"), "image/avif");
+        canvas.toBlob((blob) => resolve(blob?.type === "image/webp"), "image/webp");
       })
   );
-  await page
-    .getByRole("combobox", { name: "Output format", exact: true })
-    .selectOption({ label: "AVIF" });
-  await expect(page.getByRole("slider", { name: "Output quality" })).toBeEnabled();
+  await formatSelect.selectOption({ label: "WebP" });
+  const slider = page.getByRole("slider", { name: "Output quality" });
+  if (canEncodeWebp) await expect(slider).toBeEnabled();
+  else await expect(slider).toBeDisabled();
   const output = await downloadImage(page);
   const metadata = await readMetadata(output.bytes);
   expect(metadata).toMatchObject({
     width: 160,
     height: 120,
-    format: canEncodeAvif ? "heif" : "png",
+    format: canEncodeWebp ? "webp" : "png",
   });
-  expect(output.name).toBe(`landmarks-processed.${canEncodeAvif ? "avif" : "png"}`);
-  if (!canEncodeAvif) {
+  expect(output.name).toBe(`landmarks-processed.${canEncodeWebp ? "webp" : "png"}`);
+  if (!canEncodeWebp) {
     await expect(
-      page.getByRole("status").filter({ hasText: "could not export AVIF" })
-    ).toBeVisible();
-    await page.getByRole("button", { name: "Max file size", exact: true }).click();
-    await page.getByRole("textbox", { name: "Maximum file size (KB)" }).fill("40");
-    await expect(
-      page.getByRole("status").filter({ hasText: "could not apply a size target" })
+      page.getByRole("status").filter({ hasText: "could not export WebP" })
     ).toBeVisible();
   }
 });
