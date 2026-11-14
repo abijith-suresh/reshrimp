@@ -23,18 +23,18 @@ const jsonLd = {
     priceCurrency: "USD",
   },
   featureList: [
-    "Image resizing",
-    "Format conversion",
-    "Image compression",
-    "Best-effort file-size targets for JPEG, WebP, and AVIF",
-    "Background removal",
-    "Local browser processing",
+    "Resize by pixels, inches, or centimeters",
+    "Convert to JPEG, PNG, or WebP",
+    "Open HEIC, HEIF, and AVIF images",
+    "Compress with a quality setting or a max file size for JPEG and WebP",
+    "Remove background",
+    "Processing in the browser, with no upload",
   ],
 };
 ---
 
 <MarketingLayout
-  title="Reshrimp | Image tools in your browser"
+  title="Reshrimp | Resize, compress, and convert images privately"
   description={SITE_DESCRIPTION}
   currentPath="/"
 >
@@ -45,8 +45,8 @@ const jsonLd = {
   <LandingTools />
   <LandingWorkflow />
   <CtaBand
-    title="Ready to change an image?"
-    copy="Choose an image, make the change you need, and download the result."
+    title="Try it on an image."
+    copy="Reshrimp opens in this tab. There's nothing to install."
   >
     <ButtonLink href={makeHref(ROUTES.APP)} size="lg">Open Reshrimp</ButtonLink>
   </CtaBand>
