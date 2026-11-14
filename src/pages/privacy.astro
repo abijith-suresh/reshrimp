@@ -8,29 +8,29 @@ import ButtonLink from "../components/ui/ButtonLink.astro";
 import { GITHUB_URL } from "../config/constants";
 
 const CLAIMS = [
-  "No upload. Your image is never sent anywhere.",
-  "No account, cookies, or tracking.",
-  "Saved files drop the original's location and camera data.",
-  "Remove background downloads a model from this site once, about 100 MB.",
-  "Reshrimp's host, Vercel, sees normal page requests like your IP address, never your image.",
-  "Reshrimp needs an internet connection to open.",
+  "Nothing you open is uploaded, for editing or anything else.",
+  "There are no accounts, cookies, or trackers.",
+  "Saved files leave out the original's location and camera data.",
+  "Remove background downloads a model of about 100\u00a0MB from this site, once.",
+  "Vercel hosts the site and sees normal requests like your IP address, never your image.",
+  "You need a connection to open Reshrimp.",
 ];
 ---
 
 <MarketingLayout
   title="Reshrimp | Privacy"
-  description="Your image never leaves your device. What Reshrimp does, and what the host can see."
+  description="Your image never leaves your device. What Reshrimp does, and what its host can see."
   currentPath="/privacy"
 >
   <PageHero
     title="Your image never leaves your device."
-    lede="Reshrimp edits your image inside your browser. Nothing is uploaded."
+    lede="Reshrimp does all its work inside your browser."
   />
 
   <Section>
-    <div class="grid max-w-3xl grid-cols-1 gap-4">
+    <div class="grid grid-cols-1 gap-4">
       <Card class="p-8 marketing-mobile:p-6">
-        <ul class="grid gap-4 text-lg text-fg-muted text-pretty">
+        <ul class="grid grid-cols-2 gap-x-10 gap-y-5 text-lg text-fg-muted text-pretty hero-stack:grid-cols-1 hero-stack:gap-y-4">
           {
             CLAIMS.map((claim) => (
               <li class="flex gap-3">
@@ -42,17 +42,21 @@ const CLAIMS = [
         </ul>
       </Card>
 
-      <Card as="section" class="p-8 marketing-mobile:p-6">
-        <h2 class="font-display text-title-md text-fg text-balance">Check it yourself</h2>
-        <p class="mt-3 text-lg text-fg-muted text-pretty">
-          Open your browser's Network tab and edit a photo. No request carries the image.
-        </p>
-        <div class="mt-6">
-          <ButtonLink href={GITHUB_URL} variant="secondary" external={true}>
-            <Github size={18} aria-hidden="true" />
-            View on GitHub
-          </ButtonLink>
+      <Card
+        as="section"
+        class="flex items-center justify-between gap-8 p-8 hero-stack:flex-col hero-stack:items-start hero-stack:gap-6 marketing-mobile:p-6"
+      >
+        <div>
+          <h2 class="font-display text-title-md text-fg text-balance">Check it yourself</h2>
+          <p class="mt-3 text-lg text-fg-muted text-pretty">
+            Open your browser's Network tab and edit a photo. You won't see the image in any
+            request.
+          </p>
         </div>
+        <ButtonLink href={GITHUB_URL} variant="secondary" external={true}>
+          <Github size={18} aria-hidden="true" />
+          View on GitHub
+        </ButtonLink>
       </Card>
     </div>
   </Section>
