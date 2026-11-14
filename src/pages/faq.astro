@@ -13,7 +13,7 @@ import { GITHUB_URL, ROUTES } from "../config/constants";
 const faqs = [
   {
     question: "Is Reshrimp free?",
-    answer: "Yes. There is no account or paid tier, and you can use the results for anything.",
+    answer: "Yes, and there is no paid tier. Use what you make for anything.",
   },
   {
     question: "Is my image uploaded?",
@@ -22,11 +22,11 @@ const faqs = [
   {
     question: "Can I get a file under a certain size?",
     answer:
-      "Yes, for JPEG and WebP. Enter the limit under Max file size. If Reshrimp can't reach it, make the pixel size smaller.",
+      "Yes, for JPEG and WebP. Enter a limit under Max file size. If Reshrimp can't reach it, try a smaller pixel size.",
   },
   {
-    question: "The form asks for 300 DPI. Does Reshrimp set that?",
-    answer: "No. DPI only turns inches or cm into pixels. It is not saved in the file.",
+    question: "Does Reshrimp save a DPI value in the file?",
+    answer: "No. DPI only turns inches or cm into pixels, so the file keeps just the pixel size.",
   },
   {
     question: "Why did my transparent background turn white?",
@@ -40,7 +40,8 @@ const faqs = [
   },
   {
     question: "Why is Remove background slow the first time?",
-    answer: "It downloads a model of about 100 MB once. Later runs skip the download.",
+    answer:
+      "The first time, it downloads a model of about 100&nbsp;MB. After that it skips the download.",
   },
   {
     question: "Can I crop?",

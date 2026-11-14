@@ -8,14 +8,14 @@ export interface OgPageData {
 
 export const ogPageData: Record<string, OgPageData> = {
   index: {
-    title: "Fit your photo to the form.",
+    title: "Resize images privately.",
     description: SITE_DESCRIPTION,
     label: "Image tool",
   },
   app: {
     title: "Resize and compress.",
     description:
-      "Set the pixel size, format, and max file size. Your image never leaves your device.",
+      "Resize, compress, convert, or remove a background. Your image stays on your device.",
     label: "App",
   },
   faq: {
@@ -26,7 +26,7 @@ export const ogPageData: Record<string, OgPageData> = {
   privacy: {
     title: "Privacy",
     description:
-      "Your image never leaves your device. What Reshrimp does, and what the host can see.",
+      "Your image never leaves your device. What Reshrimp does, and what its host can see.",
     label: "Privacy",
   },
 };

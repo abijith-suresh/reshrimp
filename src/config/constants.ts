@@ -2,7 +2,7 @@ export const GITHUB_URL = "https://github.com/abijith-suresh/reshrimp";
 
 export const SITE_NAME = "Reshrimp";
 export const SITE_DESCRIPTION =
-  "Fit a photo to a form's pixel size, format, and file size limit in your browser. Nothing is uploaded.";
+  "Resize, compress, convert, and remove backgrounds in your browser. Your images are never uploaded.";
 
 export const ROUTES = {
   HOME: "/",

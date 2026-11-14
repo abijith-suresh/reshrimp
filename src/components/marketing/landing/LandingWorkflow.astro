@@ -6,12 +6,12 @@ import Section from "../layout/Section.astro";
 
 const steps = [
   { title: "Choose an image", body: "Drop it in or pick a file." },
-  { title: "Set the options", body: "Pick the size, format, and file size limit." },
+  { title: "Set the options", body: "Pick a size, format, or file size limit." },
   { title: "Download the result", body: "Check the preview, then save." },
 ];
 ---
 
-<Section id="workflow" title="Choose. Change. Download.">
+<Section id="workflow" title="How it works.">
   <Card class="overflow-hidden">
     <ol class="grid grid-cols-3 divide-x divide-line hero-stack:grid-cols-1 hero-stack:divide-x-0 hero-stack:divide-y">
       {
@@ -32,8 +32,8 @@ const steps = [
     <div class="flex items-center gap-5 border-t border-line bg-surface-muted px-8 py-6 marketing-mobile:flex-col marketing-mobile:items-start marketing-mobile:gap-4 marketing-mobile:p-6">
       <IconTile icon={ShieldCheck} tone="mint" />
       <p class="text-lg text-fg-muted text-pretty">
-        <strong class="font-semibold text-fg">Everything happens in your browser.</strong>{" "}
-        No upload, no account, no tracking.
+        <strong class="font-semibold text-fg">Your image stays on your device.</strong>{" "}
+        Reshrimp does all the work in your browser and never uploads it.
       </p>
     </div>
   </Card>
