@@ -1,6 +1,6 @@
 # Reshrimp
 
-Reshrimp prepares one image at a time for upload portals, in your browser, without uploading it anywhere.
+Reshrimp resizes, compresses, converts, and removes backgrounds from images in your browser. Your images are never uploaded.
 
 Try it: https://reshrimp.vercel.app
 
@@ -10,6 +10,8 @@ Try it: https://reshrimp.vercel.app
 - Convert between JPEG, PNG, and WebP. It also opens AVIF and HEIC.
 - Compress a JPEG or WebP to a maximum file size. The limit is best effort.
 - Remove a background and export a transparent PNG.
+
+It works on one image at a time.
 
 ## Privacy
 
