@@ -149,6 +149,17 @@
   --animate-select-in: select-in 180ms var(--ease-reveal);
   --animate-feedback-in: slide-in 0.3s ease;
   --animate-sheet-backdrop-in: mobile-sheet-backdrop-in 0.35s ease both;
+  /* The landing hero demo: one 12s loop shared by every part, so they stay in
+     step. No fill mode, so reduced motion falls back to the resting frame. */
+  --animate-hero-picture: hero-picture 12s ease-in-out infinite;
+  --animate-hero-backdrop: hero-backdrop 12s ease-in-out infinite;
+  --animate-hero-focus: hero-focus 12s ease-in-out infinite;
+  --animate-hero-resize: hero-resize 12s ease-in-out infinite;
+  --animate-hero-format: hero-format 12s ease-in-out infinite;
+  --animate-hero-size: hero-size 12s ease-in-out infinite;
+  --animate-hero-badge: hero-badge 12s ease-in-out infinite;
+  --animate-hero-checkbox: hero-checkbox 12s ease-in-out infinite;
+  --animate-hero-check: hero-check 12s ease-in-out infinite;
 }
 
 /* Broad variants precede narrow ones so narrower layouts win at shared widths.
@@ -242,6 +253,164 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* Landing hero demo, 12s: resize (0-2.4s), convert to WebP (3-4.7s), compress
+   under 50 KB (5.4-7.9s), remove background (8.4-9.7s), hold, then rewind.
+   Tickers are columns of 1rem rows; each stop names the row in view. */
+@keyframes hero-picture {
+  0%,
+  8%,
+  98%,
+  100% {
+    scale: 1.25;
+  }
+  18%,
+  93% {
+    scale: 1;
+  }
+}
+
+@keyframes hero-backdrop {
+  0%,
+  72%,
+  98%,
+  100% {
+    opacity: 1;
+  }
+  79%,
+  93% {
+    opacity: 0;
+  }
+}
+
+/* One field's highlight; each field offsets it with an animation delay. */
+@keyframes hero-focus {
+  0%,
+  22%,
+  100% {
+    border-color: var(--color-line);
+    box-shadow: 0 0 0 0 transparent;
+  }
+  3%,
+  19% {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-coral-subtle);
+  }
+}
+
+@keyframes hero-resize {
+  0%,
+  7%,
+  98%,
+  100% {
+    translate: 0 0;
+  }
+  11%,
+  93% {
+    translate: 0 -1rem;
+  }
+}
+
+@keyframes hero-format {
+  0%,
+  28%,
+  98%,
+  100% {
+    translate: 0 0;
+  }
+  32%,
+  72% {
+    translate: 0 -1rem;
+  }
+  76%,
+  93% {
+    translate: 0 -2rem;
+  }
+}
+
+/* PNG output has no size target, so the limit greys out with the background. */
+@keyframes hero-size {
+  0%,
+  48%,
+  98%,
+  100% {
+    translate: 0 0;
+    opacity: 1;
+  }
+  52%,
+  72% {
+    translate: 0 -1rem;
+    opacity: 1;
+  }
+  76%,
+  93% {
+    translate: 0 -1rem;
+    opacity: 0.4;
+  }
+}
+
+@keyframes hero-badge {
+  0%,
+  16%,
+  98%,
+  100% {
+    translate: 0 0;
+  }
+  20%,
+  35% {
+    translate: 0 -1rem;
+  }
+  39%,
+  55% {
+    translate: 0 -2rem;
+  }
+  57%,
+  59% {
+    translate: 0 -3rem;
+  }
+  61%,
+  63% {
+    translate: 0 -4rem;
+  }
+  66%,
+  77% {
+    translate: 0 -5rem;
+  }
+  81%,
+  93% {
+    translate: 0 -6rem;
+  }
+}
+
+@keyframes hero-checkbox {
+  0%,
+  70%,
+  98%,
+  100% {
+    border-color: var(--color-fg-soft);
+    background-color: var(--color-surface);
+  }
+  72%,
+  93% {
+    border-color: var(--color-primary);
+    background-color: var(--color-primary);
+  }
+}
+
+@keyframes hero-check {
+  0%,
+  70%,
+  98%,
+  100% {
+    opacity: 0;
+    scale: 0.75;
+  }
+  72%,
+  93% {
+    opacity: 1;
+    scale: 1;
   }
 }
 

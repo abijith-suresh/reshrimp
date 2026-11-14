@@ -73,3 +73,30 @@ test("opens FAQ answers with the keyboard and respects live reduced motion", asy
     )
   ).toBeLessThanOrEqual(0.00001);
 });
+
+test("loops the hero demo on screen, pauses it off screen, and holds still for reduced motion", async ({
+  page,
+}) => {
+  const demo = page.getByRole("img", { name: /Preview of the Reshrimp/ });
+  const demoStates = () =>
+    demo.evaluate((element) => [
+      ...new Set(
+        element
+          .getAnimations({ subtree: true })
+          .filter((animation) => (animation as CSSAnimation).animationName?.startsWith("hero-"))
+          .map((animation) => animation.playState)
+      ),
+    ]);
+
+  await page.goto("/");
+  await expect.poll(demoStates).toEqual(["running"]);
+  await page.getByRole("contentinfo").scrollIntoViewIfNeeded();
+  await expect.poll(demoStates).toEqual(["paused"]);
+  await demo.scrollIntoViewIfNeeded();
+  await expect.poll(demoStates).toEqual(["running"]);
+
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.reload();
+  await expect.poll(demoStates).toEqual([]);
+  await expect(demo).toBeVisible();
+});

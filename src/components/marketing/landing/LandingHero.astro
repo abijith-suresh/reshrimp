@@ -1,12 +1,17 @@
 ---
-import { ChevronDown, Download } from "lucide-astro";
+import { Check, ChevronDown, Download } from "lucide-astro";
 import { ROUTES } from "../../../config/constants";
 import { makeHref } from "../../../lib/utils";
 import ButtonLink from "../../ui/ButtonLink.astro";
 import Container from "../layout/Container.astro";
 
+// The demo loops through resize, convert, compress, and remove background. Each
+// element's resting classes show the compressed result, which is the frame
+// reduced motion keeps. The keyframes live in global.css.
 const fieldClass =
-  "flex h-8 items-center justify-between gap-1 rounded-sm border border-line bg-surface px-2.5 text-xs font-semibold text-fg";
+  "flex h-8 animate-hero-focus items-center justify-between gap-1 rounded-sm border border-line bg-surface px-2.5 text-xs font-semibold text-fg";
+const tickerClass = "h-4 overflow-hidden";
+const badgeSizes = ["1.8 MB", "96 KB", "74 KB", "63 KB", "54 KB", "46 KB", "142 KB"];
 const labelClass =
   "mt-1 flex items-center justify-between text-xs font-semibold text-fg first:mt-0";
 const handleClass = "absolute size-2.5 rounded-xs border-2 border-primary bg-surface";
@@ -32,9 +37,10 @@ const handleClass = "absolute size-2.5 rounded-xs border-2 border-primary bg-sur
       </div>
 
       <figure
-        class="relative m-0 min-w-0 animate-rise-late"
+        class="relative m-0 min-w-0 animate-rise-late data-paused:**:[animation-play-state:paused]"
         role="img"
-        aria-label="Preview of the Reshrimp app saving a photo as a 640 × 480 JPEG under 50 KB"
+        aria-label="Preview of the Reshrimp app resizing a photo to 640 × 480, saving it as WebP under 50 KB, and removing its background"
+        data-hero-demo
       >
         <div class="relative" aria-hidden="true">
           <span class="absolute -top-5 -left-5 size-20 rounded-full bg-mint-subtle marketing-mobile:-top-3 marketing-mobile:-left-2 marketing-mobile:size-14"></span>
@@ -48,19 +54,26 @@ const handleClass = "absolute size-2.5 rounded-xs border-2 border-primary bg-sur
                 <span class="size-2 rounded-full bg-line-strong"></span>
               </span>
               <span class="min-w-0 flex-1 truncate text-xs font-semibold text-fg-muted" translate="no">photo.jpg</span>
-              <span class="shrink-0 rounded-full bg-mint-subtle px-2.5 py-1 text-xs font-semibold whitespace-nowrap text-mint-ink">
-                1.8 MB → 46 KB
+              <span class="flex shrink-0 items-center gap-1 rounded-full bg-mint-subtle px-2.5 py-1 text-xs font-semibold whitespace-nowrap text-mint-ink tabular-nums">
+                1.8 MB →
+                <span class={tickerClass}>
+                  <span class="flex -translate-y-20 animate-hero-badge flex-col items-end">
+                    {badgeSizes.map((size) => <span class="h-4">{size}</span>)}
+                  </span>
+                </span>
               </span>
             </div>
 
             <div class="flex">
               <div class="relative flex min-w-0 flex-1 items-center justify-center bg-surface-muted px-10 py-12 marketing-mobile:px-5 marketing-mobile:py-8">
                 <div class="absolute inset-0 bg-transparency-grid bg-size-[16px_16px] bg-[position:0_0,0_8px,8px_-8px,-8px_0] text-line opacity-60"></div>
-                <div class="relative w-full max-w-72 -rotate-2">
-                  <div class="relative aspect-4/3 overflow-hidden rounded-md border-4 border-surface bg-linear-to-b from-coral-subtle to-lavender-subtle shadow-md">
-                    <span class="absolute top-1/8 right-1/6 aspect-square w-1/5 rounded-full bg-yellow"></span>
-                    <span class="absolute -right-1/4 -bottom-1/3 h-2/3 w-5/6 rounded-t-full bg-lavender"></span>
-                    <span class="absolute -bottom-1/3 -left-1/4 h-2/3 w-full rounded-t-full bg-mint"></span>
+                <div class="relative w-full max-w-72 -rotate-2 animate-hero-picture">
+                  <div class="relative aspect-4/3">
+                    <div class="absolute inset-0 animate-hero-backdrop overflow-hidden rounded-md border-4 border-surface bg-linear-to-b from-coral-subtle to-lavender-subtle shadow-md">
+                      <span class="absolute top-1/8 right-1/6 aspect-square w-1/5 rounded-full bg-yellow"></span>
+                      <span class="absolute -right-1/4 -bottom-1/3 h-2/3 w-5/6 rounded-t-full bg-lavender"></span>
+                      <span class="absolute -bottom-1/3 -left-1/4 h-2/3 w-full rounded-t-full bg-mint"></span>
+                    </div>
                     <span class="absolute bottom-1/8 left-1/4 h-2/5 w-1/5 rounded-t-full rounded-b-md bg-coral shadow-md"></span>
                   </div>
                   <span class:list={[handleClass, "-top-1 -left-1"]}></span>
@@ -72,16 +85,39 @@ const handleClass = "absolute size-2.5 rounded-xs border-2 border-primary bg-sur
 
               <div class="flex w-48 shrink-0 flex-col gap-2 border-l border-line p-4 marketing-mobile:w-32 marketing-mobile:p-3">
                 <span class={labelClass}>Resize</span>
-                <span class={fieldClass}>
-                  640 <span class="font-normal text-fg-soft">×</span> 480
+                <span class:list={[fieldClass, "[animation-delay:0.4s]"]}>
+                  <span class={tickerClass}>
+                    <span class="flex -translate-y-4 animate-hero-resize flex-col">
+                      <span class="h-4">4032 <span class="font-normal text-fg-soft">×</span> 3024</span>
+                      <span class="h-4">640 <span class="font-normal text-fg-soft">×</span> 480</span>
+                    </span>
+                  </span>
                 </span>
                 <span class={labelClass}>Format</span>
-                <span class={fieldClass}>
-                  JPEG <ChevronDown size={14} class="text-fg-soft" />
+                <span class:list={[fieldClass, "[animation-delay:2.9s]"]}>
+                  <span class={tickerClass}>
+                    <span class="flex -translate-y-4 animate-hero-format flex-col">
+                      <span class="h-4">JPEG</span>
+                      <span class="h-4">WebP</span>
+                      <span class="h-4">PNG</span>
+                    </span>
+                  </span>
+                  <ChevronDown size={14} class="text-fg-soft" />
                 </span>
                 <span class={labelClass}>Max file size</span>
-                <span class={fieldClass}>
-                  50 <span class="font-normal text-fg-soft">KB</span>
+                <span class:list={[fieldClass, "[animation-delay:5.3s]"]}>
+                  <span class={tickerClass}>
+                    <span class="flex -translate-y-4 animate-hero-size flex-col">
+                      <span class="h-4 font-normal text-fg-soft">e.g. 500</span>
+                      <span class="h-4">50 <span class="font-normal text-fg-soft">KB</span></span>
+                    </span>
+                  </span>
+                </span>
+                <span class="mt-1 flex items-center gap-2 text-xs font-semibold text-fg">
+                  <span class="relative size-4 shrink-0 animate-hero-checkbox rounded-xs border border-fg-soft bg-surface">
+                    <Check size={12} stroke-width={3} class="absolute inset-0 m-auto animate-hero-check text-primary-fg opacity-0" />
+                  </span>
+                  Remove bg
                 </span>
                 <span class="mt-auto flex h-8 items-center justify-center gap-1.5 rounded-sm bg-primary pt-px text-xs font-semibold text-primary-fg shadow-primary">
                   <Download size={14} /> Download
@@ -94,3 +130,20 @@ const handleClass = "absolute size-2.5 rounded-xs border-2 border-primary bg-sur
     </div>
   </Container>
 </section>
+
+<script>
+  import { registerPageInitializer } from "../../../lib/pageInitializer";
+
+  // Pause the hero demo while it is off screen.
+  registerPageInitializer("landing-hero:demo", () => {
+    const demo = document.querySelector<HTMLElement>("[data-hero-demo]");
+    if (!demo) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      demo.toggleAttribute("data-paused", !entry?.isIntersecting);
+    });
+    observer.observe(demo);
+
+    return () => observer.disconnect();
+  });
+</script>
