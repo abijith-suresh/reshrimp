@@ -48,6 +48,10 @@ beforeEach(() => {
     vi.fn(() => 1)
   );
   vi.stubGlobal("cancelIdleCallback", vi.fn());
+  // jsdom has no encoder; report every format as supported unless a test says otherwise.
+  vi.spyOn(HTMLCanvasElement.prototype, "toDataURL").mockImplementation(
+    (type = "image/png") => `data:${type};base64,`
+  );
   prepare.mockReset().mockImplementation(async (file) => ({ file, format: file.type }));
   metadata.mockReset().mockImplementation(async (file) => ({
     width: 1200,
@@ -379,15 +383,17 @@ describe("image sessions", () => {
   });
 
   it("names a download after the encoded format when the browser falls back", async () => {
-    const fallback = { ...result(), requestedFormat: "image/avif" as const };
+    vi.mocked(HTMLCanvasElement.prototype.toDataURL).mockReturnValue("data:image/png;base64,");
+    const fallback = { ...result(), requestedFormat: "image/webp" as const };
     process.mockResolvedValue(fallback);
     const {
       result: { actions, state },
     } = session();
     await actions.handleFileUpload(source());
-    actions.setFormatValue("image/avif");
+    actions.setFormatValue("image/webp");
+    expect(state.qualityControlSupported()).toBe(false);
     await vi.advanceTimersByTimeAsync(400);
-    expect(state.formatNotice()).toContain("could not export AVIF");
+    expect(state.formatNotice()).toContain("could not export WebP");
     actions.handleDownload();
     expect(download).toHaveBeenCalledWith(fallback.blob, "photo-processed.png");
   });

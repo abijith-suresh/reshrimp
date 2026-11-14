@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MAX_PIXEL_DIMENSION, MAX_TOTAL_PIXELS } from "../config/constants";
+import { MAX_PIXEL_DIMENSION } from "../config/constants";
 import type { ProcessOptions, ResizeOptions } from "../types/processing";
 import {
   calculateDimensions,
@@ -79,6 +79,18 @@ describe("calculateDimensions", () => {
     [800, 600, { width: 400, height: 200, maintainAspectRatio: true }, { width: 267, height: 200 }],
     [800, 600, { maintainAspectRatio: true }, { width: 800, height: 600 }],
     [3, 2, { width: 10, maintainAspectRatio: true }, { width: 10, height: 7 }],
+    [
+      3000,
+      1000,
+      { width: 1000, height: 333, maintainAspectRatio: true },
+      { width: 1000, height: 333 },
+    ],
+    [
+      1000,
+      3000,
+      { width: 333, height: 1000, maintainAspectRatio: true },
+      { width: 333, height: 1000 },
+    ],
     [16384, 1, { width: 1, maintainAspectRatio: true }, { width: 1, height: 1 }],
     [1, 16384, { height: 1, maintainAspectRatio: true }, { width: 1, height: 1 }],
   ];
@@ -94,7 +106,7 @@ describe("processImage dimension guards", () => {
     const file = new File([], "huge.png", { type: "image/png" });
 
     await expect(processImage(file, { removeBackground: true })).rejects.toThrow(
-      /exceed the maximum/
+      `This image is ${MAX_PIXEL_DIMENSION + 1} × 100 px (1.64 megapixels). Reshrimp opens images up to 32 megapixels and 16,384 px per side.`
     );
     expect(mockRemoveBackground).not.toHaveBeenCalled();
     expect(mockCanvasToBlob).not.toHaveBeenCalled();
@@ -104,7 +116,9 @@ describe("processImage dimension guards", () => {
     mockLoadImage.mockResolvedValue(makeMockImg(8000, 4001));
     const file = new File([], "huge.png", { type: "image/png" });
 
-    await expect(processImage(file, {})).rejects.toThrow(String(MAX_TOTAL_PIXELS.toLocaleString()));
+    await expect(processImage(file, {})).rejects.toThrow(
+      "This image is 8000 × 4001 px (32.01 megapixels). Reshrimp opens images up to 32 megapixels and 16,384 px per side."
+    );
     expect(mockResizeOnCanvas).not.toHaveBeenCalled();
   });
 
@@ -114,7 +128,7 @@ describe("processImage dimension guards", () => {
       resize: { width: MAX_PIXEL_DIMENSION + 1, maintainAspectRatio: true },
     };
 
-    await expect(processImage(file, opts)).rejects.toThrow(/exceeds the maximum/);
+    await expect(processImage(file, opts)).rejects.toThrow("Enter a width of 16,384 px or less.");
   });
 
   it("rejects resize targets beyond the total pixel budget", async () => {
@@ -124,7 +138,9 @@ describe("processImage dimension guards", () => {
       processImage(file, {
         resize: { width: 8000, height: 4001, maintainAspectRatio: false },
       })
-    ).rejects.toThrow(String(MAX_TOTAL_PIXELS.toLocaleString()));
+    ).rejects.toThrow(
+      "That size (8000 × 4001 px) is too large. Keep each side to 16,384 px or less and the total to 32 megapixels or less."
+    );
   });
 
   it("rejects non-positive and non-finite resize targets", async () => {
@@ -132,15 +148,19 @@ describe("processImage dimension guards", () => {
 
     await expect(
       processImage(file, { resize: { width: 0, maintainAspectRatio: false } })
-    ).rejects.toThrow(/at least 1px/);
+    ).rejects.toThrow("Enter a width of 1 px or more.");
 
     await expect(
       processImage(file, { resize: { height: -10, maintainAspectRatio: false } })
-    ).rejects.toThrow(/at least 1px/);
+    ).rejects.toThrow("Enter a height of 1 px or more.");
 
     await expect(
       processImage(file, { resize: { width: Number.NaN, maintainAspectRatio: false } })
-    ).rejects.toThrow(/at least 1px/);
+    ).rejects.toThrow("Enter a width in numbers, 1 px or more.");
+
+    await expect(
+      processImage(file, { resize: { height: Number.NaN, maintainAspectRatio: false } })
+    ).rejects.toThrow("Enter a height in numbers, 1 px or more.");
   });
 
   it("rejects targets that overflow the limit via aspect-ratio derivation", async () => {
@@ -150,7 +170,9 @@ describe("processImage dimension guards", () => {
       resize: { width: MAX_PIXEL_DIMENSION, maintainAspectRatio: true },
     };
 
-    await expect(processImage(file, opts)).rejects.toThrow(/exceed the maximum/);
+    await expect(processImage(file, opts)).rejects.toThrow(
+      `That size (${MAX_PIXEL_DIMENSION} × 1310720 px) is too large.`
+    );
     expect(mockResizeOnCanvas).not.toHaveBeenCalled();
   });
 });
@@ -260,7 +282,8 @@ describe("processImage", () => {
     expect(mockResizeOnCanvas).toHaveBeenCalledWith(
       expect.objectContaining({ width: 800, height: 600 }),
       400,
-      300
+      300,
+      "image/jpeg"
     );
     expect(mockCanvasToBlob).toHaveBeenCalledWith(mockCanvas, "image/jpeg", 0.75);
     expect(result).toEqual({
@@ -268,6 +291,21 @@ describe("processImage", () => {
       requestedFormat: "image/jpeg",
       metadata: { width: 400, height: 300, format: "image/jpeg", fileSize: output.size },
     });
+  });
+
+  it("builds the canvas for the format the browser will encode", async () => {
+    mockGetBestFormat.mockReturnValue("image/png");
+    const file = new File([], "photo.png", { type: "image/png" });
+
+    await processImage(file, { format: "image/avif" });
+
+    expect(mockGetBestFormat).toHaveBeenCalledWith("image/avif");
+    expect(mockResizeOnCanvas).toHaveBeenCalledWith(
+      expect.objectContaining({ width: 800, height: 600 }),
+      800,
+      600,
+      "image/png"
+    );
   });
 
   it("uses target-size encoding for quality-adjustable formats", async () => {
@@ -457,6 +495,17 @@ describe("prepareImageFile", () => {
     expect(mockIsHeicBlob).toHaveBeenCalledWith(file);
     expect(prepared.format).toBe("image/heic");
     expect(mockDecodeHeicBlob).toHaveBeenCalledWith(file);
+  });
+
+  it("falls back to the original file when HEIC decoding fails", async () => {
+    const file = new File(["jpeg bytes"], "photo.heic", { type: "image/heic" });
+    mockDecodeHeicBlob.mockRejectedValue(new Error("ERR_LIBHEIF format not supported"));
+
+    await expect(prepareImageFile(file)).resolves.toEqual({ file, format: "image/heic" });
+    await expect(getImageMetadata(file)).resolves.toMatchObject({ width: 800, height: 600 });
+    expect(mockLoadImage).toHaveBeenCalledWith(file);
+    await prepareImageFile(file);
+    expect(mockDecodeHeicBlob).toHaveBeenCalledTimes(1);
   });
 });
 

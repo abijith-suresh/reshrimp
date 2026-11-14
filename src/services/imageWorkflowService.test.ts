@@ -62,6 +62,28 @@ describe("buildProcessOptions", () => {
     expect(options.resize?.width).toBe(150);
   });
 
+  it("reads commas in pixel values as thousands separators", () => {
+    const options = buildProcessOptions({
+      ...baseInput,
+      originalWidth: 3840,
+      originalHeight: 2160,
+      widthValue: "1,920",
+      heightValue: "1,080",
+    });
+    expect(options.resize).toMatchObject({ width: 1920, height: 1080 });
+  });
+
+  it("keeps decimal commas for physical units", () => {
+    const options = buildProcessOptions({
+      ...baseInput,
+      widthValue: "3,5",
+      heightValue: "",
+      resizeUnit: "cm",
+      dpi: 300,
+    });
+    expect(options.resize?.width).toBe(413);
+  });
+
   it("rejects valid numeric prefixes followed by text", () => {
     const options = buildProcessOptions({ ...baseInput, widthValue: "40px", heightValue: "" });
     expect(options.resize?.width).toBeNaN();
@@ -105,10 +127,16 @@ describe("buildProcessOptions", () => {
 });
 
 describe("parseTargetFileSizeKilobytes", () => {
-  it("converts decimal kilobytes to a safe byte limit", () => {
-    expect(parseTargetFileSizeKilobytes("500")).toBe(512_000);
-    expect(parseTargetFileSizeKilobytes("1.5")).toBe(1536);
-    expect(parseTargetFileSizeKilobytes("1,5")).toBe(1536);
+  it("converts kilobytes to a byte limit of 1,000 bytes per KB", () => {
+    expect(parseTargetFileSizeKilobytes("100")).toBe(100_000);
+    expect(parseTargetFileSizeKilobytes("1.5")).toBe(1500);
+    expect(parseTargetFileSizeKilobytes("1,5")).toBe(1500);
+  });
+
+  it("reads a comma before exactly three digits as a thousands separator", () => {
+    expect(parseTargetFileSizeKilobytes("1,500")).toBe(1_500_000);
+    expect(parseTargetFileSizeKilobytes("1,234,567")).toBe(1_234_567_000);
+    expect(parseTargetFileSizeKilobytes("1,50")).toBe(1500);
   });
 
   it.each(["", "0", "-1", "1 KB", "1.2.3", "1e3", "9007199254740992"])(
@@ -159,6 +187,29 @@ describe("rebaseDimensionValues", () => {
       widthValue: "50",
       heightValue: "50",
     });
+  });
+  it("keeps every pixel when switching to inches at 300 DPI", () => {
+    const inches = rebaseDimensionValues({
+      widthValue: "1000",
+      heightValue: "750",
+      oldUnit: "px",
+      newUnit: "in",
+      originalWidth: 1000,
+      originalHeight: 750,
+      dpi: 300,
+    });
+
+    expect(inches).toEqual({ widthValue: "3.333", heightValue: "2.5" });
+    expect(
+      buildProcessOptions({
+        ...baseInput,
+        originalWidth: 1000,
+        originalHeight: 750,
+        ...inches,
+        resizeUnit: "in",
+        dpi: 300,
+      }).resize
+    ).toMatchObject({ width: 1000, height: 750 });
   });
 });
 
@@ -221,7 +272,7 @@ describe("getLinkedDimensionValues", () => {
       originalHeight: 1,
     });
 
-    expect(linked).toEqual({ widthValue: "1", heightValue: "0.0033" });
+    expect(linked).toEqual({ widthValue: "1", heightValue: "0.003" });
     expect(
       buildProcessOptions({
         ...baseInput,

@@ -53,10 +53,11 @@ test("targets a reachable size and reports an impossible limit without changing 
   await limit.fill("40");
   // Size targeting runs several canvas encodes, which can be slow in CI Firefox.
   await expect(
-    page.getByRole("status").filter({ hasText: "Output fits within 40.0 KB." })
+    page.getByRole("status").filter({ hasText: "Output fits within 40 KB." })
   ).toBeVisible({ timeout: 20_000 });
   const fitting = await downloadImage(page);
-  expect(fitting.bytes.length).toBeLessThanOrEqual(40 * 1024);
+  // Portals count a kilobyte as 1,000 bytes.
+  expect(fitting.bytes.length).toBeLessThanOrEqual(40_000);
   expect(await decodeImage(fitting.bytes)).toMatchObject({ width: 512, height: 384 });
 
   await limit.fill("0.001");
@@ -144,6 +145,24 @@ test("replaces the active image and preserves PNG transparency in its download",
     height: 96,
     transparentPixels: 6144,
   });
+});
+
+test("fills transparent areas white when converting to JPEG", async ({ page }) => {
+  await page.goto("/app");
+  await uploadImage(page, fileURLToPath(new URL("./fixtures/transparent.png", import.meta.url)));
+  await openImageControls(page);
+  await page
+    .getByRole("combobox", { name: "Output format", exact: true })
+    .selectOption({ label: "JPEG" });
+  const output = await downloadImage(page);
+  expect(output.name).toBe("transparent-processed.jpg");
+  const image = await decodePixels(output.bytes);
+  const transparentSide = pixelAt(image, 32, 48);
+  const opaqueSide = pixelAt(image, 96, 48);
+  for (let channel = 0; channel < 3; channel += 1) {
+    expect(transparentSide[channel], `transparent side, channel ${channel}`).toBeGreaterThan(247);
+    expect(Math.abs(opaqueSide[channel] - [160, 90, 220][channel])).toBeLessThanOrEqual(8);
+  }
 });
 
 test("allows independent dimensions when the ratio is unlocked", async ({ page }) => {

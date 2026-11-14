@@ -15,5 +15,3 @@
 *.eot binary
 *.ttf binary
 *.lock -diff
-
-# GitHub linguist overrides

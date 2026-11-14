@@ -23,12 +23,17 @@ interface BuildProcessOptionsInput {
 }
 
 export function parseTargetFileSizeKilobytes(value: string): number | null {
-  const normalized = value.trim().replace(",", ".");
+  // "1,500" is a thousands separator; "1,5" is a decimal comma.
+  const normalized = value
+    .trim()
+    .replace(/,(?=\d{3}(?!\d))/g, "")
+    .replace(",", ".");
   if (!normalized || !/^(?:\d+(?:\.\d*)?|\.\d+)$/.test(normalized)) {
     return null;
   }
 
-  const targetBytes = Math.round(Number(normalized) * 1024);
+  // Portals count a kilobyte as 1,000 bytes.
+  const targetBytes = Math.round(Number(normalized) * 1000);
   if (!Number.isSafeInteger(targetBytes) || targetBytes < 1) {
     return null;
   }
@@ -41,7 +46,8 @@ export function formatResizeValue(value: number, unit: ResizeUnit): string {
     return String(Math.round(value));
   }
 
-  const rounded = Number(value.toFixed(2));
+  // Three decimals keep every pixel at the offered DPIs.
+  const rounded = Number(value.toFixed(3));
   if (value > 0 && rounded === 0) {
     return value.toPrecision(2);
   }
@@ -49,9 +55,12 @@ export function formatResizeValue(value: number, unit: ResizeUnit): string {
   return String(rounded);
 }
 
-function parseDimensionInput(value: string): number | undefined {
+function parseDimensionInput(value: string, unit?: ResizeUnit): number | undefined {
   const trimmedValue = value.trim();
   if (!trimmedValue) return undefined;
+
+  // Pixels are whole numbers, so a comma groups thousands ("1,920").
+  if (unit === "px") return Number(trimmedValue.replaceAll(",", ""));
 
   // Accept decimal commas. Reject numeric values followed by text.
   return Number(trimmedValue.replace(",", "."));
@@ -68,7 +77,7 @@ function rebaseDimensionValue(input: {
     return "";
   }
 
-  const numericValue = parseDimensionInput(input.value);
+  const numericValue = parseDimensionInput(input.value, input.oldUnit);
   if (numericValue === undefined || !Number.isFinite(numericValue)) {
     return "";
   }
@@ -79,8 +88,8 @@ function rebaseDimensionValue(input: {
 }
 
 export function buildProcessOptions(input: BuildProcessOptionsInput): ProcessOptions {
-  const widthNumber = parseDimensionInput(input.widthValue);
-  const heightNumber = parseDimensionInput(input.heightValue);
+  const widthNumber = parseDimensionInput(input.widthValue, input.resizeUnit);
+  const heightNumber = parseDimensionInput(input.heightValue, input.resizeUnit);
   const width =
     widthNumber === undefined
       ? undefined
@@ -147,7 +156,7 @@ export function getLinkedDimensionValues(input: {
     return null;
   }
 
-  const numericValue = parseDimensionInput(input.value);
+  const numericValue = parseDimensionInput(input.value, input.resizeUnit);
   if (numericValue === undefined || !Number.isFinite(numericValue)) {
     return null;
   }
