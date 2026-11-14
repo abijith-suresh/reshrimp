@@ -1,7 +1,7 @@
 ---
-import { Menu, X } from "lucide-astro";
-import { ROUTES } from "../../config/constants";
-import { makeHref } from "../../lib/utils";
+import { Github, Menu, X } from "lucide-astro";
+import { GITHUB_URL, ROUTES } from "../../config/constants";
+import { cn, makeHref } from "../../lib/utils";
 import Container from "../marketing/layout/Container.astro";
 import ButtonLink from "../ui/ButtonLink.astro";
 import { buttonVariants } from "../ui/button";
@@ -42,6 +42,15 @@ const ariaCurrent = (href: string) => (currentPath === href ? "page" : undefined
               </a>
             ))
           }
+          <a
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Reshrimp on GitHub"
+            class={cn(buttonVariants({ variant: "ghost", size: "sm" }), "w-9 px-0 pointer-coarse:w-11")}
+          >
+            <Github size={18} aria-hidden="true" />
+          </a>
         </div>
         <ButtonLink href={makeHref(ROUTES.APP)} size="sm" class="ms-2 marketing-menu:hidden">
           Open Reshrimp
@@ -85,6 +94,15 @@ const ariaCurrent = (href: string) => (currentPath === href ? "page" : undefined
             </a>
           ))
         }
+        <a
+          href={GITHUB_URL}
+          target="_blank"
+          rel="noopener noreferrer"
+          class="flex min-h-11 items-center justify-between rounded-md px-3 text-base text-fg-muted no-underline transition-colors duration-150 ease-out hover:bg-hover hover:text-fg focus-visible:-outline-offset-2"
+        >
+          GitHub
+          <Github size={18} aria-hidden="true" class="text-fg-soft" />
+        </a>
         <div class="mt-1 grid">
           <ButtonLink href={makeHref(ROUTES.APP)}>Open Reshrimp</ButtonLink>
         </div>
