@@ -20,7 +20,7 @@ export const ogPageData: Record<string, OgPageData> = {
   },
   faq: {
     title: "FAQ",
-    description: "Formats, limits, max file size, and what happens to your image.",
+    description: "Short answers about sizes, limits, and privacy.",
     label: "Help",
   },
   privacy: {

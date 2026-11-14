@@ -10,77 +10,51 @@ import { Github } from "lucide-astro";
 import { makeHref } from "../lib/utils";
 import { GITHUB_URL, ROUTES } from "../config/constants";
 
-const github = (path: string, label: string) =>
-  `<a href="${GITHUB_URL}${path}" target="_blank" rel="noopener noreferrer">${label}</a>`;
-
 const faqs = [
   {
     question: "Is Reshrimp free?",
-    answer:
-      "Yes. There is no account and no paid tier. You can use the site, and the images you make with it, for any purpose, including commercial work.",
+    answer: "Yes. There is no account or paid tier, and you can use the results for anything.",
   },
   {
-    question: "Is my image uploaded anywhere?",
-    answer:
-      "No. Reshrimp changes the image inside your browser and has no analytics or tracking. The site is hosted on Vercel, which sees ordinary request details such as your IP address when pages load, but it never receives the image.",
-  },
-  {
-    question: "Which formats can I open and save?",
-    answer:
-      "Reshrimp opens JPEG, PNG, WebP, AVIF, and HEIC/HEIF, so iPhone photos work. It saves JPEG, PNG, or WebP, and HEIC photos save as JPEG unless you pick another format. If your browser cannot save the format you picked, Reshrimp tells you and saves a PNG.",
-  },
-  {
-    question: "How big an image can I open?",
-    answer:
-      "Up to 50 MB, 16,384 px on each side, and 32 megapixels in total. Some 48 MP and 50 MP phone photos are over that. Take the photo at the camera's standard resolution, or open a smaller copy.",
+    question: "Is my image uploaded?",
+    answer: `No. It never leaves your device. The <a href="${makeHref(ROUTES.PRIVACY)}">privacy page</a> shows how to check.`,
   },
   {
     question: "Can I get a file under a certain size?",
     answer:
-      "Yes, for JPEG and WebP. Set the pixel size first, then choose Max file size and enter the limit in KB, and Reshrimp lowers the quality until the file fits. The target is best effort, because Reshrimp never changes the pixel size to meet it. If the file is still too big, Reshrimp says so; reduce the pixel size or switch to JPEG and try again.",
-  },
-  {
-    question: "How does the quality setting work?",
-    answer:
-      "For JPEG and WebP, quality runs from 1 to 100. Lower values make smaller files with more visible compression. PNG and background-removed images are lossless, so they have no quality setting or size target.",
+      "Yes, for JPEG and WebP. Enter the limit under Max file size. If Reshrimp can't reach it, make the pixel size smaller.",
   },
   {
     question: "The form asks for 300 DPI. Does Reshrimp set that?",
+    answer: "No. DPI only turns inches or cm into pixels. It is not saved in the file.",
+  },
+  {
+    question: "Why did my transparent background turn white?",
     answer:
-      "No. The DPI setting only converts inches or cm into pixels, and it is not written into the file. If the form gives a print size, enter it in inches or cm with the DPI it asks for, and Reshrimp works out the pixels.",
+      "JPEG can't store transparency, so Reshrimp fills it with white. Save as PNG or WebP to keep it.",
+  },
+  {
+    question: "How big an image can I open?",
+    answer:
+      "Up to 50 MB and 32 megapixels. Photos from a phone's 48 or 50 MP mode are bigger, so use its default mode.",
+  },
+  {
+    question: "Why is Remove background slow the first time?",
+    answer: "It downloads a model of about 100 MB once. Later runs skip the download.",
   },
   {
     question: "Can I crop?",
-    answer:
-      "No. Reshrimp resizes the whole image. For a different shape, crop the photo in your phone's photo app first, then resize it here. If you turn off Keep aspect ratio, the image stretches to the width and height you enter.",
-  },
-  {
-    question: "What happens to transparent areas if I save as JPEG?",
-    answer: "They turn white, because JPEG has no transparency. Choose PNG or WebP to keep them.",
-  },
-  {
-    question: "How big is the background-removal download?",
-    answer:
-      "About 100 MB, made up of an 88 MB model and a 12 MB runtime. Your browser downloads it from this site the first time you turn on Remove background, and shows progress while it loads. You only download it once.",
-  },
-  {
-    question: "Which browsers work?",
-    answer:
-      "Automated tests run on the engines behind Chrome, Firefox, and Safari, including a mobile Chrome screen size. Remove background is tested only on Chrome's engine, so it may not work in Firefox or Safari.",
-  },
-  {
-    question: "Is the code open source?",
-    answer: `Yes, it is on ${github("", "GitHub")}, and the image processing is in ${github("/tree/main/src/services", "<code>src/services</code>")}. Reshrimp's own code is MIT-licensed. Remove background uses @imgly/background-removal, which is AGPL-3.0, and HEIC decoding uses libheif (LGPL-3.0). If you reuse or self-host the code, read those licenses first; the ${github("/blob/main/THIRD_PARTY_NOTICES.md", "third-party notices")} list them.`,
+    answer: "No. Crop in your photo app first, then resize here.",
   },
 ];
 ---
 
 <MarketingLayout
   title="Reshrimp | FAQ"
-  description="Formats, limits, max file size, DPI, cropping, background removal, and what happens to your image."
+  description="Short answers about file size limits, DPI, transparency, cropping, and privacy."
   currentPath="/faq"
 >
-  <PageHero title="Questions about Reshrimp." lede="Formats, limits, max file size, and what happens to your image." />
+  <PageHero title="Questions about Reshrimp." lede="Short answers about sizes, limits, and privacy." />
 
   <Section>
     <Card class="px-8 marketing-mobile:px-6">
@@ -90,7 +64,7 @@ const faqs = [
 
   <CtaBand
     title="Question not answered here?"
-    copy="Open an issue on GitHub, or try Reshrimp with your own image."
+    copy="Ask on GitHub, or try Reshrimp with your own photo."
   >
     <ButtonLink href={makeHref(ROUTES.APP)}>Open Reshrimp</ButtonLink>
     <ButtonLink href={`${GITHUB_URL}/issues`} variant="secondary" external={true}>
