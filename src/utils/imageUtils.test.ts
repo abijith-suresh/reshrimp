@@ -54,11 +54,12 @@ describe("createDownloadLink", () => {
 describe("formatFileSize", () => {
   it.each([
     [0, "0 B"],
-    [512, "512.0 B"],
-    [1024, "1.0 KB"],
-    [1536, "1.5 KB"],
-    [1024 * 1024, "1.0 MB"],
-    [2 * 1024 * 1024, "2.0 MB"],
+    [512, "512 B"],
+    [1000, "1 KB"],
+    [1500, "1.5 KB"],
+    [40_000, "40 KB"],
+    [1_000_000, "1 MB"],
+    [50_000_000, "50 MB"],
   ])("formats %i bytes as %s", (bytes, expected) => {
     expect(formatFileSize(bytes)).toBe(expected);
   });

@@ -91,6 +91,14 @@ export function calculateDimensions(
   }
 
   if (options.width && options.height) {
+    // A pair already linked at the source ratio is exact; refitting it can lose a pixel.
+    if (
+      Math.round((options.width * originalHeight) / originalWidth) === options.height ||
+      Math.round((options.height * originalWidth) / originalHeight) === options.width
+    ) {
+      return { width: options.width, height: options.height };
+    }
+
     const widthScale = options.width / originalWidth;
     const heightScale = options.height / originalHeight;
     const scale = Math.min(widthScale, heightScale);
@@ -137,37 +145,42 @@ export async function prepareImageFile(file: File): Promise<PreparedImageFile> {
   return { file: preparedFile, format };
 }
 
+const maxSide = MAX_PIXEL_DIMENSION.toLocaleString("en-US");
+const maxMegapixels = MAX_TOTAL_PIXELS / 1_000_000;
+
 function assertValidResizeTargets(resize: ResizeOptions): void {
-  const targets: Array<["Width" | "Height", number | undefined]> = [
-    ["Width", resize.width],
-    ["Height", resize.height],
+  const targets: Array<["width" | "height", number | undefined]> = [
+    ["width", resize.width],
+    ["height", resize.height],
   ];
 
   for (const [label, value] of targets) {
     if (value === undefined) {
       continue;
     }
-    if (!Number.isFinite(value) || value < 1) {
-      throw new Error(`${label} must be at least 1px`);
+    if (!Number.isFinite(value)) {
+      throw new Error(`Enter a ${label} in numbers, 1 px or more.`);
+    }
+    if (value < 1) {
+      throw new Error(`Enter a ${label} of 1 px or more.`);
     }
     if (value > MAX_PIXEL_DIMENSION) {
-      throw new Error(
-        `${label} (${value}px) exceeds the maximum of ${MAX_PIXEL_DIMENSION}px per side`
-      );
+      throw new Error(`Enter a ${label} of ${maxSide} px or less.`);
     }
   }
 }
 
-function assertWithinPixelLimits(width: number, height: number, label: string): void {
-  if (width > MAX_PIXEL_DIMENSION || height > MAX_PIXEL_DIMENSION) {
-    throw new Error(
-      `${label} dimensions (${width}×${height}) exceed the maximum of ${MAX_PIXEL_DIMENSION}px per side`
-    );
-  }
+function exceedsPixelLimits(width: number, height: number): boolean {
+  return (
+    width > MAX_PIXEL_DIMENSION || height > MAX_PIXEL_DIMENSION || width * height > MAX_TOTAL_PIXELS
+  );
+}
 
-  if (width * height > MAX_TOTAL_PIXELS) {
+function assertSourceWithinPixelLimits(width: number, height: number): void {
+  if (exceedsPixelLimits(width, height)) {
+    const megapixels = Number(((width * height) / 1_000_000).toFixed(2));
     throw new Error(
-      `${label} dimensions (${width}×${height}) exceed the maximum pixel budget of ${MAX_TOTAL_PIXELS.toLocaleString()} pixels`
+      `This image is ${width} × ${height} px (${megapixels} megapixels). Reshrimp opens images up to ${maxMegapixels} megapixels and ${maxSide} px per side.`
     );
   }
 }
@@ -187,16 +200,14 @@ export async function processImage(
   let currentFile = (await prepareImageFile(file)).file;
 
   // Check source dimensions before the model downloads.
-  const sourceImage = await decodeImage(currentFile);
-
-  assertWithinPixelLimits(sourceImage.width, sourceImage.height, "Image");
+  let img = await decodeImage(currentFile);
+  assertSourceWithinPixelLimits(img.width, img.height);
 
   if (options.removeBackground) {
     currentFile = await getBackgroundRemovedFile(file, currentFile, onBackgroundRemovalProgress);
+    img = await decodeImage(currentFile);
+    assertSourceWithinPixelLimits(img.width, img.height);
   }
-
-  const img = options.removeBackground ? await decodeImage(currentFile) : sourceImage;
-  assertWithinPixelLimits(img.width, img.height, "Image");
 
   let width = img.width;
   let height = img.height;
@@ -208,10 +219,12 @@ export async function processImage(
     height = dimensions.height;
 
     // The derived dimension can exceed the canvas limit.
-    assertWithinPixelLimits(width, height, "Target");
+    if (exceedsPixelLimits(width, height)) {
+      throw new Error(
+        `That size (${width} × ${height} px) is too large. Keep each side to ${maxSide} px or less and the total to ${maxMegapixels} megapixels or less.`
+      );
+    }
   }
-
-  const canvas = resizeOnCanvas(img, width, height);
 
   let requestedFormat: ImageFormat;
   if (options.removeBackground) {
@@ -221,6 +234,7 @@ export async function processImage(
       options.format || (isAcceptedInputFormat(currentFile.type) ? currentFile.type : "image/png");
   }
   const format = getBestFormat(requestedFormat);
+  const canvas = resizeOnCanvas(img, width, height, format);
 
   let blob: Blob;
   let targetFileSizeStatus: ProcessResult["metadata"]["targetFileSizeStatus"];

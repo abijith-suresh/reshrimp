@@ -54,6 +54,29 @@ describe("resizeOnCanvas", () => {
     expect(ctx.drawImage).toHaveBeenCalledWith(img, 0, 0, 400, 200);
   });
 
+  it.each([
+    ["image/jpeg", 1],
+    ["image/png", 0],
+    ["image/webp", 0],
+    [undefined, 0],
+  ] as const)("fills %s output white before drawing: %i fill", (format, fills) => {
+    const img = { width: 200, height: 100 } as HTMLImageElement;
+    const { canvas, ctx } = makeCanvasMock();
+    const fill = Object.assign(ctx, { fillStyle: "", fillRect: vi.fn() });
+    vi.spyOn(document, "createElement").mockReturnValue(canvas);
+
+    resizeOnCanvas(img, 400, 200, format);
+
+    expect(fill.fillRect).toHaveBeenCalledTimes(fills);
+    if (fills) {
+      expect(fill.fillStyle).toBe("#ffffff");
+      expect(fill.fillRect).toHaveBeenCalledWith(0, 0, 400, 200);
+      expect(fill.fillRect.mock.invocationCallOrder[0]).toBeLessThan(
+        ctx.drawImage.mock.invocationCallOrder[0]
+      );
+    }
+  });
+
   it("throws when canvas context is null", () => {
     const { canvas } = makeCanvasMock();
     vi.mocked(canvas.getContext).mockReturnValue(null);
