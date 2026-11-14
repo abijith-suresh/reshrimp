@@ -13,7 +13,7 @@
 * match the footer to the page background ([#260](https://github.com/abijith-suresh/reshrimp/issues/260)) ([92a6d05](https://github.com/abijith-suresh/reshrimp/commit/92a6d050ebe3b7ffc22f400f41d51393d409b7fb))
 * move header CTA into the mobile menu ([#259](https://github.com/abijith-suresh/reshrimp/issues/259)) ([92a65d3](https://github.com/abijith-suresh/reshrimp/commit/92a65d35a96fb0b540d766f4ffd2c15f823f1fa1))
 
-## [0.0.5](https://github.com/abijith-suresh/reshrimp/compare/v0.0.4...0.0.5) (2026-11-04)
+## [0.0.5](https://github.com/abijith-suresh/reshrimp/compare/v0.0.4...v0.0.5) (2026-11-04)
 
 
 ### Bug Fixes
@@ -52,7 +52,7 @@
 * preserve positive linked resize dimensions ([#208](https://github.com/abijith-suresh/reshrimp/issues/208)) ([06d815c](https://github.com/abijith-suresh/reshrimp/commit/06d815cc230001b40b0d56774c1eda236ec33710))
 * preserve tooltip and validation accessibility ([#212](https://github.com/abijith-suresh/reshrimp/issues/212)) ([7c0fb3a](https://github.com/abijith-suresh/reshrimp/commit/7c0fb3a57194ce65366bf82d5976542ce53ec0f2))
 
-## [0.0.2](https://github.com/abijith-suresh/reshrimp/compare/v0.0.1...v0.0.2) (2026-09-16)
+## [0.0.2](https://github.com/abijith-suresh/reshrimp/releases/tag/v0.0.2) (2026-09-16)
 
 
 ### Bug Fixes
