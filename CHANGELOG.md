@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.0.7](https://github.com/abijith-suresh/reshrimp/compare/v0.0.6...v0.0.7) (2026-11-14)
+
+
+### Features
+
+* **hero:** animate the app preview in a shrink and a cutout scene ([#272](https://github.com/abijith-suresh/reshrimp/issues/272)) ([30cabf6](https://github.com/abijith-suresh/reshrimp/commit/30cabf6ea9ec184c1c46cb90f6090bcf3cbad39d))
+
+
+### Bug Fixes
+
+* clarify app copy ([#268](https://github.com/abijith-suresh/reshrimp/issues/268)) ([d86c768](https://github.com/abijith-suresh/reshrimp/commit/d86c7686be2e6cc0924075d4e75264e83e1daa7b))
+* correct SEO metadata across pages ([#263](https://github.com/abijith-suresh/reshrimp/issues/263)) ([f26b644](https://github.com/abijith-suresh/reshrimp/commit/f26b6447a51d8178a32af9fbccc610c20d5ab3f9))
+* keep errors, preview and dropped files in the app shell ([#269](https://github.com/abijith-suresh/reshrimp/issues/269)) ([1abb960](https://github.com/abijith-suresh/reshrimp/commit/1abb960661e481e7cc0b973c0f288424c4aa1f56))
+* load the background-removal model on request with visible progress ([#265](https://github.com/abijith-suresh/reshrimp/issues/265)) ([9bb7806](https://github.com/abijith-suresh/reshrimp/commit/9bb7806842cebab2093e50fbdd598ef15e38fadb))
+* make downloads match the requested size, format and size limit ([#266](https://github.com/abijith-suresh/reshrimp/issues/266)) ([90e5109](https://github.com/abijith-suresh/reshrimp/commit/90e51096ede7d73bb5d02a7c491937d5fa059a36))
+* match image format lists to what browsers can handle ([#264](https://github.com/abijith-suresh/reshrimp/issues/264)) ([496907c](https://github.com/abijith-suresh/reshrimp/commit/496907c00c7b047a58e50d0d2b9bb10724005d3e))
+* rewrite marketing pages around a private image tool ([#267](https://github.com/abijith-suresh/reshrimp/issues/267)) ([65b11ef](https://github.com/abijith-suresh/reshrimp/commit/65b11ef894c4d9a35c1f5742f8d5aee82530f899))
+
 ## [0.0.6](https://github.com/abijith-suresh/reshrimp/compare/v0.0.5...v0.0.6) (2026-11-11)
 
 
