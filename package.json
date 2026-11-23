@@ -59,7 +59,7 @@
     "@solidjs/testing-library": "^0.8.10",
     "@tailwindcss/vite": "^4.3.5",
     "@testing-library/dom": "^10.4.2",
-    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/jest-dom": "^8.0.0",
     "@testing-library/user-event": "^14.6.13",
     "@vitest/coverage-v8": "^5.1.1",
     "fast-check": "^4.10.3",
