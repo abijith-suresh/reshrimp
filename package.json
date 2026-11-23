@@ -44,7 +44,7 @@
     "lucide-solid": "^1.76.0",
     "onnxruntime-web": "1.21.0",
     "satori": "^0.63.2",
-    "solid-js": "^1.9.19"
+    "solid-js": "^2.0.3"
   },
   "overrides": {
     "@emnapi/runtime": "1.11.3",
